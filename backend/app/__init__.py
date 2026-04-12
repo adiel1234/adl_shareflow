@@ -28,11 +28,10 @@ def create_app(config=None):
     jwt.init_app(app)
     import re
     cors_origins = app.config.get('CORS_ORIGINS', [])
-    if app.config.get('DEBUG'):
-        # בסביבת פיתוח — אפשר את כל localhost
-        CORS(app, origins=re.compile(r'http://localhost:\d+'), supports_credentials=True)
-    else:
-        CORS(app, origins=cors_origins, supports_credentials=True)
+    # localhost תמיד מותר (dev + staging), production origins מה-env
+    CORS(app,
+         origins=[re.compile(r'http://localhost:\d+'), *cors_origins],
+         supports_credentials=True)
 
     # JWT error handlers
     _register_jwt_handlers(jwt)
