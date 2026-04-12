@@ -1,4 +1,4 @@
-enum AppFlavor { dev, prod }
+enum AppFlavor { dev, staging, prod }
 
 class AppConfig {
   AppConfig._();
@@ -14,6 +14,8 @@ class AppConfig {
     switch (_flavor) {
       case AppFlavor.dev:
         return 'http://localhost:5050/api';
+      case AppFlavor.staging:
+        return 'http://192.168.68.150:5050/api';
       case AppFlavor.prod:
         return 'https://api.shareflow.adl.co.il/api';
     }
@@ -23,5 +25,6 @@ class AppConfig {
   static String get appVersion => '1.0.0';
 
   static bool get isDev => _flavor == AppFlavor.dev;
+  static bool get isStaging => _flavor == AppFlavor.staging;
   static bool get isProd => _flavor == AppFlavor.prod;
 }

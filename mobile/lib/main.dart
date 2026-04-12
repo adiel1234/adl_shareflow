@@ -20,7 +20,7 @@ void main() async {
     statusBarIconBrightness: Brightness.dark,
   ));
 
-  AppConfig.setFlavor(AppFlavor.dev);
+  AppConfig.setFlavor(AppFlavor.staging);
 
   runApp(
     const ProviderScope(
