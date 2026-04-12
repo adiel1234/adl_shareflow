@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: shareflow
+      POSTGRES_USER: shareflow_user
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change_in_production}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shareflow_user -d shareflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      FLASK_ENV: production
+      FLASK_DEBUG: "0"
+      DATABASE_URL: postgresql://shareflow_user:${DB_PASSWORD:-change_in_production}@db:5432/shareflow
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+      ADL_ADMIN_KEY: ${ADL_ADMIN_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://your-domain.com}
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
+      STORAGE_LOCAL_PATH: /app/uploads
+      GOOGLE_APPLICATION_CREDENTIALS: /app/google-credentials.json
+      FIREBASE_CREDENTIALS_PATH: /app/firebase-credentials.json
+    volumes:
+      - uploads_data:/app/uploads
+      - ./backend/google-credentials.json:/app/google-credentials.json:ro
+      - ./backend/firebase-credentials.json:/app/firebase-credentials.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5050:5050"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5050/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+  uploads_data:
