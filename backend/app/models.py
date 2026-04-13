@@ -70,6 +70,7 @@ class User(db.Model):
             'bank_name': self.bank_name,
             'bank_branch': self.bank_branch,
             'bank_account_number': self.bank_account_number,
+            'is_active': self.is_active,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
         return data
