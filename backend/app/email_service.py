@@ -1,15 +1,42 @@
 """
-Email delivery via Resend.
-Configure RESEND_API_KEY in .env to enable.
+Email delivery via Gmail SMTP.
+Configure SMTP_USER and SMTP_PASSWORD in .env to enable.
 """
 import os
-import resend
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
-_SENDER = os.getenv('RESEND_FROM_EMAIL', 'ADL ShareFlow <noreply@shareflow.adl.co.il>')
+_SMTP_HOST = os.getenv('SMTP_HOST', 'smtp.gmail.com')
+_SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
+_SMTP_USER = os.getenv('SMTP_USER', '')
+_SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', '')
+_SENDER_NAME = os.getenv('SMTP_SENDER_NAME', 'ADL ShareFlow')
 
 
-def _get_api_key() -> str | None:
-    return os.getenv('RESEND_API_KEY')
+def _is_configured() -> bool:
+    return bool(_SMTP_USER and _SMTP_PASSWORD)
+
+
+def _send(to_email: str, subject: str, html: str) -> bool:
+    if not _is_configured():
+        return False
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = f'{_SENDER_NAME} <{_SMTP_USER}>'
+        msg['To'] = to_email
+        msg.attach(MIMEText(html, 'html', 'utf-8'))
+
+        with smtplib.SMTP(_SMTP_HOST, _SMTP_PORT) as server:
+            server.ehlo()
+            server.starttls()
+            server.login(_SMTP_USER, _SMTP_PASSWORD)
+            server.sendmail(_SMTP_USER, to_email, msg.as_string())
+        return True
+    except Exception as e:
+        print(f'[email_service] Failed to send email: {e}')
+        return False
 
 
 def send_group_invitation(
@@ -21,15 +48,9 @@ def send_group_invitation(
     group_emoji: str = '👥',
 ) -> bool:
     """
-    Send a group invitation email via Resend.
-    Returns True on success, False if Resend is not configured or the send fails.
+    Send a group invitation email via Gmail SMTP.
+    Returns True on success, False if SMTP is not configured or send fails.
     """
-    api_key = _get_api_key()
-    if not api_key:
-        return False
-
-    resend.api_key = api_key
-
     join_url = f'shareflow://join/{invite_code}'
     subject = f'{inviter_name} הזמין אותך להצטרף לקבוצה "{group_name}"'
 
@@ -47,7 +68,6 @@ def send_group_invitation(
       <td align="center">
         <table width="560" cellpadding="0" cellspacing="0"
                style="background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
-          <!-- Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#6366F1,#8B5CF6);padding:36px 32px;text-align:center;">
               <div style="font-size:48px;margin-bottom:8px;">{group_emoji}</div>
@@ -57,7 +77,6 @@ def send_group_invitation(
               </p>
             </td>
           </tr>
-          <!-- Body -->
           <tr>
             <td style="padding:36px 32px;">
               <h2 style="margin:0 0 12px;font-size:22px;color:#1a1a2e;font-weight:700;">
@@ -67,8 +86,6 @@ def send_group_invitation(
                 <strong>{inviter_name}</strong> הזמין אותך להצטרף לקבוצה
                 <strong>"{group_name}"</strong> ב-ADL ShareFlow.
               </p>
-
-              <!-- Code box -->
               <div style="background:#f0f0ff;border:2px dashed #6366F1;border-radius:16px;
                           padding:24px;text-align:center;margin-bottom:28px;">
                 <p style="margin:0 0 8px;font-size:13px;color:#666;">קוד הצטרפות</p>
@@ -76,8 +93,6 @@ def send_group_invitation(
                   {invite_code}
                 </div>
               </div>
-
-              <!-- CTA -->
               <div style="text-align:center;margin-bottom:24px;">
                 <a href="{join_url}"
                    style="display:inline-block;background:linear-gradient(135deg,#6366F1,#8B5CF6);
@@ -86,14 +101,12 @@ def send_group_invitation(
                   הצטרף עכשיו
                 </a>
               </div>
-
               <p style="margin:0;font-size:13px;color:#888;text-align:center;">
                 אם הכפתור לא עובד, העתק את הקוד <strong>{invite_code}</strong>
                 ישירות לאפליקציה.
               </p>
             </td>
           </tr>
-          <!-- Footer -->
           <tr>
             <td style="padding:20px 32px;background:#fafafa;border-top:1px solid #eee;
                         text-align:center;">
@@ -109,14 +122,4 @@ def send_group_invitation(
 </body>
 </html>
 """
-
-    try:
-        resend.Emails.send({
-            'from': _SENDER,
-            'to': [to_email],
-            'subject': subject,
-            'html': html,
-        })
-        return True
-    except Exception:
-        return False
+    return _send(to_email, subject, html)
