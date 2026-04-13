@@ -10,7 +10,7 @@
 # הגדרות שרת (ערוך כאן אם משהו השתנה)
 # -----------------------------------------------
 SERVER_IP="192.168.68.150"
-SERVER_SSH_USER="chinuch"
+SERVER_SSH_USER="חינוך"
 SERVER_PG_USER="postgres"
 SERVER_DB="shareflow"
 
@@ -42,7 +42,7 @@ print_manual_db_instructions() {
     echo "     $DUMP_FILE"
     echo ""
     echo "  2. פתח PowerShell כמנהל ב-ThinkPad והרץ:"
-    echo '     cd "C:\Users\chinuch\Projects\ADL ShareFlow"'
+    echo '     cd "C:\Users\חינוך\Projects\ADL ShareFlow"'
     echo '     .\scripts\restore_db.ps1'
     echo ""
 }
@@ -132,7 +132,7 @@ if [[ $SSH_OK -eq 0 ]]; then
         log_info "  מעדכן קוד ומשחזר DB בשרת..."
 
         ssh "$SERVER_SSH_USER@$SERVER_IP" powershell -Command "
-            Set-Location 'C:\Users\$SERVER_SSH_USER\Projects\ADL ShareFlow';
+            Set-Location 'C:\Users\חינוך\Projects\ADL ShareFlow';
             git pull origin main;
             & 'C:\Program Files\PostgreSQL\16\bin\psql.exe' -U $SERVER_PG_USER -d $SERVER_DB -c 'TRUNCATE TABLE refresh_tokens, receipts, notifications, settlements, expense_participants, expenses, group_members, groups, user_identities, users RESTART IDENTITY CASCADE;';
             & 'C:\Program Files\PostgreSQL\16\bin\psql.exe' -U $SERVER_PG_USER -d $SERVER_DB -f '/tmp/shareflow_restore.sql';

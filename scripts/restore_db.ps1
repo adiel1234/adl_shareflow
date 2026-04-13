@@ -2,12 +2,12 @@
 # ADL ShareFlow — שחזור DB בשרת (ThinkPad)
 # =============================================================
 # הפעלה: PowerShell כמנהל
-#   cd "C:\Users\chinuch\Projects\ADL ShareFlow"
+#   cd "C:\Users\חינוך\Projects\ADL ShareFlow"
 #   .\scripts\restore_db.ps1
 # =============================================================
 
 param(
-    [string]$DumpFile = "C:\Users\chinuch\Downloads\shareflow_restore.sql"
+    [string]$DumpFile = "C:\Users\חינוך\Downloads\shareflow_restore.sql"
 )
 
 $PG_BIN = "C:\Program Files\PostgreSQL\16\bin"
