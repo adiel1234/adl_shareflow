@@ -3,15 +3,24 @@ enum AppFlavor { dev, staging, prod }
 class AppConfig {
   AppConfig._();
 
-  static AppFlavor _flavor = AppFlavor.dev;
-  static AppFlavor get flavor => _flavor;
+  // הסביבה נקבעת בזמן הרצה דרך --dart-define=FLAVOR=dev/staging/prod
+  // ברירת מחדל: dev (פיתוח מקומי)
+  static const String _envFlavor =
+      String.fromEnvironment('FLAVOR', defaultValue: 'dev');
 
-  static void setFlavor(AppFlavor flavor) {
-    _flavor = flavor;
+  static AppFlavor get flavor {
+    switch (_envFlavor) {
+      case 'staging':
+        return AppFlavor.staging;
+      case 'prod':
+        return AppFlavor.prod;
+      default:
+        return AppFlavor.dev;
+    }
   }
 
   static String get apiBaseUrl {
-    switch (_flavor) {
+    switch (flavor) {
       case AppFlavor.dev:
         return 'http://localhost:5050/api';
       case AppFlavor.staging:
@@ -24,7 +33,7 @@ class AppConfig {
   static String get appName => 'ADL ShareFlow';
   static String get appVersion => '1.0.0';
 
-  static bool get isDev => _flavor == AppFlavor.dev;
-  static bool get isStaging => _flavor == AppFlavor.staging;
-  static bool get isProd => _flavor == AppFlavor.prod;
+  static bool get isDev => flavor == AppFlavor.dev;
+  static bool get isStaging => flavor == AppFlavor.staging;
+  static bool get isProd => flavor == AppFlavor.prod;
 }

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'core/config/app_config.dart';
 import 'core/config/router.dart';
 import 'theme/app_theme.dart';
 
@@ -19,8 +18,6 @@ void main() async {
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
   ));
-
-  AppConfig.setFlavor(AppFlavor.staging);
 
   runApp(
     const ProviderScope(

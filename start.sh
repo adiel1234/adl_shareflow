@@ -70,4 +70,4 @@ echo "╚═══════════════════════�
 echo ""
 
 cd "$MOBILE"
-"$FLUTTER_BIN" run -d chrome
+"$FLUTTER_BIN" run -d chrome --dart-define=FLAVOR=dev
