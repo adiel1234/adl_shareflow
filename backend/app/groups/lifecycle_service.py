@@ -21,34 +21,37 @@ class MonetizationConfig:
     """Single source of truth for all pricing."""
 
     # Event: (max_participants, price_ils, duration_days)
+    # 3-6 members: 15 ILS | 7-10: 20 ILS | 11-15: 30 ILS | 16+: 40 ILS
     EVENT_TIERS = [
-        (10,  15, 7),
-        (15,  20, 7),
-        (25,  30, 7),
+        (6,  15, 7),
+        (10, 20, 7),
+        (15, 30, 7),
+        (999, 40, 7),  # 16+ — no upper cap
     ]
     EVENT_EXTENSION_PRICE = 15
     EVENT_EXTENSION_DAYS = 7
 
-    # Ongoing: (max_participants, price_ils, duration_days)
-    ONGOING_TIERS = [
-        (5,   49, 30),
-        (8,   69, 30),
-        (12,  89, 30),
-    ]
+    # Ongoing: 10 ILS per member per month
+    ONGOING_PRICE_PER_USER = 10
+    ONGOING_DURATION_DAYS = 30
 
     @classmethod
     def resolve_event_price(cls, participant_count: int) -> dict | None:
         for max_p, price, days in cls.EVENT_TIERS:
             if participant_count <= max_p:
-                return {'amount': price, 'tier': str(max_p), 'duration_days': days}
-        return None  # exceeds max supported
+                return {'amount': price, 'tier': str(price), 'duration_days': days}
+        return None
 
     @classmethod
     def resolve_ongoing_price(cls, participant_count: int) -> dict | None:
-        for max_p, price, days in cls.ONGOING_TIERS:
-            if participant_count <= max_p:
-                return {'amount': price, 'tier': str(max_p), 'duration_days': days}
-        return None
+        if participant_count < 1:
+            return None
+        amount = participant_count * cls.ONGOING_PRICE_PER_USER
+        return {
+            'amount': amount,
+            'tier': f'{cls.ONGOING_PRICE_PER_USER}_per_user',
+            'duration_days': cls.ONGOING_DURATION_DAYS,
+        }
 
     @classmethod
     def resolve_price(cls, group_type: str, participant_count: int) -> dict | None:
