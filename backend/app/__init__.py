@@ -39,6 +39,7 @@ def create_app(config=None):
     # Import models so Alembic detects them
     with app.app_context():
         from app import models  # noqa: F401
+        _seed_feature_flags()
 
     # Blueprints
     _register_blueprints(app)
@@ -90,6 +91,22 @@ def _register_blueprints(app):
     app.register_blueprint(ocr_bp, url_prefix='/api/ocr')
     app.register_blueprint(currency_bp, url_prefix='/api/currency')
     app.register_blueprint(dashboard_bp, url_prefix='/api/adl')
+
+
+def _seed_feature_flags():
+    """Ensure default feature flags exist in the DB (runs once on startup)."""
+    try:
+        from app import db
+        from app.models import FeatureFlag
+        defaults = [
+            ('PAYMENTS_ENABLED', 'false', 'הפעלת מנגנון תשלום — כשכבוי הקבוצות מופעלות חינם (מצב בטא)'),
+        ]
+        for key, value, description in defaults:
+            if not FeatureFlag.query.filter_by(key=key).first():
+                db.session.add(FeatureFlag(key=key, value=value, description=description))
+        db.session.commit()
+    except Exception:
+        pass  # DB may not be ready yet during first migration
 
 
 def _register_jwt_handlers(jwt_manager):
