@@ -40,8 +40,9 @@ def require_pro(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         from app.models import User
+        from app import db
         user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if not user or user.plan == 'free':
             return error_response('This feature requires a Pro plan', 402)
         return f(*args, **kwargs)
@@ -61,7 +62,7 @@ def require_group_operational(f):
         from app.groups.lifecycle_service import GroupLifecycleService
 
         group_id = kwargs.get('group_id')
-        group = Group.query.get(group_id)
+        group = db.session.get(Group, group_id)
         if not group:
             return error_response('Group not found', 404)
 

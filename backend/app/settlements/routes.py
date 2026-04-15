@@ -31,7 +31,7 @@ def create_settlement(group_id, **kwargs):
     except Exception:
         return error_response('amount must be a positive number')
 
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return error_response('Group not found', 404)
 
@@ -53,7 +53,7 @@ def create_settlement(group_id, **kwargs):
     try:
         from app.models import User
         from app.notifications.service import notify_settlement_requested
-        actor = User.query.get(user_id)
+        actor = db.session.get(User, user_id)
         notify_settlement_requested(settlement, actor.display_name if actor else 'מישהו')
     except Exception:
         pass
@@ -65,7 +65,7 @@ def create_settlement(group_id, **kwargs):
 @jwt_required()
 def confirm_settlement(settlement_id):
     user_id = get_jwt_identity()
-    settlement = Settlement.query.get(settlement_id)
+    settlement = db.session.get(Settlement, settlement_id)
     if not settlement:
         return error_response('Settlement not found', 404)
 
@@ -81,7 +81,7 @@ def confirm_settlement(settlement_id):
     try:
         from app.models import User
         from app.notifications.service import notify_settlement_confirmed
-        confirmer = User.query.get(user_id)
+        confirmer = db.session.get(User, user_id)
         notify_settlement_confirmed(settlement, confirmer.display_name if confirmer else 'מישהו')
     except Exception:
         pass
@@ -93,7 +93,7 @@ def confirm_settlement(settlement_id):
 @jwt_required()
 def cancel_settlement(settlement_id):
     user_id = get_jwt_identity()
-    settlement = Settlement.query.get(settlement_id)
+    settlement = db.session.get(Settlement, settlement_id)
     if not settlement:
         return error_response('Settlement not found', 404)
 

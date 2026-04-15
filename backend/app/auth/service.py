@@ -49,7 +49,7 @@ def login_email(email: str, password: str) -> tuple[User, str, str]:
     if not identity or not check_password_hash(identity.password_hash or '', password):
         raise ValueError('Invalid email or password')
 
-    user = User.query.get(identity.user_id)
+    user = db.session.get(User, identity.user_id)
     if not user or not user.is_active:
         raise ValueError('Account is disabled')
 
@@ -139,7 +139,7 @@ def refresh_access_token(raw_refresh_token: str) -> str:
         db.session.commit()
         raise ValueError('Refresh token expired')
 
-    user = User.query.get(stored.user_id)
+    user = db.session.get(User, stored.user_id)
     if not user or not user.is_active:
         raise ValueError('Account disabled')
 
@@ -192,7 +192,7 @@ def _upsert_oauth_user(
     ).first()
 
     if identity:
-        user = User.query.get(identity.user_id)
+        user = db.session.get(User, identity.user_id)
         if avatar_url and not user.avatar_url:
             user.avatar_url = avatar_url
             db.session.commit()

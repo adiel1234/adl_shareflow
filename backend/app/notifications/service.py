@@ -147,7 +147,7 @@ def notify_payment_reminder(settlement_suggestion: dict, creditor_name: str):
 def notify_group_joined(group, new_member_name: str, joiner_user_id: str):
     """Notify group admin when someone joins."""
     from app.models import Group
-    group_obj = Group.query.get(group.id if hasattr(group, 'id') else group)
+    group_obj = db.session.get(Group, group.id if hasattr(group, 'id') else group)
     if not group_obj:
         return
 

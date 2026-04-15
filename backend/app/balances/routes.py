@@ -16,7 +16,7 @@ balances_bp = Blueprint('balances', __name__)
 @jwt_required()
 @require_group_member
 def get_balances(group_id, **kwargs):
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return error_response('Group not found', 404)
 
@@ -42,7 +42,7 @@ def get_balances(group_id, **kwargs):
 @jwt_required()
 @require_group_member
 def get_settlement_plan(group_id, **kwargs):
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return error_response('Group not found', 404)
 
@@ -70,7 +70,7 @@ def get_settlement_plan(group_id, **kwargs):
 @require_group_admin
 def send_event_summary(group_id, **kwargs):
     """Admin sends event summary notification to all members."""
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return error_response('Group not found', 404)
 
@@ -159,7 +159,7 @@ def send_payment_reminder(group_id, **kwargs):
     if not to_user_id:
         return error_response('to_user_id is required')
 
-    creditor = User.query.get(user_id)
+    creditor = db.session.get(User, user_id)
     creditor_name = creditor.display_name if creditor else 'מישהו'
 
     from app.notifications import service as notif_svc

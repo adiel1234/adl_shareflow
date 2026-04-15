@@ -136,7 +136,7 @@ def adl_activate_group(group_id):
     if err:
         return err
 
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return error_response('Group not found', 404)
 
@@ -233,7 +233,7 @@ def suspend_user(user_id):
     if err:
         return err
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return error_response('User not found', 404)
 
@@ -248,7 +248,7 @@ def activate_user(user_id):
     if err:
         return err
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return error_response('User not found', 404)
 
@@ -268,7 +268,7 @@ def set_user_plan(user_id):
     if plan not in ('free', 'pro'):
         return error_response('plan must be free or pro')
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return error_response('User not found', 404)
 

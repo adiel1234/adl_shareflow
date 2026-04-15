@@ -12,7 +12,7 @@ users_bp = Blueprint('users', __name__)
 @jwt_required()
 def get_me():
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return error_response('User not found', 404)
     return success_response(data=user.to_dict())
@@ -22,7 +22,7 @@ def get_me():
 @jwt_required()
 def update_me():
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return error_response('User not found', 404)
 
@@ -58,7 +58,7 @@ def update_me():
 @jwt_required()
 def delete_me():
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return error_response('User not found', 404)
 

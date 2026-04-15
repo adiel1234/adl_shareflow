@@ -27,7 +27,7 @@ def list_groups():
             d['my_role'] = m.role
             admin_member = GroupMember.query.filter_by(group_id=g.id, role='admin').first()
             if admin_member:
-                admin_user = User.query.get(admin_member.user_id)
+                admin_user = db.session.get(User, admin_member.user_id)
                 d['admin_name'] = admin_user.display_name if admin_user else None
             else:
                 d['admin_name'] = None
@@ -75,7 +75,7 @@ def create_group():
 @require_group_member
 def get_group(group_id, **kwargs):
     user_id = get_jwt_identity()
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group or not group.is_active:
         return error_response('Group not found', 404)
 
@@ -102,7 +102,7 @@ def get_group(group_id, **kwargs):
 @jwt_required()
 @require_group_admin
 def update_group(group_id, **kwargs):
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group or not group.is_active:
         return error_response('Group not found', 404)
 
@@ -154,7 +154,7 @@ def remove_member(group_id, target_user_id, **kwargs):
     if not member:
         return error_response('Member not found', 404)
 
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     mode = (request.get_json(silent=True) or {}).get('mode', 'settle')
 
     if mode == 'redistribute':
@@ -249,7 +249,7 @@ def activate_group(group_id, **kwargs):
     """
     from app.groups.monetization_service import MonetizationService
 
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group or not group.is_active:
         return error_response('Group not found', 404)
 
@@ -278,7 +278,7 @@ def extend_group(group_id, **kwargs):
     """
     from app.groups.monetization_service import MonetizationService
 
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group or not group.is_active:
         return error_response('Group not found', 404)
 
@@ -303,7 +303,7 @@ def renew_group(group_id, **kwargs):
     """
     from app.groups.monetization_service import MonetizationService
 
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group or not group.is_active:
         return error_response('Group not found', 404)
 
@@ -334,7 +334,7 @@ def close_group(group_id, **kwargs):
     from app.balances.engine import calculate_group_balances
 
     user_id = get_jwt_identity()
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group or not group.is_active:
         return error_response('Group not found', 404)
 
@@ -356,7 +356,7 @@ def close_group(group_id, **kwargs):
         from app.models import User as _User
         details = []
         for b in unsettled:
-            u = _User.query.get(b.user_id)
+            u = db.session.get(_User, b.user_id)
             name = u.display_name if u else b.user_id
             details.append({
                 'user_id': b.user_id,
@@ -381,7 +381,7 @@ def close_group(group_id, **kwargs):
 @jwt_required()
 @require_group_member
 def get_invite_link(group_id, **kwargs):
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group:
         return error_response('Group not found', 404)
 
@@ -400,7 +400,7 @@ def invite_by_email(group_id, **kwargs):
     from app.email_service import send_group_invitation
 
     user_id = get_jwt_identity()
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if not group or not group.is_active:
         return error_response('Group not found', 404)
 
@@ -409,7 +409,7 @@ def invite_by_email(group_id, **kwargs):
     if not email or '@' not in email:
         return error_response('כתובת אימייל לא תקינה')
 
-    inviter = User.query.get(user_id)
+    inviter = db.session.get(User, user_id)
     inviter_name = inviter.display_name if inviter else 'חבר'
 
     # Determine group emoji by category

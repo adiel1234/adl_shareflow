@@ -56,7 +56,7 @@ def send_auto_reminders():
 
             sent_any = False
             for membership in memberships:
-                group = Group.query.get(membership.group_id)
+                group = db.session.get(Group, membership.group_id)
                 if not group:
                     continue
 

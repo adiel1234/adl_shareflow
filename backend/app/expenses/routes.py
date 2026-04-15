@@ -77,7 +77,7 @@ def create_expense(group_id, **kwargs):
     if not original_currency:
         return error_response('original_currency is required')
 
-    group = Group.query.get(group_id)
+    group = db.session.get(Group, group_id)
     if group and group.is_closed:
         return error_response('הקבוצה סגורה — לא ניתן להוסיף הוצאות חדשות', 403)
 
@@ -142,7 +142,7 @@ def create_expense(group_id, **kwargs):
     try:
         from app.models import User
         from app.notifications.service import notify_new_expense
-        actor = User.query.get(user_id)
+        actor = db.session.get(User, user_id)
         actor_name = actor.display_name if actor else 'מישהו'
         notify_new_expense(expense, actor_name)
     except Exception:
@@ -155,7 +155,7 @@ def create_expense(group_id, **kwargs):
 @jwt_required()
 def get_expense(expense_id):
     user_id = get_jwt_identity()
-    expense = Expense.query.get(expense_id)
+    expense = db.session.get(Expense, expense_id)
     if not expense:
         return error_response('Expense not found', 404)
 
@@ -176,11 +176,11 @@ def update_expense(expense_id):
     from app.groups.lifecycle_service import GroupLifecycleService
 
     user_id = get_jwt_identity()
-    expense = Expense.query.get(expense_id)
+    expense = db.session.get(Expense, expense_id)
     if not expense:
         return error_response('Expense not found', 404)
 
-    group = Group.query.get(expense.group_id)
+    group = db.session.get(Group, expense.group_id)
     if group and not GroupLifecycleService.is_operational(group):
         return error_response('הקבוצה אינה פעילה — לא ניתן לערוך הוצאות', 403,
                               errors={'group_state': group.group_state})
@@ -254,7 +254,7 @@ def update_expense(expense_id):
     # Notify all group members about the edit
     try:
         from app.models import User
-        actor = User.query.get(user_id)
+        actor = db.session.get(User, user_id)
         actor_name = actor.display_name if actor else 'מישהו'
         _notify_expense_edited(expense, actor_name, user_id)
     except Exception:
@@ -302,11 +302,11 @@ def delete_expense(expense_id):
     from app.groups.lifecycle_service import GroupLifecycleService
 
     user_id = get_jwt_identity()
-    expense = Expense.query.get(expense_id)
+    expense = db.session.get(Expense, expense_id)
     if not expense:
         return error_response('Expense not found', 404)
 
-    group = Group.query.get(expense.group_id)
+    group = db.session.get(Group, expense.group_id)
     if group and not GroupLifecycleService.is_operational(group):
         return error_response('הקבוצה אינה פעילה — לא ניתן למחוק הוצאות', 403,
                               errors={'group_state': group.group_state})
