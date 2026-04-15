@@ -28,9 +28,13 @@ def create_app(config=None):
     jwt.init_app(app)
     import re
     cors_origins = app.config.get('CORS_ORIGINS', [])
-    # localhost תמיד מותר (dev + staging), production origins מה-env
+    # localhost + public IP תמיד מותרים, production origins מה-env
     CORS(app,
-         origins=[re.compile(r'http://localhost:\d+'), *cors_origins],
+         origins=[
+             re.compile(r'http://localhost:\d+'),
+             re.compile(r'http://79\.181\.158\.30:\d+'),
+             *cors_origins,
+         ],
          supports_credentials=True)
 
     # JWT error handlers
