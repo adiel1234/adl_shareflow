@@ -3,7 +3,7 @@ ADL Dashboard API — admin endpoints for the ADL Platform integration.
 Requires X-ADL-Admin-Key header (set ADL_ADMIN_KEY in .env).
 """
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from flask import Blueprint, request
 from sqlalchemy import func
@@ -378,3 +378,36 @@ def delete_feature_flag(key):
     db.session.delete(flag)
     db.session.commit()
     return success_response(message=f'Flag {key} deleted')
+
+
+@dashboard_bp.get('/revenue')
+def adl_revenue():
+    err = _require_adl_admin()
+    if err:
+        return err
+
+    now = datetime.now(timezone.utc)
+
+    def _sum_from(since):
+        result = db.session.query(func.sum(GroupPayment.amount))\
+            .filter(GroupPayment.created_at >= since).scalar()
+        return float(result or 0)
+
+    def _count_from(since):
+        return GroupPayment.query.filter(GroupPayment.created_at >= since).count()
+
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = today_start - timedelta(days=now.weekday())
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    year_start = now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    total_all = float(db.session.query(func.sum(GroupPayment.amount)).scalar() or 0)
+    count_all = GroupPayment.query.count()
+
+    return success_response(data={
+        'today':   {'amount': _sum_from(today_start), 'count': _count_from(today_start)},
+        'week':    {'amount': _sum_from(week_start),  'count': _count_from(week_start)},
+        'month':   {'amount': _sum_from(month_start), 'count': _count_from(month_start)},
+        'year':    {'amount': _sum_from(year_start),  'count': _count_from(year_start)},
+        'total':   {'amount': total_all,              'count': count_all},
+    })
