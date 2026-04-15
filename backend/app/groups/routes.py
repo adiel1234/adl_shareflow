@@ -25,6 +25,12 @@ def list_groups():
             dirty |= GroupLifecycleService.sync_state(g, db.session)
             d = g.to_dict()
             d['my_role'] = m.role
+            admin_member = GroupMember.query.filter_by(group_id=g.id, role='admin').first()
+            if admin_member:
+                admin_user = User.query.get(admin_member.user_id)
+                d['admin_name'] = admin_user.display_name if admin_user else None
+            else:
+                d['admin_name'] = None
             groups.append(d)
     if dirty:
         db.session.commit()
