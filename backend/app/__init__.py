@@ -33,6 +33,8 @@ def create_app(config=None):
          origins=[
              re.compile(r'http://localhost:\d+'),
              re.compile(r'http://79\.181\.158\.30:\d+'),
+             re.compile(r'https://.*\.ngrok-free\.dev'),
+             re.compile(r'https://.*\.ngrok\.io'),
              *cors_origins,
          ],
          supports_credentials=True)

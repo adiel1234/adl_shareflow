@@ -24,7 +24,7 @@ class AppConfig {
       case AppFlavor.dev:
         return 'http://localhost:5050/api';
       case AppFlavor.staging:
-        return 'http://79.181.158.30:5050/api';
+        return 'https://engine-hacking-anywhere.ngrok-free.dev/api';
       case AppFlavor.prod:
         return 'https://api.shareflow.adl.co.il/api';
     }
