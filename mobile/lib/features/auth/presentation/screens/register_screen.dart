@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../services/auth_service.dart';
+import '../../../../providers/auth_provider.dart';
 import '../../../../ui/widgets/app_button.dart';
 import '../../../../l10n/app_localizations.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
@@ -37,11 +39,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() { _loading = true; _error = null; });
 
     try {
-      await _authService.register(
+      final user = await _authService.register(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
         displayName: _nameCtrl.text.trim(),
       );
+      ref.read(authProvider.notifier).setUser(user);
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       final l = AppLocalizations.of(context)!;
