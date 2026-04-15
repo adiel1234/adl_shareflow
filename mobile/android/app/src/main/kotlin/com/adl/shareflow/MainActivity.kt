@@ -1,4 +1,4 @@
-package com.example.adl_shareflow
+package com.adl.shareflow
 
 import io.flutter.embedding.android.FlutterActivity
 
