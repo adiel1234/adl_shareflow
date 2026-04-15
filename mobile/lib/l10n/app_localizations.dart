@@ -439,6 +439,1236 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'Pro'**
   String get pro;
+
+  /// No description provided for @helloUser.
+  ///
+  /// In he, this message translates to:
+  /// **'שלום, {name} 👋'**
+  String helloUser(String name);
+
+  /// No description provided for @joinGroup.
+  ///
+  /// In he, this message translates to:
+  /// **'הצטרף לקבוצה'**
+  String get joinGroup;
+
+  /// No description provided for @errorLoadingGroups.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בטעינת הקבוצות'**
+  String get errorLoadingGroups;
+
+  /// No description provided for @alreadyMember.
+  ///
+  /// In he, this message translates to:
+  /// **'כבר חבר בקבוצה זו'**
+  String get alreadyMember;
+
+  /// No description provided for @invalidCode.
+  ///
+  /// In he, this message translates to:
+  /// **'קוד לא תקין — בדוק ונסה שוב'**
+  String get invalidCode;
+
+  /// No description provided for @splitExpenses.
+  ///
+  /// In he, this message translates to:
+  /// **'חלוקת הוצאות'**
+  String get splitExpenses;
+
+  /// No description provided for @howToJoin.
+  ///
+  /// In he, this message translates to:
+  /// **'כיצד תרצה להצטרף?'**
+  String get howToJoin;
+
+  /// No description provided for @splitAll.
+  ///
+  /// In he, this message translates to:
+  /// **'חלק את כל ההוצאות'**
+  String get splitAll;
+
+  /// No description provided for @fromNowOn.
+  ///
+  /// In he, this message translates to:
+  /// **'רק מעכשיו והלאה'**
+  String get fromNowOn;
+
+  /// No description provided for @notChargedPast.
+  ///
+  /// In he, this message translates to:
+  /// **'לא מחויב בהוצאות עד כה'**
+  String get notChargedPast;
+
+  /// No description provided for @enterInviteCode.
+  ///
+  /// In he, this message translates to:
+  /// **'הכנס את קוד ההזמנה שקיבלת'**
+  String get enterInviteCode;
+
+  /// No description provided for @join.
+  ///
+  /// In he, this message translates to:
+  /// **'הצטרף'**
+  String get join;
+
+  /// No description provided for @noGroupsDescription.
+  ///
+  /// In he, this message translates to:
+  /// **'צור קבוצה חדשה עם חברים,\nשותפים לדירה, או בני משפחה'**
+  String get noGroupsDescription;
+
+  /// No description provided for @joinWithCode.
+  ///
+  /// In he, this message translates to:
+  /// **'הצטרף עם קוד הזמנה'**
+  String get joinWithCode;
+
+  /// No description provided for @memberCount.
+  ///
+  /// In he, this message translates to:
+  /// **'{count} חברים'**
+  String memberCount(int count);
+
+  /// No description provided for @stateActive.
+  ///
+  /// In he, this message translates to:
+  /// **'פעיל'**
+  String get stateActive;
+
+  /// No description provided for @stateFree.
+  ///
+  /// In he, this message translates to:
+  /// **'חינמי'**
+  String get stateFree;
+
+  /// No description provided for @stateNeedsActivation.
+  ///
+  /// In he, this message translates to:
+  /// **'דרושה הפעלה'**
+  String get stateNeedsActivation;
+
+  /// No description provided for @stateExpired.
+  ///
+  /// In he, this message translates to:
+  /// **'פג תוקף'**
+  String get stateExpired;
+
+  /// No description provided for @stateReadOnly.
+  ///
+  /// In he, this message translates to:
+  /// **'קריאה בלבד'**
+  String get stateReadOnly;
+
+  /// No description provided for @stateClosed.
+  ///
+  /// In he, this message translates to:
+  /// **'סגורה'**
+  String get stateClosed;
+
+  /// No description provided for @closeGroup.
+  ///
+  /// In he, this message translates to:
+  /// **'סגור קבוצה'**
+  String get closeGroup;
+
+  /// No description provided for @groupClosedSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'הקבוצה נסגרה בהצלחה 🔒'**
+  String get groupClosedSuccess;
+
+  /// No description provided for @errorClosingGroup.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בסגירת הקבוצה'**
+  String get errorClosingGroup;
+
+  /// No description provided for @unsettledDebts.
+  ///
+  /// In he, this message translates to:
+  /// **'חובות שטרם הוסדרו'**
+  String get unsettledDebts;
+
+  /// No description provided for @closeGroupConfirm.
+  ///
+  /// In he, this message translates to:
+  /// **'האם אתה בטוח שברצונך לסגור את הקבוצה?\nלאחר הסגירה לא ניתן יהיה להוסיף הוצאות חדשות.'**
+  String get closeGroupConfirm;
+
+  /// No description provided for @unsettledDebtsTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'טרם הוסדרו כלל החובות בקבוצה:'**
+  String get unsettledDebtsTitle;
+
+  /// No description provided for @closeAnywayNote.
+  ///
+  /// In he, this message translates to:
+  /// **'ניתן לסגור בכל זאת, אך החובות יישארו ללא הסדרה.'**
+  String get closeAnywayNote;
+
+  /// No description provided for @closeAnywayBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'סגור בכל זאת'**
+  String get closeAnywayBtn;
+
+  /// No description provided for @inviteFriends.
+  ///
+  /// In he, this message translates to:
+  /// **'הזמן חברים'**
+  String get inviteFriends;
+
+  /// No description provided for @inviteCode.
+  ///
+  /// In he, this message translates to:
+  /// **'קוד הזמנה'**
+  String get inviteCode;
+
+  /// No description provided for @codeCopied.
+  ///
+  /// In he, this message translates to:
+  /// **'הקוד הועתק!'**
+  String get codeCopied;
+
+  /// No description provided for @copyCode.
+  ///
+  /// In he, this message translates to:
+  /// **'העתק קוד'**
+  String get copyCode;
+
+  /// No description provided for @copyLink.
+  ///
+  /// In he, this message translates to:
+  /// **'העתק לינק'**
+  String get copyLink;
+
+  /// No description provided for @linkCopied.
+  ///
+  /// In he, this message translates to:
+  /// **'הקישור הועתק!'**
+  String get linkCopied;
+
+  /// No description provided for @sendViaWhatsApp.
+  ///
+  /// In he, this message translates to:
+  /// **'שלח ב-WhatsApp'**
+  String get sendViaWhatsApp;
+
+  /// No description provided for @sendEmailInviteTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'שלח הזמנה במייל'**
+  String get sendEmailInviteTitle;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In he, this message translates to:
+  /// **'נא להזין כתובת אימייל תקינה'**
+  String get invalidEmail;
+
+  /// No description provided for @errorLoadingInvite.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בטעינת קישור הזמנה'**
+  String get errorLoadingInvite;
+
+  /// No description provided for @inviteSentTo.
+  ///
+  /// In he, this message translates to:
+  /// **'הזמנה נשלחה ל-{email} ✉️'**
+  String inviteSentTo(String email);
+
+  /// No description provided for @errorSendingInvite.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בשליחת ההזמנה'**
+  String get errorSendingInvite;
+
+  /// No description provided for @language.
+  ///
+  /// In he, this message translates to:
+  /// **'שפה / Language'**
+  String get language;
+
+  /// No description provided for @hebrew.
+  ///
+  /// In he, this message translates to:
+  /// **'עברית'**
+  String get hebrew;
+
+  /// No description provided for @english.
+  ///
+  /// In he, this message translates to:
+  /// **'English'**
+  String get english;
+
+  /// No description provided for @defaultCurrency.
+  ///
+  /// In he, this message translates to:
+  /// **'מטבע ברירת מחדל'**
+  String get defaultCurrency;
+
+  /// No description provided for @paymentReminders.
+  ///
+  /// In he, this message translates to:
+  /// **'תזכורות תשלום'**
+  String get paymentReminders;
+
+  /// No description provided for @setReminderFrequency.
+  ///
+  /// In he, this message translates to:
+  /// **'הגדר תדירות ופלטפורמה'**
+  String get setReminderFrequency;
+
+  /// No description provided for @paymentDetails.
+  ///
+  /// In he, this message translates to:
+  /// **'פרטי תשלום'**
+  String get paymentDetails;
+
+  /// No description provided for @confirmLogout.
+  ///
+  /// In he, this message translates to:
+  /// **'האם אתה בטוח שברצונך לצאת?'**
+  String get confirmLogout;
+
+  /// No description provided for @chooseCurrency.
+  ///
+  /// In he, this message translates to:
+  /// **'בחר מטבע ברירת מחדל'**
+  String get chooseCurrency;
+
+  /// No description provided for @summarizeEvent.
+  ///
+  /// In he, this message translates to:
+  /// **'סכם אירוע'**
+  String get summarizeEvent;
+
+  /// No description provided for @sendSummaryToMembers.
+  ///
+  /// In he, this message translates to:
+  /// **'שלח סיכום וחלוקת עלויות לחברים'**
+  String get sendSummaryToMembers;
+
+  /// No description provided for @expenseDescription.
+  ///
+  /// In he, this message translates to:
+  /// **'תיאור ההוצאה'**
+  String get expenseDescription;
+
+  /// No description provided for @expenseDescriptionHint.
+  ///
+  /// In he, this message translates to:
+  /// **'לדוגמה: ארוחת ערב'**
+  String get expenseDescriptionHint;
+
+  /// No description provided for @saveExpense.
+  ///
+  /// In he, this message translates to:
+  /// **'שמור הוצאה'**
+  String get saveExpense;
+
+  /// No description provided for @errorAddingExpense.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בהוספת הוצאה'**
+  String get errorAddingExpense;
+
+  /// No description provided for @descriptionRequired.
+  ///
+  /// In he, this message translates to:
+  /// **'נדרש תיאור'**
+  String get descriptionRequired;
+
+  /// No description provided for @amountRequired.
+  ///
+  /// In he, this message translates to:
+  /// **'נדרש סכום'**
+  String get amountRequired;
+
+  /// No description provided for @invalidAmount.
+  ///
+  /// In he, this message translates to:
+  /// **'סכום לא תקין'**
+  String get invalidAmount;
+
+  /// No description provided for @catFood.
+  ///
+  /// In he, this message translates to:
+  /// **'אוכל'**
+  String get catFood;
+
+  /// No description provided for @catTravel.
+  ///
+  /// In he, this message translates to:
+  /// **'טיול'**
+  String get catTravel;
+
+  /// No description provided for @catHousing.
+  ///
+  /// In he, this message translates to:
+  /// **'דיור'**
+  String get catHousing;
+
+  /// No description provided for @catTransport.
+  ///
+  /// In he, this message translates to:
+  /// **'תחבורה'**
+  String get catTransport;
+
+  /// No description provided for @catEntertainment.
+  ///
+  /// In he, this message translates to:
+  /// **'בידור'**
+  String get catEntertainment;
+
+  /// No description provided for @catShopping.
+  ///
+  /// In he, this message translates to:
+  /// **'קניות'**
+  String get catShopping;
+
+  /// No description provided for @catUtilities.
+  ///
+  /// In he, this message translates to:
+  /// **'חשבונות'**
+  String get catUtilities;
+
+  /// No description provided for @catOther.
+  ///
+  /// In he, this message translates to:
+  /// **'אחר'**
+  String get catOther;
+
+  /// No description provided for @closedBadge.
+  ///
+  /// In he, this message translates to:
+  /// **'🔒 סגורה'**
+  String get closedBadge;
+
+  /// No description provided for @groupExpensesCount.
+  ///
+  /// In he, this message translates to:
+  /// **'בקבוצה \"{name}\" יש כבר {count} הוצאות.'**
+  String groupExpensesCount(String name, int count);
+
+  /// No description provided for @youPaid.
+  ///
+  /// In he, this message translates to:
+  /// **'שילמת'**
+  String get youPaid;
+
+  /// No description provided for @paidByPerson.
+  ///
+  /// In he, this message translates to:
+  /// **'שילם {name}'**
+  String paidByPerson(String name);
+
+  /// No description provided for @yourShare.
+  ///
+  /// In he, this message translates to:
+  /// **'החלק שלך:'**
+  String get yourShare;
+
+  /// No description provided for @noExpensesHint.
+  ///
+  /// In he, this message translates to:
+  /// **'לחץ על \"הוצאה חדשה\" להוסיף'**
+  String get noExpensesHint;
+
+  /// No description provided for @errorLoadingExpenses.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בטעינת הוצאות'**
+  String get errorLoadingExpenses;
+
+  /// No description provided for @groupBalances.
+  ///
+  /// In he, this message translates to:
+  /// **'יתרות הקבוצה'**
+  String get groupBalances;
+
+  /// No description provided for @groupTotalExpenses.
+  ///
+  /// In he, this message translates to:
+  /// **'סך הוצאות הקבוצה'**
+  String get groupTotalExpenses;
+
+  /// No description provided for @expensesCountLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'הוצאות'**
+  String get expensesCountLabel;
+
+  /// No description provided for @owesYouLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'חייבים לך'**
+  String get owesYouLabel;
+
+  /// No description provided for @allSettled.
+  ///
+  /// In he, this message translates to:
+  /// **'הכל מסודר! אין העברות נדרשות'**
+  String get allSettled;
+
+  /// No description provided for @owesLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'חייב'**
+  String get owesLabel;
+
+  /// No description provided for @owesHimLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'חייבים לו'**
+  String get owesHimLabel;
+
+  /// No description provided for @errorLoadingBalances.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בטעינת יתרות'**
+  String get errorLoadingBalances;
+
+  /// No description provided for @paidByHint.
+  ///
+  /// In he, this message translates to:
+  /// **'בחר מי שילם'**
+  String get paidByHint;
+
+  /// No description provided for @errorLoadingMembers.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בטעינת חברים'**
+  String get errorLoadingMembers;
+
+  /// No description provided for @optionalNotes.
+  ///
+  /// In he, this message translates to:
+  /// **'הערות (אופציונלי)'**
+  String get optionalNotes;
+
+  /// No description provided for @addNotesHint.
+  ///
+  /// In he, this message translates to:
+  /// **'הוסף הערה...'**
+  String get addNotesHint;
+
+  /// No description provided for @addExpenseBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'הוסף הוצאה'**
+  String get addExpenseBtn;
+
+  /// No description provided for @scanReceiptDescription.
+  ///
+  /// In he, this message translates to:
+  /// **'חסוך זמן — מלא אוטומטית מקבלה'**
+  String get scanReceiptDescription;
+
+  /// No description provided for @receiptScanned.
+  ///
+  /// In he, this message translates to:
+  /// **'הקבלה נסרקה — ניתן לעדכן את הנתונים'**
+  String get receiptScanned;
+
+  /// No description provided for @rescan.
+  ///
+  /// In he, this message translates to:
+  /// **'סרוק שוב'**
+  String get rescan;
+
+  /// No description provided for @groupTypeOngoing.
+  ///
+  /// In he, this message translates to:
+  /// **'שוטף'**
+  String get groupTypeOngoing;
+
+  /// No description provided for @groupTypeEvent.
+  ///
+  /// In he, this message translates to:
+  /// **'אירוע'**
+  String get groupTypeEvent;
+
+  /// No description provided for @newGroup.
+  ///
+  /// In he, this message translates to:
+  /// **'קבוצה חדשה'**
+  String get newGroup;
+
+  /// No description provided for @activityType.
+  ///
+  /// In he, this message translates to:
+  /// **'סוג פעילות'**
+  String get activityType;
+
+  /// No description provided for @sevenDays.
+  ///
+  /// In he, this message translates to:
+  /// **'7 ימים'**
+  String get sevenDays;
+
+  /// No description provided for @monthly.
+  ///
+  /// In he, this message translates to:
+  /// **'חודשי'**
+  String get monthly;
+
+  /// No description provided for @eventTypeDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'מתאים לטיולים, אירועים, ומפגשים — עד 25 משתתפים'**
+  String get eventTypeDesc;
+
+  /// No description provided for @ongoingTypeDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'מתאים לדירות שותפים, משרדים — חיוב חודשי'**
+  String get ongoingTypeDesc;
+
+  /// No description provided for @groupNameHint.
+  ///
+  /// In he, this message translates to:
+  /// **'לדוגמה: דירה ברחוב הרצל'**
+  String get groupNameHint;
+
+  /// No description provided for @groupNameRequired.
+  ///
+  /// In he, this message translates to:
+  /// **'נדרש שם לקבוצה'**
+  String get groupNameRequired;
+
+  /// No description provided for @groupDescription.
+  ///
+  /// In he, this message translates to:
+  /// **'תיאור (אופציונלי)'**
+  String get groupDescription;
+
+  /// No description provided for @groupDescriptionHint.
+  ///
+  /// In he, this message translates to:
+  /// **'הוסף תיאור קצר...'**
+  String get groupDescriptionHint;
+
+  /// No description provided for @errorCreatingGroup.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה ביצירת הקבוצה'**
+  String get errorCreatingGroup;
+
+  /// No description provided for @createGroupBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'צור קבוצה'**
+  String get createGroupBtn;
+
+  /// No description provided for @bannerLimitedTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'נדרשת הפעלה'**
+  String get bannerLimitedTitle;
+
+  /// No description provided for @bannerLimitedSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הקבוצה הגיעה למגבלת החינם. עלות הפעלה: {price} ₪'**
+  String bannerLimitedSubtitle(int price);
+
+  /// No description provided for @bannerActivate.
+  ///
+  /// In he, this message translates to:
+  /// **'הפעל'**
+  String get bannerActivate;
+
+  /// No description provided for @bannerExpiredTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'פג תוקף הקבוצה'**
+  String get bannerExpiredTitle;
+
+  /// No description provided for @bannerExpiredSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'לא ניתן להוסיף הוצאות. הארכה: 15 ₪ ל-7 ימים נוספים.'**
+  String get bannerExpiredSubtitle;
+
+  /// No description provided for @bannerExtend.
+  ///
+  /// In he, this message translates to:
+  /// **'הארך'**
+  String get bannerExtend;
+
+  /// No description provided for @bannerReadOnlyTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'קריאה בלבד'**
+  String get bannerReadOnlyTitle;
+
+  /// No description provided for @bannerReadOnlySubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'פרק הזמן שבתשלום הסתיים. חידוש: {price} ₪'**
+  String bannerReadOnlySubtitle(int price);
+
+  /// No description provided for @bannerRenew.
+  ///
+  /// In he, this message translates to:
+  /// **'חדש'**
+  String get bannerRenew;
+
+  /// No description provided for @bannerFreeTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'מצב חינמי'**
+  String get bannerFreeTitle;
+
+  /// No description provided for @bannerFreeSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'עד 3 משתתפים ו-5 ימים ללא עלות.'**
+  String get bannerFreeSubtitle;
+
+  /// No description provided for @justNow.
+  ///
+  /// In he, this message translates to:
+  /// **'עכשיו'**
+  String get justNow;
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In he, this message translates to:
+  /// **'לפני {count} דק׳'**
+  String minutesAgo(int count);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In he, this message translates to:
+  /// **'לפני {count} שע׳'**
+  String hoursAgo(int count);
+
+  /// No description provided for @daysAgo.
+  ///
+  /// In he, this message translates to:
+  /// **'לפני {count} ימים'**
+  String daysAgo(int count);
+
+  /// No description provided for @notifNewExpenseTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הוצאה חדשה'**
+  String get notifNewExpenseTitle;
+
+  /// No description provided for @notifNewExpenseBody.
+  ///
+  /// In he, this message translates to:
+  /// **'{payer} הוסיף הוצאה ב{group}'**
+  String notifNewExpenseBody(String payer, String group);
+
+  /// No description provided for @notifSettlementRequestedTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'בקשת תשלום'**
+  String get notifSettlementRequestedTitle;
+
+  /// No description provided for @notifSettlementConfirmedTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'תשלום אושר'**
+  String get notifSettlementConfirmedTitle;
+
+  /// No description provided for @notifMemberJoinedTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'חבר חדש'**
+  String get notifMemberJoinedTitle;
+
+  /// No description provided for @notifGeneralTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'התראה'**
+  String get notifGeneralTitle;
+
+  /// No description provided for @markAllRead.
+  ///
+  /// In he, this message translates to:
+  /// **'סמן הכל כנקרא'**
+  String get markAllRead;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In he, this message translates to:
+  /// **'אין התראות עדיין'**
+  String get noNotifications;
+
+  /// No description provided for @noNotificationsHint.
+  ///
+  /// In he, this message translates to:
+  /// **'כשחברי הקבוצה יוסיפו הוצאות\nתקבל התראה כאן'**
+  String get noNotificationsHint;
+
+  /// No description provided for @errorLoadingNotifications.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בטעינת התראות'**
+  String get errorLoadingNotifications;
+
+  /// No description provided for @youLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'אתה'**
+  String get youLabel;
+
+  /// No description provided for @adminLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'מנהל'**
+  String get adminLabel;
+
+  /// No description provided for @removeMember.
+  ///
+  /// In he, this message translates to:
+  /// **'הסר חבר'**
+  String get removeMember;
+
+  /// No description provided for @removeMemberTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הסרת {name}'**
+  String removeMemberTitle(String name);
+
+  /// No description provided for @memberHasBalance.
+  ///
+  /// In he, this message translates to:
+  /// **'ל{name} יש יתרה פתוחה של {amount}.\nכיצד לטפל?'**
+  String memberHasBalance(String name, String amount);
+
+  /// No description provided for @settleDebt.
+  ///
+  /// In he, this message translates to:
+  /// **'מסדיר את החוב'**
+  String get settleDebt;
+
+  /// No description provided for @settleDebtDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'יתרה תאופס ותרשם כהסדרה'**
+  String get settleDebtDesc;
+
+  /// No description provided for @redistributeDebt.
+  ///
+  /// In he, this message translates to:
+  /// **'חלק בין שאר החברים'**
+  String get redistributeDebt;
+
+  /// No description provided for @redistributeDebtDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'ההוצאות יחושבו מחדש'**
+  String get redistributeDebtDesc;
+
+  /// No description provided for @removeMemberConfirm.
+  ///
+  /// In he, this message translates to:
+  /// **'להסיר את החבר מהקבוצה?'**
+  String get removeMemberConfirm;
+
+  /// No description provided for @remove.
+  ///
+  /// In he, this message translates to:
+  /// **'הסר'**
+  String get remove;
+
+  /// No description provided for @memberRemovedSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'{name} הוסר מהקבוצה'**
+  String memberRemovedSuccess(String name);
+
+  /// No description provided for @errorRemovingMember.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בהסרת החבר'**
+  String get errorRemovingMember;
+
+  /// No description provided for @extendGroupTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הארכת הקבוצה'**
+  String get extendGroupTitle;
+
+  /// No description provided for @renewGroupTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'חידוש הקבוצה'**
+  String get renewGroupTitle;
+
+  /// No description provided for @activateGroupTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הפעלת הקבוצה'**
+  String get activateGroupTitle;
+
+  /// No description provided for @paymentAmountLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'סכום לתשלום'**
+  String get paymentAmountLabel;
+
+  /// No description provided for @validityLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'תוקף'**
+  String get validityLabel;
+
+  /// No description provided for @participantsLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'משתתפים'**
+  String get participantsLabel;
+
+  /// No description provided for @howToRecordPayment.
+  ///
+  /// In he, this message translates to:
+  /// **'כיצד לרשום את תשלום ההפעלה?'**
+  String get howToRecordPayment;
+
+  /// No description provided for @splitAmongAll.
+  ///
+  /// In he, this message translates to:
+  /// **'חלק על כל חברי הקבוצה'**
+  String get splitAmongAll;
+
+  /// No description provided for @splitAmongAllDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'תשלום ההפעלה יתחלק בין כל המשתתפים'**
+  String get splitAmongAllDesc;
+
+  /// No description provided for @payAlone.
+  ///
+  /// In he, this message translates to:
+  /// **'אני משלם לבד'**
+  String get payAlone;
+
+  /// No description provided for @payAloneDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'ההוצאה נרשמת רק עלי'**
+  String get payAloneDesc;
+
+  /// No description provided for @betaNoteActivation.
+  ///
+  /// In he, this message translates to:
+  /// **'בשלב הביתא ההפעלה מתבצעת ידנית על ידי המנהל. תשלום ישיר יתווסף בגרסה הבאה.'**
+  String get betaNoteActivation;
+
+  /// No description provided for @extendedSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'הקבוצה הוארכה בהצלחה 🎉'**
+  String get extendedSuccess;
+
+  /// No description provided for @renewedSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'הקבוצה חודשה בהצלחה 🎉'**
+  String get renewedSuccess;
+
+  /// No description provided for @activatedSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'הקבוצה הופעלה בהצלחה 🎉'**
+  String get activatedSuccess;
+
+  /// No description provided for @errorTryAgain.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה — נסה שוב'**
+  String get errorTryAgain;
+
+  /// No description provided for @extendBtnLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'הארך ב-7 ימים — {price} ₪'**
+  String extendBtnLabel(int price);
+
+  /// No description provided for @renewBtnLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'חדש לחודש — {price} ₪'**
+  String renewBtnLabel(int price);
+
+  /// No description provided for @activateBtnLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'הפעל קבוצה — {price} ₪'**
+  String activateBtnLabel(int price);
+
+  /// No description provided for @sevenDaysPlus.
+  ///
+  /// In he, this message translates to:
+  /// **'+7 ימים'**
+  String get sevenDaysPlus;
+
+  /// No description provided for @thirtyDays.
+  ///
+  /// In he, this message translates to:
+  /// **'30 יום'**
+  String get thirtyDays;
+
+  /// No description provided for @expenseHint.
+  ///
+  /// In he, this message translates to:
+  /// **'לדוגמה: ארוחת ערב'**
+  String get expenseHint;
+
+  /// No description provided for @expenseTitleRequired.
+  ///
+  /// In he, this message translates to:
+  /// **'נדרש תיאור'**
+  String get expenseTitleRequired;
+
+  /// No description provided for @notesHint.
+  ///
+  /// In he, this message translates to:
+  /// **'הוסף הערה...'**
+  String get notesHint;
+
+  /// No description provided for @editExpense.
+  ///
+  /// In he, this message translates to:
+  /// **'עריכת הוצאה'**
+  String get editExpense;
+
+  /// No description provided for @errorUpdatingExpense.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בעדכון ההוצאה'**
+  String get errorUpdatingExpense;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In he, this message translates to:
+  /// **'שמור שינויים'**
+  String get saveChanges;
+
+  /// No description provided for @selectPaidBy.
+  ///
+  /// In he, this message translates to:
+  /// **'בחר מי שילם'**
+  String get selectPaidBy;
+
+  /// No description provided for @loginBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'כניסה'**
+  String get loginBtn;
+
+  /// No description provided for @welcomeTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'ברוך הבא ל-ShareFlow'**
+  String get welcomeTitle;
+
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'כנס לחשבון שלך'**
+  String get loginSubtitle;
+
+  /// No description provided for @emailRequired.
+  ///
+  /// In he, this message translates to:
+  /// **'נדרש אימייל'**
+  String get emailRequired;
+
+  /// No description provided for @passwordRequired.
+  ///
+  /// In he, this message translates to:
+  /// **'נדרשת סיסמה'**
+  String get passwordRequired;
+
+  /// No description provided for @wrongCredentials.
+  ///
+  /// In he, this message translates to:
+  /// **'אימייל או סיסמה שגויים'**
+  String get wrongCredentials;
+
+  /// No description provided for @loginError.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בהתחברות, נסה שוב'**
+  String get loginError;
+
+  /// No description provided for @orDivider.
+  ///
+  /// In he, this message translates to:
+  /// **'או'**
+  String get orDivider;
+
+  /// No description provided for @fullName.
+  ///
+  /// In he, this message translates to:
+  /// **'שם מלא'**
+  String get fullName;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In he, this message translates to:
+  /// **'צור חשבון חדש'**
+  String get createAccount;
+
+  /// No description provided for @fillDetails.
+  ///
+  /// In he, this message translates to:
+  /// **'מלא את הפרטים להמשך'**
+  String get fillDetails;
+
+  /// No description provided for @nameRequired.
+  ///
+  /// In he, this message translates to:
+  /// **'נדרש שם'**
+  String get nameRequired;
+
+  /// No description provided for @nameTooShort.
+  ///
+  /// In he, this message translates to:
+  /// **'שם חייב להיות לפחות 2 תווים'**
+  String get nameTooShort;
+
+  /// No description provided for @passwordHint.
+  ///
+  /// In he, this message translates to:
+  /// **'סיסמה (מינימום 8 תווים)'**
+  String get passwordHint;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In he, this message translates to:
+  /// **'סיסמה חייבת להיות לפחות 8 תווים'**
+  String get passwordTooShort;
+
+  /// No description provided for @passwordMismatch.
+  ///
+  /// In he, this message translates to:
+  /// **'הסיסמאות אינן תואמות'**
+  String get passwordMismatch;
+
+  /// No description provided for @emailAlreadyRegistered.
+  ///
+  /// In he, this message translates to:
+  /// **'אימייל זה כבר רשום'**
+  String get emailAlreadyRegistered;
+
+  /// No description provided for @registerError.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בהרשמה, נסה שוב'**
+  String get registerError;
+
+  /// No description provided for @calculating.
+  ///
+  /// In he, this message translates to:
+  /// **'מחשב...'**
+  String get calculating;
+
+  /// No description provided for @exchangeRateLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'שער:'**
+  String get exchangeRateLabel;
+
+  /// No description provided for @eventSummary.
+  ///
+  /// In he, this message translates to:
+  /// **'סיכום אירוע'**
+  String get eventSummary;
+
+  /// No description provided for @participants.
+  ///
+  /// In he, this message translates to:
+  /// **'משתתפים'**
+  String get participants;
+
+  /// No description provided for @costPerParticipant.
+  ///
+  /// In he, this message translates to:
+  /// **'עלות לכל משתתף'**
+  String get costPerParticipant;
+
+  /// No description provided for @requiredTransfers.
+  ///
+  /// In he, this message translates to:
+  /// **'💸 העברות נדרשות'**
+  String get requiredTransfers;
+
+  /// No description provided for @sendSummary.
+  ///
+  /// In he, this message translates to:
+  /// **'📤 שלח סיכום'**
+  String get sendSummary;
+
+  /// No description provided for @sendPushToAll.
+  ///
+  /// In he, this message translates to:
+  /// **'שלח התראה לכל החברים'**
+  String get sendPushToAll;
+
+  /// No description provided for @sendPushSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'Push notification לכל משתמשי הקבוצה'**
+  String get sendPushSubtitle;
+
+  /// No description provided for @shareViaWhatsApp.
+  ///
+  /// In he, this message translates to:
+  /// **'שלח ב-WhatsApp'**
+  String get shareViaWhatsApp;
+
+  /// No description provided for @shareWhatsAppSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'פתח WhatsApp עם טקסט הסיכום'**
+  String get shareWhatsAppSubtitle;
+
+  /// No description provided for @reminderSent.
+  ///
+  /// In he, this message translates to:
+  /// **'תזכורת נשלחה ל-{name} ✓'**
+  String reminderSent(String name);
+
+  /// No description provided for @errorSendingReminder.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בשליחת תזכורת'**
+  String get errorSendingReminder;
+
+  /// No description provided for @errorLoadingSummary.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בטעינת הסיכום'**
+  String get errorLoadingSummary;
+
+  /// No description provided for @notificationSentToAll.
+  ///
+  /// In he, this message translates to:
+  /// **'התראה נשלחה לכל חברי הקבוצה ✓'**
+  String get notificationSentToAll;
+
+  /// No description provided for @errorSendingNotification.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בשליחת התראה'**
+  String get errorSendingNotification;
+
+  /// No description provided for @sendExpenseSplit.
+  ///
+  /// In he, this message translates to:
+  /// **'הצטרף לקבוצה שלנו ב-ADL ShareFlow!\nקוד הזמנה: {code}\nלינק: {link}'**
+  String sendExpenseSplit(String code, String link);
 }
 
 class _AppLocalizationsDelegate

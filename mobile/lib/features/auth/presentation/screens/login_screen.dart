@@ -1,21 +1,24 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart'
     if (dart.library.html) 'package:adl_shareflow/core/stubs/apple_stub.dart';
 
 import '../../../../theme/app_colors.dart';
 import '../../../../services/auth_service.dart';
+import '../../../../providers/auth_provider.dart';
 import '../../../../ui/widgets/app_button.dart';
+import '../../../../l10n/app_localizations.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
@@ -35,15 +38,16 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _loginEmail() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() { _loading = true; _error = null; });
-
+    final l = AppLocalizations.of(context)!;
     try {
-      await _authService.login(
+      final user = await _authService.login(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
+      ref.read(authProvider.notifier).setUser(user);
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
-      setState(() { _error = _parseError(e); });
+      setState(() { _error = _parseError(e, l); });
     } finally {
       if (mounted) setState(() { _loading = false; });
     }
@@ -51,14 +55,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _loginGoogle() async {
     setState(() { _loading = true; _error = null; });
+    final l = AppLocalizations.of(context)!;
     try {
       final googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) { setState(() { _loading = false; }); return; }
       final auth = await googleUser.authentication;
-      await _authService.loginWithGoogle(auth.idToken!);
+      final user = await _authService.loginWithGoogle(auth.idToken!);
+      ref.read(authProvider.notifier).setUser(user);
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
-      setState(() { _error = _parseError(e); });
+      setState(() { _error = _parseError(e, l); });
     } finally {
       if (mounted) setState(() { _loading = false; });
     }
@@ -66,6 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _loginApple() async {
     setState(() { _loading = true; _error = null; });
+    final l = AppLocalizations.of(context)!;
     try {
       final cred = await SignInWithApple.getAppleIDCredential(
         scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
@@ -73,28 +80,30 @@ class _LoginScreenState extends State<LoginScreen> {
       final displayName = [cred.givenName, cred.familyName]
           .where((s) => s != null && s.isNotEmpty)
           .join(' ');
-      await _authService.loginWithApple(
+      final user = await _authService.loginWithApple(
         identityToken: cred.identityToken!,
         displayName: displayName.isNotEmpty ? displayName : null,
       );
+      ref.read(authProvider.notifier).setUser(user);
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
-      setState(() { _error = _parseError(e); });
+      setState(() { _error = _parseError(e, l); });
     } finally {
       if (mounted) setState(() { _loading = false; });
     }
   }
 
-  String _parseError(dynamic e) {
+  String _parseError(dynamic e, AppLocalizations l) {
     final msg = e.toString();
     if (msg.contains('401') || msg.contains('Invalid email')) {
-      return 'אימייל או סיסמה שגויים';
+      return l.wrongCredentials;
     }
-    return 'שגיאה בהתחברות, נסה שוב';
+    return l.loginError;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -129,17 +138,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'ברוך הבא ל-ShareFlow',
-                      style: TextStyle(
+                    Text(
+                      l.welcomeTitle,
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'כנס לחשבון שלך',
+                    Text(
+                      l.loginSubtitle,
                       style: TextStyle(
                         fontSize: 15,
                         color: AppColors.textSecondary,
@@ -160,13 +169,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _emailCtrl,
                       keyboardType: TextInputType.emailAddress,
                       textDirection: TextDirection.ltr,
-                      decoration: const InputDecoration(
-                        hintText: 'אימייל',
-                        prefixIcon: Icon(Icons.email_outlined),
+                      decoration: InputDecoration(
+                        hintText: l.email,
+                        prefixIcon: const Icon(Icons.email_outlined),
                       ),
                       validator: (v) {
-                        if (v == null || v.isEmpty) return 'נדרש אימייל';
-                        if (!v.contains('@')) return 'אימייל לא תקין';
+                        if (v == null || v.isEmpty) return l.emailRequired;
+                        if (!v.contains('@')) return l.invalidEmail;
                         return null;
                       },
                     ),
@@ -176,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: _obscurePassword,
                       textDirection: TextDirection.ltr,
                       decoration: InputDecoration(
-                        hintText: 'סיסמה',
+                        hintText: l.password,
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -190,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       validator: (v) {
-                        if (v == null || v.isEmpty) return 'נדרשת סיסמה';
+                        if (v == null || v.isEmpty) return l.passwordRequired;
                         return null;
                       },
                     ),
@@ -201,9 +210,9 @@ class _LoginScreenState extends State<LoginScreen> {
               // Forgot password
               Align(
                 alignment: Alignment.centerLeft,
-                child: TextButton(
+                    child: TextButton(
                   onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
-                  child: const Text('שכחתי סיסמה'),
+                  child: Text(l.forgotPassword),
                 ),
               ),
 
@@ -226,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Login button
               GradientButton(
-                label: 'כניסה',
+                label: l.loginBtn,
                 onPressed: _loading ? null : _loginEmail,
                 isLoading: _loading,
               ),
@@ -240,7 +249,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Text(
-                      'או',
+                      l.orDivider,
                       style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                     ),
                   ),
@@ -252,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // Social login
               _SocialButton(
-                label: 'המשך עם Google',
+                label: l.continueWithGoogle,
                 icon: 'assets/icons/google_icon.png',
                 fallbackIcon: Icons.g_mobiledata,
                 onPressed: _loading ? null : _loginGoogle,
@@ -261,7 +270,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               if (!kIsWeb) ...[
                 _SocialButton(
-                  label: 'המשך עם Apple',
+                  label: l.continueWithApple,
                   icon: 'assets/icons/apple_icon.png',
                   fallbackIcon: Icons.apple,
                   onPressed: _loading ? null : _loginApple,
@@ -276,13 +285,13 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'אין לך חשבון? ',
-                    style: TextStyle(color: AppColors.textSecondary),
+                  Text(
+                    l.dontHaveAccount,
+                    style: const TextStyle(color: AppColors.textSecondary),
                   ),
                   TextButton(
                     onPressed: () => Navigator.pushNamed(context, '/register'),
-                    child: const Text('הרשמה'),
+                    child: Text(l.register),
                   ),
                 ],
               ),

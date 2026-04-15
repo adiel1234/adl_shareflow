@@ -7,6 +7,7 @@ import '../../domain/balance_model.dart';
 import '../../data/balance_repository.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../services/share_service.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class EventSummaryScreen extends ConsumerStatefulWidget {
   final Group group;
@@ -42,7 +43,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() { _error = 'שגיאה בטעינת הסיכום'; _loading = false; });
+      if (mounted) setState(() { _error = AppLocalizations.of(context)!.errorLoadingSummary; _loading = false; });
     }
   }
 
@@ -55,13 +56,13 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('התראה נשלחה לכל חברי הקבוצה ✓')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.notificationSentToAll)),
         );
       }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בשליחת התראה')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorSendingNotification)),
         );
       }
     } finally {
@@ -98,8 +99,8 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        title: const Text('סיכום אירוע',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(AppLocalizations.of(context)!.eventSummary,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
         centerTitle: true,
       ),
       body: _loading
@@ -112,6 +113,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
   }
 
   Widget _buildContent() {
+    final l = AppLocalizations.of(context)!;
     final s = _summary!;
     final transfers = (s['transfers'] as List? ?? []);
 
@@ -144,12 +146,12 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                   children: [
                     _StatChip(
                       icon: '👥',
-                      label: 'משתתפים',
+                      label: l.participants,
                       value: '${s['member_count']}',
                     ),
                     _StatChip(
                       icon: '📊',
-                      label: 'עלות לכל משתתף',
+                      label: l.costPerParticipant,
                       value: s['avg_per_member'] as String? ?? '0',
                     ),
                   ],
@@ -161,8 +163,8 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
           const SizedBox(height: 24),
 
           // Transfers section
-          const Text(
-            '💸 העברות נדרשות',
+          Text(
+            l.requiredTransfers,
             style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
@@ -179,12 +181,12 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                 border: Border.all(
                     color: AppColors.positive.withOpacity(0.3)),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('✅', style: TextStyle(fontSize: 22)),
-                  SizedBox(width: 10),
-                  Text('הכל מסודר! אין העברות נדרשות',
+                  const Text('✅', style: TextStyle(fontSize: 22)),
+                  const SizedBox(width: 10),
+                  Text(l.allSettled,
                       style: TextStyle(
                           color: AppColors.positive,
                           fontWeight: FontWeight.w600)),
@@ -203,8 +205,8 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
           const SizedBox(height: 32),
 
           // Action buttons
-          const Text(
-            '📤 שלח סיכום',
+          Text(
+            l.sendSummary,
             style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
@@ -214,8 +216,8 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
 
           _ActionButton(
             icon: Icons.notifications_outlined,
-            label: 'שלח התראה לכל החברים',
-            subtitle: 'Push notification לכל משתמשי הקבוצה',
+            label: l.sendPushToAll,
+            subtitle: l.sendPushSubtitle,
             color: AppColors.primary,
             loading: _sending,
             onTap: _sendAppNotifications,
@@ -223,8 +225,8 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
           const SizedBox(height: 10),
           _ActionButton(
             icon: Icons.chat_outlined,
-            label: 'שלח ב-WhatsApp',
-            subtitle: 'פתח WhatsApp עם טקסט הסיכום',
+            label: l.shareViaWhatsApp,
+            subtitle: l.shareWhatsAppSubtitle,
             color: const Color(0xFF25D366),
             onTap: _shareWhatsApp,
           ),
@@ -246,14 +248,14 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('תזכורת נשלחה ל-${t['from_name']} ✓'),
+            content: Text(AppLocalizations.of(context)!.reminderSent(t['from_name'] as String)),
           ),
         );
       }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בשליחת תזכורת')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorSendingReminder)),
         );
       }
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../ui/widgets/app_button.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -43,8 +44,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
+      final l = AppLocalizations.of(context)!;
       setState(() {
-        _error = e.toString().contains('already') ? 'אימייל זה כבר רשום' : 'שגיאה בהרשמה, נסה שוב';
+        _error = e.toString().contains('already') ? l.emailAlreadyRegistered : l.registerError;
       });
     } finally {
       if (mounted) setState(() { _loading = false; });
@@ -53,10 +55,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('הרשמה'),
+        title: Text(l.register),
         backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
@@ -67,9 +70,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               const SizedBox(height: 24),
 
-              const Text(
-                'צור חשבון חדש',
-                style: TextStyle(
+              Text(
+                l.createAccount,
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
@@ -77,8 +80,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              const Text(
-                'מלא את הפרטים להמשך',
+              Text(
+                l.fillDetails,
                 style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
@@ -90,13 +93,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     TextFormField(
                       controller: _nameCtrl,
-                      decoration: const InputDecoration(
-                        hintText: 'שם מלא',
-                        prefixIcon: Icon(Icons.person_outline),
+                      decoration: InputDecoration(
+                        hintText: l.fullName,
+                        prefixIcon: const Icon(Icons.person_outline),
                       ),
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'נדרש שם';
-                        if (v.trim().length < 2) return 'שם חייב להיות לפחות 2 תווים';
+                        if (v == null || v.trim().isEmpty) return l.nameRequired;
+                        if (v.trim().length < 2) return l.nameTooShort;
                         return null;
                       },
                     ),
@@ -105,13 +108,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _emailCtrl,
                       keyboardType: TextInputType.emailAddress,
                       textDirection: TextDirection.ltr,
-                      decoration: const InputDecoration(
-                        hintText: 'אימייל',
-                        prefixIcon: Icon(Icons.email_outlined),
+                      decoration: InputDecoration(
+                        hintText: l.email,
+                        prefixIcon: const Icon(Icons.email_outlined),
                       ),
                       validator: (v) {
-                        if (v == null || v.isEmpty) return 'נדרש אימייל';
-                        if (!v.contains('@')) return 'אימייל לא תקין';
+                        if (v == null || v.isEmpty) return l.emailRequired;
+                        if (!v.contains('@')) return l.invalidEmail;
                         return null;
                       },
                     ),
@@ -121,7 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       obscureText: _obscurePassword,
                       textDirection: TextDirection.ltr,
                       decoration: InputDecoration(
-                        hintText: 'סיסמה (מינימום 8 תווים)',
+                        hintText: l.passwordHint,
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -135,8 +138,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       validator: (v) {
-                        if (v == null || v.isEmpty) return 'נדרשת סיסמה';
-                        if (v.length < 8) return 'סיסמה חייבת להיות לפחות 8 תווים';
+                        if (v == null || v.isEmpty) return l.passwordRequired;
+                        if (v.length < 8) return l.passwordTooShort;
                         return null;
                       },
                     ),
@@ -145,12 +148,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _confirmCtrl,
                       obscureText: true,
                       textDirection: TextDirection.ltr,
-                      decoration: const InputDecoration(
-                        hintText: 'אימות סיסמה',
-                        prefixIcon: Icon(Icons.lock_outline),
+                      decoration: InputDecoration(
+                        hintText: l.confirmPassword,
+                        prefixIcon: const Icon(Icons.lock_outline),
                       ),
                       validator: (v) {
-                        if (v != _passwordCtrl.text) return 'הסיסמאות אינן תואמות';
+                        if (v != _passwordCtrl.text) return l.passwordMismatch;
                         return null;
                       },
                     ),
@@ -177,7 +180,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ],
 
               GradientButton(
-                label: 'הרשמה',
+                label: l.register,
                 onPressed: _loading ? null : _register,
                 isLoading: _loading,
               ),
@@ -187,13 +190,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'כבר יש לך חשבון? ',
-                    style: TextStyle(color: AppColors.textSecondary),
+                  Text(
+                    l.alreadyHaveAccount,
+                    style: const TextStyle(color: AppColors.textSecondary),
                   ),
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('כניסה'),
+                    child: Text(l.loginBtn),
                   ),
                 ],
               ),

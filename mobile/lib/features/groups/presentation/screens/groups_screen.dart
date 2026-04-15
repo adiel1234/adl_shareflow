@@ -4,6 +4,7 @@ import '../../../../providers/groups_provider.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../features/groups/data/group_repository.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../widgets/group_card.dart';
 import 'create_group_screen.dart';
 import 'group_detail_screen.dart';
@@ -15,6 +16,7 @@ class GroupsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final groupsAsync = ref.watch(groupsProvider);
     final auth = ref.watch(authProvider);
+    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -31,16 +33,16 @@ class GroupsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'שלום, ${auth.displayName.split(' ').first} 👋',
+                    l.helloUser(auth.displayName.split(' ').first),
                     style: const TextStyle(
                       fontSize: 13,
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                  const Text(
-                    'הקבוצות שלי',
-                    style: TextStyle(
+                  Text(
+                    l.myGroups,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -53,12 +55,12 @@ class GroupsScreen extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.group_add_outlined,
                     color: AppColors.primary, size: 26),
-                tooltip: 'הצטרף לקבוצה',
+                tooltip: l.joinGroup,
                 onPressed: () => _showJoinSheet(context, ref),
               ),
               IconButton(
                 icon: const Icon(Icons.add, color: AppColors.primary, size: 28),
-                tooltip: 'קבוצה חדשה',
+                tooltip: l.createGroup,
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -75,7 +77,7 @@ class GroupsScreen extends ConsumerWidget {
             ),
             error: (e, _) => SliverFillRemaining(
               child: _ErrorState(
-                message: 'שגיאה בטעינת הקבוצות',
+                message: l.errorLoadingGroups,
                 onRetry: () => ref.invalidate(groupsProvider),
               ),
             ),
@@ -159,7 +161,7 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
       final info = await _repo.checkInvite(code);
 
       if (info['already_member'] == true) {
-        setState(() { _error = 'כבר חבר בקבוצה זו'; _loading = false; });
+        setState(() { _error = AppLocalizations.of(context)!.alreadyMember; _loading = false; });
         return;
       }
 
@@ -191,7 +193,7 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
 
     } catch (e) {
       setState(() {
-        _error = 'קוד לא תקין — בדוק ונסה שוב';
+        _error = AppLocalizations.of(context)!.invalidCode;
         _loading = false;
       });
     }
@@ -205,57 +207,58 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'חלוקת הוצאות',
-          style: TextStyle(fontWeight: FontWeight.w700),
-          textAlign: TextAlign.right,
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'בקבוצה "$groupName" יש כבר $expenseCount הוצאות.',
-              style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
-              textAlign: TextAlign.right,
+      builder: (ctx) {
+        final l = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            l.splitExpenses,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+            textAlign: TextAlign.right,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.groupExpensesCount(groupName, expenseCount),
+                style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
+                textAlign: TextAlign.right,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                l.howToJoin,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+                textAlign: TextAlign.right,
+              ),
+            ],
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            _SplitOptionButton(
+              icon: Icons.history,
+              color: AppColors.primary,
+              title: l.splitAll,
+              subtitle: '${l.members}: $expenseCount',
+              onTap: () => Navigator.pop(ctx, 'full'),
             ),
-            const SizedBox(height: 12),
-            const Text(
-              'כיצד תרצה להצטרף?',
-              style: TextStyle(fontWeight: FontWeight.w600),
-              textAlign: TextAlign.right,
+            const SizedBox(height: 8),
+            _SplitOptionButton(
+              icon: Icons.arrow_forward,
+              color: AppColors.secondary,
+              title: l.fromNowOn,
+              subtitle: l.notChargedPast,
+              onTap: () => Navigator.pop(ctx, 'forward'),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, null),
+              child: Text(l.cancel,
+                  style: const TextStyle(color: AppColors.textSecondary)),
             ),
           ],
-        ),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          // Full retroactive
-          _SplitOptionButton(
-            icon: Icons.history,
-            color: AppColors.primary,
-            title: 'חלק את כל ההוצאות',
-            subtitle: 'כולל $expenseCount הוצאות מהעבר',
-            onTap: () => Navigator.pop(ctx, 'full'),
-          ),
-          const SizedBox(height: 8),
-          // Forward only
-          _SplitOptionButton(
-            icon: Icons.arrow_forward,
-            color: AppColors.secondary,
-            title: 'רק מעכשיו והלאה',
-            subtitle: 'לא מחויב בהוצאות עד כה',
-            onTap: () => Navigator.pop(ctx, 'forward'),
-          ),
-          const SizedBox(height: 4),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, null),
-            child: const Text('ביטול',
-                style: TextStyle(color: AppColors.textSecondary)),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -278,14 +281,14 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
-            'הצטרף לקבוצה',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          Text(
+            AppLocalizations.of(context)!.joinGroup,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'הכנס את קוד ההזמנה שקיבלת',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          Text(
+            AppLocalizations.of(context)!.enterInviteCode,
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
           const SizedBox(height: 20),
           TextField(
@@ -325,8 +328,8 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white),
                     )
-                  : const Text('הצטרף',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  : Text(AppLocalizations.of(context)!.join,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
             ),
           ),
         ],
@@ -420,31 +423,31 @@ class _EmptyState extends ConsumerWidget {
               child: const Icon(Icons.group_add, color: Colors.white, size: 40),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'אין קבוצות עדיין',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.noGroups,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'צור קבוצה חדשה עם חברים,\nשותפים לדירה, או בני משפחה',
-              style: TextStyle(color: AppColors.textSecondary, height: 1.5),
+            Text(
+              AppLocalizations.of(context)!.noGroupsDescription,
+              style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 28),
             ElevatedButton.icon(
               onPressed: onCreateGroup,
               icon: const Icon(Icons.add),
-              label: const Text('קבוצה חדשה'),
+              label: Text(AppLocalizations.of(context)!.createGroup),
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: () => _showJoinSheet(context, ref),
               icon: const Icon(Icons.group_add_outlined),
-              label: const Text('הצטרף עם קוד הזמנה'),
+              label: Text(AppLocalizations.of(context)!.joinWithCode),
             ),
           ],
         ),
@@ -468,7 +471,7 @@ class _ErrorState extends StatelessWidget {
           const SizedBox(height: 12),
           Text(message, style: const TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 16),
-          TextButton(onPressed: onRetry, child: const Text('נסה שוב')),
+          TextButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.tryAgain)),
         ],
       ),
     );

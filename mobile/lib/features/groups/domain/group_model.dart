@@ -9,6 +9,7 @@ class Group {
   final bool isClosed;
   final int memberCount;
   final String? myRole;
+  final String? adminName;
   final DateTime? createdAt;
   // Lifecycle / monetization
   final String groupType;    // 'event' | 'ongoing'
@@ -29,6 +30,7 @@ class Group {
     this.isClosed = false,
     this.memberCount = 0,
     this.myRole,
+    this.adminName,
     this.createdAt,
     this.groupType = 'event',
     this.groupState = 'free',
@@ -49,6 +51,7 @@ class Group {
         isClosed: json['is_closed'] as bool? ?? false,
         memberCount: json['member_count'] as int? ?? 0,
         myRole: json['my_role'] as String?,
+        adminName: json['admin_name'] as String?,
         createdAt: json['created_at'] != null
             ? DateTime.tryParse(json['created_at'] as String)
             : null,

@@ -5,6 +5,7 @@ import '../../../notifications/presentation/screens/notifications_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../../providers/notifications_provider.dart';
 import '../../../../theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 
 final _navIndexProvider = StateProvider<int>((_) => 0);
 
@@ -46,6 +47,7 @@ class _BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: AppColors.border, width: 0.5)),
@@ -59,14 +61,14 @@ class _BottomNav extends StatelessWidget {
               _NavItem(
                 icon: Icons.group_outlined,
                 activeIcon: Icons.group,
-                label: 'קבוצות',
+                label: l.groups,
                 isActive: currentIndex == 0,
                 onTap: () => onTap(0),
               ),
               _NavItemWithBadge(
                 icon: Icons.notifications_outlined,
                 activeIcon: Icons.notifications,
-                label: 'התראות',
+                label: l.notifications,
                 isActive: currentIndex == 1,
                 badgeCount: unreadCount,
                 onTap: () => onTap(1),
@@ -74,7 +76,7 @@ class _BottomNav extends StatelessWidget {
               _NavItem(
                 icon: Icons.person_outline,
                 activeIcon: Icons.person,
-                label: 'פרופיל',
+                label: l.profile,
                 isActive: currentIndex == 2,
                 onTap: () => onTap(2),
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/currency_provider.dart';
 import '../../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 /// מציג המרת מטבע בזמן אמת בטופס הוצאה
 /// מופיע רק כשהמטבע שונה ממטבע הבסיס של הקבוצה
@@ -25,10 +26,11 @@ class CurrencyConversionChip extends ConsumerWidget {
       conversionParams(from: fromCurrency, to: toCurrency, amount: amount),
     ));
 
+    final l = AppLocalizations.of(context)!;
     return convAsync.when(
       loading: () => _chip(
         icon: Icons.sync,
-        text: 'מחשב...',
+        text: l.calculating,
         color: AppColors.textSecondary,
         spinning: true,
       ),
@@ -36,7 +38,7 @@ class CurrencyConversionChip extends ConsumerWidget {
       data: (conv) => _chip(
         icon: Icons.currency_exchange,
         text:
-            '≈ ${_fmt(conv.convertedAmount)} $toCurrency  (שער: ${_fmtRate(conv.rate)})',
+            '≈ ${_fmt(conv.convertedAmount)} $toCurrency  (${l.exchangeRateLabel} ${_fmtRate(conv.rate)})',
         color: AppColors.secondary,
       ),
     );

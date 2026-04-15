@@ -7,6 +7,7 @@ import '../../../groups/domain/group_model.dart';
 import '../../domain/balance_model.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/amount_display.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'event_summary_screen.dart';
 
 class BalancesScreen extends ConsumerWidget {
@@ -50,26 +51,26 @@ class BalancesScreen extends ConsumerWidget {
                           EventSummaryScreen(group: group),
                     ),
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     child: Row(
                       children: [
-                        Icon(Icons.summarize_outlined,
+                        const Icon(Icons.summarize_outlined,
                             color: Colors.white, size: 22),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment:
                                 CrossAxisAlignment.start,
                             children: [
-                              Text('סכם אירוע',
-                                  style: TextStyle(
+                              Text(AppLocalizations.of(context)!.summarizeEvent,
+                                  style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
                                       fontSize: 15)),
-                              Text('שלח סיכום וחלוקת עלויות לחברים',
-                                  style: TextStyle(
+                              Text(AppLocalizations.of(context)!.sendSummaryToMembers,
+                                  style: const TextStyle(
                                       color: Colors.white70,
                                       fontSize: 12)),
                             ],
@@ -107,7 +108,7 @@ class BalancesScreen extends ConsumerWidget {
           balancesAsync.when(
             loading: () => const _LoadingCard(),
             error: (_, __) =>
-                const Center(child: Text('שגיאה בטעינת יתרות')),
+                Center(child: Text(AppLocalizations.of(context)!.errorLoadingBalances)),
             data: (data) {
               final balances =
                   (data['balances'] as List).cast<UserBalance>();
@@ -136,11 +137,12 @@ class _MyBalanceCard extends StatelessWidget {
     final gradient = balance.isPositive
         ? AppColors.positiveGradient
         : AppColors.negativeGradient;
+    final l = AppLocalizations.of(context)!;
     final label = balance.isCreditor
-        ? 'חייבים לך'
+        ? l.owesYouLabel
         : balance.isDebtor
-            ? 'אתה חייב'
-            : 'מסודר ✅';
+            ? l.youOwe
+            : l.allSettled;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -188,9 +190,9 @@ class _BalancesList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'יתרות הקבוצה',
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.groupBalances,
+          style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary),
@@ -265,10 +267,10 @@ class _MemberBalanceRow extends StatelessWidget {
               ),
               Text(
                 balance.isSettled
-                    ? 'מסודר'
+                    ? AppLocalizations.of(context)!.settled
                     : balance.isCreditor
-                        ? 'חייבים לו'
-                        : 'חייב',
+                        ? AppLocalizations.of(context)!.owesHimLabel
+                        : AppLocalizations.of(context)!.owesLabel,
                 style: TextStyle(fontSize: 11, color: color),
               ),
             ],
@@ -338,9 +340,9 @@ class _TotalExpensesCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'סך הוצאות הקבוצה',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.groupTotalExpenses,
+                      style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 12,
                           fontWeight: FontWeight.w500),
@@ -371,9 +373,9 @@ class _TotalExpensesCard extends ConsumerWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const Text(
-                    'הוצאות',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.expensesCountLabel,
+                    style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 11,
                         fontWeight: FontWeight.w500),

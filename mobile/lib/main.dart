@@ -4,10 +4,15 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/config/router.dart';
+import 'services/feedback_service.dart';
 import 'theme/app_theme.dart';
+import 'providers/locale_provider.dart';
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await FeedbackService.init();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -26,11 +31,13 @@ void main() async {
   );
 }
 
-class ShareFlowApp extends StatelessWidget {
+class ShareFlowApp extends ConsumerWidget {
   const ShareFlowApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+    final isHe = locale.languageCode == 'he';
     return MaterialApp(
       title: 'ADL ShareFlow',
       debugShowCheckedModeBanner: false,
@@ -38,6 +45,7 @@ class ShareFlowApp extends StatelessWidget {
       onGenerateRoute: AppRouter.onGenerateRoute,
       initialRoute: '/',
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
@@ -46,7 +54,7 @@ class ShareFlowApp extends StatelessWidget {
         Locale('he'),
         Locale('en'),
       ],
-      locale: const Locale('he'),
+      locale: locale,
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
@@ -55,7 +63,7 @@ class ShareFlowApp extends StatelessWidget {
             ),
           ),
           child: Directionality(
-            textDirection: TextDirection.rtl,
+            textDirection: isHe ? TextDirection.rtl : TextDirection.ltr,
             child: child!,
           ),
         );

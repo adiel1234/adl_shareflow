@@ -6,6 +6,7 @@ import '../../../../providers/balances_provider.dart';
 import '../../../groups/domain/group_model.dart';
 import '../../../balances/domain/balance_model.dart';
 import '../../../../theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class MembersTabScreen extends ConsumerWidget {
   final Group group;
@@ -20,7 +21,7 @@ class MembersTabScreen extends ConsumerWidget {
 
     return membersAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => const Center(child: Text('שגיאה בטעינת חברים')),
+      error: (_, __) => Center(child: Text(AppLocalizations.of(context)!.errorLoadingMembers)),
       data: (members) {
         // Build a map of userId → net balance for display
         final balanceMap = <String, String>{};
@@ -117,8 +118,8 @@ class MembersTabScreen extends ConsumerWidget {
                                     color: AppColors.primary.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Text('אתה',
-                                      style: TextStyle(
+                                  child: Text(AppLocalizations.of(context)!.youLabel,
+                                      style: const TextStyle(
                                           fontSize: 10,
                                           color: AppColors.primary,
                                           fontWeight: FontWeight.w600)),
@@ -133,8 +134,8 @@ class MembersTabScreen extends ConsumerWidget {
                                     color: AppColors.warning.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: const Text('מנהל',
-                                      style: TextStyle(
+                                  child: Text(AppLocalizations.of(context)!.adminLabel,
+                                      style: const TextStyle(
                                           fontSize: 10,
                                           color: AppColors.warning,
                                           fontWeight: FontWeight.w600)),
@@ -162,7 +163,7 @@ class MembersTabScreen extends ConsumerWidget {
                       IconButton(
                         icon: const Icon(Icons.person_remove_outlined,
                             color: AppColors.negative, size: 20),
-                        tooltip: 'הסר חבר',
+                        tooltip: AppLocalizations.of(context)!.removeMember,
                         onPressed: () =>
                             _confirmRemove(context, ref, m, netSigned, currencyLabel),
                       ),
@@ -183,6 +184,7 @@ class MembersTabScreen extends ConsumerWidget {
     double net,
     String currency,
   ) async {
+    final l = AppLocalizations.of(context)!;
     final hasDebt = net.abs() > 0.001;
     String? mode;
 
@@ -190,62 +192,68 @@ class MembersTabScreen extends ConsumerWidget {
       mode = await showDialog<String>(
         context: context,
         barrierDismissible: false,
-        builder: (ctx) => AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text('הסרת ${member.displayLabel}',
-              style: const TextStyle(fontWeight: FontWeight.w700),
-              textAlign: TextAlign.right),
-          content: Text(
-            'ל${member.displayLabel} יש יתרה פתוחה של '
-            '${net.abs().round()} $currency.\nכיצד לטפל?',
-            style: const TextStyle(
-                color: AppColors.textSecondary, height: 1.5),
-            textAlign: TextAlign.right,
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            _OptionBtn(
-              icon: Icons.handshake_outlined,
-              color: AppColors.positive,
-              title: 'מסדיר את החוב',
-              subtitle: 'יתרה תאופס ותרשם כהסדרה',
-              onTap: () => Navigator.pop(ctx, 'settle'),
+        builder: (ctx) {
+          final dl = AppLocalizations.of(ctx)!;
+          return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Text(dl.removeMemberTitle(member.displayLabel),
+                style: const TextStyle(fontWeight: FontWeight.w700),
+                textAlign: TextAlign.right),
+            content: Text(
+              dl.memberHasBalance(
+                  member.displayLabel, '${net.abs().round()} $currency'),
+              style: const TextStyle(
+                  color: AppColors.textSecondary, height: 1.5),
+              textAlign: TextAlign.right,
             ),
-            const SizedBox(height: 8),
-            _OptionBtn(
-              icon: Icons.people_outline,
-              color: AppColors.primary,
-              title: 'חלק בין שאר החברים',
-              subtitle: 'ההוצאות יחושבו מחדש',
-              onTap: () => Navigator.pop(ctx, 'redistribute'),
-            ),
-            const SizedBox(height: 4),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('ביטול',
-                  style: TextStyle(color: AppColors.textSecondary)),
-            ),
-          ],
-        ),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              _OptionBtn(
+                icon: Icons.handshake_outlined,
+                color: AppColors.positive,
+                title: dl.settleDebt,
+                subtitle: dl.settleDebtDesc,
+                onTap: () => Navigator.pop(ctx, 'settle'),
+              ),
+              const SizedBox(height: 8),
+              _OptionBtn(
+                icon: Icons.people_outline,
+                color: AppColors.primary,
+                title: dl.redistributeDebt,
+                subtitle: dl.redistributeDebtDesc,
+                onTap: () => Navigator.pop(ctx, 'redistribute'),
+              ),
+              const SizedBox(height: 4),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(dl.cancel,
+                    style: const TextStyle(color: AppColors.textSecondary)),
+              ),
+            ],
+          );
+        },
       );
     } else {
       final ok = await showDialog<bool>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text('הסרת ${member.displayLabel}'),
-          content: const Text('להסיר את החבר מהקבוצה?'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('ביטול')),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('הסר',
-                  style: TextStyle(color: AppColors.negative)),
-            ),
-          ],
-        ),
+        builder: (ctx) {
+          final dl = AppLocalizations.of(ctx)!;
+          return AlertDialog(
+            title: Text(dl.removeMemberTitle(member.displayLabel)),
+            content: Text(dl.removeMemberConfirm),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: Text(dl.cancel)),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(dl.remove,
+                    style: const TextStyle(color: AppColors.negative)),
+              ),
+            ],
+          );
+        },
       );
       if (ok == true) mode = 'settle';
     }
@@ -260,13 +268,13 @@ class MembersTabScreen extends ConsumerWidget {
       ref.invalidate(balancesProvider(group.id));
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${member.displayLabel} הוסר מהקבוצה')),
+          SnackBar(content: Text(l.memberRemovedSuccess(member.displayLabel))),
         );
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בהסרת החבר')),
+          SnackBar(content: Text(l.errorRemovingMember)),
         );
       }
     }

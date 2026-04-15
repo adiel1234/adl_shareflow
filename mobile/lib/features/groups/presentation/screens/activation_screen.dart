@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/groups_provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../domain/group_model.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Shown when a group hits the free limit and needs activation.
 /// For event groups in expired state, shows extend option.
@@ -38,21 +39,21 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
     }
   }
 
-  String get _title {
-    if (_isExtend) return 'הארכת הקבוצה';
-    if (_isRenew) return 'חידוש הקבוצה';
-    return 'הפעלת הקבוצה';
+  String _title(AppLocalizations l) {
+    if (_isExtend) return l.extendGroupTitle;
+    if (_isRenew) return l.renewGroupTitle;
+    return l.activateGroupTitle;
   }
 
-  String get _durationLabel {
-    if (_isExtend) return '+7 ימים';
-    return widget.group.groupType == 'ongoing' ? '30 יום' : '7 ימים';
+  String _durationLabel(AppLocalizations l) {
+    if (_isExtend) return l.sevenDaysPlus;
+    return widget.group.groupType == 'ongoing' ? l.thirtyDays : l.sevenDays;
   }
 
-  String get _buttonLabel {
-    if (_isExtend) return 'הארך ב-7 ימים — $_price ₪';
-    if (_isRenew) return 'חדש לחודש — $_price ₪';
-    return 'הפעל קבוצה — $_price ₪';
+  String _buttonLabel(AppLocalizations l) {
+    if (_isExtend) return l.extendBtnLabel(_price);
+    if (_isRenew) return l.renewBtnLabel(_price);
+    return l.activateBtnLabel(_price);
   }
 
   Future<void> _submit() async {
@@ -71,19 +72,20 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
       }
       ref.invalidate(groupsProvider);
       if (mounted) {
+        final l = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(_isExtend
-              ? 'הקבוצה הוארכה בהצלחה 🎉'
+              ? l.extendedSuccess
               : _isRenew
-                  ? 'הקבוצה חודשה בהצלחה 🎉'
-                  : 'הקבוצה הופעלה בהצלחה 🎉')),
+                  ? l.renewedSuccess
+                  : l.activatedSuccess)),
         );
         Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה — נסה שוב')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorTryAgain)),
         );
       }
     } finally {
@@ -93,10 +95,11 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(_title),
+        title: Text(_title(l)),
         backgroundColor: AppColors.background,
       ),
       body: SingleChildScrollView(
@@ -120,7 +123,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    _title,
+                    _title(l),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
@@ -142,11 +145,11 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
             const SizedBox(height: 28),
 
             // Price breakdown
-            _PriceRow(label: 'סכום לתשלום', value: '$_price ₪'),
-            _PriceRow(label: 'תוקף', value: _durationLabel),
+            _PriceRow(label: l.paymentAmountLabel, value: '$_price ₪'),
+            _PriceRow(label: l.validityLabel, value: _durationLabel(l)),
             _PriceRow(
-              label: 'משתתפים',
-              value: '${widget.group.memberCount} חברים',
+              label: l.participantsLabel,
+              value: l.memberCount(widget.group.memberCount),
             ),
 
             const SizedBox(height: 24),
@@ -154,21 +157,21 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
             const SizedBox(height: 16),
 
             // Split option
-            const Text(
-              'כיצד לרשום את תשלום ההפעלה?',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            Text(
+              l.howToRecordPayment,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
             ),
             const SizedBox(height: 12),
             _SplitOption(
-              label: 'חלק על כל חברי הקבוצה',
-              subtitle: 'תשלום ההפעלה יתחלק בין כל המשתתפים',
+              label: l.splitAmongAll,
+              subtitle: l.splitAmongAllDesc,
               selected: _splitAmongGroup,
               onTap: () => setState(() => _splitAmongGroup = true),
             ),
             const SizedBox(height: 8),
             _SplitOption(
-              label: 'אני משלם לבד',
-              subtitle: 'ההוצאה נרשמת רק עלי',
+              label: l.payAlone,
+              subtitle: l.payAloneDesc,
               selected: !_splitAmongGroup,
               onTap: () => setState(() => _splitAmongGroup = false),
             ),
@@ -182,15 +185,14 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                 color: AppColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.info_outline,
+                  const Icon(Icons.info_outline,
                       color: AppColors.textSecondary, size: 18),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'בשלב הביתא ההפעלה מתבצעת ידנית על ידי המנהל. '
-                      'תשלום ישיר יתווסף בגרסה הבאה.',
+                      l.betaNoteActivation,
                       style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12,
@@ -219,7 +221,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                         width: 22, height: 22,
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
-                    : Text(_buttonLabel,
+                    : Text(_buttonLabel(l),
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w700)),
               ),

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/group_repository.dart';
 import '../../domain/group_model.dart';
@@ -112,16 +113,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                   ),
                 ),
               ),
-              title: Text(
-                group.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 17,
-                ),
-              ),
-              titlePadding:
-                  const EdgeInsetsDirectional.only(start: 56, bottom: 16),
+              title: null,
+              titlePadding: EdgeInsetsDirectional.zero,
             ),
             actions: [
               IconButton(
@@ -131,7 +124,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
               if (group.isAdmin && !group.isClosed)
                 IconButton(
                   icon: const Icon(Icons.lock_outline, color: Colors.white),
-                  tooltip: 'סגור קבוצה',
+                  tooltip: AppLocalizations.of(context)!.closeGroup,
                   onPressed: () => _closeGroup(context, group),
                 ),
             ],
@@ -143,10 +136,10 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
               unselectedLabelColor: Colors.white60,
               labelStyle: const TextStyle(
                   fontWeight: FontWeight.w600, fontSize: 14),
-              tabs: const [
-                Tab(text: 'הוצאות'),
-                Tab(text: 'יתרות'),
-                Tab(text: 'חברים'),
+              tabs: [
+                Tab(text: AppLocalizations.of(context)!.expenses),
+                Tab(text: AppLocalizations.of(context)!.balances),
+                Tab(text: AppLocalizations.of(context)!.members),
               ],
             ),
           ),
@@ -174,20 +167,19 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
       ),
       floatingActionButton: (group.isClosed || !group.isOperational)
           ? null
-          : FloatingActionButton.extended(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => AddExpenseScreen(group: group),
-                ),
-              ).then((_) {
-                ref.invalidate(expensesProvider(group.id));
-                ref.invalidate(balancesProvider(group.id));
-              }),
-              icon: const Icon(Icons.add),
-              label: const Text('הוצאה חדשה'),
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
+          : _NewExpenseFab(
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AddExpenseScreen(group: group),
+                  ),
+                ).then((_) {
+                  ref.invalidate(expensesProvider(group.id));
+                  ref.invalidate(balancesProvider(group.id));
+                });
+              },
             ),
     );
   }
@@ -243,7 +235,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בטעינת קישור הזמנה')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingInvite)),
         );
       }
     }
@@ -286,12 +278,11 @@ class _CloseGroupDialogState extends State<_CloseGroupDialog> {
   Future<void> _preflight() async {
     try {
       await widget.repo.closeGroup(widget.group.id);
-      // No debts — closed immediately
       if (mounted) {
         Navigator.pop(context);
         widget.onClosed();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('הקבוצה נסגרה בהצלחה 🔒')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.groupClosedSuccess)),
         );
       }
     } on DioException catch (e) {
@@ -317,14 +308,14 @@ class _CloseGroupDialogState extends State<_CloseGroupDialog> {
         Navigator.pop(context);
         widget.onClosed();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('הקבוצה נסגרה בהצלחה 🔒')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.groupClosedSuccess)),
         );
       }
     } catch (_) {
       if (mounted) {
         setState(() => _closing = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בסגירת הקבוצה')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorClosingGroup)),
         );
       }
     }
@@ -351,16 +342,18 @@ class _CloseGroupDialogState extends State<_CloseGroupDialog> {
                   color: AppColors.negative, size: 30),
             ),
             const SizedBox(height: 16),
-            Text(
+            Builder(builder: (ctx) {
+              final l = AppLocalizations.of(ctx)!;
+              return Text(
               _phase == _ClosePhase.hasDebts
-                  ? 'חובות שטרם הוסדרו'
-                  : 'סגירת קבוצה',
+                  ? l.unsettledDebts
+                  : l.closeGroup,
               style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary),
               textAlign: TextAlign.center,
-            ),
+            );}),
             const SizedBox(height: 12),
 
             // Body content
@@ -370,10 +363,10 @@ class _CloseGroupDialogState extends State<_CloseGroupDialog> {
                 child: CircularProgressIndicator(),
               )
             else if (_phase == _ClosePhase.confirm)
-              const Text(
-                'האם אתה בטוח שברצונך לסגור את הקבוצה?\nלאחר הסגירה לא ניתן יהיה להוסיף הוצאות חדשות.',
+              Text(
+                AppLocalizations.of(context)!.closeGroupConfirm,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textSecondary, height: 1.5),
+                style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
               )
             else ...[
               // Unsettled debts section
@@ -389,14 +382,14 @@ class _CloseGroupDialogState extends State<_CloseGroupDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.warning_amber_rounded,
+                        const Icon(Icons.warning_amber_rounded,
                             color: AppColors.negative, size: 18),
-                        SizedBox(width: 6),
+                        const SizedBox(width: 6),
                         Text(
-                          'טרם הוסדרו כלל החובות בקבוצה:',
-                          style: TextStyle(
+                          AppLocalizations.of(context)!.unsettledDebtsTitle,
+                          style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
                               color: AppColors.negative),
@@ -469,10 +462,10 @@ class _CloseGroupDialogState extends State<_CloseGroupDialog> {
                 ),
               ),
               const SizedBox(height: 10),
-              const Text(
-                'ניתן לסגור בכל זאת, אך החובות יישארו ללא הסדרה.',
+              Text(
+                AppLocalizations.of(context)!.closeAnywayNote,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                     color: AppColors.textSecondary, fontSize: 12, height: 1.4),
               ),
             ],
@@ -504,8 +497,8 @@ class _CloseGroupDialogState extends State<_CloseGroupDialog> {
                               strokeWidth: 2, color: Colors.white))
                       : Text(
                           _phase == _ClosePhase.hasDebts
-                              ? 'סגור בכל זאת'
-                              : 'סגור קבוצה',
+                              ? AppLocalizations.of(context)!.closeAnywayBtn
+                              : AppLocalizations.of(context)!.closeGroup,
                         ),
                 ),
               ),
@@ -516,7 +509,7 @@ class _CloseGroupDialogState extends State<_CloseGroupDialog> {
                   onPressed: _closing
                       ? null
                       : () => Navigator.pop(context),
-                  child: const Text('ביטול'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
               ),
             ],
@@ -551,7 +544,7 @@ class _InviteSheetState extends State<_InviteSheet> {
     final email = _emailController.text.trim();
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('נא להזין כתובת אימייל תקינה')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.invalidEmail)),
       );
       return;
     }
@@ -562,12 +555,12 @@ class _InviteSheetState extends State<_InviteSheet> {
       if (mounted) {
         _emailController.clear();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('הזמנה נשלחה ל-$email ✉️')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.inviteSentTo(email))),
         );
       }
     } catch (e) {
       if (mounted) {
-        String msg = 'שגיאה בשליחת ההזמנה';
+        String msg = AppLocalizations.of(context)!.errorSendingInvite;
         if (e is DioException) {
           msg = (e.response?.data?['message'] as String?) ?? msg;
         }
@@ -597,9 +590,9 @@ class _InviteSheetState extends State<_InviteSheet> {
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
-            'הזמן חברים',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          Text(
+            AppLocalizations.of(context)!.inviteFriends,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 20),
           Container(
@@ -610,8 +603,8 @@ class _InviteSheetState extends State<_InviteSheet> {
             ),
             child: Column(
               children: [
-                const Text('קוד הזמנה',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                Text(AppLocalizations.of(context)!.inviteCode,
+                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                 const SizedBox(height: 8),
                 Text(
                   widget.code,
@@ -633,11 +626,11 @@ class _InviteSheetState extends State<_InviteSheet> {
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: widget.code));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('הקוד הועתק!')),
+                      SnackBar(content: Text(AppLocalizations.of(context)!.codeCopied)),
                     );
                   },
                   icon: const Icon(Icons.copy, size: 18),
-                  label: const Text('העתק קוד'),
+                  label: Text(AppLocalizations.of(context)!.copyCode),
                 ),
               ),
               const SizedBox(width: 12),
@@ -646,11 +639,11 @@ class _InviteSheetState extends State<_InviteSheet> {
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: widget.link));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('הקישור הועתק!')),
+                      SnackBar(content: Text(AppLocalizations.of(context)!.linkCopied)),
                     );
                   },
                   icon: const Icon(Icons.copy_outlined, size: 18),
-                  label: const Text('העתק לינק'),
+                  label: Text(AppLocalizations.of(context)!.copyLink),
                 ),
               ),
             ],
@@ -660,10 +653,10 @@ class _InviteSheetState extends State<_InviteSheet> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () => ShareService.shareViaWhatsApp(
-                'הצטרף לקבוצה שלנו ב-ADL ShareFlow!\nקוד הזמנה: ${widget.code}\nלינק: ${widget.link}',
+                AppLocalizations.of(context)!.sendExpenseSplit(widget.code, widget.link),
               ),
               icon: const Icon(Icons.chat_outlined, size: 18),
-              label: const Text('שלח ב-WhatsApp'),
+              label: Text(AppLocalizations.of(context)!.sendViaWhatsApp),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF25D366),
                 foregroundColor: Colors.white,
@@ -675,11 +668,11 @@ class _InviteSheetState extends State<_InviteSheet> {
           const SizedBox(height: 20),
           const Divider(),
           const SizedBox(height: 12),
-          const Align(
+          Align(
             alignment: Alignment.centerRight,
             child: Text(
-              'שלח הזמנה במייל',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              AppLocalizations.of(context)!.sendEmailInviteTitle,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ),
           const SizedBox(height: 10),
@@ -720,6 +713,60 @@ class _InviteSheetState extends State<_InviteSheet> {
           ),
           const SizedBox(height: 8),
         ],
+      ),
+    );
+  }
+}
+
+
+class _NewExpenseFab extends StatelessWidget {
+  final VoidCallback onPressed;
+  const _NewExpenseFab({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1D4ED8), Color(0xFF0D9488)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x441D4ED8),
+            blurRadius: 16,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.add_rounded, color: Colors.white, size: 22),
+                const SizedBox(width: 8),
+                Text(
+                  AppLocalizations.of(context)!.addExpense,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

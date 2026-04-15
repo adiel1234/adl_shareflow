@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/expenses_provider.dart';
 import '../../../../providers/groups_provider.dart';
@@ -9,8 +10,15 @@ import '../../../ocr/domain/ocr_result_model.dart';
 import '../../../../ui/widgets/currency_conversion_chip.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/app_button.dart';
+import '../../../../services/feedback_service.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../features/currency/data/currency_repository.dart';
+import '../../../../l10n/app_localizations.dart';
+
+// 3 professional icon colors — same palette as GroupCard
+const _kCatBlue   = Color(0xFF1D4ED8);
+const _kCatTeal   = Color(0xFF0D9488);
+const _kCatPurple = Color(0xFF7C3AED);
 
 class AddExpenseScreen extends ConsumerStatefulWidget {
   final Group group;
@@ -37,16 +45,30 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   bool get _showConversion =>
       _currency != widget.group.baseCurrency && _currentAmount > 0;
 
-  static const _categories = [
-    ('food', '🍔', 'אוכל'),
-    ('travel', '✈️', 'טיול'),
-    ('housing', '🏠', 'דיור'),
-    ('transport', '🚌', 'תחבורה'),
-    ('entertainment', '🎬', 'בידור'),
-    ('shopping', '🛍️', 'קניות'),
-    ('utilities', '💡', 'חשבונות'),
-    ('other', '💳', 'אחר'),
+  static const _categoryDefs = [
+    ('food',          Icons.restaurant_rounded,      _kCatTeal,   _kCatBlue),
+    ('travel',        Icons.flight_rounded,           _kCatBlue,   _kCatTeal),
+    ('housing',       Icons.home_rounded,             _kCatTeal,   _kCatPurple),
+    ('transport',     Icons.directions_car_rounded,   _kCatBlue,   _kCatPurple),
+    ('entertainment', Icons.celebration_rounded,      _kCatPurple, _kCatBlue),
+    ('shopping',      Icons.shopping_bag_rounded,     _kCatPurple, _kCatTeal),
+    ('utilities',     Icons.bolt_rounded,             _kCatTeal,   _kCatBlue),
+    ('other',         Icons.receipt_long_rounded,     _kCatBlue,   _kCatTeal),
   ];
+
+  String _catLabel(BuildContext context, String key) {
+    final l = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'food':          return l.catFood;
+      case 'travel':        return l.catTravel;
+      case 'housing':       return l.catHousing;
+      case 'transport':     return l.catTransport;
+      case 'entertainment': return l.catEntertainment;
+      case 'shopping':      return l.catShopping;
+      case 'utilities':     return l.catUtilities;
+      default:              return l.catOther;
+    }
+  }
 
   @override
   void initState() {
@@ -133,11 +155,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             category: _category,
             notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
           );
+      await FeedbackService.newExpense();
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בהוספת הוצאה')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorAddingExpense)),
         );
       }
     } finally {
@@ -152,14 +175,13 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('הוצאה חדשה'),
+        title: Text(AppLocalizations.of(context)!.addExpense),
         backgroundColor: AppColors.background,
         actions: [
-          // OCR Scan button in app bar
           IconButton(
             onPressed: _loading ? null : _scanReceipt,
             icon: const Icon(Icons.document_scanner_outlined),
-            tooltip: 'סרוק קבלה',
+            tooltip: AppLocalizations.of(context)!.scanReceipt,
             style: IconButton.styleFrom(
               backgroundColor: AppColors.primary.withOpacity(0.08),
               foregroundColor: AppColors.primary,
@@ -186,43 +208,60 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               ],
 
               // Category
-              const _SectionLabel('קטגוריה'),
+              _SectionLabel(AppLocalizations.of(context)!.category),
               const SizedBox(height: 10),
               SizedBox(
                 height: 72,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  children: _categories.map((cat) {
+                  children: _categoryDefs.map((cat) {
                     final selected = _category == cat.$1;
+                    final catColor = cat.$3;
+                    final catColor2 = cat.$4;
                     return Padding(
                       padding: const EdgeInsets.only(left: 8),
                       child: InkWell(
-                        onTap: () => setState(() => _category = cat.$1),
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          setState(() => _category = cat.$1);
+                        },
                         borderRadius: BorderRadius.circular(12),
-                        child: AnimatedContainer(
+                          child: AnimatedContainer(
                           duration: const Duration(milliseconds: 180),
                           width: 72,
                           decoration: BoxDecoration(
-                            color:
-                                selected ? AppColors.primary : AppColors.surface,
+                            gradient: selected
+                                ? LinearGradient(
+                                    colors: [catColor, catColor2],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
+                                : null,
+                            color: selected ? null : const Color(0xFFF1F5F9),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: selected
-                                  ? AppColors.primary
-                                  : AppColors.border,
+                                  ? catColor
+                                  : const Color(0xFFE2E8F0),
+                              width: selected ? 1.5 : 1,
                             ),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(cat.$2,
-                                  style: const TextStyle(fontSize: 24)),
+                              Icon(
+                                cat.$2,
+                                size: 24,
+                                color: selected
+                                    ? Colors.white
+                                    : catColor,
+                              ),
                               const SizedBox(height: 4),
                               Text(
-                                cat.$3,
+                                _catLabel(context, cat.$1),
                                 style: TextStyle(
                                   fontSize: 10,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                   color: selected
                                       ? Colors.white
                                       : AppColors.textSecondary,
@@ -240,13 +279,13 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               const SizedBox(height: 20),
 
               // Title
-              const _SectionLabel('תיאור ההוצאה'),
+              _SectionLabel(AppLocalizations.of(context)!.expenseDescription),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _titleCtrl,
-                decoration: const InputDecoration(hintText: 'לדוגמה: ארוחת ערב'),
+                decoration: InputDecoration(hintText: AppLocalizations.of(context)!.expenseDescriptionHint),
                 validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'נדרש תיאור' : null,
+                    v == null || v.trim().isEmpty ? AppLocalizations.of(context)!.descriptionRequired : null,
               ),
 
               const SizedBox(height: 16),
@@ -260,7 +299,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const _SectionLabel('סכום'),
+                        _SectionLabel(AppLocalizations.of(context)!.amount),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _amountCtrl,
@@ -274,10 +313,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                           decoration:
                               const InputDecoration(hintText: '0.00'),
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'נדרש סכום';
+                            if (v == null || v.isEmpty) return AppLocalizations.of(context)!.amountRequired;
                             if (double.tryParse(v) == null ||
                                 double.parse(v) <= 0) {
-                              return 'סכום לא תקין';
+                              return AppLocalizations.of(context)!.invalidAmount;
                             }
                             return null;
                           },
@@ -322,11 +361,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               const SizedBox(height: 16),
 
               // Paid by
-              const _SectionLabel('שילם'),
+              _SectionLabel(AppLocalizations.of(context)!.paidBy),
               const SizedBox(height: 8),
               membersAsync.when(
                 loading: () => const LinearProgressIndicator(),
-                error: (_, __) => const Text('שגיאה בטעינת חברים'),
+                error: (_, __) => Text(AppLocalizations.of(context)!.errorLoadingMembers),
                 data: (members) {
                   // Ensure _paidBy is valid — reset if not found in list
                   final validPaidBy = members.any((m) => m.userId == _paidBy)
@@ -340,7 +379,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   return DropdownButtonFormField<String>(
                     value: validPaidBy,
                     decoration: const InputDecoration(),
-                    hint: const Text('בחר מי שילם'),
+                    hint: Text(AppLocalizations.of(context)!.paidByHint),
                     items: members
                         .map((m) => DropdownMenuItem(
                               value: m.userId,
@@ -349,7 +388,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                         .toList(),
                     onChanged: (v) => setState(() => _paidBy = v),
                     validator: (v) =>
-                        v == null || v.isEmpty ? 'בחר מי שילם' : null,
+                        v == null || v.isEmpty ? AppLocalizations.of(context)!.paidByHint : null,
                   );
                 },
               ),
@@ -357,19 +396,18 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               const SizedBox(height: 16),
 
               // Notes
-              const _SectionLabel('הערות (אופציונלי)'),
+              _SectionLabel(AppLocalizations.of(context)!.optionalNotes),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _notesCtrl,
                 maxLines: 2,
-                decoration:
-                    const InputDecoration(hintText: 'הוסף הערה...'),
+                decoration: InputDecoration(hintText: AppLocalizations.of(context)!.addNotesHint),
               ),
 
               const SizedBox(height: 32),
 
               GradientButton(
-                label: 'הוסף הוצאה',
+                label: AppLocalizations.of(context)!.addExpenseBtn,
                 onPressed: _loading ? null : _save,
                 isLoading: _loading,
               ),
@@ -427,16 +465,16 @@ class _ScanCta extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'סרוק קבלה',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.scanReceipt,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 15,
                       color: AppColors.textPrimary,
                     ),
                   ),
                   Text(
-                    'חסוך זמן — מלא אוטומטית מקבלה',
+                    AppLocalizations.of(context)!.scanReceiptDescription,
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
@@ -471,10 +509,10 @@ class _OcrBanner extends StatelessWidget {
           Icon(Icons.check_circle_outline,
               color: AppColors.positive, size: 18),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Text(
-              'הקבלה נסרקה — ניתן לעדכן את הנתונים',
-              style: TextStyle(
+              AppLocalizations.of(context)!.receiptScanned,
+              style: const TextStyle(
                   color: AppColors.positive,
                   fontSize: 13,
                   fontWeight: FontWeight.w500),
@@ -482,7 +520,7 @@ class _OcrBanner extends StatelessWidget {
           ),
           TextButton(
             onPressed: onRescan,
-            child: const Text('סרוק שוב'),
+            child: Text(AppLocalizations.of(context)!.rescan),
           ),
         ],
       ),

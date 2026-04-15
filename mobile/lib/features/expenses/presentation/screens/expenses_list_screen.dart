@@ -6,7 +6,39 @@ import '../../../../providers/currency_provider.dart';
 import '../../../groups/domain/group_model.dart';
 import '../../domain/expense_model.dart';
 import '../../../../theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 import 'edit_expense_screen.dart';
+
+// iOS-style category icon helpers (same palette as GroupCard)
+const _kExpBlue   = Color(0xFF1D4ED8);
+const _kExpTeal   = Color(0xFF0D9488);
+const _kExpPurple = Color(0xFF7C3AED);
+
+IconData _expCategoryIcon(String? cat) {
+  switch (cat) {
+    case 'food':          return Icons.restaurant_rounded;
+    case 'travel':        return Icons.flight_rounded;
+    case 'housing':       return Icons.home_rounded;
+    case 'transport':     return Icons.directions_car_rounded;
+    case 'entertainment': return Icons.celebration_rounded;
+    case 'shopping':      return Icons.shopping_bag_rounded;
+    case 'utilities':     return Icons.bolt_rounded;
+    default:              return Icons.receipt_long_rounded;
+  }
+}
+
+LinearGradient _expCategoryGradient(String? cat) {
+  switch (cat) {
+    case 'food':          return const LinearGradient(colors: [_kExpTeal, _kExpBlue], begin: Alignment.topLeft, end: Alignment.bottomRight);
+    case 'travel':        return const LinearGradient(colors: [_kExpBlue, _kExpTeal], begin: Alignment.topLeft, end: Alignment.bottomRight);
+    case 'housing':       return const LinearGradient(colors: [_kExpTeal, _kExpPurple], begin: Alignment.topLeft, end: Alignment.bottomRight);
+    case 'transport':     return const LinearGradient(colors: [_kExpBlue, _kExpPurple], begin: Alignment.topLeft, end: Alignment.bottomRight);
+    case 'entertainment': return const LinearGradient(colors: [_kExpPurple, _kExpBlue], begin: Alignment.topLeft, end: Alignment.bottomRight);
+    case 'shopping':      return const LinearGradient(colors: [_kExpPurple, _kExpTeal], begin: Alignment.topLeft, end: Alignment.bottomRight);
+    case 'utilities':     return const LinearGradient(colors: [_kExpTeal, _kExpBlue], begin: Alignment.topLeft, end: Alignment.bottomRight);
+    default:              return const LinearGradient(colors: [_kExpBlue, _kExpTeal], begin: Alignment.topLeft, end: Alignment.bottomRight);
+  }
+}
 
 class ExpensesListScreen extends ConsumerWidget {
   final Group group;
@@ -36,12 +68,12 @@ class ExpensesListScreen extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('שגיאה בטעינת הוצאות',
-                style: TextStyle(color: AppColors.textSecondary)),
+            Text(AppLocalizations.of(context)!.errorLoadingExpenses,
+                style: const TextStyle(color: AppColors.textSecondary)),
             const SizedBox(height: 8),
             TextButton(
               onPressed: () => ref.invalidate(expensesProvider(group.id)),
-              child: const Text('נסה שוב'),
+              child: Text(AppLocalizations.of(context)!.tryAgain),
             ),
           ],
         ),
@@ -139,16 +171,17 @@ class _ExpenseItem extends StatelessWidget {
             ),
             child: Row(
               children: [
-                // Category icon
+                // Category icon — iOS style (gradient bg + white icon)
                 Container(
                   width: 44, height: 44,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
+                    gradient: _expCategoryGradient(expense.category),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Center(
-                    child: Text(expense.categoryEmoji,
-                        style: const TextStyle(fontSize: 22)),
+                  child: Icon(
+                    _expCategoryIcon(expense.category),
+                    color: Colors.white,
+                    size: 22,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -176,7 +209,9 @@ class _ExpenseItem extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        isPayer ? 'שילמת' : 'שילם ${expense.paidByName ?? ""}',
+                        isPayer
+                            ? AppLocalizations.of(context)!.youPaid
+                            : AppLocalizations.of(context)!.paidByPerson(expense.paidByName ?? ''),
                         style: const TextStyle(
                             fontSize: 12, color: AppColors.textSecondary),
                       ),
@@ -213,7 +248,7 @@ class _ExpenseItem extends StatelessWidget {
                             fontSize: 11, color: AppColors.textDisabled),
                       ),
                     Text(
-                      'החלק שלך: ${isPositive ? '+' : ''}${prefNet.round()} $prefCurrency',
+                      '${AppLocalizations.of(context)!.yourShare} ${isPositive ? '+' : ''}${prefNet.round()} $prefCurrency',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -264,18 +299,18 @@ class _EmptyExpenses extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'אין הוצאות עדיין',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.noExpenses,
+            style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'לחץ על "הוצאה חדשה" להוסיף',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          Text(
+            AppLocalizations.of(context)!.noExpensesHint,
+            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
         ],
       ),

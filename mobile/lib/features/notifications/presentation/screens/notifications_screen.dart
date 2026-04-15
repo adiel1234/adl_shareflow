@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/notifications_provider.dart';
 import '../../domain/notification_model.dart';
 import '../../../../theme/app_colors.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     final state = ref.watch(notificationsProvider);
 
     return Scaffold(
@@ -16,7 +18,7 @@ class NotificationsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Row(
           children: [
-            const Text('התראות'),
+            Text(l.notifications),
             if (state.unreadCount > 0) ...[
               const SizedBox(width: 8),
               _Badge(count: state.unreadCount),
@@ -30,7 +32,7 @@ class NotificationsScreen extends ConsumerWidget {
             TextButton(
               onPressed: () =>
                   ref.read(notificationsProvider.notifier).markAllRead(),
-              child: const Text('סמן הכל כנקרא'),
+              child: Text(l.markAllRead),
             ),
           IconButton(
             onPressed: () =>
@@ -45,6 +47,7 @@ class NotificationsScreen extends ConsumerWidget {
 
   Widget _buildBody(
       BuildContext context, WidgetRef ref, NotificationsState state) {
+    final l = AppLocalizations.of(context)!;
     if (state.isLoading && state.items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -56,12 +59,12 @@ class NotificationsScreen extends ConsumerWidget {
           children: [
             Icon(Icons.error_outline, size: 48, color: AppColors.textDisabled),
             const SizedBox(height: 12),
-            const Text('שגיאה בטעינת התראות'),
+            Text(l.errorLoadingNotifications),
             const SizedBox(height: 16),
             OutlinedButton(
               onPressed: () =>
                   ref.read(notificationsProvider.notifier).load(),
-              child: const Text('נסה שוב'),
+              child: Text(l.tryAgain),
             ),
           ],
         ),
@@ -76,16 +79,16 @@ class NotificationsScreen extends ConsumerWidget {
             Icon(Icons.notifications_outlined,
                 size: 64, color: AppColors.textDisabled),
             const SizedBox(height: 16),
-            const Text(
-              'אין התראות עדיין',
-              style: TextStyle(
+            Text(
+              l.noNotifications,
+              style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textSecondary),
             ),
             const SizedBox(height: 8),
             Text(
-              'כשחברי הקבוצה יוסיפו הוצאות\nתקבל התראה כאן',
+              l.noNotificationsHint,
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: AppColors.textSecondary.withOpacity(0.7),
@@ -127,37 +130,41 @@ class _NotificationTile extends StatelessWidget {
 
   IconData _icon() {
     switch (notification.type) {
-      case 'new_expense':
-        return Icons.receipt_outlined;
-      case 'settlement_requested':
-        return Icons.payment_outlined;
-      case 'settlement_confirmed':
-        return Icons.check_circle_outline;
-      case 'member_joined':
-        return Icons.person_add_outlined;
-      default:
-        return Icons.notifications_outlined;
+      case 'new_expense':        return Icons.receipt_outlined;
+      case 'settlement_requested': return Icons.payment_outlined;
+      case 'settlement_confirmed': return Icons.check_circle_outline;
+      case 'member_joined':       return Icons.person_add_outlined;
+      default:                    return Icons.notifications_outlined;
     }
   }
 
   Color _iconColor() {
     switch (notification.type) {
-      case 'new_expense':
-        return AppColors.primary;
-      case 'settlement_requested':
-        return AppColors.warning;
-      case 'settlement_confirmed':
-        return AppColors.positive;
-      case 'member_joined':
-        return AppColors.secondary;
-      default:
-        return AppColors.textSecondary;
+      case 'new_expense':        return AppColors.primary;
+      case 'settlement_requested': return AppColors.warning;
+      case 'settlement_confirmed': return AppColors.positive;
+      case 'member_joined':       return AppColors.secondary;
+      default:                    return AppColors.textSecondary;
+    }
+  }
+
+  /// Returns a localized title based on notification type.
+  /// Falls back to the server-provided title if no match.
+  String _localizedTitle(AppLocalizations l) {
+    switch (notification.type) {
+      case 'new_expense':         return l.notifNewExpenseTitle;
+      case 'settlement_requested': return l.notifSettlementRequestedTitle;
+      case 'settlement_confirmed': return l.notifSettlementConfirmedTitle;
+      case 'member_joined':        return l.notifMemberJoinedTitle;
+      default:                     return l.notifGeneralTitle;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final unread = !notification.isRead;
+    final iconColor = _iconColor();
 
     return InkWell(
       onTap: onTap,
@@ -174,10 +181,10 @@ class _NotificationTile extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: _iconColor().withOpacity(0.1),
+                color: iconColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(_icon(), color: _iconColor(), size: 22),
+              child: Icon(_icon(), color: iconColor, size: 22),
             ),
 
             const SizedBox(width: 14),
@@ -191,19 +198,17 @@ class _NotificationTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          notification.title,
+                          _localizedTitle(l),
                           style: TextStyle(
-                            fontWeight: unread
-                                ? FontWeight.w700
-                                : FontWeight.w500,
+                            fontWeight: unread ? FontWeight.w700 : FontWeight.w500,
                             fontSize: 14,
                             color: AppColors.textPrimary,
                           ),
                         ),
                       ),
                       Text(
-                        notification.timeAgo,
-                        style: TextStyle(
+                        notification.timeAgoLocalized(l),
+                        style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 11,
                         ),
@@ -211,9 +216,10 @@ class _NotificationTile extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 4),
+                  // Body from server — contains names/amounts (user content)
                   Text(
                     notification.body,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                     ),

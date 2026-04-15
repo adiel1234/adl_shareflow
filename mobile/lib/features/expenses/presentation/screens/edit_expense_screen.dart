@@ -9,6 +9,7 @@ import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/app_button.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../features/currency/data/currency_repository.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class EditExpenseScreen extends ConsumerStatefulWidget {
   final Group group;
@@ -41,16 +42,34 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
   bool get _showConversion =>
       _currency != widget.group.baseCurrency && _currentAmount > 0;
 
-  static const _categories = [
-    ('food', '🍔', 'אוכל'),
-    ('travel', '✈️', 'טיול'),
-    ('housing', '🏠', 'דיור'),
-    ('transport', '🚌', 'תחבורה'),
-    ('entertainment', '🎬', 'בידור'),
-    ('shopping', '🛍️', 'קניות'),
-    ('utilities', '💡', 'חשבונות'),
-    ('other', '💳', 'אחר'),
+  static const _kBlue   = Color(0xFF1D4ED8);
+  static const _kTeal   = Color(0xFF0D9488);
+  static const _kPurple = Color(0xFF7C3AED);
+
+  static const _categoryDefs = [
+    ('food',          Icons.restaurant_rounded,      _kTeal,   _kBlue),
+    ('travel',        Icons.flight_rounded,           _kBlue,   _kTeal),
+    ('housing',       Icons.home_rounded,             _kTeal,   _kPurple),
+    ('transport',     Icons.directions_car_rounded,   _kBlue,   _kPurple),
+    ('entertainment', Icons.celebration_rounded,      _kPurple, _kBlue),
+    ('shopping',      Icons.shopping_bag_rounded,     _kPurple, _kTeal),
+    ('utilities',     Icons.bolt_rounded,             _kTeal,   _kBlue),
+    ('other',         Icons.receipt_long_rounded,     _kBlue,   _kTeal),
   ];
+
+  String _catLabel(BuildContext context, String key) {
+    final l = AppLocalizations.of(context)!;
+    switch (key) {
+      case 'food':          return l.catFood;
+      case 'travel':        return l.catTravel;
+      case 'housing':       return l.catHousing;
+      case 'transport':     return l.catTransport;
+      case 'entertainment': return l.catEntertainment;
+      case 'shopping':      return l.catShopping;
+      case 'utilities':     return l.catUtilities;
+      default:              return l.catOther;
+    }
+  }
 
   @override
   void initState() {
@@ -113,7 +132,7 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בעדכון ההוצאה')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorUpdatingExpense)),
         );
       }
     } finally {
@@ -128,7 +147,7 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('עריכת הוצאה'),
+        title: Text(AppLocalizations.of(context)!.editExpense),
         backgroundColor: AppColors.background,
       ),
       body: Form(
@@ -139,14 +158,16 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Category picker
-              const _SectionLabel('קטגוריה'),
+              _SectionLabel(AppLocalizations.of(context)!.category),
               const SizedBox(height: 10),
               SizedBox(
                 height: 72,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  children: _categories.map((cat) {
+                  children: _categoryDefs.map((cat) {
                     final selected = _category == cat.$1;
+                    final color = cat.$3;
+                    final color2 = cat.$4;
                     return Padding(
                       padding: const EdgeInsets.only(left: 8),
                       child: InkWell(
@@ -156,24 +177,28 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
                           duration: const Duration(milliseconds: 180),
                           width: 72,
                           decoration: BoxDecoration(
-                            color: selected
-                                ? AppColors.primary
-                                : AppColors.surface,
+                            gradient: selected
+                                ? LinearGradient(
+                                    colors: [color, color2],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
+                                : null,
+                            color: selected ? null : AppColors.surface,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: selected
-                                  ? AppColors.primary
-                                  : AppColors.border,
+                              color: selected ? color : AppColors.border,
                             ),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(cat.$2,
-                                  style: const TextStyle(fontSize: 24)),
+                              Icon(cat.$2,
+                                  size: 22,
+                                  color: selected ? Colors.white : color),
                               const SizedBox(height: 4),
                               Text(
-                                cat.$3,
+                                _catLabel(context, cat.$1),
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w500,
@@ -194,13 +219,13 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
               const SizedBox(height: 20),
 
               // Title
-              const _SectionLabel('תיאור ההוצאה'),
+              _SectionLabel(AppLocalizations.of(context)!.expenseDescription),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _titleCtrl,
-                decoration: const InputDecoration(hintText: 'לדוגמה: ארוחת ערב'),
+                decoration: InputDecoration(hintText: AppLocalizations.of(context)!.expenseHint),
                 validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'נדרש תיאור' : null,
+                    v == null || v.trim().isEmpty ? AppLocalizations.of(context)!.expenseTitleRequired : null,
               ),
 
               const SizedBox(height: 16),
@@ -214,7 +239,7 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const _SectionLabel('סכום'),
+                        _SectionLabel(AppLocalizations.of(context)!.amount),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _amountCtrl,
@@ -228,10 +253,11 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
                           decoration:
                               const InputDecoration(hintText: '0.00'),
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'נדרש סכום';
+                            final l = AppLocalizations.of(context)!;
+                            if (v == null || v.isEmpty) return l.amountRequired;
                             if (double.tryParse(v) == null ||
                                 double.parse(v) <= 0) {
-                              return 'סכום לא תקין';
+                              return l.invalidAmount;
                             }
                             return null;
                           },
@@ -245,7 +271,7 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const _SectionLabel('מטבע'),
+                        _SectionLabel(AppLocalizations.of(context)!.currency),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
                           value: _currency,
@@ -275,7 +301,7 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
               const SizedBox(height: 16),
 
               // Date
-              const _SectionLabel('תאריך'),
+              _SectionLabel(AppLocalizations.of(context)!.date),
               const SizedBox(height: 8),
               InkWell(
                 onTap: () async {
@@ -318,12 +344,13 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
               const SizedBox(height: 16),
 
               // Paid by
-              const _SectionLabel('שילם'),
+              _SectionLabel(AppLocalizations.of(context)!.paidBy),
               const SizedBox(height: 8),
               membersAsync.when(
                 loading: () => const LinearProgressIndicator(),
-                error: (_, __) => const Text('שגיאה בטעינת חברים'),
+                error: (_, __) => Text(AppLocalizations.of(context)!.errorLoadingMembers),
                 data: (members) {
+                  final l = AppLocalizations.of(context)!;
                   final validPaidBy =
                       members.any((m) => m.userId == _paidBy)
                           ? _paidBy
@@ -340,7 +367,7 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
                     onChanged: (v) =>
                         setState(() => _paidBy = v ?? _paidBy),
                     validator: (v) =>
-                        v == null || v.isEmpty ? 'בחר מי שילם' : null,
+                        v == null || v.isEmpty ? l.selectPaidBy : null,
                   );
                 },
               ),
@@ -348,19 +375,19 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
               const SizedBox(height: 16),
 
               // Notes
-              const _SectionLabel('הערות (אופציונלי)'),
+              _SectionLabel(AppLocalizations.of(context)!.notes),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _notesCtrl,
                 maxLines: 2,
                 decoration:
-                    const InputDecoration(hintText: 'הוסף הערה...'),
+                    InputDecoration(hintText: AppLocalizations.of(context)!.notesHint),
               ),
 
               const SizedBox(height: 32),
 
               GradientButton(
-                label: 'שמור שינויים',
+                label: AppLocalizations.of(context)!.saveChanges,
                 onPressed: _loading ? null : _save,
                 isLoading: _loading,
               ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../domain/group_model.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Displays a contextual banner when the group is not in a fully operational state.
-/// Shown at the top of GroupDetailScreen.
 class GroupStateBanner extends StatelessWidget {
   final Group group;
   final VoidCallback? onActionTap;
@@ -15,7 +15,8 @@ class GroupStateBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = _bannerConfig(group);
+    final l = AppLocalizations.of(context)!;
+    final config = _bannerConfig(group, l);
     if (config == null) return const SizedBox.shrink();
 
     return Container(
@@ -89,7 +90,6 @@ class _BannerConfig {
   });
 }
 
-/// Compute price locally — mirrors backend MonetizationConfig.
 int _localPrice(Group group) {
   final count = group.memberCount;
   if (group.groupType == 'ongoing') {
@@ -103,46 +103,46 @@ int _localPrice(Group group) {
   }
 }
 
-_BannerConfig? _bannerConfig(Group group) {
+_BannerConfig? _bannerConfig(Group group, AppLocalizations l) {
   final price = _localPrice(group);
 
   switch (group.groupState) {
     case 'limited':
       return _BannerConfig(
         emoji: '⚡',
-        title: 'נדרשת הפעלה',
-        subtitle: 'הקבוצה הגיעה למגבלת החינם. עלות הפעלה: $price ₪',
-        actionLabel: 'הפעל',
+        title: l.bannerLimitedTitle,
+        subtitle: l.bannerLimitedSubtitle(price),
+        actionLabel: l.bannerActivate,
         bgColor: const Color(0xFFFFF7ED),
         textColor: const Color(0xFFB45309),
       );
     case 'expired':
       return _BannerConfig(
         emoji: '⏰',
-        title: 'פג תוקף הקבוצה',
-        subtitle: 'לא ניתן להוסיף הוצאות. הארכה: 15 ₪ ל-7 ימים נוספים.',
-        actionLabel: 'הארך',
+        title: l.bannerExpiredTitle,
+        subtitle: l.bannerExpiredSubtitle,
+        actionLabel: l.bannerExtend,
         bgColor: const Color(0xFFFEF2F2),
         textColor: const Color(0xFFB91C1C),
       );
     case 'read_only':
       return _BannerConfig(
         emoji: '🔒',
-        title: 'קריאה בלבד',
-        subtitle: 'פרק הזמן שבתשלום הסתיים. חידוש: $price ₪',
-        actionLabel: 'חדש',
+        title: l.bannerReadOnlyTitle,
+        subtitle: l.bannerReadOnlySubtitle(price),
+        actionLabel: l.bannerRenew,
         bgColor: const Color(0xFFF5F3FF),
         textColor: const Color(0xFF6D28D9),
       );
     case 'free':
       return _BannerConfig(
         emoji: '🆓',
-        title: 'מצב חינמי',
-        subtitle: 'עד 3 משתתפים ו-5 ימים ללא עלות.',
+        title: l.bannerFreeTitle,
+        subtitle: l.bannerFreeSubtitle,
         bgColor: const Color(0xFFF0FDF4),
         textColor: const Color(0xFF15803D),
       );
     default:
-      return null; // 'active' — no banner needed
+      return null;
   }
 }

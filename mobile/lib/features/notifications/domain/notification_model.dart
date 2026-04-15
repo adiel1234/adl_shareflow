@@ -1,3 +1,5 @@
+import '../../../l10n/app_localizations.dart';
+
 class AppNotification {
   final String id;
   final String type;
@@ -39,12 +41,12 @@ class AppNotification {
         data: data,
       );
 
-  String get timeAgo {
+  String timeAgoLocalized(AppLocalizations l) {
     final diff = DateTime.now().difference(createdAt);
-    if (diff.inMinutes < 1) return 'עכשיו';
-    if (diff.inMinutes < 60) return 'לפני ${diff.inMinutes} דק׳';
-    if (diff.inHours < 24) return 'לפני ${diff.inHours} שע׳';
-    if (diff.inDays < 7) return 'לפני ${diff.inDays} ימים';
+    if (diff.inMinutes < 1) return l.justNow;
+    if (diff.inMinutes < 60) return l.minutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l.hoursAgo(diff.inHours);
+    if (diff.inDays < 7) return l.daysAgo(diff.inDays);
     return '${createdAt.day}/${createdAt.month}/${createdAt.year}';
   }
 }
