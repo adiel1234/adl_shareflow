@@ -47,7 +47,21 @@ void main() async {
       if (initialUri != null) initialCode = _parseInviteCode(initialUri);
     } catch (_) {}
 
-    // If no deep link, check server for a deferred invite (app installed after tapping join link)
+    // If no deep link, try clipboard-based deferred invite
+    // (written by the /join/{code} web page before the user downloads the app)
+    if (initialCode == null) {
+      try {
+        final clipData = await Clipboard.getData('text/plain');
+        final text = clipData?.text ?? '';
+        const prefix = 'shareflow-invite:';
+        if (text.startsWith(prefix)) {
+          initialCode = text.substring(prefix.length).trim();
+          await Clipboard.setData(const ClipboardData(text: ''));
+        }
+      } catch (_) {}
+    }
+
+    // Fallback: IP-based deferred link from server
     if (initialCode == null) {
       try {
         final dio = Dio(BaseOptions(

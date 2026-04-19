@@ -156,7 +156,22 @@ def create_app(config=None):
   </style>
   <script>
     window.onload = function() {{
-      // Try to open app
+      // Write invite code to clipboard for deferred deep linking (used if app installs fresh)
+      var clipText = 'shareflow-invite:{invite_code}';
+      if (navigator.clipboard && navigator.clipboard.writeText) {{
+        navigator.clipboard.writeText(clipText).catch(function() {{}});
+      }} else {{
+        try {{
+          var ta = document.createElement('textarea');
+          ta.value = clipText;
+          ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.focus(); ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }} catch(e) {{}}
+      }}
+      // Try to open app via deep link
       window.location = '{deep_link}';
     }};
   </script>
