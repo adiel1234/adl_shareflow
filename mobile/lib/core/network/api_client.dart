@@ -70,8 +70,10 @@ class _AuthInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
-    if (err.response?.statusCode == 401) {
-      // Try refresh
+    final path = err.requestOptions.path;
+    final isRefreshCall = path.contains('/auth/refresh');
+
+    if (err.response?.statusCode == 401 && !isRefreshCall) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
         final token = await _storage.read(key: AppConstants.accessTokenKey);
@@ -91,7 +93,14 @@ class _AuthInterceptor extends Interceptor {
     if (refreshToken == null) return false;
 
     try {
-      final response = await _dio.post('/auth/refresh', data: {
+      // Use a plain Dio without interceptors to avoid infinite retry loop
+      final plainDio = Dio(BaseOptions(
+        baseUrl: _dio.options.baseUrl,
+        connectTimeout: _dio.options.connectTimeout,
+        receiveTimeout: _dio.options.receiveTimeout,
+        headers: {'Content-Type': 'application/json'},
+      ));
+      final response = await plainDio.post('/auth/refresh', data: {
         'refresh_token': refreshToken,
       });
       final newToken = response.data['data']['access_token'];
