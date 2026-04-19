@@ -5,6 +5,7 @@ import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/app_button.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../l10n/app_localizations.dart';
+import 'activation_screen.dart';
 
 class CreateGroupScreen extends ConsumerStatefulWidget {
   const CreateGroupScreen({super.key});
@@ -56,16 +57,51 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
-      await ref.read(groupRepositoryProvider).createGroup(
-            name: _nameCtrl.text.trim(),
-            description: _descCtrl.text.trim().isEmpty
-                ? null
-                : _descCtrl.text.trim(),
-            baseCurrency: _currency,
-            category: _category,
-            groupType: _groupType,
-          );
-      if (mounted) Navigator.pop(context);
+      final (group, limitReached) =
+          await ref.read(groupRepositoryProvider).createGroup(
+                name: _nameCtrl.text.trim(),
+                description: _descCtrl.text.trim().isEmpty
+                    ? null
+                    : _descCtrl.text.trim(),
+                baseCurrency: _currency,
+                category: _category,
+                groupType: _groupType,
+              );
+      if (!mounted) return;
+      if (limitReached) {
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            title: Text(l.freeGroupLimitReachedTitle),
+            content: Text(l.freeGroupLimitReachedBody),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.pop(context);
+                },
+                child: Text(l.laterBtn),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ActivationScreen(group: group),
+                    ),
+                  );
+                },
+                child: Text(l.activateGroupBtn),
+              ),
+            ],
+          ),
+        );
+      } else {
+        Navigator.pop(context);
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

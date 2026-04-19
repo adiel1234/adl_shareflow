@@ -319,5 +319,10 @@
       "code": {"type": "String"},
       "link": {"type": "String"}
     }
-  }
+  },
+
+  "freeGroupLimitReachedTitle": "הגעת למגבלת הקבוצות החינמיות",
+  "freeGroupLimitReachedBody": "ניתן ליצור עד 3 קבוצות ללא תשלום. הקבוצה נוצרה, אך כדי להתחיל לעבוד בה יש להפעיל אותה.",
+  "activateGroupBtn": "הפעל קבוצה",
+  "laterBtn": "אחר כך"
 }

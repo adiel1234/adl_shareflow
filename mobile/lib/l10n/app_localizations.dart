@@ -1669,6 +1669,30 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'הצטרף לקבוצה שלנו ב-ADL ShareFlow!\nקוד הזמנה: {code}\nלינק: {link}'**
   String sendExpenseSplit(String code, String link);
+
+  /// No description provided for @freeGroupLimitReachedTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הגעת למגבלת הקבוצות החינמיות'**
+  String get freeGroupLimitReachedTitle;
+
+  /// No description provided for @freeGroupLimitReachedBody.
+  ///
+  /// In he, this message translates to:
+  /// **'ניתן ליצור עד 3 קבוצות ללא תשלום. הקבוצה נוצרה, אך כדי להתחיל לעבוד בה יש להפעיל אותה.'**
+  String get freeGroupLimitReachedBody;
+
+  /// No description provided for @activateGroupBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'הפעל קבוצה'**
+  String get activateGroupBtn;
+
+  /// No description provided for @laterBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'אחר כך'**
+  String get laterBtn;
 }
 
 class _AppLocalizationsDelegate

@@ -15,7 +15,10 @@ class GroupRepository {
     return Group.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 
-  Future<Group> createGroup({
+  /// Returns a record: (group, limitReached).
+  /// limitReached is true when the user hit the 3-group free limit
+  /// and the new group was created in 'limited' state.
+  Future<(Group, bool)> createGroup({
     required String name,
     String? description,
     required String baseCurrency,
@@ -29,7 +32,10 @@ class GroupRepository {
       if (category != null) 'category': category,
       'group_type': groupType,
     });
-    return Group.fromJson(response.data['data'] as Map<String, dynamic>);
+    final data = response.data['data'] as Map<String, dynamic>;
+    final group = Group.fromJson(data);
+    final limitReached = data['creation_reason'] == 'free_group_limit_reached';
+    return (group, limitReached);
   }
 
   Future<List<GroupMember>> fetchMembers(String groupId) async {

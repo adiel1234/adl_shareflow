@@ -37,6 +37,9 @@ def list_groups():
     return success_response(data=groups)
 
 
+FREE_GROUP_LIMIT = 3
+
+
 @groups_bp.post('')
 @jwt_required()
 def create_group():
@@ -50,6 +53,10 @@ def create_group():
     if group_type not in ('event', 'ongoing'):
         group_type = 'event'
 
+    total_created = Group.query.filter_by(created_by=user_id).count()
+    limit_reached = total_created >= FREE_GROUP_LIMIT
+    group_state = 'limited' if limit_reached else 'free'
+
     group = Group(
         name=name,
         description=(data.get('description') or '').strip() or None,
@@ -58,7 +65,7 @@ def create_group():
         created_by=user_id,
         invite_code=generate_invite_code(),
         group_type=group_type,
-        group_state='free',
+        group_state=group_state,
     )
     db.session.add(group)
     db.session.flush()
@@ -67,7 +74,11 @@ def create_group():
     db.session.add(member)
     db.session.commit()
 
-    return success_response(data=group.to_dict(), status_code=201)
+    response_data = group.to_dict()
+    if limit_reached:
+        response_data['creation_reason'] = 'free_group_limit_reached'
+
+    return success_response(data=response_data, status_code=201)
 
 
 @groups_bp.get('/<group_id>')

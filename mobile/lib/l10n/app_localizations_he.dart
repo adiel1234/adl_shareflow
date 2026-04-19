@@ -837,4 +837,17 @@ class AppLocalizationsHe extends AppLocalizations {
   String sendExpenseSplit(String code, String link) {
     return 'הצטרף לקבוצה שלנו ב-ADL ShareFlow!\nקוד הזמנה: $code\nלינק: $link';
   }
+
+  @override
+  String get freeGroupLimitReachedTitle => 'הגעת למגבלת הקבוצות החינמיות';
+
+  @override
+  String get freeGroupLimitReachedBody =>
+      'ניתן ליצור עד 3 קבוצות ללא תשלום. הקבוצה נוצרה, אך כדי להתחיל לעבוד בה יש להפעיל אותה.';
+
+  @override
+  String get activateGroupBtn => 'הפעל קבוצה';
+
+  @override
+  String get laterBtn => 'אחר כך';
 }

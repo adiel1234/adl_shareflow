@@ -319,5 +319,10 @@
       "code": {"type": "String"},
       "link": {"type": "String"}
     }
-  }
+  },
+
+  "freeGroupLimitReachedTitle": "Free group limit reached",
+  "freeGroupLimitReachedBody": "You can create up to 3 groups for free. Your group has been created, but you need to activate it before you can use it.",
+  "activateGroupBtn": "Activate Group",
+  "laterBtn": "Later"
 }
