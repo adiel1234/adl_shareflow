@@ -51,7 +51,7 @@ def send_group_invitation(
     Send a group invitation email via Gmail SMTP.
     Returns True on success, False if SMTP is not configured or send fails.
     """
-    join_url = f'shareflow://join/{invite_code}'
+    join_url = f'https://adlshareflow-production.up.railway.app/join/{invite_code}'
     subject = f'{inviter_name} הזמין אותך להצטרף לקבוצה "{group_name}"'
 
     html = f"""

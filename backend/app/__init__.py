@@ -58,6 +58,77 @@ def create_app(config=None):
     def health():
         return {'status': 'ok', 'service': 'ADL ShareFlow API'}
 
+    # Smart join link — opens app if installed, otherwise shows download page
+    @app.get('/join/<invite_code>')
+    def join_redirect(invite_code):
+        from flask import request, redirect, Response
+        ANDROID_APK = 'https://github.com/adiel1234/adl_shareflow/releases/download/v1.0.0-beta/app-release.apk'
+        TESTFLIGHT  = 'https://testflight.apple.com/join/PLACEHOLDER'
+        deep_link   = f'shareflow://join/{invite_code}'
+
+        ua = request.headers.get('User-Agent', '')
+        is_ios     = any(k in ua for k in ('iPhone', 'iPad', 'iPod'))
+        is_android = 'Android' in ua
+
+        html = f'''<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>הצטרף ל-ADL ShareFlow</title>
+  <style>
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #6C63FF 0%, #3B37C8 100%);
+      min-height: 100vh; display: flex; align-items: center;
+      justify-content: center; padding: 24px;
+    }}
+    .card {{
+      background: white; border-radius: 24px; padding: 48px 40px;
+      max-width: 440px; width: 100%; text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }}
+    .logo {{ font-size: 52px; margin-bottom: 16px; }}
+    h1 {{ font-size: 24px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }}
+    .subtitle {{ color: #666; font-size: 15px; margin-bottom: 32px; line-height: 1.5; }}
+    .btn {{
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      width: 100%; padding: 16px 24px; border-radius: 14px;
+      font-size: 16px; font-weight: 600; text-decoration: none;
+      margin-bottom: 14px; transition: opacity 0.2s;
+    }}
+    .btn:hover {{ opacity: 0.88; }}
+    .btn-primary {{ background: #6C63FF; color: white; }}
+    .btn-android {{ background: #3DDC84; color: #1a1a2e; }}
+    .btn-ios {{ background: #1a1a2e; color: white; }}
+    .divider {{ margin: 20px 0; color: #bbb; font-size: 13px; }}
+    .code {{ font-family: monospace; font-size: 22px; font-weight: 700;
+             letter-spacing: 4px; color: #6C63FF; margin: 16px 0; }}
+  </style>
+  <script>
+    window.onload = function() {{
+      // Try to open app
+      window.location = '{deep_link}';
+    }};
+  </script>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">💸</div>
+    <h1>הוזמנת ל-ADL ShareFlow</h1>
+    <p class="subtitle">לחץ על הכפתור כדי להצטרף לקבוצה</p>
+    <div class="code">{invite_code}</div>
+    <a class="btn btn-primary" href="{deep_link}">פתח באפליקציה</a>
+    <div class="divider">— אין לך את האפליקציה עדיין? —</div>
+    {'<a class="btn btn-android" href="' + ANDROID_APK + '">🤖 הורד לאנדרואיד</a>' if is_android else ''}
+    {'<a class="btn btn-ios" href="' + TESTFLIGHT + '">🍎 הורד ל-iPhone</a>' if is_ios else ''}
+    {'<a class="btn btn-android" href="' + ANDROID_APK + '">🤖 הורד לאנדרואיד</a><a class="btn btn-ios" href="' + TESTFLIGHT + '">🍎 הורד ל-iPhone</a>' if not is_android and not is_ios else ''}
+  </div>
+</body>
+</html>'''
+        return Response(html, mimetype='text/html')
+
     # Download landing page
     @app.get('/download')
     def download():
