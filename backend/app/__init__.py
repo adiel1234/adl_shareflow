@@ -62,7 +62,7 @@ def create_app(config=None):
     @app.get('/join/<invite_code>')
     def join_redirect(invite_code):
         from flask import request, redirect, Response
-        ANDROID_APK = 'https://github.com/adiel1234/adl_shareflow/releases/download/v1.0.0-beta/app-release.apk'
+        ANDROID_APK = 'https://github.com/adiel1234/adl_shareflow/releases/latest/download/app-release.apk'
         TESTFLIGHT  = 'https://testflight.apple.com/join/PLACEHOLDER'
         deep_link   = f'shareflow://join/{invite_code}'
 
@@ -132,18 +132,9 @@ def create_app(config=None):
     # Download landing page
     @app.get('/download')
     def download():
-        from flask import request, redirect, Response
-        ANDROID_APK = 'https://github.com/adiel1234/adl_shareflow/releases/download/v1.0.0-beta/app-release.apk'
+        from flask import request, Response
+        ANDROID_APK = 'https://github.com/adiel1234/adl_shareflow/releases/latest/download/app-release.apk'
         TESTFLIGHT  = 'https://testflight.apple.com/join/PLACEHOLDER'  # יעודכן לאחר אישור Apple
-
-        ua = request.headers.get('User-Agent', '')
-        is_ios     = any(k in ua for k in ('iPhone', 'iPad', 'iPod'))
-        is_android = 'Android' in ua
-
-        if is_android:
-            return redirect(ANDROID_APK)
-        if is_ios:
-            return redirect(TESTFLIGHT)
 
         # Desktop / unknown → show HTML page with both options
         html = f'''<!DOCTYPE html>
