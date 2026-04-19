@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 _SMTP_HOST = os.getenv('SMTP_HOST', 'smtp.gmail.com')
-_SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
+_SMTP_PORT = int(os.getenv('SMTP_PORT', 465))
 _SMTP_USER = os.getenv('SMTP_USER', '')
 _SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', '')
 _SENDER_NAME = os.getenv('SMTP_SENDER_NAME', 'ADL ShareFlow')
@@ -28,9 +28,7 @@ def _send(to_email: str, subject: str, html: str) -> bool:
         msg['To'] = to_email
         msg.attach(MIMEText(html, 'html', 'utf-8'))
 
-        with smtplib.SMTP(_SMTP_HOST, _SMTP_PORT) as server:
-            server.ehlo()
-            server.starttls()
+        with smtplib.SMTP_SSL(_SMTP_HOST, _SMTP_PORT) as server:
             server.login(_SMTP_USER, _SMTP_PASSWORD)
             server.sendmail(_SMTP_USER, to_email, msg.as_string())
         return True
