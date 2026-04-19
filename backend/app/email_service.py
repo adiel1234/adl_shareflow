@@ -101,10 +101,21 @@ def send_group_invitation(
                   הצטרף עכשיו
                 </a>
               </div>
-              <p style="margin:0;font-size:13px;color:#888;text-align:center;">
+              <p style="margin:0 0 28px;font-size:13px;color:#888;text-align:center;">
                 אם הכפתור לא עובד, העתק את הקוד <strong>{invite_code}</strong>
                 ישירות לאפליקציה.
               </p>
+              <div style="background:#f8f8f8;border-radius:14px;padding:20px;text-align:center;">
+                <p style="margin:0 0 12px;font-size:13px;color:#666;font-weight:600;">
+                  עדיין אין לך את האפליקציה?
+                </p>
+                <a href="https://adlshareflow-production.up.railway.app/download"
+                   style="display:inline-block;background:#1a1a2e;color:#ffffff;
+                          text-decoration:none;font-size:14px;font-weight:600;
+                          padding:12px 28px;border-radius:50px;">
+                  הורד את ADL ShareFlow
+                </a>
+              </div>
             </td>
           </tr>
           <tr>
