@@ -58,6 +58,98 @@ def create_app(config=None):
     def health():
         return {'status': 'ok', 'service': 'ADL ShareFlow API'}
 
+    # Download landing page
+    @app.get('/download')
+    def download():
+        from flask import request, redirect, Response
+        ANDROID_APK = 'https://github.com/adiel1234/adl_shareflow/releases/download/v1.0.0-beta/app-release.apk'
+        TESTFLIGHT  = 'https://testflight.apple.com/join/PLACEHOLDER'  # יעודכן לאחר אישור Apple
+
+        ua = request.headers.get('User-Agent', '')
+        is_ios     = any(k in ua for k in ('iPhone', 'iPad', 'iPod'))
+        is_android = 'Android' in ua
+
+        if is_android:
+            return redirect(ANDROID_APK)
+        if is_ios:
+            return redirect(TESTFLIGHT)
+
+        # Desktop / unknown → show HTML page with both options
+        html = f'''<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>הורד ADL ShareFlow</title>
+  <style>
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #6C63FF 0%, #3B37C8 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }}
+    .card {{
+      background: white;
+      border-radius: 24px;
+      padding: 48px 40px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }}
+    .logo {{ font-size: 52px; margin-bottom: 16px; }}
+    h1 {{ font-size: 26px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }}
+    .subtitle {{ color: #666; font-size: 15px; margin-bottom: 36px; }}
+    .btn {{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 16px 24px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      margin-bottom: 14px;
+      transition: opacity 0.2s;
+    }}
+    .btn:hover {{ opacity: 0.88; }}
+    .btn-android {{
+      background: #3DDC84;
+      color: #1a1a2e;
+    }}
+    .btn-ios {{
+      background: #1a1a2e;
+      color: white;
+    }}
+    .note {{ font-size: 12px; color: #999; margin-top: 24px; }}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">💸</div>
+    <h1>ADL ShareFlow</h1>
+    <p class="subtitle">חלוקת הוצאות חכמה לקבוצות</p>
+
+    <a class="btn btn-android" href="{ANDROID_APK}">
+      <span>🤖</span> הורד לאנדרואיד (APK)
+    </a>
+
+    <a class="btn btn-ios" href="{TESTFLIGHT}">
+      <span>🍎</span> הורד ל-iPhone (TestFlight)
+    </a>
+
+    <p class="note">גרסת בטא — v1.0.0</p>
+  </div>
+</body>
+</html>'''
+        return Response(html, mimetype='text/html')
+
     return app
 
 
