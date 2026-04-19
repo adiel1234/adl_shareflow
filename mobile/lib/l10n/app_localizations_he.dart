@@ -203,6 +203,12 @@ class AppLocalizationsHe extends AppLocalizations {
   String get howToJoin => 'כיצד תרצה להצטרף?';
 
   @override
+  String get howShouldNewMemberJoin => 'כיצד החבר החדש יצטרף לחלוקת ההוצאות?';
+
+  @override
+  String get includePastExpenses => 'כולל הוצאות עבר';
+
+  @override
   String get splitAll => 'חלק את כל ההוצאות';
 
   @override

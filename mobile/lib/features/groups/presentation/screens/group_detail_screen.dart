@@ -216,45 +216,53 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
     final l = AppLocalizations.of(context)!;
     final repo = ref.read(groupRepositoryProvider);
 
-    // Ask the inviter how the new member should split expenses
-    final splitMode = await showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l.splitExpenses,
-            style: const TextStyle(fontWeight: FontWeight.w700),
-            textAlign: TextAlign.right),
-        content: Text(l.howShouldNewMemberJoin,
-            style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
-            textAlign: TextAlign.right),
-        actionsAlignment: MainAxisAlignment.center,
-        actions: [
-          _SplitOptionButton(
-            icon: Icons.history,
-            color: AppColors.primary,
-            title: l.splitAll,
-            subtitle: l.includePastExpenses,
-            onTap: () => Navigator.pop(ctx, 'full'),
-          ),
-          const SizedBox(height: 8),
-          _SplitOptionButton(
-            icon: Icons.arrow_forward,
-            color: AppColors.secondary,
-            title: l.fromNowOn,
-            subtitle: l.notChargedPast,
-            onTap: () => Navigator.pop(ctx, 'forward'),
-          ),
-          const SizedBox(height: 4),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, null),
-            child: Text(l.cancel,
-                style: const TextStyle(color: AppColors.textSecondary)),
-          ),
-        ],
-      ),
-    );
-    if (splitMode == null || !context.mounted) return;
+    // Only ask about split mode if the group already has expenses
+    final expenses = ref.read(expensesProvider(group.id)).valueOrNull ?? [];
+    String splitMode = 'forward';
+
+    if (expenses.isNotEmpty) {
+      final choice = await showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(l.splitExpenses,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+              textAlign: TextAlign.right),
+          content: Text(l.howShouldNewMemberJoin,
+              style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
+              textAlign: TextAlign.right),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            _SplitOptionButton(
+              icon: Icons.history,
+              color: AppColors.primary,
+              title: l.splitAll,
+              subtitle: l.includePastExpenses,
+              onTap: () => Navigator.pop(ctx, 'full'),
+            ),
+            const SizedBox(height: 8),
+            _SplitOptionButton(
+              icon: Icons.arrow_forward,
+              color: AppColors.secondary,
+              title: l.fromNowOn,
+              subtitle: l.notChargedPast,
+              onTap: () => Navigator.pop(ctx, 'forward'),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, null),
+              child: Text(l.cancel,
+                  style: const TextStyle(color: AppColors.textSecondary)),
+            ),
+          ],
+        ),
+      );
+      if (choice == null || !context.mounted) return;
+      splitMode = choice;
+    }
+
+    if (!context.mounted) return;
 
     try {
       final data = await repo.fetchInviteLink(group.id, splitMode: splitMode);

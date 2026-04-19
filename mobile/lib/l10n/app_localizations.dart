@@ -482,6 +482,18 @@ abstract class AppLocalizations {
   /// **'כיצד תרצה להצטרף?'**
   String get howToJoin;
 
+  /// No description provided for @howShouldNewMemberJoin.
+  ///
+  /// In he, this message translates to:
+  /// **'כיצד החבר החדש יצטרף לחלוקת ההוצאות?'**
+  String get howShouldNewMemberJoin;
+
+  /// No description provided for @includePastExpenses.
+  ///
+  /// In he, this message translates to:
+  /// **'כולל הוצאות עבר'**
+  String get includePastExpenses;
+
   /// No description provided for @splitAll.
   ///
   /// In he, this message translates to:
