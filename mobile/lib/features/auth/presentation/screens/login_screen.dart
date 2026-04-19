@@ -259,25 +259,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
               const SizedBox(height: 20),
 
-              // Social login
-              _SocialButton(
-                label: l.continueWithGoogle,
-                icon: 'assets/icons/google_icon.png',
-                fallbackIcon: Icons.g_mobiledata,
-                onPressed: _loading ? null : _loginGoogle,
-              ),
-              const SizedBox(height: 12),
-
-              if (!kIsWeb) ...[
-                _SocialButton(
-                  label: l.continueWithApple,
-                  icon: 'assets/icons/apple_icon.png',
-                  fallbackIcon: Icons.apple,
-                  onPressed: _loading ? null : _loginApple,
-                  isDark: true,
-                ),
-                const SizedBox(height: 12),
-              ],
+              // Social login — temporarily hidden until OAuth is configured
+              // TODO: re-enable after Firebase Google Sign-In + Apple Sign-In setup
+              // _SocialButton(
+              //   label: l.continueWithGoogle,
+              //   icon: 'assets/icons/google_icon.png',
+              //   fallbackIcon: Icons.g_mobiledata,
+              //   onPressed: _loading ? null : _loginGoogle,
+              // ),
+              // if (!kIsWeb) ...[
+              //   _SocialButton(
+              //     label: l.continueWithApple,
+              //     icon: 'assets/icons/apple_icon.png',
+              //     fallbackIcon: Icons.apple,
+              //     onPressed: _loading ? null : _loginApple,
+              //     isDark: true,
+              //   ),
+              //   const SizedBox(height: 12),
+              // ],
 
               const SizedBox(height: 24),
 
