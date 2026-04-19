@@ -1,3 +1,4 @@
+import time
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -10,6 +11,23 @@ jwt = JWTManager()
 
 # Scheduler is initialized lazily to avoid import cycles
 _scheduler_started = False
+
+# Deferred deep link store: { ip: (invite_code, timestamp) }
+# Entries expire after 1 hour
+_deferred_links: dict = {}
+_DEFERRED_TTL = 3600  # seconds
+
+
+def _get_client_ip(request) -> str:
+    forwarded = request.headers.get('X-Forwarded-For', '')
+    return forwarded.split(',')[0].strip() if forwarded else request.remote_addr or ''
+
+
+def _clean_deferred_links():
+    now = time.time()
+    expired = [ip for ip, (_, ts) in _deferred_links.items() if now - ts > _DEFERRED_TTL]
+    for ip in expired:
+        del _deferred_links[ip]
 
 
 def create_app(config=None):
@@ -58,6 +76,19 @@ def create_app(config=None):
     def health():
         return {'status': 'ok', 'service': 'ADL ShareFlow API'}
 
+    # Deferred deep link — app calls this on first launch to retrieve pending invite code
+    @app.get('/api/deferred-link')
+    def deferred_link():
+        from flask import request, jsonify
+        client_ip = _get_client_ip(request)
+        _clean_deferred_links()
+        entry = _deferred_links.pop(client_ip, None)
+        if entry:
+            code, ts = entry
+            if time.time() - ts <= _DEFERRED_TTL:
+                return jsonify({'invite_code': code})
+        return jsonify({'invite_code': None})
+
     # Smart join link — opens app if installed, otherwise shows download page
     @app.get('/join/<invite_code>')
     def join_redirect(invite_code):
@@ -65,6 +96,12 @@ def create_app(config=None):
         ANDROID_APK = 'https://github.com/adiel1234/adl_shareflow/releases/latest/download/app-release.apk'
         TESTFLIGHT  = 'https://testflight.apple.com/join/PLACEHOLDER'
         deep_link   = f'shareflow://join/{invite_code}'
+
+        # Save deferred deep link for this visitor's IP
+        client_ip = _get_client_ip(request)
+        if client_ip:
+            _clean_deferred_links()
+            _deferred_links[client_ip] = (invite_code, time.time())
 
         ua = request.headers.get('User-Agent', '')
         is_ios     = any(k in ua for k in ('iPhone', 'iPad', 'iPod'))

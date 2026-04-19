@@ -1,10 +1,12 @@
 import 'package:app_links/app_links.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/config/app_config.dart';
 import 'core/config/router.dart';
 import 'providers/deep_link_provider.dart';
 import 'services/feedback_service.dart';
@@ -44,6 +46,20 @@ void main() async {
       final initialUri = await appLinks.getInitialLink();
       if (initialUri != null) initialCode = _parseInviteCode(initialUri);
     } catch (_) {}
+
+    // If no deep link, check server for a deferred invite (app installed after tapping join link)
+    if (initialCode == null) {
+      try {
+        final dio = Dio(BaseOptions(
+          baseUrl: AppConfig.apiBaseUrl,
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ));
+        final response = await dio.get('/deferred-link');
+        final code = response.data['invite_code'] as String?;
+        if (code != null && code.isNotEmpty) initialCode = code;
+      } catch (_) {}
+    }
   }
 
   runApp(
