@@ -1,4 +1,3 @@
-import time
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -12,22 +11,10 @@ jwt = JWTManager()
 # Scheduler is initialized lazily to avoid import cycles
 _scheduler_started = False
 
-# Deferred deep link store: { ip: (invite_code, timestamp) }
-# Entries expire after 1 hour
-_deferred_links: dict = {}
-_DEFERRED_TTL = 3600  # seconds
-
 
 def _get_client_ip(request) -> str:
     forwarded = request.headers.get('X-Forwarded-For', '')
     return forwarded.split(',')[0].strip() if forwarded else request.remote_addr or ''
-
-
-def _clean_deferred_links():
-    now = time.time()
-    expired = [ip for ip, (_, ts) in _deferred_links.items() if now - ts > _DEFERRED_TTL]
-    for ip in expired:
-        del _deferred_links[ip]
 
 
 def create_app(config=None):
@@ -80,13 +67,23 @@ def create_app(config=None):
     @app.get('/api/deferred-link')
     def deferred_link():
         from flask import request, jsonify
+        from app.models import DeferredLink
+        from datetime import datetime, timezone, timedelta
         client_ip = _get_client_ip(request)
-        _clean_deferred_links()
-        entry = _deferred_links.pop(client_ip, None)
-        if entry:
-            code, ts = entry
-            if time.time() - ts <= _DEFERRED_TTL:
+        try:
+            expiry = datetime.now(timezone.utc) - timedelta(hours=1)
+            entry = db.session.query(DeferredLink).filter(
+                DeferredLink.client_ip == client_ip,
+                DeferredLink.created_at >= expiry,
+            ).first()
+            if entry:
+                code = entry.invite_code
+                db.session.delete(entry)
+                db.session.commit()
                 return jsonify({'invite_code': code})
+        except Exception as e:
+            db.session.rollback()
+            print(f'[deferred_link] Failed to retrieve: {e}')
         return jsonify({'invite_code': None})
 
     # Smart join link — opens app if installed, otherwise shows download page
@@ -97,11 +94,25 @@ def create_app(config=None):
         TESTFLIGHT  = 'https://testflight.apple.com/join/PLACEHOLDER'
         deep_link   = f'shareflow://join/{invite_code}'
 
-        # Save deferred deep link for this visitor's IP
+        # Save deferred deep link for this visitor's IP (stored in DB, shared across workers)
         client_ip = _get_client_ip(request)
         if client_ip:
-            _clean_deferred_links()
-            _deferred_links[client_ip] = (invite_code, time.time())
+            try:
+                from app.models import DeferredLink
+                from datetime import datetime, timezone, timedelta
+                # Delete expired entries and upsert for this IP
+                expiry = datetime.now(timezone.utc) - timedelta(hours=1)
+                db.session.query(DeferredLink).filter(DeferredLink.created_at < expiry).delete()
+                existing = db.session.query(DeferredLink).filter_by(client_ip=client_ip).first()
+                if existing:
+                    existing.invite_code = invite_code
+                    existing.created_at = datetime.now(timezone.utc)
+                else:
+                    db.session.add(DeferredLink(client_ip=client_ip, invite_code=invite_code))
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                print(f'[deferred_link] Failed to save: {e}')
 
         ua = request.headers.get('User-Agent', '')
         is_ios     = any(k in ua for k in ('iPhone', 'iPad', 'iPod'))

@@ -517,3 +517,17 @@ class FeatureFlag(db.Model):
     value = Column(JSONB)
     description = Column(Text)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=_now, onupdate=_now)
+
+
+# ---------------------------------------------------------------------------
+# Deferred Deep Links
+# ---------------------------------------------------------------------------
+
+class DeferredLink(db.Model):
+    """Stores a pending invite code keyed by visitor IP for deferred deep linking."""
+    __tablename__ = 'deferred_links'
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    client_ip = Column(String(64), nullable=False, unique=True, index=True)
+    invite_code = Column(String(20), nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
