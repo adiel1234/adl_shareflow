@@ -70,6 +70,8 @@
   "invalidCode": "Invalid code — check and try again",
   "splitExpenses": "Split Expenses",
   "howToJoin": "How would you like to join?",
+  "howShouldNewMemberJoin": "How should the new member join expense splitting?",
+  "includePastExpenses": "Including past expenses",
   "splitAll": "Split all expenses",
   "fromNowOn": "From now on only",
   "notChargedPast": "Not charged for past expenses",

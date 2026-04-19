@@ -139,6 +139,7 @@ class Group(db.Model):
     # Lifecycle / monetization
     group_type = Column(String(10), nullable=False, default='event')   # 'event' | 'ongoing'
     group_state = Column(String(12), nullable=False, default='free')   # 'free' | 'limited' | 'active' | 'expired' | 'read_only'
+    invite_split_mode = Column(String(10), nullable=False, default='forward')  # 'forward' | 'full'
     pricing_tier = Column(String(10), nullable=True)                   # '10' | '15' | '25' (event) / '5' | '8' | '12' (ongoing)
     activated_at = Column(DateTime(timezone=True), nullable=True)
     expiry_date = Column(DateTime(timezone=True), nullable=True)
@@ -164,6 +165,7 @@ class Group(db.Model):
             'closed_at': self.closed_at.isoformat() if self.closed_at else None,
             'group_type': self.group_type,
             'group_state': self.group_state,
+            'invite_split_mode': self.invite_split_mode,
             'pricing_tier': self.pricing_tier,
             'activated_at': self.activated_at.isoformat() if self.activated_at else None,
             'expiry_date': self.expiry_date.isoformat() if self.expiry_date else None,

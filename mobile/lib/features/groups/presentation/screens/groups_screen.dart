@@ -218,24 +218,8 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
           ? info['group']['name'] as String
           : 'הקבוצה';
 
-      // Step 2 — if group has expenses, ask about split mode
-      String splitMode = 'forward';
-      if (expenseCount > 0 && mounted) {
-        final choice = await _showSplitModeDialog(
-          context,
-          groupName: groupName,
-          expenseCount: expenseCount,
-        );
-        if (choice == null) {
-          // User cancelled
-          setState(() => _loading = false);
-          return;
-        }
-        splitMode = choice;
-      }
-
-      // Step 3 — join with chosen split mode
-      await _repo.joinGroup(code, splitMode: splitMode);
+      // Step 2 — join (split mode is set by the inviter on the group)
+      await _repo.joinGroup(code);
       widget.onJoined();
       if (mounted) Navigator.pop(context);
 

@@ -396,11 +396,18 @@ def get_invite_link(group_id, **kwargs):
     if not group:
         return error_response('Group not found', 404)
 
+    # Inviter may set the split mode for all future joiners
+    split_mode = request.args.get('split_mode')
+    if split_mode in ('forward', 'full'):
+        group.invite_split_mode = split_mode
+        db.session.commit()
+
     base_url = 'https://adlshareflow-production.up.railway.app'
     return success_response(data={
         'invite_code': group.invite_code,
         'invite_link': f'{base_url}/join/{group.invite_code}',
         'share_text': f'Join my group "{group.name}" on ADL ShareFlow!\n{base_url}/join/{group.invite_code}',
+        'invite_split_mode': group.invite_split_mode,
     })
 
 
@@ -495,7 +502,8 @@ def join_group(invite_code):
     if existing:
         return error_response('You are already a member of this group')
 
-    split_mode = (request.get_json(silent=True) or {}).get('split_mode', 'forward')
+    # Use the split mode set by the inviter (stored on the group)
+    split_mode = group.invite_split_mode or 'forward'
 
     # Add the new member
     member = GroupMember(group_id=group.id, user_id=user_id, role='member')

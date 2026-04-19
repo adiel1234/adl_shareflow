@@ -46,8 +46,11 @@ class GroupRepository {
         .toList();
   }
 
-  Future<Map<String, dynamic>> fetchInviteLink(String groupId) async {
-    final response = await _api.get('/groups/$groupId/invite-link');
+  Future<Map<String, dynamic>> fetchInviteLink(String groupId, {String? splitMode}) async {
+    final response = await _api.get(
+      '/groups/$groupId/invite-link',
+      params: splitMode != null ? {'split_mode': splitMode} : null,
+    );
     return response.data['data'] as Map<String, dynamic>;
   }
 

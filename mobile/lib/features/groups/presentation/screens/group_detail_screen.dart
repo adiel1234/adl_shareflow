@@ -213,9 +213,51 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
   }
 
   void _showInvite(BuildContext context, Group group) async {
+    final l = AppLocalizations.of(context)!;
     final repo = ref.read(groupRepositoryProvider);
+
+    // Ask the inviter how the new member should split expenses
+    final splitMode = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(l.splitExpenses,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+            textAlign: TextAlign.right),
+        content: Text(l.howShouldNewMemberJoin,
+            style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
+            textAlign: TextAlign.right),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          _SplitOptionButton(
+            icon: Icons.history,
+            color: AppColors.primary,
+            title: l.splitAll,
+            subtitle: l.includePastExpenses,
+            onTap: () => Navigator.pop(ctx, 'full'),
+          ),
+          const SizedBox(height: 8),
+          _SplitOptionButton(
+            icon: Icons.arrow_forward,
+            color: AppColors.secondary,
+            title: l.fromNowOn,
+            subtitle: l.notChargedPast,
+            onTap: () => Navigator.pop(ctx, 'forward'),
+          ),
+          const SizedBox(height: 4),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, null),
+            child: Text(l.cancel,
+                style: const TextStyle(color: AppColors.textSecondary)),
+          ),
+        ],
+      ),
+    );
+    if (splitMode == null || !context.mounted) return;
+
     try {
-      final data = await repo.fetchInviteLink(group.id);
+      final data = await repo.fetchInviteLink(group.id, splitMode: splitMode);
       final code = data['invite_code'] as String;
       final link = data['invite_link'] as String;
 
@@ -236,7 +278,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingInvite)),
+          SnackBar(content: Text(l.errorLoadingInvite)),
         );
       }
     }
@@ -768,6 +810,69 @@ class _NewExpenseFab extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SplitOptionButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _SplitOptionButton({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withOpacity(0.25)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: color,
+                          fontSize: 14)),
+                  Text(subtitle,
+                      style: const TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: 12)),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_left, color: color, size: 18),
+          ],
         ),
       ),
     );

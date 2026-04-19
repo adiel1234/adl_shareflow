@@ -70,6 +70,8 @@
   "invalidCode": "קוד לא תקין — בדוק ונסה שוב",
   "splitExpenses": "חלוקת הוצאות",
   "howToJoin": "כיצד תרצה להצטרף?",
+  "howShouldNewMemberJoin": "כיצד החבר החדש יצטרף לחלוקת ההוצאות?",
+  "includePastExpenses": "כולל הוצאות עבר",
   "splitAll": "חלק את כל ההוצאות",
   "fromNowOn": "רק מעכשיו והלאה",
   "notChargedPast": "לא מחויב בהוצאות עד כה",

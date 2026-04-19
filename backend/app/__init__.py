@@ -114,10 +114,6 @@ def create_app(config=None):
                 db.session.rollback()
                 print(f'[deferred_link] Failed to save: {e}')
 
-        ua = request.headers.get('User-Agent', '')
-        is_ios     = any(k in ua for k in ('iPhone', 'iPad', 'iPod'))
-        is_android = 'Android' in ua
-
         html = f'''<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -186,9 +182,8 @@ def create_app(config=None):
     <div class="code">{invite_code}</div>
     <a class="btn btn-primary" href="{deep_link}">פתח באפליקציה</a>
     <div class="divider">— אין לך את האפליקציה עדיין? —</div>
-    {'<a class="btn btn-android" href="#" onclick="dlApp(event,\'' + ANDROID_APK + '\')">🤖 הורד לאנדרואיד</a>' if is_android else ''}
-    {'<a class="btn btn-ios" href="#" onclick="dlApp(event,\'' + TESTFLIGHT + '\')">🍎 הורד ל-iPhone</a>' if is_ios else ''}
-    {'<a class="btn btn-android" href="#" onclick="dlApp(event,\'' + ANDROID_APK + '\')">🤖 הורד לאנדרואיד</a><a class="btn btn-ios" href="#" onclick="dlApp(event,\'' + TESTFLIGHT + '\')">🍎 הורד ל-iPhone</a>' if not is_android and not is_ios else ''}
+    <a class="btn btn-android" href="#" onclick="dlApp(event,'{ANDROID_APK}')">🤖 הורד לאנדרואיד</a>
+    <a class="btn btn-ios" href="#" onclick="dlApp(event,'{TESTFLIGHT}')">🍎 הורד ל-iPhone</a>
   </div>
 </body>
 </html>'''
