@@ -1667,8 +1667,8 @@ abstract class AppLocalizations {
   /// No description provided for @sendExpenseSplit.
   ///
   /// In he, this message translates to:
-  /// **'הצטרף לקבוצה שלנו ב-ADL ShareFlow!\nקוד הזמנה: {code}\nלינק: {link}'**
-  String sendExpenseSplit(String code, String link);
+  /// **'הצטרף לקבוצה שלנו \"{groupName}\" ב-ADL ShareFlow!\nקוד הזמנה: {code}\nלינק: {link}'**
+  String sendExpenseSplit(String groupName, String code, String link);
 
   /// No description provided for @freeGroupLimitReachedTitle.
   ///

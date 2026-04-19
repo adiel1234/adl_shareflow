@@ -313,9 +313,10 @@
   "errorLoadingSummary": "שגיאה בטעינת הסיכום",
   "notificationSentToAll": "התראה נשלחה לכל חברי הקבוצה ✓",
   "errorSendingNotification": "שגיאה בשליחת התראה",
-  "sendExpenseSplit": "הצטרף לקבוצה שלנו ב-ADL ShareFlow!\nקוד הזמנה: {code}\nלינק: {link}",
+  "sendExpenseSplit": "הצטרף לקבוצה שלנו \"{groupName}\" ב-ADL ShareFlow!\nקוד הזמנה: {code}\nלינק: {link}",
   "@sendExpenseSplit": {
     "placeholders": {
+      "groupName": {"type": "String"},
       "code": {"type": "String"},
       "link": {"type": "String"}
     }

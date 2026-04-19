@@ -399,7 +399,7 @@ def get_invite_link(group_id, **kwargs):
     return success_response(data={
         'invite_code': group.invite_code,
         'invite_link': f'shareflow://join/{group.invite_code}',
-        'share_text': f'Join my group "{group.name}" on ADL ShareFlow!\nsf://join/{group.invite_code}',
+        'share_text': f'Join my group "{group.name}" on ADL ShareFlow!\nshareflow://join/{group.invite_code}',
     })
 
 

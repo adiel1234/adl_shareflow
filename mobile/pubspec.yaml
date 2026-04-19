@@ -46,6 +46,7 @@ dependencies:
   # Sharing + deep links
   url_launcher: ^6.3.0
   share_plus: ^10.0.0
+  app_links: ^7.0.0
 
   # Audio
   audioplayers: ^6.1.0

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/groups_provider.dart';
 import '../../../../providers/auth_provider.dart';
+import '../../../../providers/deep_link_provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../features/groups/data/group_repository.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -9,11 +10,34 @@ import '../widgets/group_card.dart';
 import 'create_group_screen.dart';
 import 'group_detail_screen.dart';
 
-class GroupsScreen extends ConsumerWidget {
+class GroupsScreen extends ConsumerStatefulWidget {
   const GroupsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GroupsScreen> createState() => _GroupsScreenState();
+}
+
+class _GroupsScreenState extends ConsumerState<GroupsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Show join sheet when a deep link arrives (app already open)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.listenManual<String?>(pendingInviteCodeProvider, (_, code) {
+        if (code != null && mounted) {
+          _handleDeepLinkCode(code);
+        }
+      }, fireImmediately: true);
+    });
+  }
+
+  void _handleDeepLinkCode(String code) {
+    ref.read(pendingInviteCodeProvider.notifier).state = null;
+    _showJoinSheetWithCode(context, ref, code);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final groupsAsync = ref.watch(groupsProvider);
     final auth = ref.watch(authProvider);
     final l = AppLocalizations.of(context)!;
@@ -130,9 +154,24 @@ void _showJoinSheet(BuildContext context, WidgetRef ref) {
   );
 }
 
+void _showJoinSheetWithCode(BuildContext context, WidgetRef ref, String code) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) => _JoinGroupSheet(
+      onJoined: () => ref.invalidate(groupsProvider),
+      initialCode: code,
+    ),
+  );
+}
+
 class _JoinGroupSheet extends StatefulWidget {
   final VoidCallback onJoined;
-  const _JoinGroupSheet({required this.onJoined});
+  final String? initialCode;
+  const _JoinGroupSheet({required this.onJoined, this.initialCode});
 
   @override
   State<_JoinGroupSheet> createState() => _JoinGroupSheetState();
@@ -143,6 +182,15 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
   bool _loading = false;
   String? _error;
   final _repo = GroupRepository();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialCode != null) {
+      _ctrl.text = widget.initialCode!;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _join());
+    }
+  }
 
   @override
   void dispose() {

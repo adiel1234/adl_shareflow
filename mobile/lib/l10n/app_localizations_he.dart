@@ -834,8 +834,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get errorSendingNotification => 'שגיאה בשליחת התראה';
 
   @override
-  String sendExpenseSplit(String code, String link) {
-    return 'הצטרף לקבוצה שלנו ב-ADL ShareFlow!\nקוד הזמנה: $code\nלינק: $link';
+  String sendExpenseSplit(String groupName, String code, String link) {
+    return 'הצטרף לקבוצה שלנו \"$groupName\" ב-ADL ShareFlow!\nקוד הזמנה: $code\nלינק: $link';
   }
 
   @override

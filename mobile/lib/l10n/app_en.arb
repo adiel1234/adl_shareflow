@@ -313,9 +313,10 @@
   "errorLoadingSummary": "Error loading summary",
   "notificationSentToAll": "Notification sent to all group members ✓",
   "errorSendingNotification": "Error sending notification",
-  "sendExpenseSplit": "Join our group on ADL ShareFlow!\nInvite code: {code}\nLink: {link}",
+  "sendExpenseSplit": "Join our group \"{groupName}\" on ADL ShareFlow!\nInvite code: {code}\nLink: {link}",
   "@sendExpenseSplit": {
     "placeholders": {
+      "groupName": {"type": "String"},
       "code": {"type": "String"},
       "link": {"type": "String"}
     }

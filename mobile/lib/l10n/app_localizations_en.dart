@@ -837,8 +837,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorSendingNotification => 'Error sending notification';
 
   @override
-  String sendExpenseSplit(String code, String link) {
-    return 'Join our group on ADL ShareFlow!\nInvite code: $code\nLink: $link';
+  String sendExpenseSplit(String groupName, String code, String link) {
+    return 'Join our group \"$groupName\" on ADL ShareFlow!\nInvite code: $code\nLink: $link';
   }
 
   @override

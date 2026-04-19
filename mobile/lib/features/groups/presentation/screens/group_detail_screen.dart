@@ -230,6 +230,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
           code: code,
           link: link,
           groupId: group.id,
+          groupName: group.name,
         ),
       );
     } catch (_) {
@@ -524,7 +525,8 @@ class _InviteSheet extends StatefulWidget {
   final String code;
   final String link;
   final String groupId;
-  const _InviteSheet({required this.code, required this.link, required this.groupId});
+  final String groupName;
+  const _InviteSheet({required this.code, required this.link, required this.groupId, required this.groupName});
 
   @override
   State<_InviteSheet> createState() => _InviteSheetState();
@@ -653,7 +655,7 @@ class _InviteSheetState extends State<_InviteSheet> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () => ShareService.shareViaWhatsApp(
-                AppLocalizations.of(context)!.sendExpenseSplit(widget.code, widget.link),
+                AppLocalizations.of(context)!.sendExpenseSplit(widget.groupName, widget.code, widget.link),
               ),
               icon: const Icon(Icons.chat_outlined, size: 18),
               label: Text(AppLocalizations.of(context)!.sendViaWhatsApp),
