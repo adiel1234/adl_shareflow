@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 enum AppFlavor { dev, staging, prod }
 
 class AppConfig {
@@ -9,6 +11,8 @@ class AppConfig {
       String.fromEnvironment('FLAVOR', defaultValue: 'dev');
 
   static AppFlavor get flavor {
+    // In release builds without explicit FLAVOR, default to prod
+    if (_envFlavor == 'dev' && kReleaseMode) return AppFlavor.prod;
     switch (_envFlavor) {
       case 'staging':
         return AppFlavor.staging;
