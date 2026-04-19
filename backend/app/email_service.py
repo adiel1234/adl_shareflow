@@ -1,36 +1,31 @@
 """
-Email delivery via Gmail SMTP.
-Configure SMTP_USER and SMTP_PASSWORD in .env to enable.
+Email delivery via Resend API.
+Configure RESEND_API_KEY in environment variables to enable.
 """
 import os
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+import resend
 
-_SMTP_HOST = os.getenv('SMTP_HOST', 'smtp.gmail.com')
-_SMTP_PORT = int(os.getenv('SMTP_PORT', 465))
-_SMTP_USER = os.getenv('SMTP_USER', '')
-_SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', '')
+_RESEND_API_KEY = os.getenv('RESEND_API_KEY', '')
 _SENDER_NAME = os.getenv('SMTP_SENDER_NAME', 'ADL ShareFlow')
+_FROM_EMAIL = os.getenv('RESEND_FROM_EMAIL', 'onboarding@resend.dev')
 
 
 def _is_configured() -> bool:
-    return bool(_SMTP_USER and _SMTP_PASSWORD)
+    return bool(_RESEND_API_KEY)
 
 
 def _send(to_email: str, subject: str, html: str) -> bool:
     if not _is_configured():
+        print('[email_service] RESEND_API_KEY is not configured')
         return False
     try:
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = subject
-        msg['From'] = f'{_SENDER_NAME} <{_SMTP_USER}>'
-        msg['To'] = to_email
-        msg.attach(MIMEText(html, 'html', 'utf-8'))
-
-        with smtplib.SMTP_SSL(_SMTP_HOST, _SMTP_PORT) as server:
-            server.login(_SMTP_USER, _SMTP_PASSWORD)
-            server.sendmail(_SMTP_USER, to_email, msg.as_string())
+        resend.api_key = _RESEND_API_KEY
+        resend.Emails.send({
+            'from': f'{_SENDER_NAME} <{_FROM_EMAIL}>',
+            'to': [to_email],
+            'subject': subject,
+            'html': html,
+        })
         return True
     except Exception as e:
         print(f'[email_service] Failed to send email: {e}')
@@ -46,8 +41,8 @@ def send_group_invitation(
     group_emoji: str = '👥',
 ) -> bool:
     """
-    Send a group invitation email via Gmail SMTP.
-    Returns True on success, False if SMTP is not configured or send fails.
+    Send a group invitation email via Resend.
+    Returns True on success, False if not configured or send fails.
     """
     join_url = f'https://adlshareflow-production.up.railway.app/join/{invite_code}'
     subject = f'{inviter_name} הזמין אותך להצטרף לקבוצה "{group_name}"'
