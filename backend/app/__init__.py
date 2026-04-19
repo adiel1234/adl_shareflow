@@ -156,24 +156,26 @@ def create_app(config=None):
   </style>
   <script>
     window.onload = function() {{
-      // Write invite code to clipboard for deferred deep linking (used if app installs fresh)
-      var clipText = 'shareflow-invite:{invite_code}';
+      // Try to open app if already installed (safe — stays on page if app not installed)
+      window.location = '{deep_link}';
+    }};
+    // Called when user taps a download button — writes code to clipboard THEN navigates
+    function dlApp(e, url) {{
+      e.preventDefault();
+      var clip = 'shareflow-invite:{invite_code}';
+      function go() {{ window.location = url; }}
       if (navigator.clipboard && navigator.clipboard.writeText) {{
-        navigator.clipboard.writeText(clipText).catch(function() {{}});
+        navigator.clipboard.writeText(clip).then(go, go);
       }} else {{
         try {{
           var ta = document.createElement('textarea');
-          ta.value = clipText;
-          ta.style.position = 'fixed'; ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.focus(); ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-        }} catch(e) {{}}
+          ta.value = clip; ta.style.cssText = 'position:fixed;opacity:0';
+          document.body.appendChild(ta); ta.focus(); ta.select();
+          document.execCommand('copy'); document.body.removeChild(ta);
+        }} catch(x) {{}}
+        go();
       }}
-      // Try to open app via deep link
-      window.location = '{deep_link}';
-    }};
+    }}
   </script>
 </head>
 <body>
@@ -184,9 +186,9 @@ def create_app(config=None):
     <div class="code">{invite_code}</div>
     <a class="btn btn-primary" href="{deep_link}">פתח באפליקציה</a>
     <div class="divider">— אין לך את האפליקציה עדיין? —</div>
-    {'<a class="btn btn-android" href="' + ANDROID_APK + '">🤖 הורד לאנדרואיד</a>' if is_android else ''}
-    {'<a class="btn btn-ios" href="' + TESTFLIGHT + '">🍎 הורד ל-iPhone</a>' if is_ios else ''}
-    {'<a class="btn btn-android" href="' + ANDROID_APK + '">🤖 הורד לאנדרואיד</a><a class="btn btn-ios" href="' + TESTFLIGHT + '">🍎 הורד ל-iPhone</a>' if not is_android and not is_ios else ''}
+    {'<a class="btn btn-android" href="#" onclick="dlApp(event,\'' + ANDROID_APK + '\')">🤖 הורד לאנדרואיד</a>' if is_android else ''}
+    {'<a class="btn btn-ios" href="#" onclick="dlApp(event,\'' + TESTFLIGHT + '\')">🍎 הורד ל-iPhone</a>' if is_ios else ''}
+    {'<a class="btn btn-android" href="#" onclick="dlApp(event,\'' + ANDROID_APK + '\')">🤖 הורד לאנדרואיד</a><a class="btn btn-ios" href="#" onclick="dlApp(event,\'' + TESTFLIGHT + '\')">🍎 הורד ל-iPhone</a>' if not is_android and not is_ios else ''}
   </div>
 </body>
 </html>'''

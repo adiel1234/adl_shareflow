@@ -102,7 +102,7 @@ def send_group_invitation(
                 <p style="margin:0 0 12px;font-size:13px;color:#666;font-weight:600;">
                   עדיין אין לך את האפליקציה?
                 </p>
-                <a href="https://adlshareflow-production.up.railway.app/download"
+                <a href="{join_url}"
                    style="display:inline-block;background:#1a1a2e;color:#ffffff;
                           text-decoration:none;font-size:14px;font-weight:600;
                           padding:12px 28px;border-radius:50px;">
