@@ -8,6 +8,7 @@ class Group {
   final bool isActive;
   final bool isClosed;
   final int memberCount;
+  final int expenseCount;
   final String? myRole;
   final String? adminName;
   final DateTime? createdAt;
@@ -29,6 +30,7 @@ class Group {
     this.isActive = true,
     this.isClosed = false,
     this.memberCount = 0,
+    this.expenseCount = 0,
     this.myRole,
     this.adminName,
     this.createdAt,
@@ -50,6 +52,7 @@ class Group {
         isActive: json['is_active'] as bool? ?? true,
         isClosed: json['is_closed'] as bool? ?? false,
         memberCount: json['member_count'] as int? ?? 0,
+        expenseCount: json['expense_count'] as int? ?? 0,
         myRole: json['my_role'] as String?,
         adminName: json['admin_name'] as String?,
         createdAt: json['created_at'] != null

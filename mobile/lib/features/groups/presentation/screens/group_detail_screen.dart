@@ -217,10 +217,9 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
     final repo = ref.read(groupRepositoryProvider);
 
     // Only ask about split mode if the group already has expenses
-    final expenses = ref.read(expensesProvider(group.id)).valueOrNull ?? [];
     String splitMode = 'forward';
 
-    if (expenses.isNotEmpty) {
+    if (group.expenseCount > 0) {
       final choice = await showDialog<String>(
         context: context,
         barrierDismissible: false,

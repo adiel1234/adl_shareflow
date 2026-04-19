@@ -166,6 +166,7 @@ class Group(db.Model):
             'group_type': self.group_type,
             'group_state': self.group_state,
             'invite_split_mode': self.invite_split_mode,
+            'expense_count': len(self.expenses) if self.expenses is not None else 0,
             'pricing_tier': self.pricing_tier,
             'activated_at': self.activated_at.isoformat() if self.activated_at else None,
             'expiry_date': self.expiry_date.isoformat() if self.expiry_date else None,
