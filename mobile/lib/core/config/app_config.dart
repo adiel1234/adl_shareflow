@@ -26,7 +26,7 @@ class AppConfig {
       case AppFlavor.staging:
         return 'https://engine-hacking-anywhere.ngrok-free.dev/api';
       case AppFlavor.prod:
-        return 'https://api.shareflow.adl.co.il/api';
+        return 'https://adlshareflow-production.up.railway.app/api';
     }
   }
 
