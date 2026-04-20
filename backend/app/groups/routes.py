@@ -129,6 +129,20 @@ def get_group(group_id, **kwargs):
     return success_response(data=d)
 
 
+@groups_bp.delete('/<group_id>')
+@jwt_required()
+@require_group_admin
+def delete_group(group_id, **kwargs):
+    """Delete a group permanently (admin only). All data is cascade-deleted."""
+    group = db.session.get(Group, group_id)
+    if not group or not group.is_active:
+        return error_response('Group not found', 404)
+
+    db.session.delete(group)
+    db.session.commit()
+    return success_response(message='הקבוצה נמחקה בהצלחה')
+
+
 @groups_bp.put('/<group_id>')
 @jwt_required()
 @require_group_admin

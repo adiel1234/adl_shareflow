@@ -96,6 +96,11 @@ class GroupRepository {
     return Group.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 
+  /// Permanently deletes a group (admin only).
+  Future<void> deleteGroup(String groupId) async {
+    await _api.delete('/groups/$groupId');
+  }
+
   /// Closes the group. Returns the updated group on success.
   /// Throws [CloseGroupException] if there are unsettled debts.
   Future<Group> closeGroup(String groupId, {bool force = false}) async {

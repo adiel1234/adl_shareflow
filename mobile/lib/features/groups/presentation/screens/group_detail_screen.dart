@@ -128,6 +128,26 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                   tooltip: AppLocalizations.of(context)!.closeGroup,
                   onPressed: () => _closeGroup(context, group),
                 ),
+              if (group.isAdmin)
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, color: Colors.white),
+                  onSelected: (value) {
+                    if (value == 'delete') _deleteGroup(context, group);
+                  },
+                  itemBuilder: (_) => [
+                    const PopupMenuItem<String>(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete_outline, color: Color(0xFFEF4444), size: 20),
+                          SizedBox(width: 10),
+                          Text('מחק קבוצה',
+                              style: TextStyle(color: Color(0xFFEF4444))),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
             ],
             bottom: TabBar(
               controller: _tabController,
@@ -195,6 +215,45 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
       ref.invalidate(expensesProvider(group.id));
       ref.invalidate(balancesProvider(group.id));
       if (context.mounted) Navigator.pop(context);
+    }
+  }
+
+  Future<void> _deleteGroup(BuildContext context, Group group) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('מחיקת קבוצה', style: TextStyle(color: Color(0xFFEF4444))),
+        content: Text(
+            'האם למחוק לצמיתות את הקבוצה "${group.name}"?\n\nכל ההוצאות, היתרות וההיסטוריה יימחקו ולא ניתן יהיה לשחזרם.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('ביטול')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEF4444),
+                foregroundColor: Colors.white),
+            child: const Text('מחק לצמיתות'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await ref.read(groupRepositoryProvider).deleteGroup(group.id);
+      if (!mounted) return;
+      ref.invalidate(groupsProvider);
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('הקבוצה נמחקה בהצלחה')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('שגיאה במחיקת הקבוצה')),
+      );
     }
   }
 

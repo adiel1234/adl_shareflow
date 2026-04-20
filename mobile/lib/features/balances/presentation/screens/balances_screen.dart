@@ -231,6 +231,27 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen> {
             },
           ),
 
+          const SizedBox(height: 16),
+
+          // Open debts transfer plan — prominent for closed groups
+          Consumer(
+            builder: (context, ref, _) {
+              final group = widget.group;
+              final planAsync = ref.watch(settlementPlanProvider(group.id));
+              return planAsync.when(
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+                data: (suggestions) {
+                  if (suggestions.isEmpty) return const SizedBox.shrink();
+                  return _TransfersCard(
+                    group: group,
+                    suggestions: suggestions,
+                  );
+                },
+              );
+            },
+          ),
+
           // Period reports history
           periodReportsAsync.when(
             loading: () => const SizedBox.shrink(),
@@ -490,6 +511,123 @@ class _DebtRow extends StatelessWidget {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+// ── Open debts transfer card ─────────────────────────────────────────────────
+
+class _TransfersCard extends StatelessWidget {
+  final Group group;
+  final List<SettlementSuggestion> suggestions;
+
+  const _TransfersCard({required this.group, required this.suggestions});
+
+  @override
+  Widget build(BuildContext context) {
+    final isClosed = group.isClosed;
+    final headerColor = isClosed ? const Color(0xFFEF4444) : const Color(0xFF6366F1);
+    final bgColor     = isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF0F0FF);
+    final borderColor = isClosed
+        ? const Color(0xFFEF4444).withOpacity(0.4)
+        : const Color(0xFF6366F1).withOpacity(0.3);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: borderColor, width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                isClosed ? Icons.warning_amber_rounded : Icons.swap_horiz_rounded,
+                color: headerColor,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                isClosed ? 'חובות פתוחים — הקבוצה סגורה' : 'העברות נדרשות',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: headerColor,
+                ),
+              ),
+            ],
+          ),
+          if (isClosed)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, bottom: 8),
+              child: Text(
+                'הקבוצה סגורה אך יש חובות שטרם שולמו',
+                style: TextStyle(fontSize: 12, color: headerColor.withOpacity(0.8)),
+              ),
+            )
+          else
+            const SizedBox(height: 12),
+          ...suggestions.map(
+            (s) => Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: borderColor),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: s.fromDisplayName,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 14),
+                          ),
+                          const TextSpan(
+                            text: ' צריך להעביר ל-',
+                            style: TextStyle(
+                                color: AppColors.textSecondary, fontSize: 13),
+                          ),
+                          TextSpan(
+                            text: s.toDisplayName,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: headerColor,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '${s.amountDouble.round()} ${s.currency}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
