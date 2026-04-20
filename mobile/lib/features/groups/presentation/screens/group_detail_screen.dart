@@ -118,7 +118,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.link, color: Colors.white),
+                icon: const Icon(Icons.person_add_rounded, color: Colors.white),
+                tooltip: 'הזמן חברים',
                 onPressed: () => _showInvite(context, group),
               ),
               if (group.isAdmin && !group.isClosed)

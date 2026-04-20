@@ -23,6 +23,7 @@ fi
 # -----------------------------------------------
 echo "🔄  עוצר תהליכים ישנים..."
 lsof -ti:5050 | xargs kill -9 2>/dev/null
+lsof -ti:5002 | xargs kill -9 2>/dev/null
 pkill -f "python run.py" 2>/dev/null
 sleep 1
 
@@ -35,6 +36,17 @@ tell application "Terminal"
     activate
     set win to do script "export PATH='/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:\$PATH' && cd '$BACKEND' && source venv/bin/activate && FLASK_APP=run.py flask db upgrade > /dev/null 2>&1 && echo '✅ Backend: http://localhost:5050' && python run.py"
     set custom title of win to "ADL ShareFlow — Backend"
+end tell
+EOF
+
+# -----------------------------------------------
+# הפעל ShareFlow Admin (עצמאי, מחובר ל-Railway)
+# -----------------------------------------------
+echo "📊  מפעיל ShareFlow Admin..."
+osascript <<EOF
+tell application "Terminal"
+    set win2 to do script "export PATH='/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:\$PATH' && cd '$ROOT/adl_platform_module' && echo '✅ ShareFlow Admin: http://localhost:5002/shareflow' && python3 run.py"
+    set custom title of win2 to "ShareFlow Admin — Control"
 end tell
 EOF
 
@@ -64,6 +76,7 @@ echo ""
 echo "╔════════════════════════════════════════╗"
 echo "║  ADL ShareFlow מופעל                   ║"
 echo "║  Backend:  http://localhost:5050        ║"
+echo "║  Admin:    http://localhost:5002        ║"
 echo "║  Chrome נפתח אוטומטית...               ║"
 echo "║  לעצירה: Ctrl+C                        ║"
 echo "╚════════════════════════════════════════╝"

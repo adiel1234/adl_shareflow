@@ -99,7 +99,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get notes => 'הערות';
 
   @override
-  String get balances => 'יתרות';
+  String get balances => 'חשבון';
 
   @override
   String get settlements => 'הסדרות';
@@ -421,7 +421,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get errorLoadingExpenses => 'שגיאה בטעינת הוצאות';
 
   @override
-  String get groupBalances => 'יתרות הקבוצה';
+  String get groupBalances => 'חשבון הקבוצה';
 
   @override
   String get groupTotalExpenses => 'סך הוצאות הקבוצה';
@@ -442,7 +442,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get owesHimLabel => 'חייבים לו';
 
   @override
-  String get errorLoadingBalances => 'שגיאה בטעינת יתרות';
+  String get errorLoadingBalances => 'שגיאה בטעינת חשבון';
 
   @override
   String get paidByHint => 'בחר מי שילם';

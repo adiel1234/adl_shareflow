@@ -281,7 +281,7 @@ abstract class AppLocalizations {
   /// No description provided for @balances.
   ///
   /// In he, this message translates to:
-  /// **'יתרות'**
+  /// **'חשבון'**
   String get balances;
 
   /// No description provided for @settlements.
@@ -899,7 +899,7 @@ abstract class AppLocalizations {
   /// No description provided for @groupBalances.
   ///
   /// In he, this message translates to:
-  /// **'יתרות הקבוצה'**
+  /// **'חשבון הקבוצה'**
   String get groupBalances;
 
   /// No description provided for @groupTotalExpenses.
@@ -941,7 +941,7 @@ abstract class AppLocalizations {
   /// No description provided for @errorLoadingBalances.
   ///
   /// In he, this message translates to:
-  /// **'שגיאה בטעינת יתרות'**
+  /// **'שגיאה בטעינת חשבון'**
   String get errorLoadingBalances;
 
   /// No description provided for @paidByHint.
