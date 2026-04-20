@@ -251,8 +251,16 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
       );
     } catch (e) {
       if (!mounted) return;
+      String msg = 'שגיאה במחיקת הקבוצה';
+      if (e is DioException) {
+        msg = (e.response?.data?['message'] as String?) ?? msg;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('שגיאה במחיקת הקבוצה')),
+        SnackBar(
+          content: Text(msg),
+          duration: const Duration(seconds: 5),
+          backgroundColor: msg.contains('חייב') ? const Color(0xFFEF4444) : null,
+        ),
       );
     }
   }

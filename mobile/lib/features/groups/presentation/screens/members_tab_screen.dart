@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/groups_provider.dart';
@@ -271,10 +272,18 @@ class MembersTabScreen extends ConsumerWidget {
           SnackBar(content: Text(l.memberRemovedSuccess(member.displayLabel))),
         );
       }
-    } catch (_) {
+    } catch (e) {
       if (context.mounted) {
+        String msg = l.errorRemovingMember;
+        if (e is DioException) {
+          msg = (e.response?.data?['message'] as String?) ?? msg;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.errorRemovingMember)),
+          SnackBar(
+            content: Text(msg),
+            duration: const Duration(seconds: 5),
+            backgroundColor: msg.contains('חייב') ? const Color(0xFFEF4444) : null,
+          ),
         );
       }
     }

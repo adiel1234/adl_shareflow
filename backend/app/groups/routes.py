@@ -138,6 +138,18 @@ def delete_group(group_id, **kwargs):
     if not group or not group.is_active:
         return error_response('Group not found', 404)
 
+    # Block deletion if any member has an outstanding balance
+    from app.balances.engine import calculate_group_balances
+    balances = calculate_group_balances(group_id)
+    debtors = [b for b in balances if b.net_amount < -Decimal('0.01')]
+    if debtors:
+        names = ', '.join(b.display_name for b in debtors)
+        return error_response(
+            f'לא ניתן למחוק קבוצה כאשר קיימים חובות פתוחים. '
+            f'החברים הבאים עדיין חייבים כסף: {names}',
+            400,
+        )
+
     db.session.delete(group)
     db.session.commit()
     return success_response(message='הקבוצה נמחקה בהצלחה')
@@ -201,6 +213,18 @@ def remove_member(group_id, target_user_id, **kwargs):
 
     group = db.session.get(Group, group_id)
     mode = (request.get_json(silent=True) or {}).get('mode', 'settle')
+
+    # Block self-removal when the member has an outstanding debt
+    if removing_self and mode != 'redistribute':
+        from app.balances.engine import calculate_group_balances
+        balances = calculate_group_balances(group_id)
+        my_bal = next((b for b in balances if b.user_id == target_user_id), None)
+        if my_bal and my_bal.net_amount < -Decimal('0.01'):
+            return error_response(
+                'לא ניתן לעזוב קבוצה כאשר עדיין חייב בה כסף. '
+                'יש להסדיר את החוב תחילה.',
+                400,
+            )
 
     if mode == 'redistribute':
         # Redistribute leaving member's share among remaining participants per expense
