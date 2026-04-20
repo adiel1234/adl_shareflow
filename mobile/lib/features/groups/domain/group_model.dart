@@ -19,6 +19,11 @@ class Group {
   final DateTime? activatedAt;
   final DateTime? expiryDate;
   final Map<String, dynamic>? requiredPricing;
+  // Periodic settlement
+  final String settlementType;   // 'none' | 'periodic'
+  final String? settlementPeriod; // 'weekly'|'biweekly'|'monthly'|...
+  final DateTime? nextSettlementDate;
+  final DateTime? currentPeriodStart;
 
   const Group({
     required this.id,
@@ -40,6 +45,10 @@ class Group {
     this.activatedAt,
     this.expiryDate,
     this.requiredPricing,
+    this.settlementType = 'none',
+    this.settlementPeriod,
+    this.nextSettlementDate,
+    this.currentPeriodStart,
   });
 
   factory Group.fromJson(Map<String, dynamic> json) => Group(
@@ -68,6 +77,14 @@ class Group {
             ? DateTime.tryParse(json['expiry_date'] as String)
             : null,
         requiredPricing: json['required_pricing'] as Map<String, dynamic>?,
+        settlementType: json['settlement_type'] as String? ?? 'none',
+        settlementPeriod: json['settlement_period'] as String?,
+        nextSettlementDate: json['next_settlement_date'] != null
+            ? DateTime.tryParse(json['next_settlement_date'] as String)
+            : null,
+        currentPeriodStart: json['current_period_start'] != null
+            ? DateTime.tryParse(json['current_period_start'] as String)
+            : null,
       );
 
   String get categoryEmoji {
@@ -91,6 +108,21 @@ class Group {
   /// True when the group has expired (event) or billing lapsed (ongoing).
   bool get isExpiredOrReadOnly =>
       groupState == 'expired' || groupState == 'read_only';
+
+  bool get isPeriodic => settlementType == 'periodic';
+
+  String get settlementPeriodLabel {
+    switch (settlementPeriod) {
+      case 'weekly':     return 'שבועי';
+      case 'biweekly':   return 'דו-שבועי';
+      case 'monthly':    return 'חודשי';
+      case 'bimonthly':  return 'דו-חודשי';
+      case 'quarterly':  return 'רבעוני';
+      case 'semiannual': return 'חצי-שנתי';
+      case 'annual':     return 'שנתי';
+      default:           return '';
+    }
+  }
 
   String get groupTypeLabel => groupType == 'ongoing' ? 'שוטף' : 'אירוע';
 

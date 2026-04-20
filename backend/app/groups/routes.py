@@ -1,4 +1,7 @@
 import secrets
+from datetime import datetime, timezone, timedelta
+from decimal import Decimal, ROUND_HALF_UP
+
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -57,6 +60,19 @@ def create_group():
     limit_reached = total_created >= FREE_GROUP_LIMIT
     group_state = 'limited' if limit_reached else 'free'
 
+    # Periodic settlement settings
+    settlement_type = data.get('settlement_type', 'none')
+    if settlement_type not in ('none', 'periodic'):
+        settlement_type = 'none'
+    valid_periods = ('weekly', 'biweekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annual')
+    settlement_period = data.get('settlement_period') if settlement_type == 'periodic' else None
+    if settlement_period not in valid_periods:
+        settlement_period = 'monthly' if settlement_type == 'periodic' else None
+
+    now = datetime.now(timezone.utc)
+    current_period_start = now if settlement_type == 'periodic' else None
+    next_settlement_date = _next_settlement(now, settlement_period) if settlement_type == 'periodic' else None
+
     group = Group(
         name=name,
         description=(data.get('description') or '').strip() or None,
@@ -66,6 +82,10 @@ def create_group():
         invite_code=generate_invite_code(),
         group_type=group_type,
         group_state=group_state,
+        settlement_type=settlement_type,
+        settlement_period=settlement_period,
+        current_period_start=current_period_start,
+        next_settlement_date=next_settlement_date,
     )
     db.session.add(group)
     db.session.flush()
@@ -479,6 +499,231 @@ def check_invite(invite_code):
         'member_count': member_count,
         'has_expenses': expense_count > 0,
     })
+
+
+# ---------------------------------------------------------------------------
+# Periodic settlement helpers
+# ---------------------------------------------------------------------------
+
+_PERIOD_DELTAS = {
+    'weekly':      timedelta(weeks=1),
+    'biweekly':    timedelta(weeks=2),
+    'monthly':     timedelta(days=30),
+    'bimonthly':   timedelta(days=61),
+    'quarterly':   timedelta(days=91),
+    'semiannual':  timedelta(days=182),
+    'annual':      timedelta(days=365),
+}
+
+
+def _next_settlement(from_dt: datetime, period: str) -> datetime:
+    delta = _PERIOD_DELTAS.get(period, timedelta(days=30))
+    return from_dt + delta
+
+
+def _compute_balances(group_id: str, period_report_id=None) -> dict:
+    """
+    Returns {user_id: net_balance} — positive = owed money, negative = owes money.
+    Only includes expenses belonging to the given period_report_id
+    (None = current active period, i.e. period_report_id IS NULL).
+    """
+    from app.models import Expense, ExpenseParticipant
+    q = Expense.query.filter_by(group_id=group_id)
+    if period_report_id is None:
+        q = q.filter(Expense.period_report_id.is_(None))
+    else:
+        q = q.filter_by(period_report_id=period_report_id)
+    expenses = q.all()
+
+    balances: dict[str, Decimal] = {}
+    for exp in expenses:
+        paid_by = exp.paid_by
+        amount = Decimal(str(exp.converted_amount))
+        balances[paid_by] = balances.get(paid_by, Decimal('0')) + amount
+        for part in exp.participants:
+            uid = part.user_id
+            share = Decimal(str(part.share_amount))
+            balances[uid] = balances.get(uid, Decimal('0')) - share
+    return balances
+
+
+def _simplify_debts(balances: dict) -> list[dict]:
+    """
+    Minimize transactions. Returns list of {from_uid, to_uid, amount}.
+    """
+    creditors = sorted([(v, k) for k, v in balances.items() if v > Decimal('0.01')], reverse=True)
+    debtors   = sorted([(abs(v), k) for k, v in balances.items() if v < Decimal('-0.01')], reverse=True)
+    transactions = []
+    ci, di = 0, 0
+    while ci < len(creditors) and di < len(debtors):
+        cred_amt, cred_id = creditors[ci]
+        debt_amt, debt_id = debtors[di]
+        settled = min(cred_amt, debt_amt).quantize(Decimal('0.01'), ROUND_HALF_UP)
+        transactions.append({'from': debt_id, 'to': cred_id, 'amount': str(settled)})
+        creditors[ci] = (cred_amt - settled, cred_id)
+        debtors[di]   = (debt_amt - settled, debt_id)
+        if creditors[ci][0] < Decimal('0.01'):
+            ci += 1
+        if debtors[di][0] < Decimal('0.01'):
+            di += 1
+    return transactions
+
+
+def _do_settle_period(group: Group, triggered_by: str = 'manual'):
+    """
+    Close the current period:
+    1. Compute balances for current-period expenses.
+    2. Create a PeriodReport + PeriodDebt rows.
+    3. Tag all current-period expenses with period_report_id.
+    4. Advance current_period_start and next_settlement_date.
+    5. Commit.
+    Returns the new PeriodReport.
+    """
+    from app.models import Expense, PeriodReport, PeriodDebt
+
+    now = datetime.now(timezone.utc)
+    period_start = group.current_period_start or group.created_at or now
+
+    # Compute balances
+    balances = _compute_balances(group.id, period_report_id=None)
+    debts = _simplify_debts(balances)
+    currency = group.base_currency or 'ILS'
+
+    # Count completed periods
+    period_number = db.session.query(PeriodReport).filter_by(group_id=group.id).count() + 1
+
+    # Sum total expenses for current period
+    current_expenses = Expense.query.filter_by(
+        group_id=group.id
+    ).filter(Expense.period_report_id.is_(None)).all()
+    total = sum(Decimal(str(e.converted_amount)) for e in current_expenses)
+
+    # Create report
+    report = PeriodReport(
+        group_id=group.id,
+        period_number=period_number,
+        period_start=period_start,
+        period_end=now,
+        total_expenses=total,
+        currency=currency,
+        balances_snapshot=debts,
+        triggered_by=triggered_by,
+    )
+    db.session.add(report)
+    db.session.flush()  # get report.id
+
+    # Create debt rows
+    for d in debts:
+        db.session.add(PeriodDebt(
+            report_id=report.id,
+            from_user_id=d['from'],
+            to_user_id=d['to'],
+            amount=Decimal(d['amount']),
+            currency=currency,
+        ))
+
+    # Tag all current-period expenses
+    for exp in current_expenses:
+        exp.period_report_id = report.id
+
+    # Advance period dates
+    group.current_period_start = now
+    group.next_settlement_date = _next_settlement(now, group.settlement_period)
+
+    db.session.commit()
+    return report
+
+
+# ---------------------------------------------------------------------------
+# Periodic settlement endpoints
+# ---------------------------------------------------------------------------
+
+@groups_bp.get('/<group_id>/period-reports')
+@jwt_required()
+@require_group_member
+def list_period_reports(group_id, **kwargs):
+    """List all period reports for a group, newest first."""
+    from app.models import PeriodReport
+    reports = PeriodReport.query.filter_by(group_id=group_id)\
+        .order_by(PeriodReport.period_end.desc()).all()
+    return success_response(data=[r.to_dict() for r in reports])
+
+
+@groups_bp.post('/<group_id>/settle-period')
+@jwt_required()
+@require_group_admin
+def settle_period(group_id, **kwargs):
+    """Manually trigger period settlement (admin only)."""
+    group = db.session.get(Group, group_id)
+    if not group or not group.is_active:
+        return error_response('Group not found', 404)
+    if group.settlement_type != 'periodic':
+        return error_response('This group does not have periodic settlement enabled', 400)
+
+    # Check there are actual expenses to settle
+    from app.models import Expense
+    count = Expense.query.filter_by(group_id=group_id)\
+        .filter(Expense.period_report_id.is_(None)).count()
+    if count == 0:
+        return error_response('אין הוצאות בתקופה הנוכחית לסיכום', 400)
+
+    report = _do_settle_period(group, triggered_by='manual')
+
+    # Send summary to members (email + WhatsApp)
+    _notify_period_settled(group, report)
+
+    return success_response(data=report.to_dict(), status_code=201)
+
+
+@groups_bp.post('/period-debts/<debt_id>/mark-paid')
+@jwt_required()
+def mark_debt_paid(debt_id):
+    """Mark a period debt as paid. Only the creditor (to_user) may do this."""
+    from app.models import PeriodDebt
+    user_id = get_jwt_identity()
+    debt = db.session.get(PeriodDebt, debt_id)
+    if not debt:
+        return error_response('Debt not found', 404)
+    if debt.to_user_id != user_id:
+        return error_response('רק מי שמגיע לו הכסף יכול לסמן חוב זה כשולם', 403)
+    if debt.is_paid:
+        return error_response('חוב זה כבר סומן כשולם', 400)
+
+    debt.is_paid = True
+    debt.paid_at = datetime.now(timezone.utc)
+    debt.marked_paid_by = user_id
+    db.session.commit()
+    return success_response(data=debt.to_dict())
+
+
+def _notify_period_settled(group: Group, report):
+    """Send period summary via email to all group members."""
+    try:
+        members = GroupMember.query.filter_by(group_id=group.id).all()
+        debts = report.debts
+
+        lines = [f'סיכום תקופה #{report.period_number} — {group.name}', '']
+        for d in debts:
+            from_name = d.from_user.display_name if d.from_user else '?'
+            to_name   = d.to_user.display_name if d.to_user else '?'
+            lines.append(f'{from_name} חייב ל-{to_name}: {d.amount} {d.currency}')
+        if not debts:
+            lines.append('כל החשבונות מאוזנים — אין חובות!')
+        lines += ['', f'סה"כ הוצאות: {report.total_expenses} {report.currency}']
+        summary_text = '\n'.join(lines)
+
+        for m in members:
+            user = db.session.get(User, m.user_id)
+            if user and user.email:
+                try:
+                    from app.email_service import send_period_report
+                    send_period_report(user.email, user.display_name, group.name, summary_text,
+                                       report.period_number, str(report.period_start)[:10],
+                                       str(report.period_end)[:10])
+                except Exception:
+                    pass
+    except Exception:
+        pass
 
 
 @groups_bp.post('/join/<invite_code>')

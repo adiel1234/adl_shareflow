@@ -22,7 +22,19 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   String _currency = 'ILS';
   String? _category;
   String _groupType = 'event';
+  String _settlementType = 'none';   // 'none' | 'periodic'
+  String _settlementPeriod = 'monthly';
   bool _loading = false;
+
+  static const _kPeriods = [
+    ('weekly',     'שבועי'),
+    ('biweekly',   'דו-שבועי'),
+    ('monthly',    'חודשי'),
+    ('bimonthly',  'דו-חודשי'),
+    ('quarterly',  'רבעוני'),
+    ('semiannual', 'חצי-שנתי'),
+    ('annual',     'שנתי'),
+  ];
 
   static const _kBlue   = Color(0xFF1D4ED8);
   static const _kTeal   = Color(0xFF0D9488);
@@ -66,6 +78,8 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                 baseCurrency: _currency,
                 category: _category,
                 groupType: _groupType,
+                settlementType: _settlementType,
+                settlementPeriod: _settlementType == 'periodic' ? _settlementPeriod : null,
               );
       if (!mounted) return;
       if (limitReached) {
@@ -171,6 +185,93 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
+
+              // Periodic settlement — only for ongoing groups
+              if (_groupType == 'ongoing') ...[
+                const SizedBox(height: 20),
+                const Text(
+                  'התחשבנות תקופית',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textSecondary,
+                      fontSize: 13),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    children: [
+                      RadioListTile<String>(
+                        value: 'none',
+                        groupValue: _settlementType,
+                        onChanged: (v) => setState(() => _settlementType = v!),
+                        title: const Text('ידנית / אקראית',
+                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                        subtitle: const Text('סוגרים חשבון כשרוצים',
+                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                        activeColor: AppColors.primary,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                      ),
+                      const Divider(height: 1),
+                      RadioListTile<String>(
+                        value: 'periodic',
+                        groupValue: _settlementType,
+                        onChanged: (v) => setState(() => _settlementType = v!),
+                        title: const Text('תקופתית אוטומטית',
+                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                        subtitle: const Text('דוח נשלח אוטומטית וניתן לסמן חובות כשולמו',
+                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                        activeColor: AppColors.primary,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                if (_settlementType == 'periodic') ...[
+                  const SizedBox(height: 12),
+                  const Text(
+                    'תדירות התחשבנות',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                        fontSize: 13),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _kPeriods.map((p) {
+                      final selected = _settlementPeriod == p.$1;
+                      return GestureDetector(
+                        onTap: () => setState(() => _settlementPeriod = p.$1),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                          decoration: BoxDecoration(
+                            color: selected ? AppColors.primary : AppColors.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: selected ? AppColors.primary : AppColors.border,
+                            ),
+                          ),
+                          child: Text(
+                            p.$2,
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: selected ? Colors.white : AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ],
 
               const SizedBox(height: 24),
 

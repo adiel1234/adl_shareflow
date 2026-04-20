@@ -1,5 +1,6 @@
 import '../../../core/network/api_client.dart';
 import '../domain/group_model.dart';
+import '../domain/period_report_model.dart';
 
 class GroupRepository {
   final _api = ApiClient.instance;
@@ -24,6 +25,8 @@ class GroupRepository {
     required String baseCurrency,
     String? category,
     String groupType = 'event',
+    String settlementType = 'none',
+    String? settlementPeriod,
   }) async {
     final response = await _api.post('/groups', data: {
       'name': name,
@@ -31,11 +34,29 @@ class GroupRepository {
       'base_currency': baseCurrency,
       if (category != null) 'category': category,
       'group_type': groupType,
+      'settlement_type': settlementType,
+      if (settlementPeriod != null) 'settlement_period': settlementPeriod,
     });
     final data = response.data['data'] as Map<String, dynamic>;
     final group = Group.fromJson(data);
     final limitReached = data['creation_reason'] == 'free_group_limit_reached';
     return (group, limitReached);
+  }
+
+  Future<List<PeriodReport>> fetchPeriodReports(String groupId) async {
+    final response = await _api.get('/groups/$groupId/period-reports');
+    final list = response.data['data'] as List<dynamic>;
+    return list.map((j) => PeriodReport.fromJson(j as Map<String, dynamic>)).toList();
+  }
+
+  Future<PeriodReport> settlePeriod(String groupId) async {
+    final response = await _api.post('/groups/$groupId/settle-period');
+    return PeriodReport.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
+  Future<PeriodDebt> markDebtPaid(String debtId) async {
+    final response = await _api.post('/groups/period-debts/$debtId/mark-paid');
+    return PeriodDebt.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 
   Future<List<GroupMember>> fetchMembers(String groupId) async {

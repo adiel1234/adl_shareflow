@@ -19,6 +19,7 @@ class Expense {
   final bool isPayer;
   final bool isCreator;
   final bool isSystemExpense;
+  final String? periodReportId;  // null = current period; non-null = archived
 
   const Expense({
     required this.id,
@@ -41,6 +42,7 @@ class Expense {
     this.isPayer = false,
     this.isCreator = false,
     this.isSystemExpense = false,
+    this.periodReportId,
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) {
@@ -71,6 +73,7 @@ class Expense {
       isPayer: json['is_payer'] as bool? ?? false,
       isCreator: json['is_creator'] as bool? ?? false,
       isSystemExpense: json['is_system_expense'] as bool? ?? false,
+      periodReportId: json['period_report_id'] as String?,
     );
   }
 

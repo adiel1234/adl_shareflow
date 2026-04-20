@@ -144,6 +144,11 @@ class Group(db.Model):
     activated_at = Column(DateTime(timezone=True), nullable=True)
     expiry_date = Column(DateTime(timezone=True), nullable=True)
     max_participants_snapshot = Column(Integer, nullable=True)
+    # Periodic settlement
+    settlement_type = Column(String(10), nullable=False, default='none')   # 'none' | 'periodic'
+    settlement_period = Column(String(15), nullable=True)  # 'weekly'|'biweekly'|'monthly'|'bimonthly'|'quarterly'|'semiannual'|'annual'
+    current_period_start = Column(DateTime(timezone=True), nullable=True)
+    next_settlement_date = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=_now, onupdate=_now)
 
@@ -151,6 +156,8 @@ class Group(db.Model):
     expenses = relationship('Expense', back_populates='group', cascade='all, delete-orphan')
     settlements = relationship('Settlement', back_populates='group', cascade='all, delete-orphan')
     payments = relationship('GroupPayment', back_populates='group', cascade='all, delete-orphan')
+    period_reports = relationship('PeriodReport', back_populates='group', cascade='all, delete-orphan',
+                                  order_by='PeriodReport.period_end.desc()')
 
     def to_dict(self):
         return {
@@ -171,6 +178,10 @@ class Group(db.Model):
             'activated_at': self.activated_at.isoformat() if self.activated_at else None,
             'expiry_date': self.expiry_date.isoformat() if self.expiry_date else None,
             'max_participants_snapshot': self.max_participants_snapshot,
+            'settlement_type': self.settlement_type,
+            'settlement_period': self.settlement_period,
+            'current_period_start': self.current_period_start.isoformat() if self.current_period_start else None,
+            'next_settlement_date': self.next_settlement_date.isoformat() if self.next_settlement_date else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'member_count': len(self.members),
         }
@@ -229,6 +240,8 @@ class Expense(db.Model):
     # System-generated expenses (platform payments injected as group expenses)
     is_system_expense = Column(Boolean, nullable=False, default=False)
     expense_source = Column(String(20), nullable=True)  # 'activation' | 'extension' | 'renewal'
+    # Periodic settlement — which period this expense belongs to (null = current active period)
+    period_report_id = Column(UUID(as_uuid=False), ForeignKey('period_reports.id'), nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=_now, onupdate=_now)
 
@@ -236,6 +249,7 @@ class Expense(db.Model):
     payer = relationship('User', foreign_keys=[paid_by])
     participants = relationship('ExpenseParticipant', back_populates='expense', cascade='all, delete-orphan')
     receipt = relationship('Receipt', foreign_keys=[receipt_id])
+    period_report = relationship('PeriodReport', foreign_keys=[period_report_id], back_populates='expenses')
 
     def to_dict(self):
         return {
@@ -255,6 +269,7 @@ class Expense(db.Model):
             'notes': self.notes,
             'is_system_expense': self.is_system_expense,
             'expense_source': self.expense_source,
+            'period_report_id': self.period_report_id,
             'participants': [p.to_dict() for p in self.participants],
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
@@ -520,6 +535,83 @@ class FeatureFlag(db.Model):
     value = Column(JSONB)
     description = Column(Text)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=_now, onupdate=_now)
+
+
+# ---------------------------------------------------------------------------
+# Periodic Settlement
+# ---------------------------------------------------------------------------
+
+class PeriodReport(db.Model):
+    """Snapshot of one settlement period for an ongoing group."""
+    __tablename__ = 'period_reports'
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    group_id = Column(UUID(as_uuid=False), ForeignKey('groups.id', ondelete='CASCADE'), nullable=False, index=True)
+    period_number = Column(Integer, nullable=False, default=1)   # 1, 2, 3 …
+    period_start = Column(DateTime(timezone=True), nullable=False)
+    period_end = Column(DateTime(timezone=True), nullable=False)
+    total_expenses = Column(Numeric(12, 2), nullable=False, default=0)
+    currency = Column(String(3), nullable=False, default='ILS')
+    # JSON snapshot: [{"from": uid, "to": uid, "amount": "XX.XX", "currency": "ILS"}, ...]
+    balances_snapshot = Column(JSONB, nullable=False, default=list)
+    triggered_by = Column(String(10), nullable=False, default='auto')  # 'auto' | 'manual'
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
+
+    group = relationship('Group', back_populates='period_reports')
+    expenses = relationship('Expense', back_populates='period_report',
+                            foreign_keys='Expense.period_report_id')
+    debts = relationship('PeriodDebt', back_populates='report', cascade='all, delete-orphan')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'group_id': self.group_id,
+            'period_number': self.period_number,
+            'period_start': self.period_start.isoformat() if self.period_start else None,
+            'period_end': self.period_end.isoformat() if self.period_end else None,
+            'total_expenses': str(self.total_expenses),
+            'currency': self.currency,
+            'balances_snapshot': self.balances_snapshot,
+            'triggered_by': self.triggered_by,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'debts': [d.to_dict() for d in self.debts],
+        }
+
+
+class PeriodDebt(db.Model):
+    """A single debt entry within a period report."""
+    __tablename__ = 'period_debts'
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    report_id = Column(UUID(as_uuid=False), ForeignKey('period_reports.id', ondelete='CASCADE'), nullable=False, index=True)
+    from_user_id = Column(UUID(as_uuid=False), ForeignKey('users.id'), nullable=False)
+    to_user_id = Column(UUID(as_uuid=False), ForeignKey('users.id'), nullable=False)
+    amount = Column(Numeric(12, 2), nullable=False)
+    currency = Column(String(3), nullable=False, default='ILS')
+    is_paid = Column(Boolean, nullable=False, default=False)
+    paid_at = Column(DateTime(timezone=True), nullable=True)
+    # Only the creditor (to_user_id) may mark as paid
+    marked_paid_by = Column(UUID(as_uuid=False), ForeignKey('users.id'), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
+
+    report = relationship('PeriodReport', back_populates='debts')
+    from_user = relationship('User', foreign_keys=[from_user_id])
+    to_user = relationship('User', foreign_keys=[to_user_id])
+    paid_by_user = relationship('User', foreign_keys=[marked_paid_by])
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'report_id': self.report_id,
+            'from_user_id': self.from_user_id,
+            'from_user': self.from_user.to_dict() if self.from_user else None,
+            'to_user_id': self.to_user_id,
+            'to_user': self.to_user.to_dict() if self.to_user else None,
+            'amount': str(self.amount),
+            'currency': self.currency,
+            'is_paid': self.is_paid,
+            'paid_at': self.paid_at.isoformat() if self.paid_at else None,
+        }
 
 
 # ---------------------------------------------------------------------------

@@ -127,3 +127,61 @@ def send_group_invitation(
 </html>
 """
     return _send(to_email, subject, html)
+
+
+def send_period_report(
+    to_email: str,
+    recipient_name: str,
+    group_name: str,
+    summary_text: str,
+    period_number: int,
+    period_start: str,
+    period_end: str,
+) -> bool:
+    """Send a periodic settlement report email."""
+    subject = f'סיכום תקופה #{period_number} — {group_name}'
+
+    # Build HTML debt rows from the plain-text summary
+    rows_html = ''.join(
+        f'<p style="margin:6px 0;font-size:15px;color:#333;">{line}</p>'
+        for line in summary_text.split('\n')
+        if line.strip()
+    )
+
+    html = f"""<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{subject}</title></head>
+<body style="margin:0;padding:0;background:#f5f5f7;font-family:system-ui,-apple-system,sans-serif;direction:rtl;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f7;padding:40px 0;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0"
+             style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+        <tr>
+          <td style="background:linear-gradient(135deg,#6366F1,#8B5CF6);padding:36px 32px;text-align:center;">
+            <div style="font-size:48px;margin-bottom:8px;">📊</div>
+            <h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;">{group_name}</h1>
+            <p style="margin:8px 0 0;color:rgba(255,255,255,0.8);font-size:14px;">
+              סיכום תקופה #{period_number} · {period_start} – {period_end}
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:32px;">
+            <h2 style="margin:0 0 16px;font-size:18px;color:#1a1a2e;">שלום {recipient_name},</h2>
+            <p style="margin:0 0 24px;color:#666;font-size:14px;line-height:1.6;">
+              הסתיימה תקופת ההתחשבנות של הקבוצה. להלן סיכום החובות לתשלום:
+            </p>
+            <div style="background:#f0f0ff;border-radius:14px;padding:20px 24px;margin-bottom:24px;">
+              {rows_html}
+            </div>
+            <p style="margin:0;font-size:13px;color:#999;text-align:center;">
+              ADL ShareFlow · adl.co.il
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>"""
+    return _send(to_email, subject, html)
