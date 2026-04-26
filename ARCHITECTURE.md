@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: אפריל 2026 (גרסה 1.0.1)
+> עודכן לאחרונה: 27 אפריל 2026 (גרסה 1.0.1+2)
 
 ---
 
@@ -59,7 +59,7 @@
 | `features/profile/` | פרופיל, הגדרות, תזכורות, פרטי תשלום |
 | `features/ocr/` | סריקת קבלות |
 | `l10n/` | עברית (`app_he.arb`) + אנגלית (`app_en.arb`) — 396 מפתחות |
-| `services/fcm_service.dart` | ניהול Push Notifications |
+| `services/fcm_service.dart` | ניהול Push Notifications — אתחול, רישום token, ניווט מהתראה |
 | `services/share_service.dart` | שיתוף קישורים / WhatsApp |
 | `providers/` | Riverpod state management |
 | `theme/` | צבעים, טיפוגרפיה, עיצוב |
@@ -125,8 +125,8 @@
 
 | שירות | מה הוא עושה | חשוב לדעת |
 |-------|------------|-----------|
-| **Firebase** | Push Notifications (FCM) | קובץ `firebase-credentials.json` בשרת |
-| **Firebase Auth** | Google Sign-In | `GoogleService-Info.plist` ב-iOS |
+| **Firebase** | Push Notifications (FCM) | Backend: `firebase-credentials.json`; Android: `google-services.json` + plugin; iOS: `GoogleService-Info.plist` |
+| **Firebase Auth** | Google Sign-In | Bundle: `com.adl.shareflow` |
 | **Google Vision** | OCR — סריקת קבלות | 1,000 סריקות/חודש חינם |
 | **ExchangeRate-API** | שערי מטבע בזמן אמת | חינמי |
 | **Resend** | שליחת מיילי הזמנה | `RESEND_API_KEY` בסביבת הייצור |
@@ -192,13 +192,22 @@ git push origin main
 
 # 2. בנה APK:
 cd mobile
-flutter build apk --release --dart-define=FLAVOR=prod
+flutter build apk --release
 
 # 3. קובץ מוכן ב:
 #    build/app/outputs/flutter-apk/app-release.apk
 
-# 4. העלה לשרת והפץ קישור
+# 4. העלה ל-Google Drive (שתף → "כל מי שיש לו קישור")
+# 5. עדכן APK_DOWNLOAD_URL ב-Railway:
+#    https://drive.google.com/uc?export=download&id=<FILE_ID>
+
+# להתקנה מהירה על מכשיר מחובר USB (לפיתוח):
+flutter install --release
 ```
+
+**APK נוכחי (גרסה 1.0.1+2):**
+- קישור Google Drive: `https://drive.google.com/uc?export=download&id=1gCIuCZOErAJnkbqCpPbpsO_OJk4y89dt`
+- זמין להורדה דרך: `https://adlshareflow-production.up.railway.app/download`
 
 ### iOS (TestFlight)
 ```
@@ -254,6 +263,22 @@ flutter build apk --release --dart-define=FLAVOR=prod
 |------|------|--------|
 | אפליקציה לא מתחברת לשרת | URL הייצור לא מוגדר | עדכן `app_config.dart` → בנה מחדש |
 | Push לא מגיע ל-iOS | APNs לא מוגדר | הוגדר ב-Firebase (Key: `4BT7S9CS4V`) |
+| אפליקציה Android תקועה ב-splash | `google-services.json` חסר | הורד מ-Firebase Console → שמור ב-`android/app/` |
 | OCR לא עובד | Google Vision credentials חסר | הגדר `GOOGLE_APPLICATION_CREDENTIALS` בשרת |
 | תשלומים לא נגבים | `PAYMENTS_ENABLED=false` | שנה ל-`true` ב-DB כשמוכן |
 | קבוצה לא עוברת ל-limited | Scheduler לא פועל | וודא ש-APScheduler פעיל בשרת |
+| לחיצה על התראה לא מנווטת | route `/group-detail` חסר | תוקן ב-router.dart — נדרש build חדש |
+
+---
+
+## מצב פיילוט (אפריל 2026)
+
+| נושא | מצב |
+|------|-----|
+| Backend (Railway) | ✅ פעיל |
+| iOS (TestFlight) | ✅ Internal — גרסה 1.0.0 (נדרש עדכון ל-1.0.1+2) |
+| Android (APK) | ✅ גרסה 1.0.1+2 — זמין ב-/download |
+| QR + הזמנות | ✅ עובד בשני הכיוונים |
+| Push Notifications | ✅ מגיעות — ניווט בבדיקה |
+| PAYMENTS_ENABLED | 🔴 כבוי (פיילוט חינמי) |
+| Firebase App Distribution | 🟡 מתוכנן — טרם הוגדר |
