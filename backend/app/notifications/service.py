@@ -9,8 +9,11 @@ from app.notifications import fcm_service
 
 def notify_new_expense(expense, actor_name: str):
     """Notify all group members when a new expense is added."""
+    from app.models import Group
+    group = db.session.get(Group, expense.group_id)
+    group_name = group.name if group else ''
     members = GroupMember.query.filter_by(group_id=expense.group_id).all()
-    title = 'הוצאה חדשה נוספה'
+    title = f'הוצאה חדשה — {group_name}' if group_name else 'הוצאה חדשה נוספה'
     body = f'{actor_name} הוסיף: {expense.title} — {expense.original_amount} {expense.original_currency}'
 
     for member in members:
@@ -59,6 +62,7 @@ def notify_settlement_requested(settlement, requester_name: str):
 
     fcm_service.send_to_user(settlement.to_user_id, title, body, {
         'type': 'settlement_requested',
+        'group_id': settlement.group_id,
         'settlement_id': settlement.id,
     })
 
@@ -83,6 +87,7 @@ def notify_settlement_confirmed(settlement, confirmer_name: str):
 
     fcm_service.send_to_user(settlement.from_user_id, title, body, {
         'type': 'settlement_confirmed',
+        'group_id': settlement.group_id,
         'settlement_id': settlement.id,
     })
 
