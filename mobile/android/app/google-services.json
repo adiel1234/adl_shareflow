@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "703436621794",
+    "project_id": "adl---shareflow",
+    "storage_bucket": "adl---shareflow.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:703436621794:android:01c907ba52107ec46d9bbb",
+        "android_client_info": {
+          "package_name": "com.adl.shareflow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "703436621794-uijr6vaao78sghtm4g9q5f69limb4hba.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsLEF8y2HxK18ZBwUyQpgveI0Ah8TmZw8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "703436621794-uijr6vaao78sghtm4g9q5f69limb4hba.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "703436621794-gmrgkd8sfh64u3l2gm2vh3v3vr78e2lk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.adl.shareflow"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
