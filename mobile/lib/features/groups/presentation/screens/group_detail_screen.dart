@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/group_repository.dart';
@@ -119,7 +120,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
             actions: [
               IconButton(
                 icon: const Icon(Icons.person_add_rounded, color: Colors.white),
-                tooltip: 'הזמן חברים',
+                tooltip: AppLocalizations.of(context)!.inviteFriends,
                 onPressed: () => _showInvite(context, group),
               ),
               if (group.isAdmin && !group.isClosed)
@@ -134,15 +135,15 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                   onSelected: (value) {
                     if (value == 'delete') _deleteGroup(context, group);
                   },
-                  itemBuilder: (_) => [
-                    const PopupMenuItem<String>(
+                  itemBuilder: (ctx) => [
+                    PopupMenuItem<String>(
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete_outline, color: Color(0xFFEF4444), size: 20),
-                          SizedBox(width: 10),
-                          Text('מחק קבוצה',
-                              style: TextStyle(color: Color(0xFFEF4444))),
+                          const Icon(Icons.delete_outline, color: Color(0xFFEF4444), size: 20),
+                          const SizedBox(width: 10),
+                          Text(AppLocalizations.of(ctx)!.deleteGroup,
+                              style: const TextStyle(color: Color(0xFFEF4444))),
                         ],
                       ),
                     ),
@@ -169,7 +170,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
           children: [
             GroupStateBanner(
               group: group,
-              onActionTap: group.isAdmin && !group.isOperational
+              onActionTap: group.isAdmin &&
+                      (!group.isOperational || group.tierUpgradeRequired)
                   ? () => _openActivation(context, group)
                   : null,
             ),
@@ -219,25 +221,29 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
   }
 
   Future<void> _deleteGroup(BuildContext context, Group group) async {
+    final l = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('מחיקת קבוצה', style: TextStyle(color: Color(0xFFEF4444))),
-        content: Text(
-            'האם למחוק לצמיתות את הקבוצה "${group.name}"?\n\nכל ההוצאות, היתרות וההיסטוריה יימחקו ולא ניתן יהיה לשחזרם.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('ביטול')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEF4444),
-                foregroundColor: Colors.white),
-            child: const Text('מחק לצמיתות'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(dl.deleteGroupDialogTitle,
+              style: const TextStyle(color: Color(0xFFEF4444))),
+          content: Text(dl.deleteGroupConfirm(group.name)),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(dl.cancel)),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEF4444),
+                  foregroundColor: Colors.white),
+              child: Text(dl.deleteGroupPermanently),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true || !mounted) return;
 
@@ -247,11 +253,11 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
       ref.invalidate(groupsProvider);
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('הקבוצה נמחקה בהצלחה')),
+        SnackBar(content: Text(l.groupDeletedSuccess)),
       );
     } catch (e) {
       if (!mounted) return;
-      String msg = 'שגיאה במחיקת הקבוצה';
+      String msg = l.errorDeletingGroup;
       if (e is DioException) {
         msg = (e.response?.data?['message'] as String?) ?? msg;
       }
@@ -714,6 +720,13 @@ class _InviteSheetState extends State<_InviteSheet> {
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 20),
+
+          // QR Code
+          _QrCodeCard(code: widget.code),
+
+          const SizedBox(height: 16),
+
+          // Invite code text
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -949,6 +962,71 @@ class _SplitOptionButton extends StatelessWidget {
             Icon(Icons.chevron_left, color: color, size: 18),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// QR Code card widget
+// ---------------------------------------------------------------------------
+
+class _QrCodeCard extends StatelessWidget {
+  final String code;
+  const _QrCodeCard({required this.code});
+
+  String get _qrData => 'shareflow://join/$code';
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(
+            l.qrCodeTitle,
+            style: const TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            l.qrCodeSubtitle,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          QrImageView(
+            data: _qrData,
+            version: QrVersions.auto,
+            size: 200,
+            eyeStyle: const QrEyeStyle(
+              eyeShape: QrEyeShape.square,
+              color: Color(0xFF1A1A2E),
+            ),
+            dataModuleStyle: const QrDataModuleStyle(
+              dataModuleShape: QrDataModuleShape.square,
+              color: Color(0xFF1A1A2E),
+            ),
+          ),
+        ],
       ),
     );
   }

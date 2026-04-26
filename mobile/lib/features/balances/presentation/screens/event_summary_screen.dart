@@ -383,7 +383,7 @@ class _TransferCard extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: onRemind,
               icon: const Icon(Icons.notifications_outlined, size: 16),
-              label: Text('שלח תזכורת ל$fromName'),
+              label: Text(AppLocalizations.of(context)!.sendReminderTo(fromName)),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primary,
                 side: BorderSide(

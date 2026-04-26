@@ -25,16 +25,49 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   String _settlementType = 'none';   // 'none' | 'periodic'
   String _settlementPeriod = 'monthly';
   bool _loading = false;
+  int _tierIdx = 0;   // selected pricing tier index
 
-  static const _kPeriods = [
-    ('weekly',     'שבועי'),
-    ('biweekly',   'דו-שבועי'),
-    ('monthly',    'חודשי'),
-    ('bimonthly',  'דו-חודשי'),
-    ('quarterly',  'רבעוני'),
-    ('semiannual', 'חצי-שנתי'),
-    ('annual',     'שנתי'),
+  // Event tiers: (maxParticipants, priceIls, durationDays)
+  // maxParticipants=0 means "free"
+  static const _kEventTiers = [
+    (0,   0,  0),   // free
+    (5,   15, 7),
+    (10,  20, 7),
+    (15,  30, 7),
+    (39,  35, 7),
+    (999, 45, 7),
   ];
+
+  // Ongoing tiers: (maxParticipants, priceIls, durationDays=30)
+  static const _kOngoingTiers = [
+    (5,   49, 30),
+    (8,   69, 30),
+    (11,  79, 30),
+    (999, 89, 30),
+  ];
+
+  List<(int, int, int)> get _tiers =>
+      _groupType == 'event' ? _kEventTiers : _kOngoingTiers;
+
+  int get _selectedPrice => _tiers[_tierIdx].$2;
+  bool get _isFree => _selectedPrice == 0;
+
+  static const _kPeriodKeys = [
+    'weekly', 'biweekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annual',
+  ];
+
+  String _periodLabel(AppLocalizations l, String key) {
+    switch (key) {
+      case 'weekly':     return l.periodWeekly;
+      case 'biweekly':   return l.periodBiweekly;
+      case 'monthly':    return l.periodMonthly;
+      case 'bimonthly':  return l.periodBimonthly;
+      case 'quarterly':  return l.periodQuarterly;
+      case 'semiannual': return l.periodSemiannual;
+      case 'annual':     return l.periodAnnual;
+      default:           return key;
+    }
+  }
 
   static const _kBlue   = Color(0xFF1D4ED8);
   static const _kTeal   = Color(0xFF0D9488);
@@ -159,7 +192,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                     subtitle: l.sevenDays,
                     icon: Icons.celebration_rounded,
                     selected: _groupType == 'event',
-                    onTap: () => setState(() => _groupType = 'event'),
+                    onTap: () => setState(() { _groupType = 'event'; _tierIdx = 0; }),
                   ),
                   const SizedBox(width: 10),
                   _TypeCard(
@@ -167,7 +200,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                     subtitle: l.monthly,
                     icon: Icons.autorenew_rounded,
                     selected: _groupType == 'ongoing',
-                    onTap: () => setState(() => _groupType = 'ongoing'),
+                    onTap: () => setState(() { _groupType = 'ongoing'; _tierIdx = 0; }),
                   ),
                 ],
               ),
@@ -186,12 +219,149 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                 ),
               ),
 
+              const SizedBox(height: 20),
+
+              // ── Pricing tier selector ──
+              Text(
+                l.pricingSection,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                    fontSize: 13),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: List.generate(_tiers.length, (i) {
+                  final (maxP, price, days) = _tiers[i];
+                  final selected = _tierIdx == i;
+                  final isFree = price == 0;
+                  final label = isFree
+                      ? l.freeTierLabel
+                      : maxP == 999
+                          ? l.aboveParticipants(
+                              _groupType == 'event' ? 40 : 12)
+                          : l.upToParticipants(maxP);
+                  return GestureDetector(
+                    onTap: () => setState(() => _tierIdx = i),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? AppColors.primary
+                            : AppColors.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.border,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            label,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: selected
+                                  ? Colors.white
+                                  : AppColors.textPrimary,
+                            ),
+                          ),
+                          if (!isFree)
+                            Text(
+                              '$price ₪',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: selected
+                                    ? Colors.white70
+                                    : AppColors.textSecondary,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ),
+              const SizedBox(height: 12),
+
+              // Price preview card
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: _isFree
+                      ? const Color(0xFFF0FDF4)
+                      : AppColors.primary.withOpacity(0.07),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: _isFree
+                        ? const Color(0xFF86EFAC)
+                        : AppColors.primary.withOpacity(0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      _isFree ? Icons.card_giftcard_rounded : Icons.receipt_long_rounded,
+                      color: _isFree
+                          ? const Color(0xFF16A34A)
+                          : AppColors.primary,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _isFree
+                                ? l.freeIncluded
+                                : l.estimatedCost,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: _isFree
+                                  ? const Color(0xFF16A34A)
+                                  : AppColors.primary,
+                            ),
+                          ),
+                          if (!_isFree) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              () {
+                                final (_, price, days) = _tiers[_tierIdx];
+                                final dur = _groupType == 'ongoing'
+                                    ? l.durationMonth
+                                    : l.durationDays(days);
+                                return '$price ₪ / $dur';
+                              }(),
+                              style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
               // Periodic settlement — only for ongoing groups
               if (_groupType == 'ongoing') ...[
                 const SizedBox(height: 20),
-                const Text(
-                  'התחשבנות תקופית',
-                  style: TextStyle(
+                Text(
+                  l.periodicSettlement,
+                  style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       color: AppColors.textSecondary,
                       fontSize: 13),
@@ -209,10 +379,10 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                         value: 'none',
                         groupValue: _settlementType,
                         onChanged: (v) => setState(() => _settlementType = v!),
-                        title: const Text('ידנית / אקראית',
-                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                        subtitle: const Text('סוגרים חשבון כשרוצים',
-                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                        title: Text(l.manualSettlement,
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                        subtitle: Text(l.manualSettlementDesc,
+                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                         activeColor: AppColors.primary,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                       ),
@@ -221,10 +391,10 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                         value: 'periodic',
                         groupValue: _settlementType,
                         onChanged: (v) => setState(() => _settlementType = v!),
-                        title: const Text('תקופתית אוטומטית',
-                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                        subtitle: const Text('דוח נשלח אוטומטית וניתן לסמן חובות כשולמו',
-                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                        title: Text(l.automaticPeriodic,
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                        subtitle: Text(l.automaticPeriodicDesc,
+                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                         activeColor: AppColors.primary,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                       ),
@@ -233,9 +403,9 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                 ),
                 if (_settlementType == 'periodic') ...[
                   const SizedBox(height: 12),
-                  const Text(
-                    'תדירות התחשבנות',
-                    style: TextStyle(
+                  Text(
+                    l.settlementFrequency,
+                    style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         color: AppColors.textSecondary,
                         fontSize: 13),
@@ -244,10 +414,10 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: _kPeriods.map((p) {
-                      final selected = _settlementPeriod == p.$1;
+                    children: _kPeriodKeys.map((key) {
+                      final selected = _settlementPeriod == key;
                       return GestureDetector(
-                        onTap: () => setState(() => _settlementPeriod = p.$1),
+                        onTap: () => setState(() => _settlementPeriod = key),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
@@ -259,7 +429,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                             ),
                           ),
                           child: Text(
-                            p.$2,
+                            _periodLabel(l, key),
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -372,7 +542,9 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
               const SizedBox(height: 32),
 
               GradientButton(
-                label: l.createGroupBtn,
+                label: _isFree
+                    ? l.createGroupFree
+                    : l.createGroupPaid(_selectedPrice),
                 onPressed: _loading ? null : () => _create(l),
                 isLoading: _loading,
               ),

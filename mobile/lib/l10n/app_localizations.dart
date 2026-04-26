@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appName.
   ///
   /// In he, this message translates to:
-  /// **'ShareFlow'**
+  /// **'ADL ShareFlow'**
   String get appName;
 
   /// No description provided for @login.
@@ -920,11 +920,11 @@ abstract class AppLocalizations {
   /// **'חייבים לך'**
   String get owesYouLabel;
 
-  /// No description provided for @allSettled.
+  /// No description provided for @balanceSettled.
   ///
   /// In he, this message translates to:
-  /// **'הכל מסודר! אין העברות נדרשות'**
-  String get allSettled;
+  /// **'מסודר ✅'**
+  String get balanceSettled;
 
   /// No description provided for @owesLabel.
   ///
@@ -1481,7 +1481,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeTitle.
   ///
   /// In he, this message translates to:
-  /// **'ברוך הבא ל-ShareFlow'**
+  /// **'ברוך הבא ל-ADL ShareFlow'**
   String get welcomeTitle;
 
   /// No description provided for @loginSubtitle.
@@ -1616,6 +1616,12 @@ abstract class AppLocalizations {
   /// **'💸 העברות נדרשות'**
   String get requiredTransfers;
 
+  /// No description provided for @allSettled.
+  ///
+  /// In he, this message translates to:
+  /// **'הכל מסודר! אין העברות נדרשות'**
+  String get allSettled;
+
   /// No description provided for @sendSummary.
   ///
   /// In he, this message translates to:
@@ -1705,6 +1711,768 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'אחר כך'**
   String get laterBtn;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In he, this message translates to:
+  /// **'בקרוב'**
+  String get comingSoon;
+
+  /// No description provided for @settingsSaved.
+  ///
+  /// In he, this message translates to:
+  /// **'הגדרות נשמרו ✓'**
+  String get settingsSaved;
+
+  /// No description provided for @settingsSaveError.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בשמירת ההגדרות'**
+  String get settingsSaveError;
+
+  /// No description provided for @enableReminders.
+  ///
+  /// In he, this message translates to:
+  /// **'הפעל תזכורות אוטומטיות'**
+  String get enableReminders;
+
+  /// No description provided for @enableRemindersSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'קבל/שלח תזכורות על תשלומים פתוחים'**
+  String get enableRemindersSubtitle;
+
+  /// No description provided for @reminderFrequency.
+  ///
+  /// In he, this message translates to:
+  /// **'תדירות שליחה'**
+  String get reminderFrequency;
+
+  /// No description provided for @reminderPlatforms.
+  ///
+  /// In he, this message translates to:
+  /// **'פלטפורמות'**
+  String get reminderPlatforms;
+
+  /// No description provided for @inAppNotification.
+  ///
+  /// In he, this message translates to:
+  /// **'התראה באפליקציה'**
+  String get inAppNotification;
+
+  /// No description provided for @whatsappMessage.
+  ///
+  /// In he, this message translates to:
+  /// **'הודעה ישירה ב-WhatsApp'**
+  String get whatsappMessage;
+
+  /// No description provided for @reminderInfo.
+  ///
+  /// In he, this message translates to:
+  /// **'תזכורות אוטומטיות יישלחו לחייבים עד שהתשלום יסומן כבוצע.'**
+  String get reminderInfo;
+
+  /// No description provided for @freqNone.
+  ///
+  /// In he, this message translates to:
+  /// **'ללא'**
+  String get freqNone;
+
+  /// No description provided for @freqNoneDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'לא לשלוח תזכורות אוטומטיות'**
+  String get freqNoneDesc;
+
+  /// No description provided for @freqManual.
+  ///
+  /// In he, this message translates to:
+  /// **'ידנית בלבד'**
+  String get freqManual;
+
+  /// No description provided for @freqManualDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'רק בלחיצת כפתור מהאפליקציה'**
+  String get freqManualDesc;
+
+  /// No description provided for @freqDaily.
+  ///
+  /// In he, this message translates to:
+  /// **'כל יום'**
+  String get freqDaily;
+
+  /// No description provided for @freqDailyDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'שליחה יומית'**
+  String get freqDailyDesc;
+
+  /// No description provided for @freqEvery2Days.
+  ///
+  /// In he, this message translates to:
+  /// **'כל יומיים'**
+  String get freqEvery2Days;
+
+  /// No description provided for @freqEvery2DaysDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'שליחה כל יומיים'**
+  String get freqEvery2DaysDesc;
+
+  /// No description provided for @freqWeekly.
+  ///
+  /// In he, this message translates to:
+  /// **'שבועי'**
+  String get freqWeekly;
+
+  /// No description provided for @freqWeeklyDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'פעם בשבוע'**
+  String get freqWeeklyDesc;
+
+  /// No description provided for @freqBiweekly.
+  ///
+  /// In he, this message translates to:
+  /// **'דו-שבועי'**
+  String get freqBiweekly;
+
+  /// No description provided for @freqBiweeklyDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'פעם בשבועיים'**
+  String get freqBiweeklyDesc;
+
+  /// No description provided for @paymentDetailsSaved.
+  ///
+  /// In he, this message translates to:
+  /// **'פרטי התשלום עודכנו ✓'**
+  String get paymentDetailsSaved;
+
+  /// No description provided for @paymentDetailsSaveError.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בשמירת הפרטים'**
+  String get paymentDetailsSaveError;
+
+  /// No description provided for @bitPayboxSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'מספר טלפון לקבלת תשלום'**
+  String get bitPayboxSubtitle;
+
+  /// No description provided for @bankTransfer.
+  ///
+  /// In he, this message translates to:
+  /// **'העברה בנקאית'**
+  String get bankTransfer;
+
+  /// No description provided for @bankTransferSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'פרטי חשבון בנק לקבלת העברות'**
+  String get bankTransferSubtitle;
+
+  /// No description provided for @saveDetails.
+  ///
+  /// In he, this message translates to:
+  /// **'שמור פרטים'**
+  String get saveDetails;
+
+  /// No description provided for @bankNameHint.
+  ///
+  /// In he, this message translates to:
+  /// **'שם הבנק (לדוגמה: הפועלים)'**
+  String get bankNameHint;
+
+  /// No description provided for @bankBranchHint.
+  ///
+  /// In he, this message translates to:
+  /// **'סניף'**
+  String get bankBranchHint;
+
+  /// No description provided for @bankAccountHint.
+  ///
+  /// In he, this message translates to:
+  /// **'מספר חשבון'**
+  String get bankAccountHint;
+
+  /// No description provided for @paymentPrivacyNote.
+  ///
+  /// In he, this message translates to:
+  /// **'הפרטים מוצגים לחברי הקבוצה בלבד לצורך הסדרת חובות'**
+  String get paymentPrivacyNote;
+
+  /// No description provided for @cannotOpenApp.
+  ///
+  /// In he, this message translates to:
+  /// **'לא ניתן לפתוח את האפליקציה'**
+  String get cannotOpenApp;
+
+  /// No description provided for @errorOpeningApp.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בפתיחת האפליקציה'**
+  String get errorOpeningApp;
+
+  /// No description provided for @sendPayment.
+  ///
+  /// In he, this message translates to:
+  /// **'שלח תשלום'**
+  String get sendPayment;
+
+  /// No description provided for @payTo.
+  ///
+  /// In he, this message translates to:
+  /// **'לתשלום ל{name}'**
+  String payTo(String name);
+
+  /// No description provided for @choosePaymentMethod.
+  ///
+  /// In he, this message translates to:
+  /// **'בחר אמצעי תשלום'**
+  String get choosePaymentMethod;
+
+  /// No description provided for @noPaymentDetails.
+  ///
+  /// In he, this message translates to:
+  /// **'המקבל עדיין לא הגדיר פרטי תשלום.'**
+  String get noPaymentDetails;
+
+  /// No description provided for @noPaymentDetailsHint.
+  ///
+  /// In he, this message translates to:
+  /// **'בקש ממנו להוסיף מספר טלפון לBit/PayBox או פרטי בנק בפרופיל שלו.'**
+  String get noPaymentDetailsHint;
+
+  /// No description provided for @copyAll.
+  ///
+  /// In he, this message translates to:
+  /// **'העתק הכל'**
+  String get copyAll;
+
+  /// No description provided for @bankDetailsCopied.
+  ///
+  /// In he, this message translates to:
+  /// **'פרטי הבנק הועתקו'**
+  String get bankDetailsCopied;
+
+  /// No description provided for @bankLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'בנק'**
+  String get bankLabel;
+
+  /// No description provided for @branchLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'סניף'**
+  String get branchLabel;
+
+  /// No description provided for @accountLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'חשבון'**
+  String get accountLabel;
+
+  /// No description provided for @amountLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'סכום'**
+  String get amountLabel;
+
+  /// No description provided for @forCredit.
+  ///
+  /// In he, this message translates to:
+  /// **'לזכות'**
+  String get forCredit;
+
+  /// No description provided for @pickFromGallery.
+  ///
+  /// In he, this message translates to:
+  /// **'בחר מהגלריה'**
+  String get pickFromGallery;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In he, this message translates to:
+  /// **'צלם קבלה'**
+  String get takePhoto;
+
+  /// No description provided for @sendReminderTo.
+  ///
+  /// In he, this message translates to:
+  /// **'שלח תזכורת ל{name}'**
+  String sendReminderTo(String name);
+
+  /// No description provided for @qrCodeTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'קוד QR'**
+  String get qrCodeTitle;
+
+  /// No description provided for @qrCodeSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הראה לחבר לסרוק'**
+  String get qrCodeSubtitle;
+
+  /// No description provided for @scanQrCode.
+  ///
+  /// In he, this message translates to:
+  /// **'סרוק QR'**
+  String get scanQrCode;
+
+  /// No description provided for @scanQrSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'כוון את המצלמה לקוד QR של הקבוצה'**
+  String get scanQrSubtitle;
+
+  /// No description provided for @qrScanSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'קוד נסרק בהצלחה!'**
+  String get qrScanSuccess;
+
+  /// No description provided for @qrScanError.
+  ///
+  /// In he, this message translates to:
+  /// **'לא ניתן לקרוא את קוד ה-QR'**
+  String get qrScanError;
+
+  /// No description provided for @noCameraPermission.
+  ///
+  /// In he, this message translates to:
+  /// **'נדרשת הרשאת מצלמה'**
+  String get noCameraPermission;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In he, this message translates to:
+  /// **'פתח הגדרות'**
+  String get openSettings;
+
+  /// No description provided for @showQrCode.
+  ///
+  /// In he, this message translates to:
+  /// **'הצג QR'**
+  String get showQrCode;
+
+  /// No description provided for @aboutTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'אודות ADL ShareFlow'**
+  String get aboutTitle;
+
+  /// No description provided for @aboutVersion.
+  ///
+  /// In he, this message translates to:
+  /// **'גרסה {version}'**
+  String aboutVersion(String version);
+
+  /// No description provided for @contactUs.
+  ///
+  /// In he, this message translates to:
+  /// **'צור קשר'**
+  String get contactUs;
+
+  /// No description provided for @contactSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'שאלות, בעיות וכל שאר'**
+  String get contactSubtitle;
+
+  /// No description provided for @adlProjects.
+  ///
+  /// In he, this message translates to:
+  /// **'ADL Projects'**
+  String get adlProjects;
+
+  /// No description provided for @adlProjectsSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'עוד פרויקטים של ADL'**
+  String get adlProjectsSubtitle;
+
+  /// No description provided for @suggestions.
+  ///
+  /// In he, this message translates to:
+  /// **'הצעות ושיפורים'**
+  String get suggestions;
+
+  /// No description provided for @suggestionsSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'ספר לנו מה אפשר לשפר'**
+  String get suggestionsSubtitle;
+
+  /// No description provided for @proPlanTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'תוכנית Pro'**
+  String get proPlanTitle;
+
+  /// No description provided for @proPlanSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'בקרוב — ניתוחים, סטטיסטיקות ועוד'**
+  String get proPlanSubtitle;
+
+  /// No description provided for @appSection.
+  ///
+  /// In he, this message translates to:
+  /// **'אפליקציה'**
+  String get appSection;
+
+  /// No description provided for @paymentMethodSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'Bit, PayBox, העברה בנקאית'**
+  String get paymentMethodSubtitle;
+
+  /// No description provided for @pricingSection.
+  ///
+  /// In he, this message translates to:
+  /// **'תמחור'**
+  String get pricingSection;
+
+  /// No description provided for @estimatedCost.
+  ///
+  /// In he, this message translates to:
+  /// **'עלות משוערת'**
+  String get estimatedCost;
+
+  /// No description provided for @upToParticipants.
+  ///
+  /// In he, this message translates to:
+  /// **'עד {count} חברים'**
+  String upToParticipants(int count);
+
+  /// No description provided for @aboveParticipants.
+  ///
+  /// In he, this message translates to:
+  /// **'{count}+ חברים'**
+  String aboveParticipants(int count);
+
+  /// No description provided for @freeTierLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'חינם — עד 3 חברים'**
+  String get freeTierLabel;
+
+  /// No description provided for @freeIncluded.
+  ///
+  /// In he, this message translates to:
+  /// **'חינמי: עד 3 חברים ו-5 ימים'**
+  String get freeIncluded;
+
+  /// No description provided for @createGroupFree.
+  ///
+  /// In he, this message translates to:
+  /// **'צור קבוצה — חינם'**
+  String get createGroupFree;
+
+  /// No description provided for @createGroupPaid.
+  ///
+  /// In he, this message translates to:
+  /// **'צור קבוצה — {price} ₪'**
+  String createGroupPaid(int price);
+
+  /// No description provided for @durationDays.
+  ///
+  /// In he, this message translates to:
+  /// **'{days} ימים'**
+  String durationDays(int days);
+
+  /// No description provided for @durationMonth.
+  ///
+  /// In he, this message translates to:
+  /// **'חודש'**
+  String get durationMonth;
+
+  /// No description provided for @tierUpgradeRequired.
+  ///
+  /// In he, this message translates to:
+  /// **'נדרש שדרוג תוכנית'**
+  String get tierUpgradeRequired;
+
+  /// No description provided for @tierUpgradeSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הקבוצה גדלה — נדרש תשלום של {price} ₪ לשדרוג'**
+  String tierUpgradeSubtitle(int price);
+
+  /// No description provided for @tierUpgradeBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'שדרג עכשיו'**
+  String get tierUpgradeBtn;
+
+  /// No description provided for @upgradeTierTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'שדרוג תוכנית'**
+  String get upgradeTierTitle;
+
+  /// No description provided for @upgradeTierDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'מספר המשתתפים עלה לרמה גבוהה יותר. יש לשלם את ההפרש כדי להמשיך.'**
+  String get upgradeTierDesc;
+
+  /// No description provided for @upgradeBtnLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'שדרג — {price} ₪'**
+  String upgradeBtnLabel(int price);
+
+  /// No description provided for @upgradedSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'התוכנית שודרגה בהצלחה 🎉'**
+  String get upgradedSuccess;
+
+  /// No description provided for @errorUpgradingTier.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בשדרוג התוכנית'**
+  String get errorUpgradingTier;
+
+  /// No description provided for @periodicSettlement.
+  ///
+  /// In he, this message translates to:
+  /// **'התחשבנות תקופית'**
+  String get periodicSettlement;
+
+  /// No description provided for @manualSettlement.
+  ///
+  /// In he, this message translates to:
+  /// **'ידנית / אקראית'**
+  String get manualSettlement;
+
+  /// No description provided for @manualSettlementDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'סוגרים חשבון כשרוצים'**
+  String get manualSettlementDesc;
+
+  /// No description provided for @automaticPeriodic.
+  ///
+  /// In he, this message translates to:
+  /// **'תקופתית אוטומטית'**
+  String get automaticPeriodic;
+
+  /// No description provided for @automaticPeriodicDesc.
+  ///
+  /// In he, this message translates to:
+  /// **'דוח נשלח אוטומטית וניתן לסמן חובות כשולמו'**
+  String get automaticPeriodicDesc;
+
+  /// No description provided for @settlementFrequency.
+  ///
+  /// In he, this message translates to:
+  /// **'תדירות התחשבנות'**
+  String get settlementFrequency;
+
+  /// No description provided for @periodWeekly.
+  ///
+  /// In he, this message translates to:
+  /// **'שבועי'**
+  String get periodWeekly;
+
+  /// No description provided for @periodBiweekly.
+  ///
+  /// In he, this message translates to:
+  /// **'דו-שבועי'**
+  String get periodBiweekly;
+
+  /// No description provided for @periodMonthly.
+  ///
+  /// In he, this message translates to:
+  /// **'חודשי'**
+  String get periodMonthly;
+
+  /// No description provided for @periodBimonthly.
+  ///
+  /// In he, this message translates to:
+  /// **'דו-חודשי'**
+  String get periodBimonthly;
+
+  /// No description provided for @periodQuarterly.
+  ///
+  /// In he, this message translates to:
+  /// **'רבעוני'**
+  String get periodQuarterly;
+
+  /// No description provided for @periodSemiannual.
+  ///
+  /// In he, this message translates to:
+  /// **'חצי-שנתי'**
+  String get periodSemiannual;
+
+  /// No description provided for @periodAnnual.
+  ///
+  /// In he, this message translates to:
+  /// **'שנתי'**
+  String get periodAnnual;
+
+  /// No description provided for @settlePeriodBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'סכם תקופה'**
+  String get settlePeriodBtn;
+
+  /// No description provided for @settlePeriodNext.
+  ///
+  /// In he, this message translates to:
+  /// **'הבא: {date}'**
+  String settlePeriodNext(String date);
+
+  /// No description provided for @settlePeriodCreateReport.
+  ///
+  /// In he, this message translates to:
+  /// **'סגור תקופה וצור דוח'**
+  String get settlePeriodCreateReport;
+
+  /// No description provided for @settlePeriodDialogTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'סיכום תקופה'**
+  String get settlePeriodDialogTitle;
+
+  /// No description provided for @settlePeriodConfirmMsg.
+  ///
+  /// In he, this message translates to:
+  /// **'האם לסכם את התקופה הנוכחית?\n\nדוח יישלח לכל חברי הקבוצה והתקופה תתאפס.'**
+  String get settlePeriodConfirmMsg;
+
+  /// No description provided for @settlePeriodSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'התקופה סוכמה בהצלחה! דוח נשלח לחברי הקבוצה'**
+  String get settlePeriodSuccess;
+
+  /// No description provided for @errorSettlingPeriod.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בסיכום תקופה'**
+  String get errorSettlingPeriod;
+
+  /// No description provided for @previousPeriodReports.
+  ///
+  /// In he, this message translates to:
+  /// **'דוחות תקופות קודמות'**
+  String get previousPeriodReports;
+
+  /// No description provided for @periodLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'תקופה #{number}'**
+  String periodLabel(int number);
+
+  /// No description provided for @allDebtsPaid.
+  ///
+  /// In he, this message translates to:
+  /// **'כל החובות שולמו ✓'**
+  String get allDebtsPaid;
+
+  /// No description provided for @openDebtsCount.
+  ///
+  /// In he, this message translates to:
+  /// **'{count} חובות פתוחים'**
+  String openDebtsCount(int count);
+
+  /// No description provided for @openDebtCount.
+  ///
+  /// In he, this message translates to:
+  /// **'חוב פתוח 1'**
+  String get openDebtCount;
+
+  /// No description provided for @noDebtsBalanced.
+  ///
+  /// In he, this message translates to:
+  /// **'כל החשבונות מאוזנים — אין חובות'**
+  String get noDebtsBalanced;
+
+  /// No description provided for @markAsPaid.
+  ///
+  /// In he, this message translates to:
+  /// **'שולם ✓'**
+  String get markAsPaid;
+
+  /// No description provided for @currentPeriodExpenses.
+  ///
+  /// In he, this message translates to:
+  /// **'הוצאות תקופה נוכחית'**
+  String get currentPeriodExpenses;
+
+  /// No description provided for @periodSince.
+  ///
+  /// In he, this message translates to:
+  /// **'מתאריך {date}'**
+  String periodSince(String date);
+
+  /// No description provided for @openDebtsGroupClosed.
+  ///
+  /// In he, this message translates to:
+  /// **'חובות פתוחים — הקבוצה סגורה'**
+  String get openDebtsGroupClosed;
+
+  /// No description provided for @groupClosedUnpaidDebts.
+  ///
+  /// In he, this message translates to:
+  /// **'הקבוצה סגורה אך יש חובות שטרם שולמו'**
+  String get groupClosedUnpaidDebts;
+
+  /// No description provided for @requiredTransfersTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'העברות נדרשות'**
+  String get requiredTransfersTitle;
+
+  /// No description provided for @transferNeeded.
+  ///
+  /// In he, this message translates to:
+  /// **'{from} צריך להעביר ל-{to}'**
+  String transferNeeded(String from, String to);
+
+  /// No description provided for @deleteGroup.
+  ///
+  /// In he, this message translates to:
+  /// **'מחק קבוצה'**
+  String get deleteGroup;
+
+  /// No description provided for @deleteGroupDialogTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'מחיקת קבוצה'**
+  String get deleteGroupDialogTitle;
+
+  /// No description provided for @deleteGroupConfirm.
+  ///
+  /// In he, this message translates to:
+  /// **'האם למחוק לצמיתות את הקבוצה \"{name}\"?\n\nכל ההוצאות, היתרות וההיסטוריה יימחקו ולא ניתן יהיה לשחזרם.'**
+  String deleteGroupConfirm(String name);
+
+  /// No description provided for @deleteGroupPermanently.
+  ///
+  /// In he, this message translates to:
+  /// **'מחק לצמיתות'**
+  String get deleteGroupPermanently;
+
+  /// No description provided for @groupDeletedSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'הקבוצה נמחקה בהצלחה'**
+  String get groupDeletedSuccess;
+
+  /// No description provided for @errorDeletingGroup.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה במחיקת הקבוצה'**
+  String get errorDeletingGroup;
 }
 
 class _AppLocalizationsDelegate

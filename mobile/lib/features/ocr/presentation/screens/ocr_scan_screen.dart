@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../data/ocr_repository.dart';
 import '../../domain/ocr_result_model.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/app_button.dart';
 
@@ -72,7 +73,7 @@ class _OcrScanScreenState extends State<OcrScanScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('סריקת קבלה'),
+        title: Text(AppLocalizations.of(context)!.scanReceipt),
         backgroundColor: AppColors.background,
         centerTitle: true,
       ),
@@ -195,7 +196,7 @@ class _ScanView extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onGallery,
             icon: const Icon(Icons.photo_library_outlined),
-            label: const Text('בחר מהגלריה'),
+            label: Text(AppLocalizations.of(context)!.pickFromGallery),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 52),
               shape:
@@ -207,7 +208,7 @@ class _ScanView extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: onCamera,
               icon: const Icon(Icons.camera_alt_outlined),
-              label: const Text('צלם קבלה'),
+              label: Text(AppLocalizations.of(context)!.takePhoto),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 52),
                 shape: RoundedRectangleBorder(
@@ -405,7 +406,7 @@ class _ResultView extends StatelessWidget {
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14)),
           ),
-          child: const Text('סרוק שוב'),
+          child: Text(AppLocalizations.of(context)!.rescan),
         ),
       ],
     );

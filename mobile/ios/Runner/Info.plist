@@ -50,7 +50,7 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>לצילום קבלות והוצאות</string>
+	<string>לצילום קבלות, הוצאות וסריקת קוד QR</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>לצירוף תמונות לקבלות והוצאות</string>
 	<key>UIBackgroundModes</key>

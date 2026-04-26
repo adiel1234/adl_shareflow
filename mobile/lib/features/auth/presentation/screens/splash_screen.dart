@@ -68,10 +68,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   ),
                   const SizedBox(height: 22),
                   const Text(
-                    'ShareFlow',
+                    'ADL ShareFlow',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 34,
+                      fontSize: 30,
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.5,
                     ),

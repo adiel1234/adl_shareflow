@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
 import '../../../../providers/notifications_provider.dart';
@@ -9,14 +11,32 @@ import '../../../../l10n/app_localizations.dart';
 import 'reminder_settings_screen.dart';
 import 'payment_details_screen.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authProvider);
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
 
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  String _version = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (mounted) setState(() => _version = info.version);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = ref.watch(authProvider);
     final l = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -78,7 +98,8 @@ class ProfileScreen extends ConsumerWidget {
 
           const SizedBox(height: 32),
 
-          // Settings
+          // Settings section
+          _SectionHeader(label: l.appSection),
           _LanguageTile(),
           _SettingsTile(
             icon: Icons.currency_exchange,
@@ -99,12 +120,48 @@ class ProfileScreen extends ConsumerWidget {
           _SettingsTile(
             icon: Icons.account_balance_wallet_outlined,
             title: l.paymentDetails,
-            subtitle: 'Bit, PayBox, העברה בנקאית',
+            subtitle: l.paymentMethodSubtitle,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (_) => const PaymentDetailsScreen()),
             ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Pro Plan banner
+          _ProPlanBanner(l: l),
+
+          const SizedBox(height: 20),
+
+          // About / Contact / ADL section
+          _SectionHeader(label: l.adlProjects),
+          _SettingsTile(
+            icon: Icons.business_outlined,
+            title: l.adlProjects,
+            subtitle: l.adlProjectsSubtitle,
+            onTap: () => _launchUrl('https://adlprojects.co.il'),
+          ),
+          _SettingsTile(
+            icon: Icons.lightbulb_outline,
+            title: l.suggestions,
+            subtitle: l.suggestionsSubtitle,
+            onTap: () => _launchUrl(
+                'mailto:info@adlprojects.co.il?subject=ADL%20ShareFlow%20Suggestion'),
+          ),
+          _SettingsTile(
+            icon: Icons.mail_outline,
+            title: l.contactUs,
+            subtitle: l.contactSubtitle,
+            onTap: () => _launchUrl(
+                'mailto:info@adlprojects.co.il?subject=ADL%20ShareFlow%20Support'),
+          ),
+          _SettingsTile(
+            icon: Icons.info_outline,
+            title: l.aboutTitle,
+            subtitle: _version.isNotEmpty ? l.aboutVersion(_version) : '',
+            onTap: () => _showAbout(context, l),
           ),
 
           const SizedBox(height: 16),
@@ -145,6 +202,63 @@ class ProfileScreen extends ConsumerWidget {
                 }
               }
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(url)),
+        );
+      }
+    }
+  }
+
+  void _showAbout(BuildContext context, AppLocalizations l) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'ADL ShareFlow',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: AppColors.brandGradient,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Text('💸', style: TextStyle(fontSize: 40)),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l.aboutVersion(_version),
+              style: const TextStyle(
+                  fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '© 2025 ADL Projects',
+              style: const TextStyle(
+                  color: AppColors.textSecondary, fontSize: 13),
+            ),
+          ],
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l.cancel),
           ),
         ],
       ),
@@ -376,6 +490,90 @@ class _LanguageTile extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String label;
+  const _SectionHeader({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4, top: 4, left: 4),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textSecondary,
+          letterSpacing: 0.8,
+        ),
+      ),
+    );
+  }
+}
+
+class _ProPlanBanner extends StatelessWidget {
+  final AppLocalizations l;
+  const _ProPlanBanner({required this.l});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF6C47FF), Color(0xFF9E72FF)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          const Text('✨', style: TextStyle(fontSize: 24)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l.proPlanTitle,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  l.proPlanSubtitle,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              l.comingSoon,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

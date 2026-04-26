@@ -9,7 +9,7 @@ class AppLocalizationsHe extends AppLocalizations {
   AppLocalizationsHe([String locale = 'he']) : super(locale);
 
   @override
-  String get appName => 'ShareFlow';
+  String get appName => 'ADL ShareFlow';
 
   @override
   String get login => 'כניסה';
@@ -433,7 +433,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get owesYouLabel => 'חייבים לך';
 
   @override
-  String get allSettled => 'הכל מסודר! אין העברות נדרשות';
+  String get balanceSettled => 'מסודר ✅';
 
   @override
   String get owesLabel => 'חייב';
@@ -739,7 +739,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get loginBtn => 'כניסה';
 
   @override
-  String get welcomeTitle => 'ברוך הבא ל-ShareFlow';
+  String get welcomeTitle => 'ברוך הבא ל-ADL ShareFlow';
 
   @override
   String get loginSubtitle => 'כנס לחשבון שלך';
@@ -808,6 +808,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get requiredTransfers => '💸 העברות נדרשות';
 
   @override
+  String get allSettled => 'הכל מסודר! אין העברות נדרשות';
+
+  @override
   String get sendSummary => '📤 שלח סיכום';
 
   @override
@@ -856,4 +859,422 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get laterBtn => 'אחר כך';
+
+  @override
+  String get comingSoon => 'בקרוב';
+
+  @override
+  String get settingsSaved => 'הגדרות נשמרו ✓';
+
+  @override
+  String get settingsSaveError => 'שגיאה בשמירת ההגדרות';
+
+  @override
+  String get enableReminders => 'הפעל תזכורות אוטומטיות';
+
+  @override
+  String get enableRemindersSubtitle => 'קבל/שלח תזכורות על תשלומים פתוחים';
+
+  @override
+  String get reminderFrequency => 'תדירות שליחה';
+
+  @override
+  String get reminderPlatforms => 'פלטפורמות';
+
+  @override
+  String get inAppNotification => 'התראה באפליקציה';
+
+  @override
+  String get whatsappMessage => 'הודעה ישירה ב-WhatsApp';
+
+  @override
+  String get reminderInfo =>
+      'תזכורות אוטומטיות יישלחו לחייבים עד שהתשלום יסומן כבוצע.';
+
+  @override
+  String get freqNone => 'ללא';
+
+  @override
+  String get freqNoneDesc => 'לא לשלוח תזכורות אוטומטיות';
+
+  @override
+  String get freqManual => 'ידנית בלבד';
+
+  @override
+  String get freqManualDesc => 'רק בלחיצת כפתור מהאפליקציה';
+
+  @override
+  String get freqDaily => 'כל יום';
+
+  @override
+  String get freqDailyDesc => 'שליחה יומית';
+
+  @override
+  String get freqEvery2Days => 'כל יומיים';
+
+  @override
+  String get freqEvery2DaysDesc => 'שליחה כל יומיים';
+
+  @override
+  String get freqWeekly => 'שבועי';
+
+  @override
+  String get freqWeeklyDesc => 'פעם בשבוע';
+
+  @override
+  String get freqBiweekly => 'דו-שבועי';
+
+  @override
+  String get freqBiweeklyDesc => 'פעם בשבועיים';
+
+  @override
+  String get paymentDetailsSaved => 'פרטי התשלום עודכנו ✓';
+
+  @override
+  String get paymentDetailsSaveError => 'שגיאה בשמירת הפרטים';
+
+  @override
+  String get bitPayboxSubtitle => 'מספר טלפון לקבלת תשלום';
+
+  @override
+  String get bankTransfer => 'העברה בנקאית';
+
+  @override
+  String get bankTransferSubtitle => 'פרטי חשבון בנק לקבלת העברות';
+
+  @override
+  String get saveDetails => 'שמור פרטים';
+
+  @override
+  String get bankNameHint => 'שם הבנק (לדוגמה: הפועלים)';
+
+  @override
+  String get bankBranchHint => 'סניף';
+
+  @override
+  String get bankAccountHint => 'מספר חשבון';
+
+  @override
+  String get paymentPrivacyNote =>
+      'הפרטים מוצגים לחברי הקבוצה בלבד לצורך הסדרת חובות';
+
+  @override
+  String get cannotOpenApp => 'לא ניתן לפתוח את האפליקציה';
+
+  @override
+  String get errorOpeningApp => 'שגיאה בפתיחת האפליקציה';
+
+  @override
+  String get sendPayment => 'שלח תשלום';
+
+  @override
+  String payTo(String name) {
+    return 'לתשלום ל$name';
+  }
+
+  @override
+  String get choosePaymentMethod => 'בחר אמצעי תשלום';
+
+  @override
+  String get noPaymentDetails => 'המקבל עדיין לא הגדיר פרטי תשלום.';
+
+  @override
+  String get noPaymentDetailsHint =>
+      'בקש ממנו להוסיף מספר טלפון לBit/PayBox או פרטי בנק בפרופיל שלו.';
+
+  @override
+  String get copyAll => 'העתק הכל';
+
+  @override
+  String get bankDetailsCopied => 'פרטי הבנק הועתקו';
+
+  @override
+  String get bankLabel => 'בנק';
+
+  @override
+  String get branchLabel => 'סניף';
+
+  @override
+  String get accountLabel => 'חשבון';
+
+  @override
+  String get amountLabel => 'סכום';
+
+  @override
+  String get forCredit => 'לזכות';
+
+  @override
+  String get pickFromGallery => 'בחר מהגלריה';
+
+  @override
+  String get takePhoto => 'צלם קבלה';
+
+  @override
+  String sendReminderTo(String name) {
+    return 'שלח תזכורת ל$name';
+  }
+
+  @override
+  String get qrCodeTitle => 'קוד QR';
+
+  @override
+  String get qrCodeSubtitle => 'הראה לחבר לסרוק';
+
+  @override
+  String get scanQrCode => 'סרוק QR';
+
+  @override
+  String get scanQrSubtitle => 'כוון את המצלמה לקוד QR של הקבוצה';
+
+  @override
+  String get qrScanSuccess => 'קוד נסרק בהצלחה!';
+
+  @override
+  String get qrScanError => 'לא ניתן לקרוא את קוד ה-QR';
+
+  @override
+  String get noCameraPermission => 'נדרשת הרשאת מצלמה';
+
+  @override
+  String get openSettings => 'פתח הגדרות';
+
+  @override
+  String get showQrCode => 'הצג QR';
+
+  @override
+  String get aboutTitle => 'אודות ADL ShareFlow';
+
+  @override
+  String aboutVersion(String version) {
+    return 'גרסה $version';
+  }
+
+  @override
+  String get contactUs => 'צור קשר';
+
+  @override
+  String get contactSubtitle => 'שאלות, בעיות וכל שאר';
+
+  @override
+  String get adlProjects => 'ADL Projects';
+
+  @override
+  String get adlProjectsSubtitle => 'עוד פרויקטים של ADL';
+
+  @override
+  String get suggestions => 'הצעות ושיפורים';
+
+  @override
+  String get suggestionsSubtitle => 'ספר לנו מה אפשר לשפר';
+
+  @override
+  String get proPlanTitle => 'תוכנית Pro';
+
+  @override
+  String get proPlanSubtitle => 'בקרוב — ניתוחים, סטטיסטיקות ועוד';
+
+  @override
+  String get appSection => 'אפליקציה';
+
+  @override
+  String get paymentMethodSubtitle => 'Bit, PayBox, העברה בנקאית';
+
+  @override
+  String get pricingSection => 'תמחור';
+
+  @override
+  String get estimatedCost => 'עלות משוערת';
+
+  @override
+  String upToParticipants(int count) {
+    return 'עד $count חברים';
+  }
+
+  @override
+  String aboveParticipants(int count) {
+    return '$count+ חברים';
+  }
+
+  @override
+  String get freeTierLabel => 'חינם — עד 3 חברים';
+
+  @override
+  String get freeIncluded => 'חינמי: עד 3 חברים ו-5 ימים';
+
+  @override
+  String get createGroupFree => 'צור קבוצה — חינם';
+
+  @override
+  String createGroupPaid(int price) {
+    return 'צור קבוצה — $price ₪';
+  }
+
+  @override
+  String durationDays(int days) {
+    return '$days ימים';
+  }
+
+  @override
+  String get durationMonth => 'חודש';
+
+  @override
+  String get tierUpgradeRequired => 'נדרש שדרוג תוכנית';
+
+  @override
+  String tierUpgradeSubtitle(int price) {
+    return 'הקבוצה גדלה — נדרש תשלום של $price ₪ לשדרוג';
+  }
+
+  @override
+  String get tierUpgradeBtn => 'שדרג עכשיו';
+
+  @override
+  String get upgradeTierTitle => 'שדרוג תוכנית';
+
+  @override
+  String get upgradeTierDesc =>
+      'מספר המשתתפים עלה לרמה גבוהה יותר. יש לשלם את ההפרש כדי להמשיך.';
+
+  @override
+  String upgradeBtnLabel(int price) {
+    return 'שדרג — $price ₪';
+  }
+
+  @override
+  String get upgradedSuccess => 'התוכנית שודרגה בהצלחה 🎉';
+
+  @override
+  String get errorUpgradingTier => 'שגיאה בשדרוג התוכנית';
+
+  @override
+  String get periodicSettlement => 'התחשבנות תקופית';
+
+  @override
+  String get manualSettlement => 'ידנית / אקראית';
+
+  @override
+  String get manualSettlementDesc => 'סוגרים חשבון כשרוצים';
+
+  @override
+  String get automaticPeriodic => 'תקופתית אוטומטית';
+
+  @override
+  String get automaticPeriodicDesc =>
+      'דוח נשלח אוטומטית וניתן לסמן חובות כשולמו';
+
+  @override
+  String get settlementFrequency => 'תדירות התחשבנות';
+
+  @override
+  String get periodWeekly => 'שבועי';
+
+  @override
+  String get periodBiweekly => 'דו-שבועי';
+
+  @override
+  String get periodMonthly => 'חודשי';
+
+  @override
+  String get periodBimonthly => 'דו-חודשי';
+
+  @override
+  String get periodQuarterly => 'רבעוני';
+
+  @override
+  String get periodSemiannual => 'חצי-שנתי';
+
+  @override
+  String get periodAnnual => 'שנתי';
+
+  @override
+  String get settlePeriodBtn => 'סכם תקופה';
+
+  @override
+  String settlePeriodNext(String date) {
+    return 'הבא: $date';
+  }
+
+  @override
+  String get settlePeriodCreateReport => 'סגור תקופה וצור דוח';
+
+  @override
+  String get settlePeriodDialogTitle => 'סיכום תקופה';
+
+  @override
+  String get settlePeriodConfirmMsg =>
+      'האם לסכם את התקופה הנוכחית?\n\nדוח יישלח לכל חברי הקבוצה והתקופה תתאפס.';
+
+  @override
+  String get settlePeriodSuccess =>
+      'התקופה סוכמה בהצלחה! דוח נשלח לחברי הקבוצה';
+
+  @override
+  String get errorSettlingPeriod => 'שגיאה בסיכום תקופה';
+
+  @override
+  String get previousPeriodReports => 'דוחות תקופות קודמות';
+
+  @override
+  String periodLabel(int number) {
+    return 'תקופה #$number';
+  }
+
+  @override
+  String get allDebtsPaid => 'כל החובות שולמו ✓';
+
+  @override
+  String openDebtsCount(int count) {
+    return '$count חובות פתוחים';
+  }
+
+  @override
+  String get openDebtCount => 'חוב פתוח 1';
+
+  @override
+  String get noDebtsBalanced => 'כל החשבונות מאוזנים — אין חובות';
+
+  @override
+  String get markAsPaid => 'שולם ✓';
+
+  @override
+  String get currentPeriodExpenses => 'הוצאות תקופה נוכחית';
+
+  @override
+  String periodSince(String date) {
+    return 'מתאריך $date';
+  }
+
+  @override
+  String get openDebtsGroupClosed => 'חובות פתוחים — הקבוצה סגורה';
+
+  @override
+  String get groupClosedUnpaidDebts => 'הקבוצה סגורה אך יש חובות שטרם שולמו';
+
+  @override
+  String get requiredTransfersTitle => 'העברות נדרשות';
+
+  @override
+  String transferNeeded(String from, String to) {
+    return '$from צריך להעביר ל-$to';
+  }
+
+  @override
+  String get deleteGroup => 'מחק קבוצה';
+
+  @override
+  String get deleteGroupDialogTitle => 'מחיקת קבוצה';
+
+  @override
+  String deleteGroupConfirm(String name) {
+    return 'האם למחוק לצמיתות את הקבוצה \"$name\"?\n\nכל ההוצאות, היתרות וההיסטוריה יימחקו ולא ניתן יהיה לשחזרם.';
+  }
+
+  @override
+  String get deleteGroupPermanently => 'מחק לצמיתות';
+
+  @override
+  String get groupDeletedSuccess => 'הקבוצה נמחקה בהצלחה';
+
+  @override
+  String get errorDeletingGroup => 'שגיאה במחיקת הקבוצה';
 }

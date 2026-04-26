@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'ShareFlow';
+  String get appName => 'ADL ShareFlow';
 
   @override
   String get login => 'Login';
@@ -99,7 +99,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notes => 'Notes';
 
   @override
-  String get balances => 'Balances';
+  String get balances => 'Ledger';
 
   @override
   String get settlements => 'Settlements';
@@ -422,7 +422,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorLoadingExpenses => 'Error loading expenses';
 
   @override
-  String get groupBalances => 'Group Balances';
+  String get groupBalances => 'Group Ledger';
 
   @override
   String get groupTotalExpenses => 'Total group expenses';
@@ -434,7 +434,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get owesYouLabel => 'Others owe you';
 
   @override
-  String get allSettled => 'All settled! No transfers needed';
+  String get balanceSettled => 'Settled ✅';
 
   @override
   String get owesLabel => 'Owes';
@@ -742,7 +742,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginBtn => 'Sign In';
 
   @override
-  String get welcomeTitle => 'Welcome to ShareFlow';
+  String get welcomeTitle => 'Welcome to ADL ShareFlow';
 
   @override
   String get loginSubtitle => 'Sign in to your account';
@@ -811,6 +811,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get requiredTransfers => 'Required transfers';
 
   @override
+  String get allSettled => 'All settled! No transfers needed';
+
+  @override
   String get sendSummary => 'Send summary';
 
   @override
@@ -860,4 +863,425 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get laterBtn => 'Later';
+
+  @override
+  String get comingSoon => 'Coming soon';
+
+  @override
+  String get settingsSaved => 'Settings saved ✓';
+
+  @override
+  String get settingsSaveError => 'Error saving settings';
+
+  @override
+  String get enableReminders => 'Enable automatic reminders';
+
+  @override
+  String get enableRemindersSubtitle =>
+      'Send/receive reminders for open payments';
+
+  @override
+  String get reminderFrequency => 'Send frequency';
+
+  @override
+  String get reminderPlatforms => 'Platforms';
+
+  @override
+  String get inAppNotification => 'In-app notification';
+
+  @override
+  String get whatsappMessage => 'Direct WhatsApp message';
+
+  @override
+  String get reminderInfo =>
+      'Automatic reminders will be sent to debtors until the payment is marked as done.';
+
+  @override
+  String get freqNone => 'None';
+
+  @override
+  String get freqNoneDesc => 'Don\'t send automatic reminders';
+
+  @override
+  String get freqManual => 'Manual only';
+
+  @override
+  String get freqManualDesc => 'Only by pressing a button in the app';
+
+  @override
+  String get freqDaily => 'Daily';
+
+  @override
+  String get freqDailyDesc => 'Send every day';
+
+  @override
+  String get freqEvery2Days => 'Every 2 days';
+
+  @override
+  String get freqEvery2DaysDesc => 'Send every 2 days';
+
+  @override
+  String get freqWeekly => 'Weekly';
+
+  @override
+  String get freqWeeklyDesc => 'Once a week';
+
+  @override
+  String get freqBiweekly => 'Biweekly';
+
+  @override
+  String get freqBiweeklyDesc => 'Once every two weeks';
+
+  @override
+  String get paymentDetailsSaved => 'Payment details updated ✓';
+
+  @override
+  String get paymentDetailsSaveError => 'Error saving details';
+
+  @override
+  String get bitPayboxSubtitle => 'Phone number to receive payments';
+
+  @override
+  String get bankTransfer => 'Bank transfer';
+
+  @override
+  String get bankTransferSubtitle => 'Bank account details for wire transfers';
+
+  @override
+  String get saveDetails => 'Save details';
+
+  @override
+  String get bankNameHint => 'Bank name (e.g. Hapoalim)';
+
+  @override
+  String get bankBranchHint => 'Branch';
+
+  @override
+  String get bankAccountHint => 'Account number';
+
+  @override
+  String get paymentPrivacyNote =>
+      'Details are only visible to group members for debt settlement';
+
+  @override
+  String get cannotOpenApp => 'Cannot open the app';
+
+  @override
+  String get errorOpeningApp => 'Error opening the app';
+
+  @override
+  String get sendPayment => 'Send Payment';
+
+  @override
+  String payTo(String name) {
+    return 'Pay to $name';
+  }
+
+  @override
+  String get choosePaymentMethod => 'Choose payment method';
+
+  @override
+  String get noPaymentDetails =>
+      'The recipient hasn\'t set up payment details yet.';
+
+  @override
+  String get noPaymentDetailsHint =>
+      'Ask them to add a Bit/PayBox phone number or bank details in their profile.';
+
+  @override
+  String get copyAll => 'Copy all';
+
+  @override
+  String get bankDetailsCopied => 'Bank details copied';
+
+  @override
+  String get bankLabel => 'Bank';
+
+  @override
+  String get branchLabel => 'Branch';
+
+  @override
+  String get accountLabel => 'Account';
+
+  @override
+  String get amountLabel => 'Amount';
+
+  @override
+  String get forCredit => 'For credit';
+
+  @override
+  String get pickFromGallery => 'Pick from gallery';
+
+  @override
+  String get takePhoto => 'Take photo';
+
+  @override
+  String sendReminderTo(String name) {
+    return 'Send reminder to $name';
+  }
+
+  @override
+  String get qrCodeTitle => 'QR Code';
+
+  @override
+  String get qrCodeSubtitle => 'Show this to a friend to scan';
+
+  @override
+  String get scanQrCode => 'Scan QR';
+
+  @override
+  String get scanQrSubtitle => 'Point the camera at the group QR code';
+
+  @override
+  String get qrScanSuccess => 'Code scanned successfully!';
+
+  @override
+  String get qrScanError => 'Could not read the QR code';
+
+  @override
+  String get noCameraPermission => 'Camera permission is required';
+
+  @override
+  String get openSettings => 'Open Settings';
+
+  @override
+  String get showQrCode => 'Show QR';
+
+  @override
+  String get aboutTitle => 'About ADL ShareFlow';
+
+  @override
+  String aboutVersion(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get contactUs => 'Contact Us';
+
+  @override
+  String get contactSubtitle => 'Questions, issues and more';
+
+  @override
+  String get adlProjects => 'ADL Projects';
+
+  @override
+  String get adlProjectsSubtitle => 'More projects by ADL';
+
+  @override
+  String get suggestions => 'Suggestions & Feedback';
+
+  @override
+  String get suggestionsSubtitle => 'Tell us how we can improve';
+
+  @override
+  String get proPlanTitle => 'Pro Plan';
+
+  @override
+  String get proPlanSubtitle => 'Coming soon — analytics, stats and more';
+
+  @override
+  String get appSection => 'App';
+
+  @override
+  String get paymentMethodSubtitle => 'Bit, PayBox, Bank transfer';
+
+  @override
+  String get pricingSection => 'Pricing';
+
+  @override
+  String get estimatedCost => 'Estimated cost';
+
+  @override
+  String upToParticipants(int count) {
+    return 'Up to $count members';
+  }
+
+  @override
+  String aboveParticipants(int count) {
+    return '$count+ members';
+  }
+
+  @override
+  String get freeTierLabel => 'Free — up to 3 members';
+
+  @override
+  String get freeIncluded => 'Free: up to 3 members & 5 days';
+
+  @override
+  String get createGroupFree => 'Create Group — Free';
+
+  @override
+  String createGroupPaid(int price) {
+    return 'Create Group — ₪$price';
+  }
+
+  @override
+  String durationDays(int days) {
+    return '$days days';
+  }
+
+  @override
+  String get durationMonth => 'Month';
+
+  @override
+  String get tierUpgradeRequired => 'Plan Upgrade Required';
+
+  @override
+  String tierUpgradeSubtitle(int price) {
+    return 'Group has grown — upgrade payment of ₪$price required';
+  }
+
+  @override
+  String get tierUpgradeBtn => 'Upgrade Now';
+
+  @override
+  String get upgradeTierTitle => 'Upgrade Plan';
+
+  @override
+  String get upgradeTierDesc =>
+      'Member count has grown to a higher tier. Pay the difference to continue.';
+
+  @override
+  String upgradeBtnLabel(int price) {
+    return 'Upgrade — ₪$price';
+  }
+
+  @override
+  String get upgradedSuccess => 'Plan upgraded successfully 🎉';
+
+  @override
+  String get errorUpgradingTier => 'Error upgrading plan';
+
+  @override
+  String get periodicSettlement => 'Periodic Settlement';
+
+  @override
+  String get manualSettlement => 'Manual / One-time';
+
+  @override
+  String get manualSettlementDesc => 'Close accounts whenever you want';
+
+  @override
+  String get automaticPeriodic => 'Automatic Periodic';
+
+  @override
+  String get automaticPeriodicDesc =>
+      'Report sent automatically, debts can be marked as paid';
+
+  @override
+  String get settlementFrequency => 'Settlement Frequency';
+
+  @override
+  String get periodWeekly => 'Weekly';
+
+  @override
+  String get periodBiweekly => 'Biweekly';
+
+  @override
+  String get periodMonthly => 'Monthly';
+
+  @override
+  String get periodBimonthly => 'Bimonthly';
+
+  @override
+  String get periodQuarterly => 'Quarterly';
+
+  @override
+  String get periodSemiannual => 'Semiannual';
+
+  @override
+  String get periodAnnual => 'Annual';
+
+  @override
+  String get settlePeriodBtn => 'Settle Period';
+
+  @override
+  String settlePeriodNext(String date) {
+    return 'Next: $date';
+  }
+
+  @override
+  String get settlePeriodCreateReport => 'Close period and create report';
+
+  @override
+  String get settlePeriodDialogTitle => 'Period Summary';
+
+  @override
+  String get settlePeriodConfirmMsg =>
+      'Would you like to settle the current period?\n\nA report will be sent to all group members and the period will reset.';
+
+  @override
+  String get settlePeriodSuccess =>
+      'Period settled successfully! Report sent to group members';
+
+  @override
+  String get errorSettlingPeriod => 'Error settling period';
+
+  @override
+  String get previousPeriodReports => 'Previous Period Reports';
+
+  @override
+  String periodLabel(int number) {
+    return 'Period #$number';
+  }
+
+  @override
+  String get allDebtsPaid => 'All debts paid ✓';
+
+  @override
+  String openDebtsCount(int count) {
+    return '$count open debts';
+  }
+
+  @override
+  String get openDebtCount => '1 open debt';
+
+  @override
+  String get noDebtsBalanced => 'All balanced — no debts';
+
+  @override
+  String get markAsPaid => 'Paid ✓';
+
+  @override
+  String get currentPeriodExpenses => 'Current period expenses';
+
+  @override
+  String periodSince(String date) {
+    return 'Since $date';
+  }
+
+  @override
+  String get openDebtsGroupClosed => 'Open debts — group is closed';
+
+  @override
+  String get groupClosedUnpaidDebts =>
+      'The group is closed but there are unpaid debts';
+
+  @override
+  String get requiredTransfersTitle => 'Required transfers';
+
+  @override
+  String transferNeeded(String from, String to) {
+    return '$from needs to transfer to $to';
+  }
+
+  @override
+  String get deleteGroup => 'Delete Group';
+
+  @override
+  String get deleteGroupDialogTitle => 'Delete Group';
+
+  @override
+  String deleteGroupConfirm(String name) {
+    return 'Permanently delete group \"$name\"?\n\nAll expenses, balances and history will be deleted and cannot be recovered.';
+  }
+
+  @override
+  String get deleteGroupPermanently => 'Delete Permanently';
+
+  @override
+  String get groupDeletedSuccess => 'Group deleted successfully';
+
+  @override
+  String get errorDeletingGroup => 'Error deleting group';
 }

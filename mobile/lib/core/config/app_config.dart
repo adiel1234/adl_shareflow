@@ -35,7 +35,7 @@ class AppConfig {
   }
 
   static String get appName => 'ADL ShareFlow';
-  static String get appVersion => '1.0.0';
+  static String get appVersion => '1.0.1';
 
   static bool get isDev => flavor == AppFlavor.dev;
   static bool get isStaging => flavor == AppFlavor.staging;

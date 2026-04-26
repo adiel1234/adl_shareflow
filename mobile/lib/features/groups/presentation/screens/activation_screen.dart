@@ -22,35 +22,43 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
 
   bool get _isExtend => widget.group.groupState == 'expired';
   bool get _isRenew => widget.group.groupState == 'read_only';
+  bool get _isUpgrade => widget.group.tierUpgradeRequired;
 
   /// Compute price locally — mirrors backend MonetizationConfig exactly.
   int get _price {
+    if (_isUpgrade) return widget.group.upgradePriceDiff ?? 0;
     if (_isExtend) return 15;
     final count = widget.group.memberCount;
     if (widget.group.groupType == 'ongoing') {
       if (count <= 5) return 49;
       if (count <= 8) return 69;
+      if (count <= 11) return 79;
       return 89;
     } else {
       // event (default)
-      if (count <= 10) return 15;
-      if (count <= 15) return 20;
-      return 30;
+      if (count <= 5) return 15;
+      if (count <= 10) return 20;
+      if (count <= 15) return 30;
+      if (count <= 39) return 35;
+      return 45;
     }
   }
 
   String _title(AppLocalizations l) {
+    if (_isUpgrade) return l.upgradeTierTitle;
     if (_isExtend) return l.extendGroupTitle;
     if (_isRenew) return l.renewGroupTitle;
     return l.activateGroupTitle;
   }
 
   String _durationLabel(AppLocalizations l) {
+    if (_isUpgrade) return '';
     if (_isExtend) return l.sevenDaysPlus;
     return widget.group.groupType == 'ongoing' ? l.thirtyDays : l.sevenDays;
   }
 
   String _buttonLabel(AppLocalizations l) {
+    if (_isUpgrade) return l.upgradeBtnLabel(_price);
     if (_isExtend) return l.extendBtnLabel(_price);
     if (_isRenew) return l.renewBtnLabel(_price);
     return l.activateBtnLabel(_price);
@@ -60,7 +68,10 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
     setState(() => _loading = true);
     try {
       final repo = ref.read(groupRepositoryProvider);
-      if (_isExtend) {
+      if (_isUpgrade) {
+        await repo.upgradeTier(widget.group.id,
+            splitAmongGroup: _splitAmongGroup);
+      } else if (_isExtend) {
         await repo.extendGroup(widget.group.id,
             splitAmongGroup: _splitAmongGroup);
       } else if (_isRenew) {
@@ -74,11 +85,13 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
       if (mounted) {
         final l = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_isExtend
-              ? l.extendedSuccess
-              : _isRenew
-                  ? l.renewedSuccess
-                  : l.activatedSuccess)),
+          SnackBar(content: Text(_isUpgrade
+              ? l.upgradedSuccess
+              : _isExtend
+                  ? l.extendedSuccess
+                  : _isRenew
+                      ? l.renewedSuccess
+                      : l.activatedSuccess)),
         );
         Navigator.pop(context, true);
       }
@@ -118,7 +131,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
               child: Column(
                 children: [
                   Text(
-                    _isExtend ? '⏰' : _isRenew ? '🔄' : '⚡',
+                    _isUpgrade ? '⬆️' : _isExtend ? '⏰' : _isRenew ? '🔄' : '⚡',
                     style: const TextStyle(fontSize: 44),
                   ),
                   const SizedBox(height: 12),
@@ -146,7 +159,8 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
 
             // Price breakdown
             _PriceRow(label: l.paymentAmountLabel, value: '$_price ₪'),
-            _PriceRow(label: l.validityLabel, value: _durationLabel(l)),
+            if (_durationLabel(l).isNotEmpty)
+              _PriceRow(label: l.validityLabel, value: _durationLabel(l)),
             _PriceRow(
               label: l.participantsLabel,
               value: l.memberCount(widget.group.memberCount),
@@ -192,7 +206,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      l.betaNoteActivation,
+                      _isUpgrade ? l.upgradeTierDesc : l.betaNoteActivation,
                       style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12,

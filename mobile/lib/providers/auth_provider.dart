@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/constants/app_constants.dart';
 import '../core/network/api_client.dart';
+import '../services/fcm_service.dart';
 
 const _kPreferredCurrency = 'preferred_currency';
 
@@ -73,6 +74,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   void setUser(Map<String, dynamic> user) {
     state = state.copyWith(isLoggedIn: true, user: user, isLoading: false);
+    FcmService.instance.registerToken();
   }
 
   Future<void> setPreferredCurrency(String currency) async {
@@ -81,6 +83,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    await FcmService.instance.unregisterToken();
     await _storage.deleteAll();
     state = const AuthState(isLoggedIn: false, isLoading: false);
   }

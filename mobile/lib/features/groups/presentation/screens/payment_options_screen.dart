@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
 
 /// Shown when a group member wants to settle a debt.
@@ -30,19 +31,20 @@ class PaymentOptionsScreen extends StatelessWidget {
   int get _roundedAmount => amount.round();
 
   Future<void> _launchUrl(BuildContext context, String url) async {
+    final l = AppLocalizations.of(context)!;
     final uri = Uri.parse(url);
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('לא ניתן לפתוח את האפליקציה')),
+            SnackBar(content: Text(l.cannotOpenApp)),
           );
         }
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בפתיחת האפליקציה')),
+          SnackBar(content: Text(l.errorOpeningApp)),
         );
       }
     }
@@ -50,10 +52,11 @@ class PaymentOptionsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('שלח תשלום'),
+        title: Text(l.sendPayment),
         backgroundColor: AppColors.background,
       ),
       body: SingleChildScrollView(
@@ -81,7 +84,7 @@ class PaymentOptionsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'לתשלום ל$recipientName',
+                    l.payTo(recipientName),
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.85),
                       fontSize: 15,
@@ -93,9 +96,9 @@ class PaymentOptionsScreen extends StatelessWidget {
 
             const SizedBox(height: 28),
 
-            const Text(
-              'בחר אמצעי תשלום',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+            Text(
+              l.choosePaymentMethod,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
             ),
             const SizedBox(height: 14),
 
@@ -141,21 +144,21 @@ class PaymentOptionsScreen extends StatelessWidget {
                   color: AppColors.surfaceVariant,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Column(
+                child: Column(
                   children: [
-                    Icon(Icons.payment_outlined,
+                    const Icon(Icons.payment_outlined,
                         size: 36, color: AppColors.textDisabled),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
-                      'המקבל עדיין לא הגדיר פרטי תשלום.',
+                      l.noPaymentDetails,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.textSecondary),
+                      style: const TextStyle(color: AppColors.textSecondary),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
-                      'בקש ממנו להוסיף מספר טלפון לBit/PayBox או פרטי בנק בפרופיל שלו.',
+                      l.noPaymentDetailsHint,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12,
                           height: 1.4),
@@ -243,60 +246,64 @@ class _BankTransferTile extends StatelessWidget {
   });
 
   void _copyAll(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final text = [
-      if (bankName != null) 'בנק: $bankName',
-      if (bankBranch != null) 'סניף: $bankBranch',
-      'חשבון: $bankAccountNumber',
-      'סכום: $amount $currency',
-      'לזכות: $recipientName',
+      if (bankName != null) '${l.bankLabel}: $bankName',
+      if (bankBranch != null) '${l.branchLabel}: $bankBranch',
+      '${l.accountLabel}: $bankAccountNumber',
+      '${l.amountLabel}: $amount $currency',
+      '${l.forCredit}: $recipientName',
     ].join('\n');
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('פרטי הבנק הועתקו')),
+      SnackBar(content: Text(l.bankDetailsCopied)),
     );
   }
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
-                children: [
-                  Text('🏦', style: TextStyle(fontSize: 22)),
-                  SizedBox(width: 10),
-                  Text('העברה בנקאית',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 15)),
-                ],
-              ),
-              const SizedBox(height: 12),
-              if (bankName != null) _BankRow('בנק', bankName!),
-              if (bankBranch != null) _BankRow('סניף', bankBranch!),
-              _BankRow('חשבון', bankAccountNumber),
-              _BankRow('סכום', '$amount $currency'),
-              _BankRow('לזכות', recipientName),
-              const SizedBox(height: 10),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () => _copyAll(context),
-                  icon: const Icon(Icons.copy, size: 16),
-                  label: const Text('העתק הכל'),
-                ),
-              ),
-            ],
-          ),
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.border),
         ),
-      );
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text('🏦', style: TextStyle(fontSize: 22)),
+                const SizedBox(width: 10),
+                Text(l.bankTransfer,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 15)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            if (bankName != null) _BankRow(l.bankLabel, bankName!),
+            if (bankBranch != null) _BankRow(l.branchLabel, bankBranch!),
+            _BankRow(l.accountLabel, bankAccountNumber),
+            _BankRow(l.amountLabel, '$amount $currency'),
+            _BankRow(l.forCredit, recipientName),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => _copyAll(context),
+                icon: const Icon(Icons.copy, size: 16),
+                label: Text(l.copyAll),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _BankRow extends StatelessWidget {

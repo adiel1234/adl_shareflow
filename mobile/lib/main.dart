@@ -1,5 +1,6 @@
 import 'package:app_links/app_links.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'core/config/app_config.dart';
 import 'core/config/router.dart';
 import 'providers/deep_link_provider.dart';
 import 'services/feedback_service.dart';
+import 'services/fcm_service.dart';
 import 'theme/app_theme.dart';
 import 'providers/locale_provider.dart';
 import 'l10n/app_localizations.dart';
@@ -26,6 +28,7 @@ String? _parseInviteCode(Uri uri) {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await Firebase.initializeApp();
   await FeedbackService.init();
 
   await SystemChrome.setPreferredOrientations([
@@ -95,15 +98,29 @@ class ShareFlowApp extends ConsumerStatefulWidget {
 }
 
 class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
+  final _navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   void initState() {
     super.initState();
+
     if (!kIsWeb) {
+      // Deep links
       AppLinks().uriLinkStream.listen((uri) {
         final code = _parseInviteCode(uri);
         if (code != null) {
           ref.read(pendingInviteCodeProvider.notifier).state = code;
         }
+      });
+
+      // FCM — request permission + register token, then set up tap navigation
+      FcmService.instance.initialize().then((_) {
+        FcmService.instance.setupOpenedAppHandler((groupId) {
+          _navigatorKey.currentState?.pushNamed(
+            '/group-detail',
+            arguments: {'groupId': groupId},
+          );
+        });
       });
     }
   }
@@ -116,6 +133,7 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
       title: 'ADL ShareFlow',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      navigatorKey: _navigatorKey,
       onGenerateRoute: AppRouter.onGenerateRoute,
       initialRoute: '/',
       localizationsDelegates: const [

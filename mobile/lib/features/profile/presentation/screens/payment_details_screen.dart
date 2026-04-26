@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
 
-/// Screen for the user to set their payment details:
-/// phone for Bit/PayBox and bank account for wire transfers.
-/// These details are shared with group members for debt settlement.
 class PaymentDetailsScreen extends StatefulWidget {
   const PaymentDetailsScreen({super.key});
 
@@ -44,6 +42,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
   }
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context)!;
     setState(() => _saving = true);
     try {
       await ApiClient.instance.put('/users/me', data: {
@@ -54,14 +53,14 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('פרטי התשלום עודכנו ✓')),
+          SnackBar(content: Text(l.paymentDetailsSaved)),
         );
         Navigator.pop(context);
       }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בשמירת הפרטים')),
+          SnackBar(content: Text(l.paymentDetailsSaveError)),
         );
       }
     } finally {
@@ -80,10 +79,11 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('פרטי תשלום'),
+        title: Text(l.paymentDetails),
         backgroundColor: AppColors.background,
       ),
       body: _loading
@@ -93,8 +93,10 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const _SectionHeader(
-                      icon: '💙', title: 'Bit / PayBox', subtitle: 'מספר טלפון לקבלת תשלום'),
+                  _SectionHeader(
+                      icon: '💙',
+                      title: 'Bit / PayBox',
+                      subtitle: l.bitPayboxSubtitle),
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _phoneCtrl,
@@ -108,17 +110,17 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
 
                   const SizedBox(height: 28),
 
-                  const _SectionHeader(
+                  _SectionHeader(
                       icon: '🏦',
-                      title: 'העברה בנקאית',
-                      subtitle: 'פרטי חשבון בנק לקבלת העברות'),
+                      title: l.bankTransfer,
+                      subtitle: l.bankTransferSubtitle),
                   const SizedBox(height: 10),
 
                   TextFormField(
                     controller: _bankNameCtrl,
-                    decoration: const InputDecoration(
-                      hintText: 'שם הבנק (לדוגמה: הפועלים)',
-                      prefixIcon: Icon(Icons.account_balance_outlined),
+                    decoration: InputDecoration(
+                      hintText: l.bankNameHint,
+                      prefixIcon: const Icon(Icons.account_balance_outlined),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -130,9 +132,9 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                           controller: _branchCtrl,
                           keyboardType: TextInputType.number,
                           textDirection: TextDirection.ltr,
-                          decoration: const InputDecoration(
-                            hintText: 'סניף',
-                            prefixIcon: Icon(Icons.numbers_outlined),
+                          decoration: InputDecoration(
+                            hintText: l.bankBranchHint,
+                            prefixIcon: const Icon(Icons.numbers_outlined),
                           ),
                         ),
                       ),
@@ -143,9 +145,9 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                           controller: _accountCtrl,
                           keyboardType: TextInputType.number,
                           textDirection: TextDirection.ltr,
-                          decoration: const InputDecoration(
-                            hintText: 'מספר חשבון',
-                            prefixIcon: Icon(Icons.credit_card_outlined),
+                          decoration: InputDecoration(
+                            hintText: l.bankAccountHint,
+                            prefixIcon: const Icon(Icons.credit_card_outlined),
                           ),
                         ),
                       ),
@@ -160,15 +162,15 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                       color: AppColors.surfaceVariant,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.lock_outline,
+                        const Icon(Icons.lock_outline,
                             size: 16, color: AppColors.textSecondary),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'הפרטים מוצגים לחברי הקבוצה בלבד לצורך הסדרת חובות',
-                            style: TextStyle(
+                            l.paymentPrivacyNote,
+                            style: const TextStyle(
                                 color: AppColors.textSecondary,
                                 fontSize: 12,
                                 height: 1.4),
@@ -196,8 +198,8 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                               width: 22, height: 22,
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: Colors.white))
-                          : const Text('שמור פרטים',
-                              style: TextStyle(
+                          : Text(l.saveDetails,
+                              style: const TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.w700)),
                     ),
                   ),

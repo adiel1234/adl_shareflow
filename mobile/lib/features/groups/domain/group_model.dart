@@ -24,6 +24,10 @@ class Group {
   final String? settlementPeriod; // 'weekly'|'biweekly'|'monthly'|...
   final DateTime? nextSettlementDate;
   final DateTime? currentPeriodStart;
+  // Tier upgrade
+  final bool tierUpgradeRequired;
+  final int? upgradePriceDiff;   // amount to pay for the upgrade
+  final int? upgradeNewPrice;    // new full tier price
 
   const Group({
     required this.id,
@@ -49,6 +53,9 @@ class Group {
     this.settlementPeriod,
     this.nextSettlementDate,
     this.currentPeriodStart,
+    this.tierUpgradeRequired = false,
+    this.upgradePriceDiff,
+    this.upgradeNewPrice,
   });
 
   factory Group.fromJson(Map<String, dynamic> json) => Group(
@@ -85,6 +92,9 @@ class Group {
         currentPeriodStart: json['current_period_start'] != null
             ? DateTime.tryParse(json['current_period_start'] as String)
             : null,
+        tierUpgradeRequired: json['tier_upgrade_required'] as bool? ?? false,
+        upgradePriceDiff: (json['upgrade_price_diff'] as num?)?.toInt(),
+        upgradeNewPrice: (json['upgrade_new_price'] as num?)?.toInt(),
       );
 
   String get categoryEmoji {

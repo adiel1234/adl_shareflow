@@ -146,4 +146,16 @@ class GroupRepository {
     );
     return response.data['data'] as Map<String, dynamic>;
   }
+
+  /// Upgrade the group's pricing tier after member count crossed a boundary.
+  Future<Map<String, dynamic>> upgradeTier(
+    String groupId, {
+    bool splitAmongGroup = true,
+  }) async {
+    final response = await _api.post(
+      '/groups/$groupId/upgrade-tier',
+      data: {'split_among_group': splitAmongGroup},
+    );
+    return response.data['data'] as Map<String, dynamic>;
+  }
 }

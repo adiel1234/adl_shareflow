@@ -22,4 +22,13 @@ class NotificationsRepository {
   Future<void> markAllRead() async {
     await _api.put('/notifications/read-all');
   }
+
+  Future<void> registerFcmToken(String token, String platform) async {
+    await _api.post('/notifications/fcm-token',
+        data: {'token': token, 'platform': platform});
+  }
+
+  Future<void> unregisterFcmToken(String token) async {
+    await _api.delete('/notifications/fcm-token', data: {'token': token});
+  }
 }

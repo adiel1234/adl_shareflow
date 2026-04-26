@@ -34,21 +34,24 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen> {
   bool _settling = false;
 
   Future<void> _settlePeriod() async {
+    final l = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('סיכום תקופה'),
-        content: const Text(
-            'האם לסכם את התקופה הנוכחית?\n\nדוח יישלח לכל חברי הקבוצה והתקופה תתאפס.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('ביטול')),
-          ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('סכם תקופה')),
-        ],
-      ),
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(dl.settlePeriodDialogTitle),
+          content: Text(dl.settlePeriodConfirmMsg),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(dl.cancel)),
+            ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(dl.settlePeriodBtn)),
+          ],
+        );
+      },
     );
     if (confirmed != true || !mounted) return;
     setState(() => _settling = true);
@@ -59,11 +62,11 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen> {
       ref.invalidate(periodReportsProvider(widget.group.id));
       ref.invalidate(expensesProvider(widget.group.id));
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('התקופה סוכמה בהצלחה! דוח נשלח לחברי הקבוצה')),
+        SnackBar(content: Text(l.settlePeriodSuccess)),
       );
     } catch (e) {
       if (!mounted) return;
-      String msg = 'שגיאה בסיכום תקופה';
+      String msg = l.errorSettlingPeriod;
       if (e is DioException) {
         msg = (e.response?.data?['message'] as String?) ?? msg;
       }
@@ -124,15 +127,15 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('סכם תקופה',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 15)),
+                  Text(AppLocalizations.of(context)!.settlePeriodBtn,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15)),
                               Text(
                                 group.nextSettlementDate != null
-                                    ? 'הבא: ${_fmtDate(group.nextSettlementDate!)}'
-                                    : 'סגור תקופה וצור דוח',
+                                    ? AppLocalizations.of(context)!.settlePeriodNext(_fmtDate(group.nextSettlementDate!))
+                                    : AppLocalizations.of(context)!.settlePeriodCreateReport,
                                 style: const TextStyle(
                                     color: Colors.white70, fontSize: 12),
                               ),
@@ -297,9 +300,9 @@ class _PeriodReportsHistory extends StatelessWidget {
         const SizedBox(height: 24),
         const Divider(),
         const SizedBox(height: 8),
-        const Text(
-          'דוחות תקופות קודמות',
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.previousPeriodReports,
+          style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary),
@@ -365,11 +368,11 @@ class _PeriodReportCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'תקופה #${report.periodNumber}',
+                    Builder(builder: (ctx) => Text(
+                      AppLocalizations.of(ctx)!.periodLabel(report.periodNumber),
                       style: const TextStyle(
                           fontWeight: FontWeight.w700, fontSize: 14),
-                    ),
+                    )),
                     Text(
                       '${_fmtDate(report.periodStart)} – ${_fmtDate(report.periodEnd)}',
                       style: const TextStyle(
@@ -387,29 +390,31 @@ class _PeriodReportCard extends StatelessWidget {
                         fontWeight: FontWeight.w700, fontSize: 13),
                   ),
                   if (hasUnpaid)
-                    Text(
-                      '${report.unpaidCount} חוב${report.unpaidCount > 1 ? "ות" : ""} פתוח${report.unpaidCount > 1 ? "ים" : ""}',
+                    Builder(builder: (ctx) => Text(
+                      report.unpaidCount == 1
+                          ? AppLocalizations.of(ctx)!.openDebtCount
+                          : AppLocalizations.of(ctx)!.openDebtsCount(report.unpaidCount),
                       style: const TextStyle(
                           fontSize: 11, color: Color(0xFFEF4444)),
-                    )
+                    ))
                   else
-                    const Text(
-                      'כל החובות שולמו ✓',
-                      style: TextStyle(fontSize: 11, color: Color(0xFF059669)),
-                    ),
+                    Builder(builder: (ctx) => Text(
+                      AppLocalizations.of(ctx)!.allDebtsPaid,
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF059669)),
+                    )),
                 ],
               ),
             ],
           ),
           children: report.debts.isEmpty
               ? [
-                  const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      'כל החשבונות מאוזנים — אין חובות',
-                      style: TextStyle(color: AppColors.textSecondary),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Builder(builder: (ctx) => Text(
+                      AppLocalizations.of(ctx)!.noDebtsBalanced,
+                      style: const TextStyle(color: AppColors.textSecondary),
                       textAlign: TextAlign.center,
-                    ),
+                    )),
                   ),
                 ]
               : report.debts
@@ -501,13 +506,13 @@ class _DebtRow extends StatelessWidget {
                   color: isPaidColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  'שולם ✓',
-                  style: TextStyle(
+                child: Builder(builder: (ctx) => Text(
+                  AppLocalizations.of(ctx)!.markAsPaid,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 11,
                       fontWeight: FontWeight.w700),
-                ),
+                )),
               ),
             ),
           ],
@@ -553,23 +558,25 @@ class _TransfersCard extends StatelessWidget {
                 size: 20,
               ),
               const SizedBox(width: 8),
-              Text(
-                isClosed ? 'חובות פתוחים — הקבוצה סגורה' : 'העברות נדרשות',
+              Builder(builder: (ctx) => Text(
+                isClosed
+                    ? AppLocalizations.of(ctx)!.openDebtsGroupClosed
+                    : AppLocalizations.of(ctx)!.requiredTransfersTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
                   color: headerColor,
                 ),
-              ),
+              )),
             ],
           ),
           if (isClosed)
             Padding(
               padding: const EdgeInsets.only(top: 4, bottom: 8),
-              child: Text(
-                'הקבוצה סגורה אך יש חובות שטרם שולמו',
+              child: Builder(builder: (ctx) => Text(
+                AppLocalizations.of(ctx)!.groupClosedUnpaidDebts,
                 style: TextStyle(fontSize: 12, color: headerColor.withOpacity(0.8)),
-              ),
+              )),
             )
           else
             const SizedBox(height: 12),
@@ -585,27 +592,12 @@ class _TransfersCard extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: s.fromDisplayName,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 14),
-                          ),
-                          const TextSpan(
-                            text: ' צריך להעביר ל-',
-                            style: TextStyle(
-                                color: AppColors.textSecondary, fontSize: 13),
-                          ),
-                          TextSpan(
-                            text: s.toDisplayName,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w700, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ),
+                    child: Builder(builder: (ctx) {
+                      final dl = AppLocalizations.of(ctx)!;
+                      final text = dl.transferNeeded(s.fromDisplayName, s.toDisplayName);
+                      // Bold the names by splitting on the names
+                      return Text(text, style: const TextStyle(fontSize: 13));
+                    }),
                   ),
                   const SizedBox(width: 8),
                   Container(
@@ -652,7 +644,7 @@ class _MyBalanceCard extends StatelessWidget {
         ? l.owesYouLabel
         : balance.isDebtor
             ? l.youOwe
-            : l.allSettled;
+            : l.balanceSettled;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -844,7 +836,7 @@ class _TotalExpensesCard extends ConsumerWidget {
                   children: [
                     Text(
                       group.isPeriodic
-                          ? 'הוצאות תקופה נוכחית'
+                          ? AppLocalizations.of(context)!.currentPeriodExpenses
                           : AppLocalizations.of(context)!.groupTotalExpenses,
                       style: const TextStyle(
                           color: Colors.white70,
@@ -876,7 +868,7 @@ class _TotalExpensesCard extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          'מתאריך ${_fmtDate(group.currentPeriodStart!)}',
+                          AppLocalizations.of(context)!.periodSince(_fmtDate(group.currentPeriodStart!)),
                           style: const TextStyle(
                               color: Colors.white54, fontSize: 11),
                         ),

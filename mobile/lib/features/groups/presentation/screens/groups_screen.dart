@@ -9,6 +9,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../widgets/group_card.dart';
 import 'create_group_screen.dart';
 import 'group_detail_screen.dart';
+import 'qr_scanner_screen.dart';
 
 class GroupsScreen extends ConsumerStatefulWidget {
   const GroupsScreen({super.key});
@@ -34,6 +35,16 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
   void _handleDeepLinkCode(String code) {
     ref.read(pendingInviteCodeProvider.notifier).state = null;
     _showJoinSheetWithCode(context, ref, code);
+  }
+
+  Future<void> _scanQr(BuildContext context, WidgetRef ref) async {
+    final code = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(builder: (_) => const QrScannerScreen()),
+    );
+    if (code != null && context.mounted) {
+      _showJoinSheetWithCode(context, ref, code);
+    }
   }
 
   @override
@@ -76,6 +87,12 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
               ),
             ),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.qr_code_scanner,
+                    color: AppColors.primary, size: 26),
+                tooltip: l.scanQrCode,
+                onPressed: () => _scanQr(context, ref),
+              ),
               IconButton(
                 icon: const Icon(Icons.group_add_outlined,
                     color: AppColors.primary, size: 26),

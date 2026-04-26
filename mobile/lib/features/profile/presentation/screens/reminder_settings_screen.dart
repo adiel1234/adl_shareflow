@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../../../features/balances/data/balance_repository.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
 
-const _kFrequencies = [
-  ('none', 'ללא', 'לא לשלוח תזכורות אוטומטיות'),
-  ('manual', 'ידנית בלבד', 'רק בלחיצת כפתור מהאפליקציה'),
-  ('daily', 'כל יום', 'שליחה יומית'),
-  ('every_2_days', 'כל יומיים', 'שליחה כל יומיים'),
-  ('weekly', 'שבועי', 'פעם בשבוע'),
-  ('biweekly', 'דו-שבועי', 'פעם בשבועיים'),
-];
+List<(String, String, String)> _frequencies(AppLocalizations l) => [
+      ('none', l.freqNone, l.freqNoneDesc),
+      ('manual', l.freqManual, l.freqManualDesc),
+      ('daily', l.freqDaily, l.freqDailyDesc),
+      ('every_2_days', l.freqEvery2Days, l.freqEvery2DaysDesc),
+      ('weekly', l.freqWeekly, l.freqWeeklyDesc),
+      ('biweekly', l.freqBiweekly, l.freqBiweeklyDesc),
+    ];
 
 class ReminderSettingsScreen extends StatefulWidget {
   const ReminderSettingsScreen({super.key});
@@ -52,6 +53,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
   }
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context)!;
     setState(() => _saving = true);
     final platforms = [
       if (_platformApp) 'app',
@@ -67,14 +69,14 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('הגדרות נשמרו ✓')),
+          SnackBar(content: Text(l.settingsSaved)),
         );
         Navigator.pop(context);
       }
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה בשמירת ההגדרות')),
+          SnackBar(content: Text(l.settingsSaveError)),
         );
       }
     } finally {
@@ -84,12 +86,15 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final freqs = _frequencies(l);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
-        title: const Text('תזכורות תשלום',
-            style: TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(l.paymentReminders,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
         actions: [
           TextButton(
             onPressed: _saving ? null : _save,
@@ -98,8 +103,8 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2))
-                : const Text('שמור',
-                    style: TextStyle(
+                : Text(l.save,
+                    style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         color: AppColors.primary)),
           ),
@@ -115,11 +120,10 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                   child: SwitchListTile(
                     value: _enabled,
                     onChanged: (v) => setState(() => _enabled = v),
-                    title: const Text('הפעל תזכורות אוטומטיות',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    subtitle: const Text(
-                        'קבל/שלח תזכורות על תשלומים פתוחים',
-                        style: TextStyle(
+                    title: Text(l.enableReminders,
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    subtitle: Text(l.enableRemindersSubtitle,
+                        style: const TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12)),
                     activeColor: AppColors.primary,
@@ -130,13 +134,13 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                 const SizedBox(height: 20),
 
                 // Frequency section
-                const _SectionTitle(
+                _SectionTitle(
                     icon: Icons.schedule,
-                    title: 'תדירות שליחה'),
+                    title: l.reminderFrequency),
                 const SizedBox(height: 10),
                 _SectionCard(
                   child: Column(
-                    children: _kFrequencies
+                    children: freqs
                         .map((f) => _FrequencyTile(
                               value: f.$1,
                               title: f.$2,
@@ -153,9 +157,9 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                 const SizedBox(height: 20),
 
                 // Platform section
-                const _SectionTitle(
+                _SectionTitle(
                     icon: Icons.send_outlined,
-                    title: 'פלטפורמות'),
+                    title: l.reminderPlatforms),
                 const SizedBox(height: 10),
                 _SectionCard(
                   child: Column(
@@ -166,7 +170,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                             ? (v) =>
                                 setState(() => _platformApp = v ?? true)
                             : null,
-                        title: const Text('התראה באפליקציה'),
+                        title: Text(l.inAppNotification),
                         subtitle: const Text(
                             'Push notification',
                             style: TextStyle(
@@ -185,9 +189,8 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                                 () => _platformWhatsApp = v ?? false)
                             : null,
                         title: const Text('WhatsApp'),
-                        subtitle: const Text(
-                            'הודעה ישירה ב-WhatsApp',
-                            style: TextStyle(
+                        subtitle: Text(l.whatsappMessage,
+                            style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textSecondary)),
                         secondary: const Text('💬',
@@ -209,15 +212,15 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                     border: Border.all(
                         color: AppColors.info.withOpacity(0.2)),
                   ),
-                  child: const Row(
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('ℹ️', style: TextStyle(fontSize: 16)),
-                      SizedBox(width: 8),
+                      const Text('ℹ️', style: TextStyle(fontSize: 16)),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'תזכורות אוטומטיות יישלחו לחייבים עד שהתשלום יסומן כבוצע.',
-                          style: TextStyle(
+                          l.reminderInfo,
+                          style: const TextStyle(
                               color: AppColors.info,
                               fontSize: 12,
                               height: 1.5),
