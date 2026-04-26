@@ -14,9 +14,10 @@ from app.models import Expense, ExpenseParticipant, GroupMember
 
 
 _SOURCE_LABELS = {
-    'activation': 'הפעלת קבוצה',
-    'extension': 'הארכת קבוצה',
-    'renewal': 'חידוש חיוב חודשי',
+    'activation': 'ADL ShareFlow Service',
+    'extension': 'ADL ShareFlow Service',
+    'renewal': 'ADL ShareFlow Service',
+    'upgrade': 'ADL ShareFlow Service',
 }
 
 
@@ -45,7 +46,7 @@ def create_payment_expense(
         category='other',
         split_type='equal',
         expense_date=today,
-        notes=f'תשלום מערכת אוטומטי — {title}',
+        notes=f'ADL ShareFlow — {source}',
         created_by=payer_id,
         is_system_expense=True,
         expense_source=source,

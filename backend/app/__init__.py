@@ -355,6 +355,7 @@ def _register_blueprints(app):
     from app.ocr.routes import ocr_bp
     from app.currency.routes import currency_bp
     from app.dashboard.routes import dashboard_bp
+    from app.download.routes import download_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
@@ -366,6 +367,7 @@ def _register_blueprints(app):
     app.register_blueprint(ocr_bp, url_prefix='/api/ocr')
     app.register_blueprint(currency_bp, url_prefix='/api/currency')
     app.register_blueprint(dashboard_bp, url_prefix='/api/adl')
+    app.register_blueprint(download_bp)
 
 
 def _seed_feature_flags():

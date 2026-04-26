@@ -100,12 +100,16 @@ def check_group_expirations():
     """
     Daily job: scan active groups whose expiry_date has passed and transition
     them to 'expired' (event) or 'read_only' (ongoing).
+    Also sends expiry warnings 3 days before expiry.
     """
     with scheduler.app.app_context():
         from app import db
         from app.models import Group
+        from app.notifications import service as notif_svc
 
         now = datetime.now(timezone.utc)
+
+        # --- Transition expired groups ---
         expired_groups = Group.query.filter(
             Group.group_state == 'active',
             Group.expiry_date.isnot(None),
@@ -122,7 +126,28 @@ def check_group_expirations():
         if updated:
             db.session.commit()
 
-        # Also check free groups that hit the 5-day limit
+        # --- Warn groups expiring in 3–4 days (24-hour window matches daily run) ---
+        warn_from = now + timedelta(days=3)
+        warn_to = now + timedelta(days=4)
+        expiring_soon = Group.query.filter(
+            Group.group_state == 'active',
+            Group.expiry_date.isnot(None),
+            Group.expiry_date >= warn_from,
+            Group.expiry_date < warn_to,
+            Group.is_active.is_(True),
+        ).all()
+
+        for group in expiring_soon:
+            try:
+                notif_svc.notify_group_expiring_soon(
+                    group_id=group.id,
+                    group_name=group.name,
+                    days_left=3,
+                )
+            except Exception:
+                pass
+
+        # --- Transition free groups that hit the 5-day limit ---
         free_cutoff = now - timedelta(days=5)
         free_groups = Group.query.filter(
             Group.group_state == 'free',

@@ -10,8 +10,9 @@ from decimal import Decimal
 
 from app import db
 from app.models import GroupMember, GroupPayment, FeatureFlag
-from app.groups.lifecycle_service import MonetizationConfig
+from app.groups.lifecycle_service import MonetizationConfig, check_tier_upgrade
 from app.groups.internal_expense_service import create_payment_expense
+from app.notifications import service as notif_service
 
 
 def _payments_enabled() -> bool:
@@ -69,11 +70,64 @@ class MonetizationService:
 
         db.session.commit()
 
+        try:
+            notif_service.notify_group_activated(group.id, group.name, payer_id)
+        except Exception:
+            pass
+
         return {
             'group_state': group.group_state,
             'expiry_date': group.expiry_date.isoformat(),
             'amount_paid': str(amount) if _payments_enabled() else '0',
             'pricing_tier': pricing['tier'],
+            'payments_enabled': _payments_enabled(),
+        }
+
+    @staticmethod
+    def upgrade_tier(group, payer_id: str, split_among_group: bool) -> dict:
+        """
+        Upgrade a group's pricing tier when member count has grown past the
+        snapshot taken at last activation/upgrade.
+        Charges the price difference between old and new tier.
+        """
+        member_count = GroupMember.query.filter_by(group_id=group.id).count()
+        upgrade_info = check_tier_upgrade(
+            group.group_type, member_count, group.max_participants_snapshot
+        )
+        if not upgrade_info:
+            raise ValueError('אין צורך בשדרוג — המספר הנוכחי נמצא בתוך הרמה הקיימת')
+
+        diff = Decimal(str(upgrade_info['upgrade_price_diff']))
+        new_tier = upgrade_info['upgrade_new_tier']
+
+        group.pricing_tier = new_tier
+        group.max_participants_snapshot = member_count
+
+        if _payments_enabled():
+            expense = create_payment_expense(
+                group=group,
+                payer_id=payer_id,
+                amount=diff,
+                source='upgrade',
+                split_among_group=split_among_group,
+            )
+            payment = GroupPayment(
+                group_id=group.id,
+                payer_id=payer_id,
+                amount=diff,
+                payment_type='upgrade',
+                split_among_group=split_among_group,
+                expense_id=expense.id,
+            )
+            db.session.add(payment)
+
+        db.session.commit()
+
+        return {
+            'group_state': group.group_state,
+            'pricing_tier': new_tier,
+            'max_participants_snapshot': member_count,
+            'amount_paid': str(diff) if _payments_enabled() else '0',
             'payments_enabled': _payments_enabled(),
         }
 

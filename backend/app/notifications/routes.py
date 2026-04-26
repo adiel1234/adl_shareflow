@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app import db
-from app.models import Notification
+from app.models import Notification, FCMToken
 from app.common.errors import success_response, error_response
 
 notifications_bp = Blueprint('notifications', __name__)
@@ -47,3 +47,41 @@ def mark_all_read():
     Notification.query.filter_by(user_id=user_id, is_read=False).update({'is_read': True})
     db.session.commit()
     return success_response(message='All notifications marked as read')
+
+
+@notifications_bp.post('/fcm-token')
+@jwt_required()
+def register_fcm_token():
+    user_id = get_jwt_identity()
+    data = request.get_json(silent=True) or {}
+    token = data.get('token', '').strip()
+    plat = data.get('platform', 'ios')
+
+    if not token:
+        return error_response('token required', 400)
+    if plat not in ('ios', 'android'):
+        plat = 'ios'
+
+    existing = FCMToken.query.filter_by(user_id=user_id, token=token).first()
+    if not existing:
+        ft = FCMToken(user_id=user_id, token=token, platform=plat)
+        db.session.add(ft)
+        db.session.commit()
+
+    return success_response(message='FCM token registered')
+
+
+@notifications_bp.delete('/fcm-token')
+@jwt_required()
+def unregister_fcm_token():
+    user_id = get_jwt_identity()
+    data = request.get_json(silent=True) or {}
+    token = data.get('token', '').strip()
+
+    if token:
+        FCMToken.query.filter_by(user_id=user_id, token=token).delete()
+    else:
+        FCMToken.query.filter_by(user_id=user_id).delete()
+
+    db.session.commit()
+    return success_response(message='FCM token removed')

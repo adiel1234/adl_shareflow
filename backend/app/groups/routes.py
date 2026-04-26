@@ -1,4 +1,3 @@
-import secrets
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -10,7 +9,8 @@ from app.models import Group, GroupMember, User
 from app.common.errors import success_response, error_response
 from app.common.decorators import require_group_member, require_group_admin
 from app.common.utils import generate_invite_code
-from app.groups.lifecycle_service import GroupLifecycleService
+from app.groups.lifecycle_service import GroupLifecycleService, check_tier_upgrade
+from app.notifications import service as notif_service
 
 groups_bp = Blueprint('groups', __name__)
 
@@ -34,6 +34,13 @@ def list_groups():
                 d['admin_name'] = admin_user.display_name if admin_user else None
             else:
                 d['admin_name'] = None
+            # Include tier upgrade info if needed
+            if g.group_state == 'active':
+                upgrade_info = check_tier_upgrade(
+                    g.group_type, d['member_count'], g.max_participants_snapshot
+                )
+                if upgrade_info:
+                    d.update(upgrade_info)
             groups.append(d)
     if dirty:
         db.session.commit()
@@ -120,11 +127,19 @@ def get_group(group_id, **kwargs):
     d['members'] = [m.to_dict() for m in group.members]
 
     # Include pricing info for limited/expired groups so Flutter can show correct price
+    member_count = len(group.members)
     if group.group_state in ('free', 'limited', 'expired', 'read_only'):
         from app.groups.lifecycle_service import MonetizationConfig
-        member_count = len(group.members)
         pricing = MonetizationConfig.resolve_price(group.group_type, member_count)
         d['required_pricing'] = pricing
+
+    # Include tier upgrade info for active groups that have grown past their snapshot
+    if group.group_state == 'active':
+        upgrade_info = check_tier_upgrade(
+            group.group_type, member_count, group.max_participants_snapshot
+        )
+        if upgrade_info:
+            d.update(upgrade_info)
 
     return success_response(data=d)
 
@@ -335,6 +350,39 @@ def activate_group(group_id, **kwargs):
         return error_response(str(e), 400)
 
     return success_response(data={**group.to_dict(), **result}, message='הקבוצה הופעלה בהצלחה')
+
+
+@groups_bp.post('/<group_id>/upgrade-tier')
+@jwt_required()
+@require_group_admin
+def upgrade_tier(group_id, **kwargs):
+    """
+    Upgrade the group's pricing tier when member count has grown past the
+    snapshot taken at last activation/upgrade.
+    Body: { split_among_group: bool }
+    """
+    from app.groups.monetization_service import MonetizationService
+
+    group = db.session.get(Group, group_id)
+    if not group or not group.is_active:
+        return error_response('Group not found', 404)
+
+    if group.group_state != 'active':
+        return error_response('ניתן לשדרג רק קבוצה פעילה', 400)
+
+    data = request.get_json(silent=True) or {}
+    split_among_group = bool(data.get('split_among_group', True))
+    payer_id = get_jwt_identity()
+
+    try:
+        result = MonetizationService.upgrade_tier(group, payer_id, split_among_group)
+    except ValueError as e:
+        return error_response(str(e), 400)
+
+    return success_response(
+        data={**group.to_dict(), **result},
+        message='תוכנית הקבוצה שודרגה בהצלחה',
+    )
 
 
 @groups_bp.post('/<group_id>/extend')
@@ -835,5 +883,20 @@ def join_group(invite_code):
     result = group.to_dict()
     result['split_mode'] = split_mode
     result['retroactive_expenses'] = expense_count if split_mode == 'full' else 0
+
+    # Notify about tier upgrade if member count crossed a boundary
+    if group.group_state == 'active':
+        upgrade_info = check_tier_upgrade(
+            group.group_type, result['member_count'], group.max_participants_snapshot
+        )
+        if upgrade_info:
+            result.update(upgrade_info)
+            admin = GroupMember.query.filter_by(group_id=group.id, role='admin').first()
+            if admin:
+                notif_service.notify_tier_upgrade_required(
+                    str(group.id),
+                    upgrade_info['upgrade_price_diff'],
+                    str(admin.user_id),
+                )
 
     return success_response(data=result, status_code=201)

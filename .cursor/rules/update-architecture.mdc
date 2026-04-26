@@ -1,0 +1,34 @@
+---
+description: Update ARCHITECTURE.md after every meaningful system change
+alwaysApply: true
+---
+
+# עדכון ARCHITECTURE.md
+
+אחרי כל שינוי משמעותי במערכת, עדכן את `/ARCHITECTURE.md`.
+
+## מתי לעדכן
+
+- שינוי ב-URL של Backend (dev/staging/prod)
+- הוספת endpoint חדש לשרת
+- הוספת שירות חיצוני חדש (Firebase, Resend, וכו')
+- שינוי בטבלאות בסיס הנתונים
+- שינוי במודל התמחור
+- שינוי בתהליך בניית APK או Upload לTestFlight
+- עדכון פרטי Apple Developer (Team ID, Key ID וכו')
+- הוספת תכונה מרכזית (פיצ'ר) לאפליקציה
+
+## מה לעדכן
+
+עדכן את הסעיף הרלוונטי בקובץ:
+- **Endpoints** → טבלת Backend
+- **שירותים** → טבלת שירותים חיצוניים
+- **DB** → טבלת מודלים
+- **סביבה** → טבלת משתני סביבה
+- **גרסאות** → תהליך עדכון גרסה
+- **Apple** → טבלת פרטי Apple Developer
+
+## חשוב
+
+- עדכן את שורת "עודכן לאחרונה" בראש הקובץ.
+- אל תמחק מידע ישן — עדכן אותו במקום.

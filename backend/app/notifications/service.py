@@ -2,7 +2,6 @@
 Notification creation service.
 Creates in-app Notification records and optionally sends FCM push.
 """
-from typing import Optional
 from app import db
 from app.models import Notification, GroupMember
 from app.notifications import fcm_service
@@ -141,6 +140,77 @@ def notify_payment_reminder(settlement_suggestion: dict, creditor_name: str):
     fcm_service.send_to_user(debtor_id, title, body, {
         'type': 'payment_reminder',
         'group_id': settlement_suggestion.get('group_id'),
+    })
+
+
+def notify_tier_upgrade_required(group_id: str, upgrade_price: int, admin_user_id: str):
+    """Notify group admin that a tier upgrade payment is needed."""
+    title = 'נדרש שדרוג תכנית'
+    body = f'מספר המשתתפים עלה — נדרש תשלום נוסף של {upgrade_price} ₪'
+
+    notif = Notification(
+        user_id=admin_user_id,
+        type='tier_upgrade_required',
+        title=title,
+        body=body,
+        data={'group_id': group_id, 'upgrade_price': str(upgrade_price)},
+    )
+    db.session.add(notif)
+    db.session.commit()
+
+    fcm_service.send_to_user(admin_user_id, title, body, {
+        'type': 'tier_upgrade_required',
+        'group_id': group_id,
+    })
+
+
+def notify_group_expiring_soon(group_id: str, group_name: str, days_left: int):
+    """Notify group admin when group is about to expire."""
+    members = GroupMember.query.filter_by(group_id=group_id, role='admin').all()
+    title = 'הקבוצה עומדת לפוג'
+    body = f'ל"{group_name}" נותרו {days_left} ימים — חדשו כדי להמשיך'
+
+    for member in members:
+        notif = Notification(
+            user_id=member.user_id,
+            type='group_expiring_soon',
+            title=title,
+            body=body,
+            data={'group_id': group_id, 'days_left': str(days_left)},
+        )
+        db.session.add(notif)
+    db.session.commit()
+
+    admin_ids = [m.user_id for m in members]
+    fcm_service.send_to_users(admin_ids, title, body, {
+        'type': 'group_expiring_soon',
+        'group_id': group_id,
+    })
+
+
+def notify_group_activated(group_id: str, group_name: str, activator_user_id: str):
+    """Notify all members when group is activated/renewed."""
+    members = GroupMember.query.filter_by(group_id=group_id).all()
+    title = f'הקבוצה "{group_name}" הופעלה!'
+    body = 'ניתן להוסיף הוצאות ולעדכן יתרות'
+
+    for member in members:
+        if member.user_id == activator_user_id:
+            continue
+        notif = Notification(
+            user_id=member.user_id,
+            type='group_activated',
+            title=title,
+            body=body,
+            data={'group_id': group_id},
+        )
+        db.session.add(notif)
+    db.session.commit()
+
+    recipient_ids = [m.user_id for m in members if m.user_id != activator_user_id]
+    fcm_service.send_to_users(recipient_ids, title, body, {
+        'type': 'group_activated',
+        'group_id': group_id,
     })
 
 

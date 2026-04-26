@@ -1,81 +1,77 @@
 # רשימת משימות — השקת ADL ShareFlow
 
+> עודכן לאחר השלמת שלבי פיתוח 1–7 ו-9.
+
 ---
 
-## 🔴 חובה לפני השקה (לא מוכן)
+## ✅ הושלם בפיתוח (שלבים 1–7, 9)
 
-### 1. העלאה לענן (Backend)
-- [ ] Deploy backend (Railway / Render)
-- [ ] PostgreSQL בענן
-- [ ] דומיין + SSL (`api.shareflow.adl.co.il`)
-- [ ] עדכון כתובת ייצור ב-`mobile/lib/core/config/app_config.dart`
+- [x] מודל תמחור — Backend + Frontend (Tiers, activation, extension, renewal, upgrade)
+- [x] שדרוג Tier אוטומטי כשמשתתפים מתווספים
+- [x] מסך פרופיל מורחב (אודות, צור קשר, ADL Projects, Pro banner)
+- [x] Push Notifications — FCM (Flutter + Backend)
+  - [x] רישום FCM token בהתחברות + מחיקה ב-logout
+  - [x] שליחת push על הוצאה חדשה, הצטרפות, שדרוג, הפעלה
+  - [x] Scheduler — push 3 ימים לפני פקיעת קבוצה
+- [x] QR Code — הצגה + סריקה להצטרפות לקבוצה
+- [x] l10n מלא — 396 מפתחות, עברית + אנגלית מסונכרנים
+- [x] הוצאות שירות ADL ShareFlow — כולל upgrade
+- [x] מסמך PRO_PLAN.md נוצר
 
-### 2. הפצה ל-iOS
-- [ ] תיקון שם חשבון Apple Developer (ממתין לאפל — 2-3 ימים)
+---
+
+## 🔴 חובה לפני השקה
+
+### 1. Backend בענן
+- [ ] Deploy backend (Railway — כתובת קיימת: `adlshareflow-production.up.railway.app`)
+- [ ] PostgreSQL בענן — migration: `flask db upgrade`
+- [ ] `FIREBASE_CREDENTIALS_PATH` מוגדר בסביבת הייצור
+- [ ] `PAYMENTS_ENABLED` feature flag — הפעלה לפני גביית כסף
+
+### 2. iOS — TestFlight (שלב 8)
 - [ ] Archive + Upload ב-Xcode ל-App Store Connect
+- [ ] הגדרת APNs Certificate ב-Firebase Console (נדרש ל-push על iOS)
 - [ ] יצירת קבוצת TestFlight + קישור הזמנה
-- [ ] עדכון הודעת WhatsApp לקישור TestFlight האמיתי
+- [ ] עדכון הודעת WhatsApp לקישור TestFlight
 
-### 3. הפצה ל-Android
+### 3. Android
 - [ ] `flutter build apk --release --dart-define=FLAVOR=prod`
 - [ ] העלאת APK לשרת הענן
 - [ ] קישור הורדה ישיר
 
 ### 4. דף נחיתה חכם (`/download`)
-- [ ] `https://shareflow.adl.co.il/download`
-- [ ] זיהוי מכשיר אוטומטי: iOS → TestFlight / Android → APK
+- [ ] זיהוי מכשיר: iOS → TestFlight / Android → APK
 - [ ] הודעת WhatsApp עם קישור אחד לכולם
 
 ---
 
 ## 🟡 לקראת השקה רשמית בחנויות
 
-### 5. הגדרת מצב Pro
-- [ ] מחיר מנוי (חודשי / שנתי)
-- [ ] פיצ׳רים בלעדיים ל-Pro:
-  - קבוצות ללא הגבלת חברים
-  - קבוצות ללא הגבלת זמן
-  - דוחות וייצוא נתונים
-  - התראות חכמות
-  - OCR קבלות (סריקה אוטומטית)
-  - המרת מטבע בזמן אמת
-- [ ] חיבור מערכת תשלום (Stripe / Apple Pay / Google Pay)
+### 5. Pro Plan (ראה PRO_PLAN.md)
+- [ ] הגדרת מנוי + Stripe / Apple Pay
 - [ ] מסך Upgrade ב-Flutter
 
 ### 6. App Store — iOS
-- [ ] שינוי שם חשבון Apple לאחר אישור
-- [ ] צילומי מסך (5-8 תמונות לכל גודל מסך)
+- [ ] צילומי מסך (5-8 לכל גודל מסך)
 - [ ] תיאור האפליקציה (עברית + אנגלית)
-- [ ] מילות מפתח (Keywords)
 - [ ] Privacy Policy URL
-- [ ] אייקון אפליקציה ברזולוציה גבוהה (1024×1024)
-- [ ] סיווג גיל
-- [ ] הגדרת מחיר (חינמי + רכישות בתוך האפליקציה)
+- [ ] אייקון 1024×1024
 
 ### 7. Google Play — Android
-- [ ] יצירת חשבון Google Play Console ($25 חד פעמי)
-- [ ] בניית AAB: `flutter build appbundle --dart-define=FLAVOR=prod`
-- [ ] אותם assets כמו App Store (תיאור, צילומי מסך, אייקון)
+- [ ] חשבון Google Play Console ($25)
+- [ ] `flutter build appbundle`
 - [ ] Privacy Policy
-- [ ] הצהרת נגישות
 
-### 8. Push Notifications
-- [ ] חיבור FCM ב-Flutter (Android)
-- [ ] הגדרת APNs Certificate ב-Firebase (iOS)
-- [ ] שליחת התראות מהשרת על אירועים (הוצאה חדשה, הצטרף חבר, יתרה)
-
-### 9. Universal Links (לאחר שהדומיין פעיל)
-- [ ] קובץ `apple-app-site-association` על השרת
-- [ ] קובץ `assetlinks.json` על השרת
-- [ ] שינוי `shareflow://join/CODE` → `https://shareflow.adl.co.il/join/CODE`
-- [ ] עדכון הודעת ההזמנה בוואטסאפ לכתובת החדשה
+### 8. Universal Links (לאחר דומיין פעיל)
+- [ ] `apple-app-site-association` על השרת
+- [ ] `assetlinks.json` על השרת
+- [ ] מעבר מ-`shareflow://join/CODE` → `https://shareflow.adl.co.il/join/CODE`
 
 ---
 
 ## 🟢 אופציונלי / שלב הבא
 
-- [ ] אנליטיקס (Firebase Analytics / Mixpanel)
-- [ ] Crash Reporting (Firebase Crashlytics)
-- [ ] תמיכת לקוחות (Intercom / WhatsApp עסקי)
+- [ ] Firebase Analytics / Crashlytics
+- [ ] תמיכת לקוחות (WhatsApp עסקי)
 - [ ] עמוד נחיתה שיווקי
-- [ ] B2B — מנוי לעסקים / white label
+- [ ] B2B / white label
