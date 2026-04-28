@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../providers/auth_provider.dart';
@@ -20,6 +24,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   String _version = '';
+  bool _uploadingAvatar = false;
 
   @override
   void initState() {
@@ -30,6 +35,116 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _loadVersion() async {
     final info = await PackageInfo.fromPlatform();
     if (mounted) setState(() => _version = info.version);
+  }
+
+  Future<void> _pickAvatar() async {
+    final hasAvatar = ref.read(authProvider).avatarUrl != null;
+    // 'camera', 'gallery', 'delete', or null (dismissed)
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('צלם תמונה'),
+              onTap: () => Navigator.pop(ctx, 'camera'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('בחר מהגלריה'),
+              onTap: () => Navigator.pop(ctx, 'gallery'),
+            ),
+            if (hasAvatar)
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: const Text('הסר תמונה',
+                    style: TextStyle(color: Colors.red)),
+                onTap: () => Navigator.pop(ctx, 'delete'),
+              ),
+          ],
+        ),
+      ),
+    );
+
+    if (action == null || !mounted) return;
+
+    if (action == 'delete') {
+      setState(() => _uploadingAvatar = true);
+      try {
+        await ref.read(authProvider.notifier).deleteAvatar();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('תמונת הפרופיל הוסרה')),
+          );
+        }
+      } finally {
+        if (mounted) setState(() => _uploadingAvatar = false);
+      }
+      return;
+    }
+
+    final source =
+        action == 'camera' ? ImageSource.camera : ImageSource.gallery;
+    final picker = ImagePicker();
+    final XFile? picked = await picker.pickImage(
+      source: source,
+      maxWidth: 600,
+      maxHeight: 600,
+      imageQuality: 80,
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() => _uploadingAvatar = true);
+    try {
+      await ref.read(authProvider.notifier).uploadAvatar(File(picked.path));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('תמונת הפרופיל עודכנה ✓')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('שגיאה בהעלאת התמונה')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _uploadingAvatar = false);
+    }
+  }
+
+  Widget _buildAvatar(AuthState auth) {
+    final url = auth.avatarUrl;
+    if (url != null && url.startsWith('data:image')) {
+      // Base64 data URL
+      final b64 = url.split(',').last;
+      try {
+        return CircleAvatar(
+          radius: 40,
+          backgroundImage: MemoryImage(base64Decode(b64)),
+        );
+      } catch (_) {}
+    } else if (url != null && url.startsWith('http')) {
+      return CircleAvatar(
+        radius: 40,
+        backgroundImage: NetworkImage(url),
+      );
+    }
+    return CircleAvatar(
+      radius: 40,
+      backgroundColor: AppColors.primary,
+      child: Text(
+        auth.displayName.isNotEmpty
+            ? auth.displayName[0].toUpperCase()
+            : '?',
+        style: const TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w700,
+            color: Colors.white),
+      ),
+    );
   }
 
   @override
@@ -51,17 +166,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           Center(
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: AppColors.primary,
-                  child: Text(
-                    auth.displayName.isNotEmpty
-                        ? auth.displayName[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white),
+                GestureDetector(
+                  onTap: _pickAvatar,
+                  child: Stack(
+                    children: [
+                      _buildAvatar(auth),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: _uploadingAvatar
+                              ? const SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.camera_alt,
+                                  size: 14, color: Colors.white),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 12),

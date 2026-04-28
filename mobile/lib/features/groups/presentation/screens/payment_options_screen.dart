@@ -5,14 +5,13 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
 
 /// Shown when a group member wants to settle a debt.
-/// Provides deep-link options to Bit, PayBox, and bank transfer.
-class PaymentOptionsScreen extends StatelessWidget {
+/// Always shows Bit, PayBox, and bank transfer options.
+/// If recipient hasn't configured details, shows a prompt.
+class PaymentOptionsScreen extends StatefulWidget {
   final String recipientName;
   final double amount;
   final String currency;
-  /// Optional: phone number for Bit/PayBox (from recipient's profile).
   final String? recipientPhone;
-  /// Optional: bank details for bank transfer.
   final String? bankName;
   final String? bankBranch;
   final String? bankAccountNumber;
@@ -28,31 +27,120 @@ class PaymentOptionsScreen extends StatelessWidget {
     this.bankAccountNumber,
   });
 
-  int get _roundedAmount => amount.round();
+  @override
+  State<PaymentOptionsScreen> createState() => _PaymentOptionsScreenState();
+}
 
-  Future<void> _launchUrl(BuildContext context, String url) async {
-    final l = AppLocalizations.of(context)!;
+class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
+  int get _roundedAmount => widget.amount.round();
+
+  Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        if (context.mounted) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l.cannotOpenApp)),
+            SnackBar(
+                content:
+                    Text(AppLocalizations.of(context)!.cannotOpenApp)),
           );
         }
       }
     } catch (_) {
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.errorOpeningApp)),
+          SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.errorOpeningApp)),
         );
       }
     }
   }
 
+  /// Opens Bit with phone + amount via deep link
+  void _openBit(String phone) =>
+      _launchUrl('bitmoney://pay?amount=$_roundedAmount&phone=$phone');
+
+  /// Opens PayBox with phone + amount via deep link
+  void _openPayBox(String phone) =>
+      _launchUrl('payboxapp://payment?amount=$_roundedAmount&phone=$phone');
+
+  /// Shows a bottom sheet to enter phone number manually, then calls [onConfirm]
+  void _showPhoneInput(String appName, void Function(String) onConfirm) {
+    final controller = TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          top: 24,
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'העברה דרך $appName',
+              style: const TextStyle(
+                  fontWeight: FontWeight.w700, fontSize: 17),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'הזן את מספר הטלפון של ${widget.recipientName}',
+              style: const TextStyle(
+                  color: AppColors.textSecondary, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.phone,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: '05X-XXXXXXX',
+                prefixIcon: const Icon(Icons.phone_outlined),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: () {
+                  final phone = controller.text.trim();
+                  if (phone.length < 9) return;
+                  Navigator.pop(ctx);
+                  onConfirm(phone);
+                },
+                child: Text('פתח $appName'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final phone = widget.recipientPhone;
+    final hasBankDetails = widget.bankAccountNumber != null;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -75,7 +163,7 @@ class PaymentOptionsScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    '$_roundedAmount $currency',
+                    '$_roundedAmount ${widget.currency}',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 36,
@@ -84,7 +172,7 @@ class PaymentOptionsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    l.payTo(recipientName),
+                    l.payTo(widget.recipientName),
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.85),
                       fontSize: 15,
@@ -98,74 +186,98 @@ class PaymentOptionsScreen extends StatelessWidget {
 
             Text(
               l.choosePaymentMethod,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+              style: const TextStyle(
+                  fontWeight: FontWeight.w600, fontSize: 15),
             ),
             const SizedBox(height: 14),
 
             // Bit
-            if (recipientPhone != null)
-              _PaymentTile(
-                emoji: '💙',
-                title: 'Bit',
-                subtitle: recipientPhone!,
-                onTap: () => _launchUrl(
-                  context,
-                  'https://bit.ly/shareflow-bit?amount=$_roundedAmount&phone=$recipientPhone',
-                ),
-              ),
+            _PaymentTile(
+              emoji: '💙',
+              title: 'Bit',
+              subtitle: phone != null
+                  ? phone
+                  : 'המקבל לא הגדיר מספר טלפון',
+              hasDetails: phone != null,
+              onTap: () {
+                if (phone != null) {
+                  _openBit(phone);
+                } else {
+                  _showPhoneInput('Bit', _openBit);
+                }
+              },
+            ),
 
             // PayBox
-            if (recipientPhone != null)
-              _PaymentTile(
-                emoji: '🟢',
-                title: 'PayBox',
-                subtitle: recipientPhone!,
-                onTap: () => _launchUrl(
-                  context,
-                  'payboxapp://payment?amount=$_roundedAmount&phone=$recipientPhone',
-                ),
-              ),
+            _PaymentTile(
+              emoji: '🟢',
+              title: 'PayBox',
+              subtitle: phone != null
+                  ? phone
+                  : 'המקבל לא הגדיר מספר טלפון',
+              hasDetails: phone != null,
+              onTap: () {
+                if (phone != null) {
+                  _openPayBox(phone);
+                } else {
+                  _showPhoneInput('PayBox', _openPayBox);
+                }
+              },
+            ),
 
             // Bank transfer
-            if (bankAccountNumber != null)
-              _BankTransferTile(
-                bankName: bankName,
-                bankBranch: bankBranch,
-                bankAccountNumber: bankAccountNumber!,
-                amount: _roundedAmount,
-                currency: currency,
-                recipientName: recipientName,
-              ),
+            hasBankDetails
+                ? _BankTransferTile(
+                    bankName: widget.bankName,
+                    bankBranch: widget.bankBranch,
+                    bankAccountNumber: widget.bankAccountNumber!,
+                    amount: _roundedAmount,
+                    currency: widget.currency,
+                    recipientName: widget.recipientName,
+                  )
+                : _PaymentTile(
+                    emoji: '🏦',
+                    title: l.bankTransfer,
+                    subtitle: 'המקבל לא הגדיר פרטי בנק',
+                    hasDetails: false,
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'המקבל לא הגדיר פרטי בנק בפרופיל שלו'),
+                        ),
+                      );
+                    },
+                  ),
 
-            if (recipientPhone == null && bankAccountNumber == null)
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Column(
-                  children: [
-                    const Icon(Icons.payment_outlined,
-                        size: 36, color: AppColors.textDisabled),
-                    const SizedBox(height: 10),
-                    Text(
-                      l.noPaymentDetails,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: AppColors.textSecondary),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      l.noPaymentDetailsHint,
-                      textAlign: TextAlign.center,
+            const SizedBox(height: 20),
+
+            // Info note
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.info.withOpacity(0.07),
+                borderRadius: BorderRadius.circular(10),
+                border:
+                    Border.all(color: AppColors.info.withOpacity(0.2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('ℹ️', style: TextStyle(fontSize: 14)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'ניתן לעדכן פרטי תשלום (Bit/PayBox/בנק) בפרופיל → "פרטי תשלום"',
                       style: const TextStyle(
-                          color: AppColors.textSecondary,
+                          color: AppColors.info,
                           fontSize: 12,
                           height: 1.4),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
           ],
         ),
       ),
@@ -177,12 +289,14 @@ class _PaymentTile extends StatelessWidget {
   final String emoji;
   final String title;
   final String subtitle;
+  final bool hasDetails;
   final VoidCallback onTap;
 
   const _PaymentTile({
     required this.emoji,
     required this.title,
     required this.subtitle,
+    required this.hasDetails,
     required this.onTap,
   });
 
@@ -196,30 +310,52 @@ class _PaymentTile extends StatelessWidget {
             onTap: onTap,
             borderRadius: BorderRadius.circular(14),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(
+                  color: hasDetails
+                      ? AppColors.border
+                      : AppColors.border.withOpacity(0.5),
+                ),
               ),
               child: Row(
                 children: [
-                  Text(emoji, style: const TextStyle(fontSize: 26)),
+                  Text(emoji,
+                      style: TextStyle(
+                          fontSize: 26,
+                          color: hasDetails ? null : Colors.grey)),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(title,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 15)),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                color: hasDetails
+                                    ? AppColors.textPrimary
+                                    : AppColors.textSecondary)),
                         Text(subtitle,
-                            style: const TextStyle(
-                                color: AppColors.textSecondary, fontSize: 13)),
+                            style: TextStyle(
+                                color: hasDetails
+                                    ? AppColors.textSecondary
+                                    : AppColors.textDisabled,
+                                fontSize: 13)),
                       ],
                     ),
                   ),
-                  const Icon(Icons.open_in_new,
-                      color: AppColors.textDisabled, size: 18),
+                  Icon(
+                    hasDetails
+                        ? Icons.open_in_new
+                        : Icons.edit_outlined,
+                    color: hasDetails
+                        ? AppColors.textDisabled
+                        : AppColors.primary,
+                    size: 18,
+                  ),
                 ],
               ),
             ),

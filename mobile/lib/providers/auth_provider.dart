@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/constants/app_constants.dart';
@@ -38,6 +41,7 @@ class AuthState {
   String get email => user?['email'] as String? ?? '';
   String get plan => user?['plan'] as String? ?? 'free';
   bool get isPro => plan == 'pro';
+  String? get avatarUrl => user?['avatar_url'] as String?;
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
@@ -89,6 +93,37 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> refresh() => _init();
+
+  /// Upload a profile photo. Returns the new avatar_url on success.
+  Future<String?> uploadAvatar(File imageFile) async {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(
+        imageFile.path,
+        filename: 'avatar.jpg',
+      ),
+    });
+    final response = await ApiClient.instance.post(
+      '/users/me/avatar',
+      data: formData,
+    );
+    final url = response.data['data']['avatar_url'] as String?;
+    if (url != null && state.user != null) {
+      final updated = Map<String, dynamic>.from(state.user!);
+      updated['avatar_url'] = url;
+      state = state.copyWith(user: updated);
+    }
+    return url;
+  }
+
+  /// Remove the profile photo.
+  Future<void> deleteAvatar() async {
+    await ApiClient.instance.delete('/users/me/avatar');
+    if (state.user != null) {
+      final updated = Map<String, dynamic>.from(state.user!);
+      updated['avatar_url'] = null;
+      state = state.copyWith(user: updated);
+    }
+  }
 }
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>(

@@ -1139,7 +1139,7 @@ abstract class AppLocalizations {
   /// No description provided for @bannerFreeSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'עד 3 משתתפים ו-5 ימים ללא עלות.'**
+  /// **'עד 7 משתתפים ו-7 ימים ללא עלות.'**
   String get bannerFreeSubtitle;
 
   /// No description provided for @justNow.
@@ -2165,13 +2165,13 @@ abstract class AppLocalizations {
   /// No description provided for @freeTierLabel.
   ///
   /// In he, this message translates to:
-  /// **'חינם — עד 3 חברים'**
+  /// **'חינם — עד 7 חברים'**
   String get freeTierLabel;
 
   /// No description provided for @freeIncluded.
   ///
   /// In he, this message translates to:
-  /// **'חינמי: עד 3 חברים ו-5 ימים'**
+  /// **'חינמי: עד 7 חברים ו-7 ימים'**
   String get freeIncluded;
 
   /// No description provided for @createGroupFree.

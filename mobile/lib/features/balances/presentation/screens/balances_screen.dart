@@ -696,17 +696,23 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                       const SizedBox(width: 8),
                       Builder(builder: (ctx) {
                         final dl = AppLocalizations.of(ctx)!;
-                        return TextButton(
-                          onPressed: () => _openPayment(ctx, s),
-                          style: TextButton.styleFrom(
-                            foregroundColor: headerColor,
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: Text(
-                            dl.pay,
-                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                        return GestureDetector(
+                          onTap: () => _openPayment(ctx, s),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: headerColor,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              dl.pay,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                              ),
+                            ),
                           ),
                         );
                       }),

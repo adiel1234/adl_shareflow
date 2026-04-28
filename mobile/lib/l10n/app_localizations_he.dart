@@ -546,7 +546,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get bannerFreeTitle => 'מצב חינמי';
 
   @override
-  String get bannerFreeSubtitle => 'עד 3 משתתפים ו-5 ימים ללא עלות.';
+  String get bannerFreeSubtitle => 'עד 7 משתתפים ו-7 ימים ללא עלות.';
 
   @override
   String get justNow => 'עכשיו';
@@ -1099,10 +1099,10 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get freeTierLabel => 'חינם — עד 3 חברים';
+  String get freeTierLabel => 'חינם — עד 7 חברים';
 
   @override
-  String get freeIncluded => 'חינמי: עד 3 חברים ו-5 ימים';
+  String get freeIncluded => 'חינמי: עד 7 חברים ו-7 ימים';
 
   @override
   String get createGroupFree => 'צור קבוצה — חינם';

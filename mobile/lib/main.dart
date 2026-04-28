@@ -113,14 +113,16 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
         }
       });
 
-      // FCM — request permission + register token, then set up tap navigation
+      // FCM — set navigation callback FIRST (before async initialize),
+      // so no notification tap is missed due to race conditions.
+      FcmService.instance.setNavigationCallback((groupId) {
+        _navigatorKey.currentState?.pushNamed(
+          '/group-detail',
+          arguments: {'groupId': groupId},
+        );
+      });
       FcmService.instance.initialize().then((_) {
-        FcmService.instance.setupOpenedAppHandler((groupId) {
-          _navigatorKey.currentState?.pushNamed(
-            '/group-detail',
-            arguments: {'groupId': groupId},
-          );
-        });
+        FcmService.instance.setupOpenedAppHandler();
       });
     }
   }

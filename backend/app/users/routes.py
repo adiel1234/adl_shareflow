@@ -1,9 +1,17 @@
+import base64
+import io
+
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from PIL import Image
 
 from app import db
 from app.models import User, FCMToken, ReminderSettings
 from app.common.errors import success_response, error_response
+
+AVATAR_MAX_PX = 300   # resize to 300x300 max
+AVATAR_QUALITY = 75   # JPEG quality
+AVATAR_MAX_BYTES = 5 * 1024 * 1024  # 5 MB upload limit
 
 users_bp = Blueprint('users', __name__)
 
@@ -52,6 +60,51 @@ def update_me():
 
     db.session.commit()
     return success_response(data=user.to_dict())
+
+
+@users_bp.post('/me/avatar')
+@jwt_required()
+def upload_avatar():
+    """Accept a JPEG/PNG image, resize to 300px, store as base64 data-URL."""
+    user_id = get_jwt_identity()
+    user = db.session.get(User, user_id)
+    if not user:
+        return error_response('User not found', 404)
+
+    if 'file' not in request.files:
+        return error_response('No file uploaded (field name: "file")')
+
+    file = request.files['file']
+    raw = file.read(AVATAR_MAX_BYTES + 1)
+    if len(raw) > AVATAR_MAX_BYTES:
+        return error_response('File too large (max 5 MB)')
+
+    try:
+        img = Image.open(io.BytesIO(raw)).convert('RGB')
+        img.thumbnail((AVATAR_MAX_PX, AVATAR_MAX_PX), Image.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, format='JPEG', quality=AVATAR_QUALITY, optimize=True)
+        b64 = base64.b64encode(buf.getvalue()).decode()
+        data_url = f'data:image/jpeg;base64,{b64}'
+    except Exception:
+        return error_response('Invalid image file')
+
+    user.avatar_url = data_url
+    db.session.commit()
+    return success_response(data={'avatar_url': data_url})
+
+
+@users_bp.delete('/me/avatar')
+@jwt_required()
+def delete_avatar():
+    """Remove the user's avatar."""
+    user_id = get_jwt_identity()
+    user = db.session.get(User, user_id)
+    if not user:
+        return error_response('User not found', 404)
+    user.avatar_url = None
+    db.session.commit()
+    return success_response(data={'avatar_url': None})
 
 
 @users_bp.delete('/me')

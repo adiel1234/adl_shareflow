@@ -2,7 +2,7 @@
 GroupLifecycleService — evaluates and transitions group states.
 
 State machine:
-  FREE       → LIMITED  (3+ members OR 5+ days from creation)
+  FREE       → LIMITED  (7+ members OR 7+ days from creation)
   FREE       → ACTIVE   (on activation payment)
   LIMITED    → ACTIVE   (on activation payment)
   ACTIVE     → EXPIRED  (expiry_date passed, event groups)
@@ -12,9 +12,9 @@ State machine:
 """
 from datetime import datetime, timezone, timedelta
 
-# Free tier limits
-FREE_MAX_MEMBERS = 3
-FREE_MAX_DAYS = 5
+# Free tier limits: up to 7 members, 7 days per group, max 3 free groups per user
+FREE_MAX_MEMBERS = 7
+FREE_MAX_DAYS = 7
 
 
 class MonetizationConfig:

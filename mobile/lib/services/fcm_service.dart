@@ -174,12 +174,14 @@ class FcmService {
     _navigateFromPayload(payload);
   }
 
-  /// Setup tap handler for notifications that opened the app from terminated
-  /// or background state.
-  Future<void> setupOpenedAppHandler(
-      void Function(String groupId) navigateToGroup) async {
+  /// Set the navigation callback immediately (call before initialize()).
+  void setNavigationCallback(void Function(String groupId) navigateToGroup) {
     _navigateToGroup = navigateToGroup;
+  }
 
+  /// Setup tap handler for notifications that opened the app from terminated
+  /// or background state. Call after setNavigationCallback().
+  Future<void> setupOpenedAppHandler() async {
     // Terminated state — app was opened by tapping the notification
     final initial = await _messaging.getInitialMessage();
     if (initial != null) _handleNotificationTap(initial.data);

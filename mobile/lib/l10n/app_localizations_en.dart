@@ -548,7 +548,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bannerFreeTitle => 'Free mode';
 
   @override
-  String get bannerFreeSubtitle => 'Up to 3 participants and 5 days free.';
+  String get bannerFreeSubtitle => 'Up to 7 participants and 7 days free.';
 
   @override
   String get justNow => 'now';
@@ -1105,10 +1105,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get freeTierLabel => 'Free — up to 3 members';
+  String get freeTierLabel => 'Free — up to 7 members';
 
   @override
-  String get freeIncluded => 'Free: up to 3 members & 5 days';
+  String get freeIncluded => 'Free: up to 7 members & 7 days';
 
   @override
   String get createGroupFree => 'Create Group — Free';
