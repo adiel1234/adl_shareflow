@@ -47,6 +47,11 @@ def get_settlement_plan(group_id, **kwargs):
         return error_response('Group not found', 404)
 
     suggestions = calculate_settlement_plan(group_id, group.base_currency)
+
+    # Build a lookup map of user payment details for creditors
+    creditor_ids = {s.to_user_id for s in suggestions}
+    creditors = {u.id: u for u in db.session.query(User).filter(User.id.in_(creditor_ids)).all()}
+
     return success_response(data={
         'group_id': group_id,
         'currency': group.base_currency,
@@ -58,6 +63,10 @@ def get_settlement_plan(group_id, **kwargs):
                 'to_display_name': s.to_display_name,
                 'amount': str(s.amount),
                 'currency': s.currency,
+                'to_payment_phone': creditors[s.to_user_id].payment_phone if s.to_user_id in creditors else None,
+                'to_bank_name': creditors[s.to_user_id].bank_name if s.to_user_id in creditors else None,
+                'to_bank_branch': creditors[s.to_user_id].bank_branch if s.to_user_id in creditors else None,
+                'to_bank_account_number': creditors[s.to_user_id].bank_account_number if s.to_user_id in creditors else None,
             }
             for s in suggestions
         ],

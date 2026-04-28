@@ -675,6 +675,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get splitAmongAllDesc => 'Activation fee split among all participants';
 
   @override
+  String get pay => 'Pay';
+
+  @override
   String get payAlone => 'I pay alone';
 
   @override

@@ -672,6 +672,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get splitAmongAllDesc => 'תשלום ההפעלה יתחלק בין כל המשתתפים';
 
   @override
+  String get pay => 'שלם';
+
+  @override
   String get payAlone => 'אני משלם לבד';
 
   @override

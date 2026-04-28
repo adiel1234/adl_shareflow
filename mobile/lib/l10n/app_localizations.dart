@@ -1358,6 +1358,12 @@ abstract class AppLocalizations {
   /// **'תשלום ההפעלה יתחלק בין כל המשתתפים'**
   String get splitAmongAllDesc;
 
+  /// No description provided for @pay.
+  ///
+  /// In he, this message translates to:
+  /// **'שלם'**
+  String get pay;
+
   /// No description provided for @payAlone.
   ///
   /// In he, this message translates to:

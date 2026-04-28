@@ -253,6 +253,7 @@
   "howToRecordPayment": "How to record the activation payment?",
   "splitAmongAll": "Split among all members",
   "splitAmongAllDesc": "Activation fee split among all participants",
+  "pay": "Pay",
   "payAlone": "I pay alone",
   "payAloneDesc": "Expense recorded only for me",
   "betaNoteActivation": "During beta, activation is done manually by the admin. Direct payment coming soon.",

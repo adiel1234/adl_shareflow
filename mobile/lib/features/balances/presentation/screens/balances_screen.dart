@@ -12,6 +12,7 @@ import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/amount_display.dart';
 import '../../../../l10n/app_localizations.dart';
 import 'event_summary_screen.dart';
+import '../../../groups/presentation/screens/payment_options_screen.dart';
 
 // ── Provider for period reports ──────────────────────────────────────────────
 
@@ -524,14 +525,32 @@ class _DebtRow extends StatelessWidget {
 
 // ── Open debts transfer card ─────────────────────────────────────────────────
 
-class _TransfersCard extends StatelessWidget {
+class _TransfersCard extends ConsumerWidget {
   final Group group;
   final List<SettlementSuggestion> suggestions;
 
   const _TransfersCard({required this.group, required this.suggestions});
 
+  void _openPayment(BuildContext context, SettlementSuggestion s) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PaymentOptionsScreen(
+          recipientName: s.toDisplayName,
+          amount: s.amountDouble,
+          currency: s.currency,
+          recipientPhone: s.toPaymentPhone,
+          bankName: s.toBankName,
+          bankBranch: s.toBankBranch,
+          bankAccountNumber: s.toBankAccountNumber,
+        ),
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUserId = ref.watch(authProvider).userId;
     final isClosed = group.isClosed;
     final headerColor = isClosed ? const Color(0xFFEF4444) : const Color(0xFF6366F1);
     final bgColor     = isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF0F0FF);
@@ -581,44 +600,64 @@ class _TransfersCard extends StatelessWidget {
           else
             const SizedBox(height: 12),
           ...suggestions.map(
-            (s) => Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Builder(builder: (ctx) {
-                      final dl = AppLocalizations.of(ctx)!;
-                      final text = dl.transferNeeded(s.fromDisplayName, s.toDisplayName);
-                      // Bold the names by splitting on the names
-                      return Text(text, style: const TextStyle(fontSize: 13));
-                    }),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: headerColor,
-                      borderRadius: BorderRadius.circular(20),
+            (s) {
+              final isMyDebt = s.fromUserId == currentUserId;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: borderColor),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Builder(builder: (ctx) {
+                        final dl = AppLocalizations.of(ctx)!;
+                        final text = dl.transferNeeded(s.fromDisplayName, s.toDisplayName);
+                        return Text(text, style: const TextStyle(fontSize: 13));
+                      }),
                     ),
-                    child: Text(
-                      '${s.amountDouble.round()} ${s.currency}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: headerColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '${s.amountDouble.round()} ${s.currency}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
+                    if (isMyDebt) ...[
+                      const SizedBox(width: 8),
+                      Builder(builder: (ctx) {
+                        final dl = AppLocalizations.of(ctx)!;
+                        return TextButton(
+                          onPressed: () => _openPayment(ctx, s),
+                          style: TextButton.styleFrom(
+                            foregroundColor: headerColor,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            dl.pay,
+                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                          ),
+                        );
+                      }),
+                    ],
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
