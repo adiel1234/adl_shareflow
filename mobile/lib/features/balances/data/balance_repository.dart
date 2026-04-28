@@ -1,6 +1,8 @@
 import '../../../core/network/api_client.dart';
 import '../domain/balance_model.dart';
 
+export '../domain/balance_model.dart' show SettlementRecord;
+
 class BalanceRepository {
   final _api = ApiClient.instance;
 
@@ -28,7 +30,8 @@ class BalanceRepository {
         .toList();
   }
 
-  Future<void> confirmSettlement({
+  /// Debtor step: create a pending settlement request (marks "I paid").
+  Future<SettlementRecord> requestSettlement({
     required String groupId,
     required String toUserId,
     required double amount,
@@ -39,8 +42,30 @@ class BalanceRepository {
       'amount': amount,
       'currency': currency,
     });
-    final settlementId = response.data['data']['id'] as String;
+    return SettlementRecord.fromJson(
+        response.data['data'] as Map<String, dynamic>);
+  }
+
+  /// Creditor step: confirm receipt of payment.
+  Future<void> approveSettlement(String settlementId) async {
     await _api.put('/settlements/$settlementId/confirm');
+  }
+
+  /// Cancel a pending settlement (debtor or creditor).
+  Future<void> cancelSettlement(String settlementId) async {
+    await _api.put('/settlements/$settlementId/cancel');
+  }
+
+  /// Fetch pending settlements involving the current user in this group.
+  Future<List<SettlementRecord>> fetchPendingSettlements(
+      String groupId) async {
+    final response =
+        await _api.get('/groups/$groupId/settlements/pending');
+    final list =
+        (response.data['data']['settlements'] as List<dynamic>);
+    return list
+        .map((j) => SettlementRecord.fromJson(j as Map<String, dynamic>))
+        .toList();
   }
 
   Future<Map<String, dynamic>> fetchEventSummary(

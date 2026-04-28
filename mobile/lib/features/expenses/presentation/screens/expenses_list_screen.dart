@@ -40,12 +40,27 @@ LinearGradient _expCategoryGradient(String? cat) {
   }
 }
 
-class ExpensesListScreen extends ConsumerWidget {
+class ExpensesListScreen extends ConsumerStatefulWidget {
   final Group group;
   const ExpensesListScreen({super.key, required this.group});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ExpensesListScreen> createState() => _ExpensesListScreenState();
+}
+
+class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
+  final _searchCtrl = TextEditingController();
+  String _query = '';
+  bool _showSearch = false;
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final auth = ref.watch(authProvider);
 
     // Wait for auth to finish loading before rendering, so userId is always valid.
@@ -53,70 +68,155 @@ class ExpensesListScreen extends ConsumerWidget {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final expensesAsync = ref.watch(expensesProvider(group.id));
+    final expensesAsync = ref.watch(expensesProvider(widget.group.id));
     final prefCurrency = auth.preferredCurrency;
 
     // Fetch exchange rate: group base currency → user's preferred currency (once for whole list)
-    final rateAsync = group.baseCurrency == prefCurrency
+    final rateAsync = widget.group.baseCurrency == prefCurrency
         ? null
         : ref.watch(conversionProvider(
-            conversionParams(from: group.baseCurrency, to: prefCurrency, amount: 1.0)));
+            conversionParams(from: widget.group.baseCurrency, to: prefCurrency, amount: 1.0)));
 
-    return expensesAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(AppLocalizations.of(context)!.errorLoadingExpenses,
-                style: const TextStyle(color: AppColors.textSecondary)),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => ref.invalidate(expensesProvider(group.id)),
-              child: Text(AppLocalizations.of(context)!.tryAgain),
-            ),
-          ],
+    return Column(
+      children: [
+        // Search bar (shown when activated)
+        AnimatedSize(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeInOut,
+          child: _showSearch
+              ? Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: TextField(
+                    controller: _searchCtrl,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      hintText: 'חפש הוצאה...',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          setState(() {
+                            _showSearch = false;
+                            _query = '';
+                            _searchCtrl.clear();
+                          });
+                        },
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onChanged: (v) => setState(() => _query = v.trim()),
+                  ),
+                )
+              : const SizedBox.shrink(),
         ),
-      ),
-      data: (expenses) {
-        if (expenses.isEmpty) return _EmptyExpenses();
+        Expanded(
+          child: expensesAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(AppLocalizations.of(context)!.errorLoadingExpenses,
+                      style: const TextStyle(color: AppColors.textSecondary)),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () =>
+                        ref.invalidate(expensesProvider(widget.group.id)),
+                    child: Text(AppLocalizations.of(context)!.tryAgain),
+                  ),
+                ],
+              ),
+            ),
+            data: (allExpenses) {
+              // Filter by search query
+              final expenses = _query.isEmpty
+                  ? allExpenses
+                  : allExpenses
+                      .where((e) => e.title
+                          .toLowerCase()
+                          .contains(_query.toLowerCase()))
+                      .toList();
 
-        // Rate = null when currencies match (rate = 1.0)
-        final rate = rateAsync?.valueOrNull?.rate ?? 1.0;
+              if (allExpenses.isEmpty) return _EmptyExpenses();
+              if (expenses.isEmpty) {
+                return Center(
+                  child: Text('לא נמצאו הוצאות עבור "$_query"',
+                      style: const TextStyle(
+                          color: AppColors.textSecondary)),
+                );
+              }
 
-        return RefreshIndicator(
-          onRefresh: () async => ref.invalidate(expensesProvider(group.id)),
-          child: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 100),
-            itemCount: expenses.length,
-            itemBuilder: (context, i) {
-              final expense = expenses[i];
-              return _ExpenseItem(
-                expense: expense,
-                groupCurrency: group.baseCurrency,
-                prefCurrency: prefCurrency,
-                conversionRate: rate,
-                onEdit: (expense.isCreator && !expense.isSystemExpense)
-                    ? () async {
-                        final edited = await Navigator.push<bool>(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => EditExpenseScreen(
-                              group: group,
-                              expense: expense,
-                            ),
-                          ),
+              // Rate = null when currencies match (rate = 1.0)
+              final rate = rateAsync?.valueOrNull?.rate ?? 1.0;
+
+              // Pass search toggle to parent (group_detail shows it in AppBar)
+              return Stack(
+                children: [
+                  RefreshIndicator(
+                    onRefresh: () async =>
+                        ref.invalidate(expensesProvider(widget.group.id)),
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 100),
+                      itemCount: expenses.length,
+                      itemBuilder: (context, i) {
+                        final expense = expenses[i];
+                        return _ExpenseItem(
+                          expense: expense,
+                          groupCurrency: widget.group.baseCurrency,
+                          prefCurrency: prefCurrency,
+                          conversionRate: rate,
+                          onEdit: (expense.isCreator && !expense.isSystemExpense)
+                              ? () async {
+                                  final edited = await Navigator.push<bool>(
+                                    context,
+                                  MaterialPageRoute(
+                                    builder: (_) => EditExpenseScreen(
+                                      group: widget.group,
+                                      expense: expense,
+                                    ),
+                                  ),
+                                );
+                                if (edited == true && context.mounted) {
+                                  ref.invalidate(
+                                      expensesProvider(widget.group.id));
+                                }
+                              }
+                          : null,
                         );
-                        if (edited == true && context.mounted) {
-                          ref.invalidate(expensesProvider(group.id));
-                        }
-                      }
-                    : null,
+                      },
+                    ),
+                  ),
+                  // Search toggle FAB-like button
+                  Positioned(
+                    bottom: 110,
+                    left: 16,
+                    child: FloatingActionButton.small(
+                      heroTag: 'expense_search_btn',
+                      backgroundColor: AppColors.surface,
+                      foregroundColor: AppColors.primary,
+                      elevation: 2,
+                      onPressed: () {
+                        setState(() {
+                          _showSearch = !_showSearch;
+                          if (!_showSearch) {
+                            _query = '';
+                            _searchCtrl.clear();
+                          }
+                        });
+                      },
+                      child: Icon(
+                          _showSearch ? Icons.search_off : Icons.search),
+                    ),
+                  ),
+                ],
               );
             },
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }

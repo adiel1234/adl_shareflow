@@ -89,6 +89,37 @@ def confirm_settlement(settlement_id):
     return success_response(data=settlement.to_dict())
 
 
+@settlements_bp.get('/groups/<group_id>/settlements/pending')
+@jwt_required()
+@require_group_member
+def list_pending_settlements(group_id, **kwargs):
+    """Return all pending settlements in this group that involve the current user."""
+    user_id = get_jwt_identity()
+    settlements = Settlement.query.filter_by(
+        group_id=group_id,
+        status='pending',
+    ).filter(
+        (Settlement.from_user_id == user_id) | (Settlement.to_user_id == user_id)
+    ).order_by(Settlement.created_at.desc()).all()
+
+    from app.models import User
+    user_map = {}
+    for s in settlements:
+        for uid in [s.from_user_id, s.to_user_id]:
+            if uid not in user_map:
+                u = db.session.get(User, uid)
+                user_map[uid] = u.display_name if u else uid
+
+    result = []
+    for s in settlements:
+        d = s.to_dict()
+        d['from_display_name'] = user_map.get(s.from_user_id, s.from_user_id)
+        d['to_display_name'] = user_map.get(s.to_user_id, s.to_user_id)
+        result.append(d)
+
+    return success_response(data={'settlements': result})
+
+
 @settlements_bp.put('/settlements/<settlement_id>/cancel')
 @jwt_required()
 def cancel_settlement(settlement_id):

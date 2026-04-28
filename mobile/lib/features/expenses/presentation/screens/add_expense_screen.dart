@@ -142,6 +142,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    HapticFeedback.mediumImpact();
     setState(() => _loading = true);
 
     try {

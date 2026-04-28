@@ -154,8 +154,33 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                       label: l.costPerParticipant,
                       value: s['avg_per_member'] as String? ?? '0',
                     ),
+                    if (s['top_payer'] != null)
+                      _StatChip(
+                        icon: '🏆',
+                        label: 'שילם הכי הרבה',
+                        value: (s['top_payer'] as Map)['display_name'] as String? ?? '',
+                      ),
                   ],
                 ),
+                if (s['top_payer'] != null) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '🏆 ${(s['top_payer'] as Map)['display_name']} שילם/ה '
+                      '${(s['top_payer'] as Map)['total_paid']}',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

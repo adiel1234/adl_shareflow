@@ -3,10 +3,20 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config/app_config.dart';
 import '../constants/app_constants.dart';
 
+/// Callbacks registered by the app layer to react to auth/error events.
+typedef VoidCallback = void Function();
+typedef MessageCallback = void Function(String message);
+
 class ApiClient {
   static ApiClient? _instance;
   late final Dio _dio;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  /// Called when a 401 occurs and token refresh has failed (session expired).
+  static VoidCallback? onSessionExpired;
+
+  /// Called for unhandled server errors (5xx) with a human-readable message.
+  static MessageCallback? onServerError;
 
   ApiClient._() {
     _dio = Dio(BaseOptions(
@@ -72,8 +82,9 @@ class _AuthInterceptor extends Interceptor {
   ) async {
     final path = err.requestOptions.path;
     final isRefreshCall = path.contains('/auth/refresh');
+    final statusCode = err.response?.statusCode ?? 0;
 
-    if (err.response?.statusCode == 401 && !isRefreshCall) {
+    if (statusCode == 401 && !isRefreshCall) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
         final token = await _storage.read(key: AppConstants.accessTokenKey);
@@ -84,7 +95,14 @@ class _AuthInterceptor extends Interceptor {
           return;
         } catch (_) {}
       }
+      // Refresh failed — session expired
+      ApiClient.onSessionExpired?.call();
+    } else if (statusCode >= 500) {
+      final msg = (err.response?.data?['message'] as String?)
+          ?? 'אירעה שגיאת שרת. נסה שוב מאוחר יותר.';
+      ApiClient.onServerError?.call(msg);
     }
+
     handler.next(err);
   }
 

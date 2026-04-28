@@ -1,4 +1,5 @@
 import 'package:app_links/app_links.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +10,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/config/app_config.dart';
 import 'core/config/router.dart';
+import 'core/network/api_client.dart';
+import 'providers/auth_provider.dart';
 import 'providers/deep_link_provider.dart';
 import 'services/feedback_service.dart';
 import 'services/fcm_service.dart';
@@ -99,10 +102,24 @@ class ShareFlowApp extends ConsumerStatefulWidget {
 
 class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
+  final _messengerKey = GlobalKey<ScaffoldMessengerState>();
+  bool _isOffline = false;
 
   @override
   void initState() {
     super.initState();
+
+    // Register API-level callbacks
+    ApiClient.onSessionExpired = _handleSessionExpired;
+    ApiClient.onServerError = _handleServerError;
+
+    // Offline detection
+    Connectivity().onConnectivityChanged.listen((results) {
+      final offline = results.every((r) => r == ConnectivityResult.none);
+      if (mounted && offline != _isOffline) {
+        setState(() => _isOffline = offline);
+      }
+    });
 
     if (!kIsWeb) {
       // Deep links
@@ -127,6 +144,30 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
     }
   }
 
+  void _handleSessionExpired() {
+    ref.read(authProvider.notifier).logout();
+    _navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      '/login',
+      (_) => false,
+    );
+    _messengerKey.currentState?.showSnackBar(
+      const SnackBar(
+        content: Text('פג תוקף החיבור, נא להתחבר מחדש'),
+        duration: Duration(seconds: 4),
+      ),
+    );
+  }
+
+  void _handleServerError(String message) {
+    _messengerKey.currentState?.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red.shade700,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = ref.watch(localeProvider);
@@ -136,6 +177,7 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       navigatorKey: _navigatorKey,
+      scaffoldMessengerKey: _messengerKey,
       onGenerateRoute: AppRouter.onGenerateRoute,
       initialRoute: '/',
       localizationsDelegates: const [
@@ -158,7 +200,35 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
           ),
           child: Directionality(
             textDirection: isHe ? TextDirection.rtl : TextDirection.ltr,
-            child: child!,
+            child: Column(
+              children: [
+                if (_isOffline)
+                  Material(
+                    color: Colors.grey.shade800,
+                    child: SafeArea(
+                      bottom: false,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.wifi_off, color: Colors.white, size: 16),
+                            SizedBox(width: 8),
+                            Text(
+                              'אין חיבור לאינטרנט',
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                Expanded(child: child!),
+              ],
+            ),
           ),
         );
       },

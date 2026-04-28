@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/groups_provider.dart';
 import '../../../../theme/app_colors.dart';
@@ -100,6 +101,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
 
   Future<void> _create(AppLocalizations l) async {
     if (!_formKey.currentState!.validate()) return;
+    HapticFeedback.mediumImpact();
     setState(() => _loading = true);
     try {
       final (group, limitReached) =

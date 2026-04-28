@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../features/balances/data/balance_repository.dart';
 import '../../../../providers/balances_provider.dart';
@@ -237,6 +238,30 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen> {
           ),
 
           const SizedBox(height: 16),
+
+          // Pending settlement confirmations
+          Consumer(
+            builder: (context, ref, _) {
+              final authState = ref.watch(authProvider);
+              final pendingAsync =
+                  ref.watch(pendingSettlementsProvider(widget.group.id));
+              return pendingAsync.when(
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+                data: (records) {
+                  if (records.isEmpty) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _PendingSettlementsCard(
+                      records: records,
+                      currentUserId: authState.userId,
+                      groupId: widget.group.id,
+                    ),
+                  );
+                },
+              );
+            },
+          ),
 
           // Open debts transfer plan — prominent for closed groups
           Consumer(
@@ -538,6 +563,7 @@ class _TransfersCard extends ConsumerStatefulWidget {
 
 class _TransfersCardState extends ConsumerState<_TransfersCard> {
   void _openPayment(BuildContext context, SettlementSuggestion s) {
+    HapticFeedback.lightImpact();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -551,7 +577,55 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
           bankAccountNumber: s.toBankAccountNumber,
         ),
       ),
+    ).then((_) {
+      // After returning from PaymentOptions, offer to mark as paid
+      if (mounted) _promptMarkPaid(context, s);
+    });
+  }
+
+  Future<void> _promptMarkPaid(
+      BuildContext context, SettlementSuggestion s) async {
+    if (!mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('סמן כשולם?'),
+        content: Text(
+          'האם העברת ${s.amountDouble.round()} ${s.currency} ל-${s.toDisplayName}?\n'
+          '${s.toDisplayName} יקבל/ת הודעה לאישור קבלת התשלום.',
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('ביטול')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('כן, שלמתי')),
+        ],
+      ),
     );
+    if (confirmed != true || !mounted) return;
+    try {
+      HapticFeedback.mediumImpact();
+      await BalanceRepository().requestSettlement(
+        groupId: widget.group.id,
+        toUserId: s.toUserId,
+        amount: s.amountDouble,
+        currency: s.currency,
+      );
+      if (!mounted) return;
+      ref.invalidate(pendingSettlementsProvider(widget.group.id));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('נשלחה בקשת אישור ל${''}')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      String msg = 'שגיאה בסימון תשלום';
+      if (e is DioException) {
+        msg = (e.response?.data?['message'] as String?) ?? msg;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
   }
 
   Future<void> _scheduleReminder(BuildContext context, SettlementSuggestion s) async {
@@ -733,6 +807,167 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
               );
             },
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Pending settlements card ─────────────────────────────────────────────────
+
+class _PendingSettlementsCard extends ConsumerWidget {
+  final List<SettlementRecord> records;
+  final String currentUserId;
+  final String groupId;
+
+  const _PendingSettlementsCard({
+    required this.records,
+    required this.currentUserId,
+    required this.groupId,
+  });
+
+  Future<void> _approve(BuildContext context, WidgetRef ref,
+      SettlementRecord r) async {
+    HapticFeedback.mediumImpact();
+    try {
+      await BalanceRepository().approveSettlement(r.id);
+      ref.invalidate(pendingSettlementsProvider(groupId));
+      ref.invalidate(balancesProvider(groupId));
+      ref.invalidate(settlementPlanProvider(groupId));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('תשלום אושר בהצלחה ✓')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('שגיאה באישור התשלום')),
+        );
+      }
+    }
+  }
+
+  Future<void> _cancel(BuildContext context, WidgetRef ref,
+      SettlementRecord r) async {
+    try {
+      await BalanceRepository().cancelSettlement(r.id);
+      ref.invalidate(pendingSettlementsProvider(groupId));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('הבקשה בוטלה')));
+      }
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+            color: const Color(0xFFF59E0B).withOpacity(0.4), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.hourglass_top_rounded,
+                  color: Color(0xFFF59E0B), size: 18),
+              SizedBox(width: 8),
+              Text(
+                'ממתין לאישורך',
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: Color(0xFFB45309)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ...records.map((r) {
+            final isCreditor = r.toUserId == currentUserId;
+            final isDebtor = r.fromUserId == currentUserId;
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                    color: const Color(0xFFF59E0B).withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${r.fromDisplayName} → ${r.toDisplayName}',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 13),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${r.amountDouble.round()} ${r.currency}',
+                    style: const TextStyle(
+                        color: Color(0xFFB45309),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15),
+                  ),
+                  const SizedBox(height: 8),
+                  if (isCreditor)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _approve(context, ref, r),
+                            icon: const Icon(Icons.check, size: 16),
+                            label: const Text('אשר קבלה'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF059669),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              textStyle: const TextStyle(fontSize: 13),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton(
+                          onPressed: () => _cancel(context, ref, r),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 12),
+                          ),
+                          child: const Text('דחה', style: TextStyle(fontSize: 13)),
+                        ),
+                      ],
+                    )
+                  else if (isDebtor)
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time_rounded,
+                            size: 14, color: Color(0xFFF59E0B)),
+                        const SizedBox(width: 4),
+                        const Text(
+                          'ממתין לאישור המקבל',
+                          style: TextStyle(
+                              fontSize: 12, color: Color(0xFFB45309)),
+                        ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: () => _cancel(context, ref, r),
+                          child: const Text('בטל',
+                              style: TextStyle(fontSize: 12)),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );

@@ -106,12 +106,28 @@ def send_event_summary(group_id, **kwargs):
         if member_count else '0'
     )
 
+    # Top payer — person who paid the most (by converted amount)
+    payer_totals: dict = {}
+    for e in expenses:
+        payer_totals[e.paid_by] = payer_totals.get(e.paid_by, Decimal('0')) + e.converted_amount
+    top_payer_data = None
+    if payer_totals:
+        from app.models import User
+        top_uid = max(payer_totals, key=lambda k: payer_totals[k])
+        top_user = db.session.get(User, top_uid)
+        top_payer_data = {
+            'user_id': top_uid,
+            'display_name': top_user.display_name if top_user else top_uid,
+            'total_paid': f'{int(payer_totals[top_uid])} {group.base_currency}',
+        }
+
     summary_data = {
         'group_name': group.name,
         'total_summary': total_summary,
         'totals_by_currency': {k: int(v) for k, v in currency_totals.items()},
         'member_count': member_count,
         'avg_per_member': avg_per_member,
+        'top_payer': top_payer_data,
         'transfers': [
             {
                 'from_user_id': s.from_user_id,

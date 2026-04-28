@@ -18,3 +18,10 @@ final settlementPlanProvider = FutureProvider.autoDispose
   if (auth.isLoading) return <SettlementSuggestion>[];
   return ref.watch(balanceRepositoryProvider).fetchSettlementPlan(groupId);
 });
+
+final pendingSettlementsProvider = FutureProvider.autoDispose
+    .family<List<SettlementRecord>, String>((ref, groupId) async {
+  final auth = ref.watch(authProvider);
+  if (auth.isLoading) return <SettlementRecord>[];
+  return ref.watch(balanceRepositoryProvider).fetchPendingSettlements(groupId);
+});

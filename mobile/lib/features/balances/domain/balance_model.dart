@@ -1,3 +1,39 @@
+/// A recorded settlement (pending / confirmed / cancelled).
+class SettlementRecord {
+  final String id;
+  final String fromUserId;
+  final String fromDisplayName;
+  final String toUserId;
+  final String toDisplayName;
+  final String amount;
+  final String currency;
+  final String status; // pending | confirmed | cancelled
+
+  const SettlementRecord({
+    required this.id,
+    required this.fromUserId,
+    required this.fromDisplayName,
+    required this.toUserId,
+    required this.toDisplayName,
+    required this.amount,
+    required this.currency,
+    required this.status,
+  });
+
+  factory SettlementRecord.fromJson(Map<String, dynamic> j) => SettlementRecord(
+        id: j['id'] as String,
+        fromUserId: j['from_user_id'] as String,
+        fromDisplayName: j['from_display_name'] as String? ?? '',
+        toUserId: j['to_user_id'] as String,
+        toDisplayName: j['to_display_name'] as String? ?? '',
+        amount: j['amount'] as String,
+        currency: j['currency'] as String,
+        status: j['status'] as String,
+      );
+
+  double get amountDouble => double.tryParse(amount) ?? 0;
+}
+
 class UserBalance {
   final String userId;
   final String displayName;

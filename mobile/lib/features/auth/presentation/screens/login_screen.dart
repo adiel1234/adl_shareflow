@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart'
@@ -37,6 +38,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _loginEmail() async {
     if (!_formKey.currentState!.validate()) return;
+    HapticFeedback.mediumImpact();
     setState(() { _loading = true; _error = null; });
     final l = AppLocalizations.of(context)!;
     try {
