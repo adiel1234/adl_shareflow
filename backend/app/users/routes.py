@@ -3,7 +3,7 @@ import io
 
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from PIL import Image
+from PIL import Image, ImageOps
 
 from app import db
 from app.models import User, FCMToken, ReminderSettings
@@ -80,7 +80,9 @@ def upload_avatar():
         return error_response('File too large (max 5 MB)')
 
     try:
-        img = Image.open(io.BytesIO(raw)).convert('RGB')
+        img = Image.open(io.BytesIO(raw))
+        img = ImageOps.exif_transpose(img)  # fix EXIF rotation (camera photos)
+        img = img.convert('RGB')
         img.thumbnail((AVATAR_MAX_PX, AVATAR_MAX_PX), Image.LANCZOS)
         buf = io.BytesIO()
         img.save(buf, format='JPEG', quality=AVATAR_QUALITY, optimize=True)

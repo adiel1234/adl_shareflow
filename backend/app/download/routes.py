@@ -23,7 +23,7 @@ _PAGE_HTML = """<!DOCTYPE html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ADL ShareFlow — הורד את האפליקציה</title>
+  <title>ADL ShareFlow - הורד את האפליקציה</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -72,18 +72,18 @@ _PAGE_HTML = """<!DOCTYPE html>
     <p>שיתוף הוצאות קל ומהיר עם חברים ומשפחה</p>
 
     {% if ios_url %}
-    <a class="btn btn-ios" href="{{ ios_url }}">📱 iPhone — הורד דרך TestFlight</a>
+    <a class="btn btn-ios" href="{{ ios_url }}">📱 iPhone - הורד דרך TestFlight</a>
     {% else %}
-    <span class="btn btn-disabled">📱 iPhone — בקרוב</span>
+    <span class="btn btn-disabled">📱 iPhone - בקרוב</span>
     {% endif %}
 
     {% if apk_url %}
-    <a class="btn btn-android" href="{{ apk_url }}">🤖 Android — הורד APK</a>
+    <a class="btn btn-android" href="{{ apk_url }}">🤖 Android - הורד APK</a>
     {% else %}
-    <span class="btn btn-disabled">🤖 Android — בקרוב</span>
+    <span class="btn btn-disabled">🤖 Android - בקרוב</span>
     {% endif %}
 
-    <p class="hint">גרסת פיילוט — ADL Projects</p>
+    <p class="hint">גרסת פיילוט - ADL Projects</p>
   </div>
 </body>
 </html>"""
@@ -91,7 +91,7 @@ _PAGE_HTML = """<!DOCTYPE html>
 
 @download_bp.get('/download')
 def download_page():
-    """Smart download page — shows iOS + Android buttons."""
+    """Smart download page - shows iOS + Android buttons."""
     ua = request.headers.get('User-Agent', '').lower()
     # Auto-redirect if OS is detectable
     if 'iphone' in ua or 'ipad' in ua:
@@ -108,45 +108,6 @@ def download_page():
     )
 
 
-@download_bp.get('/join/<invite_code>')
-def join_page(invite_code: str):
-    """
-    Web invite link: https://<host>/join/<code>
-    Writes the invite code to the clipboard via JS and redirects to /download.
-    Flutter reads 'shareflow-invite:<code>' from clipboard on first launch.
-    """
-    code = invite_code.upper()
-    html = f"""<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>הצטרף ל-ADL ShareFlow</title>
-  <style>
-    body {{ font-family: -apple-system, sans-serif; text-align: center;
-           padding: 60px 24px; background: #f0f4ff; }}
-    h1 {{ color: #1e3a8a; font-size: 24px; margin-bottom: 12px; }}
-    p  {{ color: #64748b; margin-bottom: 32px; }}
-    .btn {{ display: inline-block; background: #1e3a8a; color: white;
-            padding: 16px 32px; border-radius: 14px; text-decoration: none;
-            font-size: 16px; font-weight: 600; }}
-  </style>
-</head>
-<body>
-  <h1>💸 ADL ShareFlow</h1>
-  <p>קיבלת הזמנה להצטרף לקבוצה!<br>הורד את האפליקציה כדי להצטרף.</p>
-  <a class="btn" href="/download">הורד את האפליקציה</a>
-  <script>
-    // Write the invite code to clipboard so Flutter can read it on first launch
-    try {{
-      navigator.clipboard.writeText('shareflow-invite:{code}').catch(function() {{}});
-    }} catch(e) {{}}
-  </script>
-</body>
-</html>"""
-    return html
-
-
 @download_bp.get('/api/deferred-link')
 def deferred_link():
     """
@@ -159,13 +120,13 @@ def deferred_link():
 
 @download_bp.get('/privacy')
 def privacy_policy():
-    """Privacy policy page — required by App Store and Google Play."""
+    """Privacy policy page - required by App Store and Google Play."""
     html = """<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>מדיניות פרטיות — ADL ShareFlow</title>
+  <title>מדיניות פרטיות - ADL ShareFlow</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -198,8 +159,8 @@ def privacy_policy():
   <h2>מידע שאנו אוספים</h2>
   <ul>
     <li><strong>פרטי חשבון:</strong> שם תצוגה, כתובת אימייל, מספר טלפון (אופציונלי).</li>
-    <li><strong>פרטי תשלום:</strong> מספר חשבון בנק, שם בנק, סניף, מספר טלפון לביט/פייבוקס — נשמרים לצרכי הסדרת חובות בין חברי הקבוצה בלבד.</li>
-    <li><strong>נתוני שימוש:</strong> הוצאות, קבוצות, יתרות — נשמרים כדי לספק את שירות חלוקת ההוצאות.</li>
+    <li><strong>פרטי תשלום:</strong> מספר חשבון בנק, שם בנק, סניף, מספר טלפון לביט/פייבוקס - נשמרים לצרכי הסדרת חובות בין חברי הקבוצה בלבד.</li>
+    <li><strong>נתוני שימוש:</strong> הוצאות, קבוצות, יתרות - נשמרים כדי לספק את שירות חלוקת ההוצאות.</li>
     <li><strong>מזהה מכשיר:</strong> FCM Token לצורך שליחת התראות Push.</li>
   </ul>
 

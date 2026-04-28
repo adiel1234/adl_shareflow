@@ -13,8 +13,8 @@ def notify_new_expense(expense, actor_name: str):
     group = db.session.get(Group, expense.group_id)
     group_name = group.name if group else ''
     members = GroupMember.query.filter_by(group_id=expense.group_id).all()
-    title = f'הוצאה חדשה — {group_name}' if group_name else 'הוצאה חדשה נוספה'
-    body = f'{actor_name} הוסיף: {expense.title} — {expense.original_amount} {expense.original_currency}'
+    title = f'הוצאה חדשה - {group_name}' if group_name else 'הוצאה חדשה נוספה'
+    body = f'{actor_name} הוסיף: {expense.title} - {expense.original_amount} {expense.original_currency}'
 
     for member in members:
         if member.user_id == expense.paid_by:
@@ -95,7 +95,7 @@ def notify_settlement_confirmed(settlement, confirmer_name: str):
 def notify_event_summary(group_id: str, summary_data: dict, actor_user_id: str):
     """Send event summary notification to all group members."""
     members = GroupMember.query.filter_by(group_id=group_id).all()
-    title = f'סיכום אירוע — {summary_data["group_name"]}'
+    title = f'סיכום אירוע - {summary_data["group_name"]}'
     body = (
         f'סה"כ: {summary_data["total_summary"]} | '
         f'{summary_data["member_count"]} משתתפים | '
@@ -151,7 +151,7 @@ def notify_payment_reminder(settlement_suggestion: dict, creditor_name: str):
 def notify_tier_upgrade_required(group_id: str, upgrade_price: int, admin_user_id: str):
     """Notify group admin that a tier upgrade payment is needed."""
     title = 'נדרש שדרוג תכנית'
-    body = f'מספר המשתתפים עלה — נדרש תשלום נוסף של {upgrade_price} ₪'
+    body = f'מספר המשתתפים עלה - נדרש תשלום נוסף של {upgrade_price} ₪'
 
     notif = Notification(
         user_id=admin_user_id,
@@ -173,7 +173,7 @@ def notify_group_expiring_soon(group_id: str, group_name: str, days_left: int):
     """Notify group admin when group is about to expire."""
     members = GroupMember.query.filter_by(group_id=group_id, role='admin').all()
     title = 'הקבוצה עומדת לפוג'
-    body = f'ל"{group_name}" נותרו {days_left} ימים — חדשו כדי להמשיך'
+    body = f'ל"{group_name}" נותרו {days_left} ימים - חדשו כדי להמשיך'
 
     for member in members:
         notif = Notification(

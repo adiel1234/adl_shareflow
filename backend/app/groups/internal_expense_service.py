@@ -1,5 +1,5 @@
 """
-InternalExpenseService — creates system-generated expenses for platform payments.
+InternalExpenseService - creates system-generated expenses for platform payments.
 
 When a group is activated, extended, or renewed, the payment amount is injected
 as a group expense so it is visible in balances. The payer can choose to:
@@ -30,7 +30,7 @@ def create_payment_expense(
 ) -> Expense:
     """
     Create and persist a system expense for a platform payment.
-    Returns the created Expense (not yet committed — caller commits).
+    Returns the created Expense (not yet committed - caller commits).
     """
     title = _SOURCE_LABELS.get(source, 'תשלום מערכת')
     today = date.today()
@@ -46,7 +46,7 @@ def create_payment_expense(
         category='other',
         split_type='equal',
         expense_date=today,
-        notes=f'ADL ShareFlow — {source}',
+        notes=f'ADL ShareFlow - {source}',
         created_by=payer_id,
         is_system_expense=True,
         expense_source=source,

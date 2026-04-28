@@ -210,8 +210,8 @@ def remove_member(group_id, target_user_id, **kwargs):
     """
     Remove a member from the group.
     mode:
-      'settle'       (default) — create confirmed settlement to clear net debt
-      'redistribute' — redistribute their expense shares among remaining members
+      'settle'       (default) - create confirmed settlement to clear net debt
+      'redistribute' - redistribute their expense shares among remaining members
     """
     from decimal import Decimal, ROUND_HALF_UP
     from app.models import Expense, ExpenseParticipant, Settlement
@@ -609,7 +609,7 @@ def _next_settlement(from_dt: datetime, period: str) -> datetime:
 
 def _compute_balances(group_id: str, period_report_id=None) -> dict:
     """
-    Returns {user_id: net_balance} — positive = owed money, negative = owes money.
+    Returns {user_id: net_balance} - positive = owed money, negative = owes money.
     Only includes expenses belonging to the given period_report_id
     (None = current active period, i.e. period_report_id IS NULL).
     """
@@ -788,13 +788,13 @@ def _notify_period_settled(group: Group, report):
         members = GroupMember.query.filter_by(group_id=group.id).all()
         debts = report.debts
 
-        lines = [f'סיכום תקופה #{report.period_number} — {group.name}', '']
+        lines = [f'סיכום תקופה #{report.period_number} - {group.name}', '']
         for d in debts:
             from_name = d.from_user.display_name if d.from_user else '?'
             to_name   = d.to_user.display_name if d.to_user else '?'
             lines.append(f'{from_name} חייב ל-{to_name}: {d.amount} {d.currency}')
         if not debts:
-            lines.append('כל החשבונות מאוזנים — אין חובות!')
+            lines.append('כל החשבונות מאוזנים - אין חובות!')
         lines += ['', f'סה"כ הוצאות: {report.total_expenses} {report.currency}']
         summary_text = '\n'.join(lines)
 
@@ -818,8 +818,8 @@ def join_group(invite_code):
     """
     Join a group via invite code.
     split_mode:
-      'forward' (default) — new member participates only in future expenses
-      'full'              — retroactively add member to all existing expenses
+      'forward' (default) - new member participates only in future expenses
+      'full'              - retroactively add member to all existing expenses
     """
     from decimal import Decimal, ROUND_HALF_UP
     from app.models import Expense, ExpenseParticipant

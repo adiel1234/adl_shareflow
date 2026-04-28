@@ -1,5 +1,5 @@
 """
-MonetizationService — handles group activation, extension, and renewal.
+MonetizationService - handles group activation, extension, and renewal.
 
 Beta mode: activation is triggered manually (no real payment gateway).
 The service records the payment, injects it as a group expense, and
@@ -30,7 +30,7 @@ class MonetizationService:
         """
         Activate a free/limited group.
         Computes price based on current member count, sets expiry, records payment.
-        When PAYMENTS_ENABLED flag is off — activates for free (beta/testing mode).
+        When PAYMENTS_ENABLED flag is off - activates for free (beta/testing mode).
         """
         member_count = GroupMember.query.filter_by(group_id=group.id).count()
         pricing = MonetizationConfig.resolve_price(group.group_type, member_count)
@@ -95,7 +95,7 @@ class MonetizationService:
             group.group_type, member_count, group.max_participants_snapshot
         )
         if not upgrade_info:
-            raise ValueError('אין צורך בשדרוג — המספר הנוכחי נמצא בתוך הרמה הקיימת')
+            raise ValueError('אין צורך בשדרוג - המספר הנוכחי נמצא בתוך הרמה הקיימת')
 
         diff = Decimal(str(upgrade_info['upgrade_price_diff']))
         new_tier = upgrade_info['upgrade_new_tier']
@@ -136,7 +136,7 @@ class MonetizationService:
         """
         Extend an event group by EVENT_EXTENSION_DAYS (15 ILS flat).
         Works even when group is already EXPIRED.
-        When PAYMENTS_ENABLED flag is off — extends for free.
+        When PAYMENTS_ENABLED flag is off - extends for free.
         """
         amount = Decimal(str(MonetizationConfig.EVENT_EXTENSION_PRICE))
         ext_days = MonetizationConfig.EVENT_EXTENSION_DAYS
@@ -181,7 +181,7 @@ class MonetizationService:
         """
         Renew an ongoing group for another billing period.
         Works even when group is READ_ONLY (expired ongoing).
-        When PAYMENTS_ENABLED flag is off — renews for free.
+        When PAYMENTS_ENABLED flag is off - renews for free.
         """
         member_count = GroupMember.query.filter_by(group_id=group.id).count()
         pricing = MonetizationConfig.resolve_ongoing_price(member_count)

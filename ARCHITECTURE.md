@@ -276,9 +276,25 @@ flutter install --release
 | נושא | מצב |
 |------|-----|
 | Backend (Railway) | ✅ פעיל |
-| iOS (TestFlight) | ✅ Internal — גרסה 1.0.0 (נדרש עדכון ל-1.0.1+2) |
+| iOS (TestFlight) | ✅ Internal — נדרש עדכון ל-1.0.1+3 |
 | Android (APK) | ✅ גרסה 1.0.1+2 — זמין ב-/download |
 | QR + הזמנות | ✅ עובד בשני הכיוונים |
-| Push Notifications | ✅ מגיעות — ניווט בבדיקה |
+| Push Notifications | ✅ מגיעות — ניווט תוקן |
 | PAYMENTS_ENABLED | 🔴 כבוי (פיילוט חינמי) |
 | Firebase App Distribution | 🟡 מתוכנן — טרם הוגדר |
+
+---
+
+## שינויים אחרונים — גל אפריל 2026 (גרסה 1.0.1+3)
+
+### Flutter (Mobile)
+- **JWT Refresh + API Errors**: `ApiClient._AuthInterceptor` מנסה refresh אוטומטי. אם נכשל → ניווט ל-login + הודעה. שגיאות 5xx → Snackbar אדום.
+- **Offline Banner**: `connectivity_plus` — בדיקת חיבור רציפה, באנר אפור בראש המסך.
+- **Settlement Confirmation Flow**: חייב: "שלמתי" → creates pending settlement. נושה: "אשר קבלה" → confirms. Provider: `pendingSettlementsProvider`.
+- **Haptic Feedback**: `HapticFeedback.mediumImpact()` ב-login, register, צור קבוצה, שמירת הוצאה, settlement.
+- **"מי שילם הכי הרבה"**: `event_summary_screen.dart` — chip 🏆 עם שם ה-top payer.
+- **חיפוש הוצאות**: `ExpensesListScreen` → `ConsumerStatefulWidget` עם שדה חיפוש real-time.
+
+### Backend
+- `settlements/routes.py`: endpoint חדש `GET /groups/<id>/settlements/pending`.
+- `balances/routes.py`: שדה `top_payer` נוסף ל-event summary response.

@@ -106,7 +106,7 @@ def send_event_summary(group_id, **kwargs):
         if member_count else '0'
     )
 
-    # Top payer — person who paid the most (by converted amount)
+    # Top payer - person who paid the most (by converted amount)
     payer_totals: dict = {}
     for e in expenses:
         payer_totals[e.paid_by] = payer_totals.get(e.paid_by, Decimal('0')) + e.converted_amount
@@ -142,7 +142,7 @@ def send_event_summary(group_id, **kwargs):
     }
 
     lines = [
-        f'*סיכום אירוע — {group.name}*',
+        f'*סיכום אירוע - {group.name}*',
         f'💰 סה"כ הוצאות: {total_summary}',
         f'👥 משתתפים: {member_count}',
         f'📊 עלות לכל משתתף: {avg_per_member}',

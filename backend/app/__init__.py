@@ -55,7 +55,7 @@ def create_app(config=None):
     # Blueprints
     _register_blueprints(app)
 
-    # APScheduler — automatic reminders
+    # APScheduler - automatic reminders
     _start_scheduler(app)
 
     # Health check
@@ -63,7 +63,7 @@ def create_app(config=None):
     def health():
         return {'status': 'ok', 'service': 'ADL ShareFlow API'}
 
-    # Deferred deep link — app calls this on first launch to retrieve pending invite code
+    # Deferred deep link - app calls this on first launch to retrieve pending invite code
     @app.get('/api/deferred-link')
     def deferred_link():
         from flask import request, jsonify
@@ -86,7 +86,7 @@ def create_app(config=None):
             print(f'[deferred_link] Failed to retrieve: {e}')
         return jsonify({'invite_code': None})
 
-    # Smart join link — opens app if installed, otherwise shows download page
+    # Smart join link - opens app if installed, otherwise shows download page
     @app.get('/join/<invite_code>')
     def join_redirect(invite_code):
         from flask import request, redirect, Response
@@ -206,11 +206,11 @@ def create_app(config=None):
 
     window.onload = function() {{
       if (isInAppBrowser()) {{
-        // WhatsApp/in-app browser: cannot open custom schemes — show notice
+        // WhatsApp/in-app browser: cannot open custom schemes - show notice
         document.getElementById('wa-notice').style.display = 'block';
         document.getElementById('main-actions').style.display = 'none';
       }} else {{
-        // Normal browser — try to open app automatically
+        // Normal browser - try to open app automatically
         window.location = DEEP;
       }}
     }};
@@ -235,7 +235,7 @@ def create_app(config=None):
     <!-- Shown in regular browsers -->
     <div id="main-actions">
       <a class="btn btn-primary" href="#" onclick="event.preventDefault();openApp()">פתח באפליקציה</a>
-      <div class="divider">— אין לך את האפליקציה עדיין? —</div>
+      <div class="divider">- אין לך את האפליקציה עדיין? -</div>
       <a class="btn btn-android" href="#" onclick="dlApp(event,'{ANDROID_APK}')">🤖 הורד לאנדרואיד</a>
       <a class="btn btn-ios" href="#" onclick="dlApp(event,'{TESTFLIGHT}')">🍎 הורד ל-iPhone</a>
     </div>
@@ -321,7 +321,7 @@ def create_app(config=None):
       <span>🍎</span> הורד ל-iPhone (TestFlight)
     </a>
 
-    <p class="note">גרסת בטא — v1.0.0</p>
+    <p class="note">גרסת בטא - v1.0.0</p>
   </div>
 </body>
 </html>'''
@@ -376,7 +376,7 @@ def _seed_feature_flags():
         from app import db
         from app.models import FeatureFlag
         defaults = [
-            ('PAYMENTS_ENABLED', 'false', 'הפעלת מנגנון תשלום — כשכבוי הקבוצות מופעלות חינם (מצב בטא)'),
+            ('PAYMENTS_ENABLED', 'false', 'הפעלת מנגנון תשלום - כשכבוי הקבוצות מופעלות חינם (מצב בטא)'),
         ]
         for key, value, description in defaults:
             if not FeatureFlag.query.filter_by(key=key).first():

@@ -74,8 +74,8 @@ def require_group_operational(f):
         if not GroupLifecycleService.is_operational(group):
             state_labels = {
                 'limited': 'הקבוצה הגיעה למגבלת החינם ודורשת הפעלה',
-                'expired': 'הקבוצה פגה — יש לחדש אותה כדי להמשיך',
-                'read_only': 'הקבוצה במצב קריאה בלבד — יש לחדש את החיוב',
+                'expired': 'הקבוצה פגה - יש לחדש אותה כדי להמשיך',
+                'read_only': 'הקבוצה במצב קריאה בלבד - יש לחדש את החיוב',
             }
             msg = state_labels.get(group.group_state, 'הקבוצה אינה פעילה')
             return error_response(msg, 403, errors={'group_state': group.group_state})

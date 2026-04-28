@@ -79,7 +79,7 @@ def create_expense(group_id, **kwargs):
 
     group = db.session.get(Group, group_id)
     if group and group.is_closed:
-        return error_response('הקבוצה סגורה — לא ניתן להוסיף הוצאות חדשות', 403)
+        return error_response('הקבוצה סגורה - לא ניתן להוסיף הוצאות חדשות', 403)
 
     exchange_rate = to_decimal(data.get('exchange_rate', '1'))
     converted_amount = (original_amount * exchange_rate).quantize(Decimal('0.01'))
@@ -170,7 +170,7 @@ def get_expense(expense_id):
 @jwt_required()
 def update_expense(expense_id):
     """
-    Full expense edit — only the creator (or group admin) can edit.
+    Full expense edit - only the creator (or group admin) can edit.
     Changing amount/currency recalculates converted_amount and splits shares equally.
     """
     from app.groups.lifecycle_service import GroupLifecycleService
@@ -182,7 +182,7 @@ def update_expense(expense_id):
 
     group = db.session.get(Group, expense.group_id)
     if group and not GroupLifecycleService.is_operational(group):
-        return error_response('הקבוצה אינה פעילה — לא ניתן לערוך הוצאות', 403,
+        return error_response('הקבוצה אינה פעילה - לא ניתן לערוך הוצאות', 403,
                               errors={'group_state': group.group_state})
 
     member = GroupMember.query.filter_by(
@@ -308,7 +308,7 @@ def delete_expense(expense_id):
 
     group = db.session.get(Group, expense.group_id)
     if group and not GroupLifecycleService.is_operational(group):
-        return error_response('הקבוצה אינה פעילה — לא ניתן למחוק הוצאות', 403,
+        return error_response('הקבוצה אינה פעילה - לא ניתן למחוק הוצאות', 403,
                               errors={'group_state': group.group_state})
 
     member = GroupMember.query.filter_by(group_id=expense.group_id, user_id=user_id).first()
