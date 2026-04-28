@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../features/onboarding/onboarding_screen.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../theme/app_colors.dart';
 
@@ -41,12 +42,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   Widget build(BuildContext context) {
     // Watch auth state — navigate once loading completes
-    ref.listen<AuthState>(authProvider, (prev, next) {
+    ref.listen<AuthState>(authProvider, (prev, next) async {
       if (!next.isLoading && mounted) {
-        Navigator.pushReplacementNamed(
-          context,
-          next.isLoggedIn ? '/home' : '/login',
-        );
+        if (next.isLoggedIn) {
+          // If onboarding wasn't completed yet, show it
+          final done = await hasCompletedOnboarding();
+          if (mounted) {
+            Navigator.pushReplacementNamed(
+              context,
+              done ? '/home' : '/onboarding',
+            );
+          }
+        } else {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
       }
     });
 

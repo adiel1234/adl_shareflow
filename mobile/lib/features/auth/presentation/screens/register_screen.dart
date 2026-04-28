@@ -45,7 +45,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         displayName: _nameCtrl.text.trim(),
       );
       ref.read(authProvider.notifier).setUser(user);
-      if (mounted) Navigator.pushReplacementNamed(context, '/home');
+      if (mounted) Navigator.pushReplacementNamed(context, '/onboarding');
     } catch (e) {
       final l = AppLocalizations.of(context)!;
       setState(() {

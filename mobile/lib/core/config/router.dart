@@ -5,6 +5,7 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/home/presentation/screens/main_shell.dart';
 import '../../features/groups/presentation/screens/group_detail_screen.dart';
+import '../../features/onboarding/onboarding_screen.dart';
 import '../../providers/groups_provider.dart';
 
 class AppRouter {
@@ -18,6 +19,8 @@ class AppRouter {
         return _slide(const RegisterScreen());
       case '/home':
         return _fade(const MainShell());
+      case '/onboarding':
+        return _fade(const OnboardingScreen());
       case '/group-detail':
         final args = settings.arguments as Map<String, dynamic>?;
         final groupId = args?['groupId'] as String? ?? '';
