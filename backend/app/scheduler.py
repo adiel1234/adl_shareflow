@@ -45,8 +45,13 @@ def send_auto_reminders():
             ReminderSettings.frequency.notin_(['manual', 'none']),
         ).all()
 
+        israel_hour = (datetime.now(timezone.utc).hour + 3) % 24
+
         for settings in all_settings:
             if not _should_send(settings.last_sent_at, settings.frequency):
+                continue
+            # If user set a preferred hour, only send during that hour
+            if settings.preferred_hour is not None and settings.preferred_hour != israel_hour:
                 continue
 
             # Find all groups this user is a creditor in
@@ -93,6 +98,57 @@ def send_auto_reminders():
             if sent_any:
                 settings.last_sent_at = datetime.now(timezone.utc)
                 db.session.commit()
+
+
+@scheduler.task('interval', id='scheduled_reminders', hours=1, misfire_grace_time=300)
+def send_scheduled_reminders():
+    """Hourly: send any one-time reminders whose send_at has passed."""
+    with scheduler.app.app_context():
+        from app import db
+        from app.models import ScheduledReminder, Group, GroupMember
+        from app.notifications import service as notif_svc
+        from app.balances.engine import calculate_settlement_plan
+
+        now = datetime.now(timezone.utc)
+
+        due = ScheduledReminder.query.filter(
+            ScheduledReminder.sent.is_(False),
+            ScheduledReminder.send_at <= now,
+        ).all()
+
+        for reminder in due:
+            group = db.session.get(Group, reminder.group_id)
+            if not group:
+                reminder.sent = True
+                continue
+
+            suggestions = calculate_settlement_plan(reminder.group_id, group.base_currency)
+
+            for s in suggestions:
+                # Filter by specific debtor if set
+                if reminder.to_user_id and s.from_user_id != reminder.to_user_id:
+                    continue
+                # The creator of the reminder is the creditor
+                if s.to_user_id != reminder.user_id:
+                    continue
+
+                try:
+                    notif_svc.notify_payment_reminder(
+                        {
+                            'from_user_id': s.from_user_id,
+                            'to_user_id': s.to_user_id,
+                            'amount': str(s.amount),
+                            'currency': s.currency,
+                            'group_id': reminder.group_id,
+                        },
+                        creditor_name=s.to_display_name,
+                    )
+                except Exception:
+                    pass
+
+            reminder.sent = True
+
+        db.session.commit()
 
 
 @scheduler.task('interval', id='check_group_expirations', hours=24, misfire_grace_time=3600)

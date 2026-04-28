@@ -68,15 +68,32 @@ class BalanceRepository {
     return response.data['data'] as Map<String, dynamic>;
   }
 
+  Future<Map<String, dynamic>> scheduleReminder({
+    required String groupId,
+    required DateTime sendAt,
+    String? toUserId,
+  }) async {
+    final response = await _api.post(
+      '/groups/$groupId/reminders/schedule',
+      data: {
+        'send_at': sendAt.toUtc().toIso8601String(),
+        if (toUserId != null) 'to_user_id': toUserId,
+      },
+    );
+    return response.data['data'] as Map<String, dynamic>;
+  }
+
   Future<Map<String, dynamic>> updateReminderSettings({
     required String frequency,
     required List<String> platforms,
     required bool enabled,
+    int? preferredHour,
   }) async {
     final response = await _api.put('/users/me/reminder-settings', data: {
       'frequency': frequency,
       'platforms': platforms,
       'enabled': enabled,
+      'preferred_hour': preferredHour,
     });
     return response.data['data'] as Map<String, dynamic>;
   }

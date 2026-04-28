@@ -27,6 +27,8 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
   bool _platformApp = true;
   bool _platformWhatsApp = false;
   bool _enabled = true;
+  // null = no preference (any hour), 0–23 = specific hour (Israel time)
+  int? _preferredHour;
 
   @override
   void initState() {
@@ -44,6 +46,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
           _platformApp = platforms.contains('app');
           _platformWhatsApp = platforms.contains('whatsapp');
           _enabled = data['enabled'] as bool? ?? true;
+          _preferredHour = data['preferred_hour'] as int?;
           _loading = false;
         });
       }
@@ -66,6 +69,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
         frequency: _frequency,
         platforms: platforms,
         enabled: _enabled,
+        preferredHour: _preferredHour,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -151,6 +155,77 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                                   setState(() => _frequency = f.$1),
                             ))
                         .toList(),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Preferred hour section
+                _SectionTitle(
+                    icon: Icons.access_time,
+                    title: 'שעת תזכורת מועדפת'),
+                const SizedBox(height: 10),
+                _SectionCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SwitchListTile(
+                        value: _preferredHour != null,
+                        onChanged: _enabled
+                            ? (v) => setState(
+                                () => _preferredHour = v ? 9 : null)
+                            : null,
+                        title: const Text('קבע שעה קבועה',
+                            style: TextStyle(fontWeight: FontWeight.w600)),
+                        subtitle: Text(
+                          _preferredHour != null
+                              ? 'תזכורות ישלחו בשעה ${_preferredHour.toString().padLeft(2, "0")}:00'
+                              : 'ללא העדפה — ישלח בכל שעה',
+                          style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 12),
+                        ),
+                        activeColor: AppColors.primary,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      if (_preferredHour != null) ...[
+                        const Divider(height: 1),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          height: 120,
+                          child: ListWheelScrollView.useDelegate(
+                            itemExtent: 40,
+                            perspective: 0.004,
+                            diameterRatio: 2.5,
+                            physics: const FixedExtentScrollPhysics(),
+                            controller: FixedExtentScrollController(
+                                initialItem: _preferredHour!),
+                            onSelectedItemChanged: (i) =>
+                                setState(() => _preferredHour = i),
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: 24,
+                              builder: (context, index) => Center(
+                                child: Text(
+                                  '${index.toString().padLeft(2, "0")}:00',
+                                  style: TextStyle(
+                                    fontSize: index == _preferredHour
+                                        ? 20
+                                        : 15,
+                                    fontWeight: index == _preferredHour
+                                        ? FontWeight.w700
+                                        : FontWeight.normal,
+                                    color: index == _preferredHour
+                                        ? AppColors.primary
+                                        : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    ],
                   ),
                 ),
 

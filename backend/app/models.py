@@ -444,6 +444,8 @@ class ReminderSettings(db.Model):
     # comma-separated: 'app', 'whatsapp', or 'app,whatsapp'
     platforms = Column(String(50), nullable=False, default='app')
     enabled = Column(Boolean, nullable=False, default=True)
+    # Preferred hour to send reminders (0–23, Israel time UTC+3). None = any hour.
+    preferred_hour = Column(Integer, nullable=True)
     last_sent_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=_now, onupdate=_now)
@@ -455,6 +457,40 @@ class ReminderSettings(db.Model):
             'frequency': self.frequency,
             'platforms': self.platforms.split(',') if self.platforms else ['app'],
             'enabled': self.enabled,
+            'preferred_hour': self.preferred_hour,
+        }
+
+
+# ---------------------------------------------------------------------------
+# Scheduled Reminders (one-time, user-defined date/time)
+# ---------------------------------------------------------------------------
+
+class ScheduledReminder(db.Model):
+    __tablename__ = 'scheduled_reminders'
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    user_id = Column(UUID(as_uuid=False), ForeignKey('users.id', ondelete='CASCADE'),
+                     nullable=False, index=True)
+    group_id = Column(UUID(as_uuid=False), ForeignKey('groups.id', ondelete='CASCADE'),
+                      nullable=False)
+    # Who to remind to pay (the debtor). None = remind all debtors in group.
+    to_user_id = Column(UUID(as_uuid=False), ForeignKey('users.id', ondelete='CASCADE'),
+                        nullable=True)
+    send_at = Column(DateTime(timezone=True), nullable=False, index=True)
+    sent = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
+
+    user = relationship('User', foreign_keys=[user_id])
+    group = relationship('Group')
+    to_user = relationship('User', foreign_keys=[to_user_id])
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'group_id': self.group_id,
+            'to_user_id': self.to_user_id,
+            'send_at': self.send_at.isoformat(),
+            'sent': self.sent,
         }
 
 

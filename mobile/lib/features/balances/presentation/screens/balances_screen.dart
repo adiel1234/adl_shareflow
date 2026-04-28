@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../features/balances/data/balance_repository.dart';
 import '../../../../providers/balances_provider.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/expenses_provider.dart';
@@ -525,12 +526,17 @@ class _DebtRow extends StatelessWidget {
 
 // ── Open debts transfer card ─────────────────────────────────────────────────
 
-class _TransfersCard extends ConsumerWidget {
+class _TransfersCard extends ConsumerStatefulWidget {
   final Group group;
   final List<SettlementSuggestion> suggestions;
 
   const _TransfersCard({required this.group, required this.suggestions});
 
+  @override
+  ConsumerState<_TransfersCard> createState() => _TransfersCardState();
+}
+
+class _TransfersCardState extends ConsumerState<_TransfersCard> {
   void _openPayment(BuildContext context, SettlementSuggestion s) {
     Navigator.push(
       context,
@@ -548,9 +554,60 @@ class _TransfersCard extends ConsumerWidget {
     );
   }
 
+  Future<void> _scheduleReminder(BuildContext context, SettlementSuggestion s) async {
+    final now = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      initialDate: now.add(const Duration(hours: 1)),
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
+      locale: const Locale('he'),
+    );
+    if (date == null || !context.mounted) return;
+
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(now.add(const Duration(hours: 1))),
+    );
+    if (time == null || !context.mounted) return;
+
+    final sendAt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    if (sendAt.isBefore(DateTime.now())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('הזמן שנבחר כבר עבר')),
+      );
+      return;
+    }
+
+    try {
+      await BalanceRepository().scheduleReminder(
+        groupId: widget.group.id,
+        sendAt: sendAt,
+        toUserId: s.fromUserId,
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'תזכורת נקבעה ל-${time.format(context)} ב-${date.day}/${date.month}',
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('שגיאה בקביעת התזכורת')),
+        );
+      }
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final currentUserId = ref.watch(authProvider).userId;
+    final group = widget.group;
+    final suggestions = widget.suggestions;
     final isClosed = group.isClosed;
     final headerColor = isClosed ? const Color(0xFFEF4444) : const Color(0xFF6366F1);
     final bgColor     = isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF0F0FF);
@@ -653,6 +710,17 @@ class _TransfersCard extends ConsumerWidget {
                           ),
                         );
                       }),
+                    ],
+                    if (!isMyDebt && s.toUserId == currentUserId) ...[
+                      const SizedBox(width: 4),
+                      IconButton(
+                        icon: Icon(Icons.alarm_add_outlined,
+                            size: 20, color: headerColor),
+                        onPressed: () => _scheduleReminder(context, s),
+                        tooltip: 'קבע תזכורת',
+                        constraints: const BoxConstraints(),
+                        padding: const EdgeInsets.all(4),
+                      ),
                     ],
                   ],
                 ),

@@ -5,7 +5,7 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app import db
-from app.models import Group, GroupMember, User
+from app.models import Group, GroupMember, User, ScheduledReminder
 from app.common.errors import success_response, error_response
 from app.common.decorators import require_group_member, require_group_admin
 from app.common.utils import generate_invite_code
@@ -900,3 +900,73 @@ def join_group(invite_code):
                 )
 
     return success_response(data=result, status_code=201)
+
+
+# ---------------------------------------------------------------------------
+# Scheduled Reminders (one-time)
+# ---------------------------------------------------------------------------
+
+@groups_bp.post('/<group_id>/reminders/schedule')
+@jwt_required()
+@require_group_member
+def schedule_reminder(group_id: str):
+    """Schedule a one-time payment reminder for a group."""
+    user_id = get_jwt_identity()
+    data = request.get_json(silent=True) or {}
+
+    send_at_str = data.get('send_at')
+    if not send_at_str:
+        return error_response('send_at is required (ISO 8601 format)')
+
+    try:
+        send_at = datetime.fromisoformat(send_at_str.replace('Z', '+00:00'))
+        if send_at.tzinfo is None:
+            send_at = send_at.replace(tzinfo=timezone.utc)
+    except ValueError:
+        return error_response('send_at must be a valid ISO 8601 datetime')
+
+    if send_at <= datetime.now(timezone.utc):
+        return error_response('send_at must be in the future')
+
+    to_user_id = data.get('to_user_id')
+
+    reminder = ScheduledReminder(
+        user_id=user_id,
+        group_id=group_id,
+        to_user_id=to_user_id,
+        send_at=send_at,
+    )
+    db.session.add(reminder)
+    db.session.commit()
+
+    return success_response(data=reminder.to_dict(), status_code=201)
+
+
+@groups_bp.get('/<group_id>/reminders/scheduled')
+@jwt_required()
+@require_group_member
+def list_scheduled_reminders(group_id: str):
+    """List pending one-time reminders for a group (created by current user)."""
+    user_id = get_jwt_identity()
+    reminders = ScheduledReminder.query.filter_by(
+        group_id=group_id, user_id=user_id, sent=False
+    ).order_by(ScheduledReminder.send_at).all()
+    return success_response(data=[r.to_dict() for r in reminders])
+
+
+@groups_bp.delete('/<group_id>/reminders/scheduled/<reminder_id>')
+@jwt_required()
+@require_group_member
+def delete_scheduled_reminder(group_id: str, reminder_id: str):
+    """Cancel a pending one-time reminder."""
+    user_id = get_jwt_identity()
+    reminder = ScheduledReminder.query.filter_by(
+        id=reminder_id, group_id=group_id, user_id=user_id
+    ).first()
+    if not reminder:
+        return error_response('Reminder not found', 404)
+    if reminder.sent:
+        return error_response('Cannot cancel a reminder that has already been sent')
+    db.session.delete(reminder)
+    db.session.commit()
+    return success_response(data={'deleted': True})

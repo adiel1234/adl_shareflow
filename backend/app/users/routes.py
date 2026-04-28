@@ -118,6 +118,15 @@ def update_reminder_settings():
     else:
         platforms = 'app'
 
+    preferred_hour = data.get('preferred_hour')
+    if preferred_hour is not None:
+        try:
+            preferred_hour = int(preferred_hour)
+            if not (0 <= preferred_hour <= 23):
+                return error_response('preferred_hour must be between 0 and 23')
+        except (TypeError, ValueError):
+            return error_response('preferred_hour must be an integer 0–23')
+
     settings = ReminderSettings.query.filter_by(user_id=user_id).first()
     if not settings:
         settings = ReminderSettings(
@@ -125,12 +134,14 @@ def update_reminder_settings():
             frequency=frequency,
             platforms=platforms or 'app',
             enabled=data.get('enabled', True),
+            preferred_hour=preferred_hour,
         )
         db.session.add(settings)
     else:
         settings.frequency = frequency
         settings.platforms = platforms or 'app'
         settings.enabled = data.get('enabled', settings.enabled)
+        settings.preferred_hour = preferred_hour
 
     db.session.commit()
     return success_response(data=settings.to_dict())

@@ -155,3 +155,89 @@ def deferred_link():
     This endpoint returns None when no server-side deferred link is available.
     """
     return {'invite_code': None}
+
+
+@download_bp.get('/privacy')
+def privacy_policy():
+    """Privacy policy page — required by App Store and Google Play."""
+    html = """<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>מדיניות פרטיות — ADL ShareFlow</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      line-height: 1.7;
+      padding: 40px 24px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 26px; font-weight: 700; color: #1e3a8a; margin-bottom: 8px; }
+    .updated { font-size: 13px; color: #64748b; margin-bottom: 32px; }
+    h2 { font-size: 17px; font-weight: 600; color: #1e3a8a; margin: 28px 0 10px; }
+    p, li { font-size: 15px; color: #334155; margin-bottom: 8px; }
+    ul { padding-right: 20px; }
+    a { color: #3b82f6; }
+    .contact { background: #f0f4ff; border-radius: 12px; padding: 20px; margin-top: 32px; }
+  </style>
+</head>
+<body>
+  <h1>מדיניות פרטיות</h1>
+  <p class="updated">עודכן לאחרונה: אפריל 2026</p>
+
+  <p>
+    ADL ShareFlow ("האפליקציה", "השירות") היא אפליקציה לניהול ושיתוף הוצאות בין קבוצות.
+    מדיניות זו מסבירה אילו מידע אנו אוספים, כיצד אנו משתמשים בו, ואת זכויותיך.
+  </p>
+
+  <h2>מידע שאנו אוספים</h2>
+  <ul>
+    <li><strong>פרטי חשבון:</strong> שם תצוגה, כתובת אימייל, מספר טלפון (אופציונלי).</li>
+    <li><strong>פרטי תשלום:</strong> מספר חשבון בנק, שם בנק, סניף, מספר טלפון לביט/פייבוקס — נשמרים לצרכי הסדרת חובות בין חברי הקבוצה בלבד.</li>
+    <li><strong>נתוני שימוש:</strong> הוצאות, קבוצות, יתרות — נשמרים כדי לספק את שירות חלוקת ההוצאות.</li>
+    <li><strong>מזהה מכשיר:</strong> FCM Token לצורך שליחת התראות Push.</li>
+  </ul>
+
+  <h2>כיצד אנו משתמשים במידע</h2>
+  <ul>
+    <li>מתן שירות חלוקת הוצאות בין חברי קבוצה.</li>
+    <li>שליחת התראות על הוצאות חדשות, תזכורות תשלום ועדכוני קבוצה.</li>
+    <li>שיפור ואבטחת השירות.</li>
+  </ul>
+
+  <h2>שיתוף מידע</h2>
+  <p>
+    אנו <strong>לא מוכרים</strong> מידע אישי לצדדים שלישיים.
+    פרטי תשלום (בנק, Bit, PayBox) מוצגים לחברי הקבוצה שלך בלבד, לצורך הסדרת חובות.
+  </p>
+
+  <h2>אבטחה</h2>
+  <p>
+    המידע מוצפן בהעברה (HTTPS) ומאוחסן בשרתים מאובטחים.
+    אנו משתמשים ב-JWT לאימות ו-bcrypt להצפנת סיסמאות.
+  </p>
+
+  <h2>שמירת מידע</h2>
+  <p>
+    נתוני קבוצה נמחקים כ-30 יום לאחר סיום הקבוצה.
+    ניתן לבקש מחיקת חשבון בכל עת דרך הגדרות האפליקציה.
+  </p>
+
+  <h2>ילדים</h2>
+  <p>השירות אינו מיועד לילדים מתחת לגיל 13. אנו לא אוספים מידע מילדים ביודעין.</p>
+
+  <h2>שינויים במדיניות</h2>
+  <p>כל שינוי במדיניות הפרטיות יפורסם בדף זה ויעודכן בתאריך "עודכן לאחרונה".</p>
+
+  <div class="contact">
+    <strong>יצירת קשר</strong><br>
+    לשאלות בנושא פרטיות: <a href="mailto:support@adlprojects.co.il">support@adlprojects.co.il</a>
+  </div>
+</body>
+</html>"""
+    return html

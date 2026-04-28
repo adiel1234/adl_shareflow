@@ -12,22 +12,26 @@ currency_bp = Blueprint('currency', __name__)
 
 # Fallback rates (updated periodically — used if live fetch fails)
 FALLBACK_RATES = {
-    ('USD', 'ILS'): Decimal('3.68'),
-    ('ILS', 'USD'): Decimal('0.272'),
-    ('EUR', 'ILS'): Decimal('4.02'),
-    ('ILS', 'EUR'): Decimal('0.249'),
-    ('GBP', 'ILS'): Decimal('4.72'),
-    ('ILS', 'GBP'): Decimal('0.212'),
-    ('JPY', 'ILS'): Decimal('0.024'),
-    ('ILS', 'JPY'): Decimal('41.5'),
-    ('AED', 'ILS'): Decimal('1.00'),
-    ('ILS', 'AED'): Decimal('1.00'),
-    ('USD', 'EUR'): Decimal('0.92'),
-    ('EUR', 'USD'): Decimal('1.09'),
+    ('USD', 'ILS'): Decimal('3.72'),
+    ('ILS', 'USD'): Decimal('0.269'),
+    ('EUR', 'ILS'): Decimal('3.98'),
+    ('ILS', 'EUR'): Decimal('0.251'),
+    ('GBP', 'ILS'): Decimal('4.65'),
+    ('ILS', 'GBP'): Decimal('0.215'),
+    ('JPY', 'ILS'): Decimal('0.025'),
+    ('ILS', 'JPY'): Decimal('40.0'),
+    ('AED', 'ILS'): Decimal('1.01'),
+    ('ILS', 'AED'): Decimal('0.99'),
+    ('CHF', 'ILS'): Decimal('4.10'),
+    ('ILS', 'CHF'): Decimal('0.244'),
+    ('CAD', 'ILS'): Decimal('2.67'),
+    ('ILS', 'CAD'): Decimal('0.374'),
+    ('USD', 'EUR'): Decimal('0.93'),
+    ('EUR', 'USD'): Decimal('1.08'),
 }
 
 SUPPORTED_CURRENCIES = ['ILS', 'USD', 'EUR', 'GBP', 'JPY', 'AED', 'CHF', 'CAD', 'AUD']
-RATE_CACHE_HOURS = 6  # Refresh rates every 6 hours
+RATE_CACHE_HOURS = 3  # Refresh rates every 3 hours
 
 
 @currency_bp.get('/rates')
