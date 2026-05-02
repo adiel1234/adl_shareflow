@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../features/balances/data/balance_repository.dart';
 import '../../../../providers/balances_provider.dart';
 import '../../../../providers/auth_provider.dart';
@@ -699,16 +700,19 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
     if (confirmed != true || !mounted) return;
     try {
       HapticFeedback.mediumImpact();
-      // Create + immediately confirm the settlement on behalf of the guest
-      await BalanceRepository().requestSettlement(
-        groupId: widget.group.id,
-        toUserId: s.toUserId,
-        amount: s.amountDouble,
-        currency: s.currency,
-      );
+      // Dedicated admin endpoint: creates a confirmed settlement directly
+      // on behalf of the guest — no two-step approval needed.
+      final api = ApiClient.instance;
+      await api.post('/groups/${widget.group.id}/settlements/mark-guest-paid', data: {
+        'guest_user_id': s.fromUserId,
+        'to_user_id': s.toUserId,
+        'amount': s.amountDouble,
+        'currency': s.currency,
+      });
       if (!mounted) return;
       ref.invalidate(pendingSettlementsProvider(widget.group.id));
       ref.invalidate(balancesProvider(widget.group.id));
+      ref.invalidate(settlementPlanProvider(widget.group.id));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('החוב סומן כשולם')),
       );

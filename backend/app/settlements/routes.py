@@ -6,7 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models import Settlement, GroupMember, Group
 from app.common.errors import success_response, error_response
-from app.common.decorators import require_group_member, require_group_operational
+from app.common.decorators import require_group_member, require_group_admin, require_group_operational
 from app.common.utils import to_decimal
 
 settlements_bp = Blueprint('settlements', __name__)
@@ -118,6 +118,52 @@ def list_pending_settlements(group_id, **kwargs):
         result.append(d)
 
     return success_response(data={'settlements': result})
+
+
+@settlements_bp.post('/groups/<group_id>/settlements/mark-guest-paid')
+@jwt_required()
+@require_group_admin
+def mark_guest_paid(group_id, **kwargs):
+    """Admin directly marks a guest's debt as settled (no two-step confirmation needed)."""
+    from app.models import User
+    admin_id = get_jwt_identity()
+    data = request.get_json(silent=True) or {}
+
+    guest_user_id = data.get('guest_user_id')
+    to_user_id = data.get('to_user_id')
+    if not guest_user_id or not to_user_id:
+        return error_response('guest_user_id and to_user_id are required')
+
+    guest = db.session.get(User, guest_user_id)
+    if not guest or not guest.is_guest:
+        return error_response('guest_user_id must belong to a guest member', 404)
+
+    guest_member = GroupMember.query.filter_by(group_id=group_id, user_id=guest_user_id).first()
+    if not guest_member:
+        return error_response('Guest is not a member of this group', 404)
+
+    try:
+        amount = to_decimal(data.get('amount'))
+        if amount <= 0:
+            raise ValueError()
+    except Exception:
+        return error_response('amount must be a positive number')
+
+    group = db.session.get(Group, group_id)
+    settlement = Settlement(
+        group_id=group_id,
+        from_user_id=guest_user_id,
+        to_user_id=to_user_id,
+        amount=amount,
+        currency=data.get('currency', group.base_currency),
+        status='confirmed',
+        confirmed_at=datetime.now(timezone.utc),
+        notes=f'סומן ע"י מנהל בשם האורח {guest.display_name}',
+    )
+    db.session.add(settlement)
+    db.session.commit()
+
+    return success_response(data=settlement.to_dict(), status_code=201)
 
 
 @settlements_bp.put('/settlements/<settlement_id>/cancel')
