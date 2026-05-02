@@ -19,12 +19,21 @@ import 'theme/app_theme.dart';
 import 'providers/locale_provider.dart';
 import 'l10n/app_localizations.dart';
 
-/// Parses an invite code from a shareflow:// deep link URI.
-/// Returns null if the URI is not a valid join link.
+/// Parses an invite code from a shareflow:// or https:// deep link URI.
+/// shareflow://join/ABC123  → host="join", pathSegments=["ABC123"]
+/// https://host/join/ABC123 → pathSegments=["join","ABC123"]
 String? _parseInviteCode(Uri uri) {
-  if (uri.scheme != 'shareflow') return null;
-  final segments = uri.pathSegments;
-  if (segments.length >= 2 && segments[0] == 'join') return segments[1];
+  if (uri.scheme == 'shareflow') {
+    if (uri.host == 'join' && uri.pathSegments.isNotEmpty) {
+      return uri.pathSegments.first;
+    }
+    return null;
+  }
+  if (uri.scheme == 'https' || uri.scheme == 'http') {
+    final segs = uri.pathSegments;
+    final idx = segs.indexOf('join');
+    if (idx >= 0 && idx + 1 < segs.length) return segs[idx + 1];
+  }
   return null;
 }
 

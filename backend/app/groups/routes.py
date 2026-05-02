@@ -970,3 +970,123 @@ def delete_scheduled_reminder(group_id: str, reminder_id: str):
     db.session.delete(reminder)
     db.session.commit()
     return success_response(data={'deleted': True})
+
+
+# ---------------------------------------------------------------------------
+# Guest members (people without the app)
+# ---------------------------------------------------------------------------
+
+@groups_bp.post('/<group_id>/guests')
+@jwt_required()
+@require_group_admin
+def add_guest_member(group_id, **kwargs):
+    """Admin adds a guest member by name only (no app required)."""
+    import uuid as _uuid_mod
+    user_id = get_jwt_identity()
+    group = db.session.get(Group, group_id)
+    if not group or not group.is_active:
+        return error_response('Group not found', 404)
+
+    data = request.get_json(silent=True) or {}
+    name = (data.get('name') or '').strip()
+    if not name:
+        return error_response('שם האורח נדרש')
+
+    # Create a ghost User record — fake email, no auth identity
+    ghost_id = str(_uuid_mod.uuid4())
+    ghost = User(
+        id=ghost_id,
+        email=f'guest_{ghost_id}@shareflow.internal',
+        display_name=name,
+        is_guest=True,
+        is_active=True,
+        default_currency='ILS',
+        language='he',
+        plan='free',
+    )
+    db.session.add(ghost)
+    db.session.flush()
+
+    member = GroupMember(group_id=group_id, user_id=ghost_id, role='member')
+    db.session.add(member)
+    db.session.commit()
+
+    return success_response(data={
+        'user_id': ghost_id,
+        'display_name': name,
+        'is_guest': True,
+        'member_id': member.id,
+    })
+
+
+@groups_bp.put('/<group_id>/guests/<guest_user_id>/link')
+@jwt_required()
+@require_group_admin
+def link_guest_member(group_id, guest_user_id, **kwargs):
+    """Admin links a guest placeholder to a real registered member of the group."""
+    from app.models import Expense, ExpenseSplit, Settlement
+
+    group = db.session.get(Group, group_id)
+    if not group or not group.is_active:
+        return error_response('Group not found', 404)
+
+    ghost = db.session.get(User, guest_user_id)
+    if not ghost or not ghost.is_guest:
+        return error_response('Guest not found', 404)
+
+    # Verify ghost is in this group
+    ghost_member = GroupMember.query.filter_by(group_id=group_id, user_id=guest_user_id).first()
+    if not ghost_member:
+        return error_response('Guest is not in this group', 404)
+
+    data = request.get_json(silent=True) or {}
+    real_user_id = (data.get('real_user_id') or '').strip()
+    if not real_user_id:
+        return error_response('real_user_id נדרש')
+
+    real_member = GroupMember.query.filter_by(group_id=group_id, user_id=real_user_id).first()
+    if not real_member:
+        return error_response('המשתמש האמיתי אינו חבר בקבוצה', 404)
+
+    real_user = db.session.get(User, real_user_id)
+    if not real_user or real_user.is_guest:
+        return error_response('משתמש לא תקין')
+
+    # Transfer all expenses paid by ghost
+    Expense.query.filter_by(group_id=group_id, paid_by=guest_user_id).update({'paid_by': real_user_id})
+
+    # Transfer all expense splits
+    for split in ExpenseSplit.query.filter_by(user_id=guest_user_id).all():
+        expense = db.session.get(Expense, split.expense_id)
+        if expense and expense.group_id == group_id:
+            split.user_id = real_user_id
+
+    # Transfer settlements (from / to)
+    Settlement.query.filter_by(group_id=group_id, from_user_id=guest_user_id).update({'from_user_id': real_user_id})
+    Settlement.query.filter_by(group_id=group_id, to_user_id=guest_user_id).update({'to_user_id': real_user_id})
+
+    # Remove ghost from group and delete ghost user
+    db.session.delete(ghost_member)
+    db.session.delete(ghost)
+    db.session.commit()
+
+    return success_response(message=f'האורח שויך בהצלחה ל-{real_user.display_name}')
+
+
+@groups_bp.delete('/<group_id>/guests/<guest_user_id>')
+@jwt_required()
+@require_group_admin
+def remove_guest_member(group_id, guest_user_id, **kwargs):
+    """Admin removes a guest member from the group."""
+    ghost = db.session.get(User, guest_user_id)
+    if not ghost or not ghost.is_guest:
+        return error_response('Guest not found', 404)
+
+    ghost_member = GroupMember.query.filter_by(group_id=group_id, user_id=guest_user_id).first()
+    if not ghost_member:
+        return error_response('Guest is not in this group', 404)
+
+    db.session.delete(ghost_member)
+    db.session.delete(ghost)
+    db.session.commit()
+    return success_response(data={'deleted': True})

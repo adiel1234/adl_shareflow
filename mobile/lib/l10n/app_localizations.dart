@@ -467,7 +467,7 @@ abstract class AppLocalizations {
   /// No description provided for @invalidCode.
   ///
   /// In he, this message translates to:
-  /// **'קוד לא תקין — בדוק ונסה שוב'**
+  /// **'קוד לא תקין - בדוק ונסה שוב'**
   String get invalidCode;
 
   /// No description provided for @splitExpenses.
@@ -977,13 +977,13 @@ abstract class AppLocalizations {
   /// No description provided for @scanReceiptDescription.
   ///
   /// In he, this message translates to:
-  /// **'חסוך זמן — מלא אוטומטית מקבלה'**
+  /// **'חסוך זמן - מלא אוטומטית מקבלה'**
   String get scanReceiptDescription;
 
   /// No description provided for @receiptScanned.
   ///
   /// In he, this message translates to:
-  /// **'הקבלה נסרקה — ניתן לעדכן את הנתונים'**
+  /// **'הקבלה נסרקה - ניתן לעדכן את הנתונים'**
   String get receiptScanned;
 
   /// No description provided for @rescan.
@@ -1031,13 +1031,13 @@ abstract class AppLocalizations {
   /// No description provided for @eventTypeDesc.
   ///
   /// In he, this message translates to:
-  /// **'מתאים לטיולים, אירועים, ומפגשים — עד 25 משתתפים'**
+  /// **'מתאים לטיולים, אירועים, ומפגשים - עד 25 משתתפים'**
   String get eventTypeDesc;
 
   /// No description provided for @ongoingTypeDesc.
   ///
   /// In he, this message translates to:
-  /// **'מתאים לדירות שותפים, משרדים — חיוב חודשי'**
+  /// **'מתאים לדירות שותפים, משרדים - חיוב חודשי'**
   String get ongoingTypeDesc;
 
   /// No description provided for @groupNameHint.
@@ -1403,25 +1403,25 @@ abstract class AppLocalizations {
   /// No description provided for @errorTryAgain.
   ///
   /// In he, this message translates to:
-  /// **'שגיאה — נסה שוב'**
+  /// **'שגיאה - נסה שוב'**
   String get errorTryAgain;
 
   /// No description provided for @extendBtnLabel.
   ///
   /// In he, this message translates to:
-  /// **'הארך ב-7 ימים — {price} ₪'**
+  /// **'הארך ב-7 ימים - {price} ₪'**
   String extendBtnLabel(int price);
 
   /// No description provided for @renewBtnLabel.
   ///
   /// In he, this message translates to:
-  /// **'חדש לחודש — {price} ₪'**
+  /// **'חדש לחודש - {price} ₪'**
   String renewBtnLabel(int price);
 
   /// No description provided for @activateBtnLabel.
   ///
   /// In he, this message translates to:
-  /// **'הפעל קבוצה — {price} ₪'**
+  /// **'הפעל קבוצה - {price} ₪'**
   String activateBtnLabel(int price);
 
   /// No description provided for @sevenDaysPlus.
@@ -2123,7 +2123,7 @@ abstract class AppLocalizations {
   /// No description provided for @proPlanSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'בקרוב — ניתוחים, סטטיסטיקות ועוד'**
+  /// **'בקרוב - ניתוחים, סטטיסטיקות ועוד'**
   String get proPlanSubtitle;
 
   /// No description provided for @appSection.
@@ -2165,7 +2165,7 @@ abstract class AppLocalizations {
   /// No description provided for @freeTierLabel.
   ///
   /// In he, this message translates to:
-  /// **'חינם — עד 7 חברים'**
+  /// **'חינם - עד 7 חברים'**
   String get freeTierLabel;
 
   /// No description provided for @freeIncluded.
@@ -2177,13 +2177,13 @@ abstract class AppLocalizations {
   /// No description provided for @createGroupFree.
   ///
   /// In he, this message translates to:
-  /// **'צור קבוצה — חינם'**
+  /// **'צור קבוצה - חינם'**
   String get createGroupFree;
 
   /// No description provided for @createGroupPaid.
   ///
   /// In he, this message translates to:
-  /// **'צור קבוצה — {price} ₪'**
+  /// **'צור קבוצה - {price} ₪'**
   String createGroupPaid(int price);
 
   /// No description provided for @durationDays.
@@ -2207,7 +2207,7 @@ abstract class AppLocalizations {
   /// No description provided for @tierUpgradeSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'הקבוצה גדלה — נדרש תשלום של {price} ₪ לשדרוג'**
+  /// **'הקבוצה גדלה - נדרש תשלום של {price} ₪ לשדרוג'**
   String tierUpgradeSubtitle(int price);
 
   /// No description provided for @tierUpgradeBtn.
@@ -2231,7 +2231,7 @@ abstract class AppLocalizations {
   /// No description provided for @upgradeBtnLabel.
   ///
   /// In he, this message translates to:
-  /// **'שדרג — {price} ₪'**
+  /// **'שדרג - {price} ₪'**
   String upgradeBtnLabel(int price);
 
   /// No description provided for @upgradedSuccess.
@@ -2399,7 +2399,7 @@ abstract class AppLocalizations {
   /// No description provided for @noDebtsBalanced.
   ///
   /// In he, this message translates to:
-  /// **'כל החשבונות מאוזנים — אין חובות'**
+  /// **'כל החשבונות מאוזנים - אין חובות'**
   String get noDebtsBalanced;
 
   /// No description provided for @markAsPaid.
@@ -2423,7 +2423,7 @@ abstract class AppLocalizations {
   /// No description provided for @openDebtsGroupClosed.
   ///
   /// In he, this message translates to:
-  /// **'חובות פתוחים — הקבוצה סגורה'**
+  /// **'חובות פתוחים - הקבוצה סגורה'**
   String get openDebtsGroupClosed;
 
   /// No description provided for @groupClosedUnpaidDebts.
@@ -2479,6 +2479,132 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'שגיאה במחיקת הקבוצה'**
   String get errorDeletingGroup;
+
+  /// No description provided for @addGuest.
+  ///
+  /// In he, this message translates to:
+  /// **'הוסף אורח'**
+  String get addGuest;
+
+  /// No description provided for @addGuestTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הוסף חבר ללא אפליקציה'**
+  String get addGuestTitle;
+
+  /// No description provided for @addGuestHint.
+  ///
+  /// In he, this message translates to:
+  /// **'שם החבר (לדוגמה: ישי כהן)'**
+  String get addGuestHint;
+
+  /// No description provided for @addGuestBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'הוסף'**
+  String get addGuestBtn;
+
+  /// No description provided for @guestBadge.
+  ///
+  /// In he, this message translates to:
+  /// **'אורח'**
+  String get guestBadge;
+
+  /// No description provided for @guestAddedSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'האורח נוסף לקבוצה'**
+  String get guestAddedSuccess;
+
+  /// No description provided for @guestLabel.
+  ///
+  /// In he, this message translates to:
+  /// **'👤 אורח'**
+  String get guestLabel;
+
+  /// No description provided for @guestExplainTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'מה זה אורח?'**
+  String get guestExplainTitle;
+
+  /// No description provided for @guestExplainBody.
+  ///
+  /// In he, this message translates to:
+  /// **'אורח הוא חבר שעדיין אין לו את האפליקציה.\n• הוא נכלל בחישוב ההוצאות כמו כל חבר אחר\n• המנהל מנהל את תשלומיו עד שיוריד את האפליקציה\n• ברגע שיוריד — המנהל מקשר אותו לחשבון שלו ומשם הוא פועל עצמאית'**
+  String get guestExplainBody;
+
+  /// No description provided for @guestReminderTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'אורחים ללא חשבון'**
+  String get guestReminderTitle;
+
+  /// No description provided for @guestReminderBody.
+  ///
+  /// In he, this message translates to:
+  /// **'{count, plural, one{חבר אחד} other{{count} חברים}} מסומנים כאורחים.\nכשיורידו את האפליקציה, קשר אותם לחשבון שלהם דרך לחצן הקישור.'**
+  String guestReminderBody(int count);
+
+  /// No description provided for @guestReminderAction.
+  ///
+  /// In he, this message translates to:
+  /// **'לניהול אורחים'**
+  String get guestReminderAction;
+
+  /// No description provided for @linkGuestTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'קשר אורח לחשבון'**
+  String get linkGuestTitle;
+
+  /// No description provided for @linkGuestSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'בחר את החבר הרשום שאליו תרצה לשייך את {name}'**
+  String linkGuestSubtitle(String name);
+
+  /// No description provided for @linkGuestExplain.
+  ///
+  /// In he, this message translates to:
+  /// **'כל ההוצאות והיתרות של האורח יועברו לחשבון הנבחר.'**
+  String get linkGuestExplain;
+
+  /// No description provided for @linkGuestBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'קשר'**
+  String get linkGuestBtn;
+
+  /// No description provided for @linkGuestSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'האורח שויך בהצלחה'**
+  String get linkGuestSuccess;
+
+  /// No description provided for @removeGuest.
+  ///
+  /// In he, this message translates to:
+  /// **'הסר אורח'**
+  String get removeGuest;
+
+  /// No description provided for @removeGuestConfirm.
+  ///
+  /// In he, this message translates to:
+  /// **'הסרת האורח {name} תמחק את כל ההוצאות שלו בקבוצה. להמשיך?'**
+  String removeGuestConfirm(String name);
+
+  /// No description provided for @markGuestPaid.
+  ///
+  /// In he, this message translates to:
+  /// **'סמן שולם (עבור אורח)'**
+  String get markGuestPaid;
+
+  /// No description provided for @guestNoApp.
+  ///
+  /// In he, this message translates to:
+  /// **'עבור חברים שעדיין לא הורידו את האפליקציה'**
+  String get guestNoApp;
 }
 
 class _AppLocalizationsDelegate

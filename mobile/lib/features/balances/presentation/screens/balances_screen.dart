@@ -677,11 +677,61 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
     }
   }
 
+  Future<void> _markGuestPaid(BuildContext context, SettlementSuggestion s) async {
+    if (!mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppLocalizations.of(ctx)!.markGuestPaid),
+        content: Text(
+          'סמן שהאורח ${s.fromDisplayName} שילם ${s.amountDouble.round()} ${s.currency} ל-${s.toDisplayName}?',
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(AppLocalizations.of(ctx)!.cancel)),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('כן, שולם')),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      HapticFeedback.mediumImpact();
+      // Create + immediately confirm the settlement on behalf of the guest
+      await BalanceRepository().requestSettlement(
+        groupId: widget.group.id,
+        toUserId: s.toUserId,
+        amount: s.amountDouble,
+        currency: s.currency,
+      );
+      if (!mounted) return;
+      ref.invalidate(pendingSettlementsProvider(widget.group.id));
+      ref.invalidate(balancesProvider(widget.group.id));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('החוב סומן כשולם')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      String msg = 'שגיאה בסימון תשלום';
+      if (e is DioException) msg = (e.response?.data?['message'] as String?) ?? msg;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentUserId = ref.watch(authProvider).userId;
     final group = widget.group;
     final suggestions = widget.suggestions;
+    // Collect guest user IDs from members list
+    final membersAsync = ref.watch(groupMembersProvider(group.id));
+    final guestIds = membersAsync.valueOrNull
+            ?.where((m) => m.isGuest)
+            .map((m) => m.userId)
+            .toSet() ??
+        {};
     final isClosed = group.isClosed;
     final headerColor = isClosed ? const Color(0xFFEF4444) : const Color(0xFF6366F1);
     final bgColor     = isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF0F0FF);
@@ -733,6 +783,7 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
           ...suggestions.map(
             (s) {
               final isMyDebt = s.fromUserId == currentUserId;
+              final isGuestDebt = group.isAdmin && guestIds.contains(s.fromUserId);
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -791,7 +842,29 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                         );
                       }),
                     ],
-                    if (!isMyDebt && s.toUserId == currentUserId) ...[
+                    if (isGuestDebt && !isMyDebt) ...[
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () => _markGuestPaid(context, s),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.purple,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'שולם',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (!isMyDebt && !isGuestDebt && s.toUserId == currentUserId) ...[
                       const SizedBox(width: 4),
                       IconButton(
                         icon: Icon(Icons.alarm_add_outlined,

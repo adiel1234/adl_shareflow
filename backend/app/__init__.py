@@ -186,17 +186,30 @@ def create_app(config=None):
     }}
 
     function openInBrowser() {{
-      // iOS: x-safari will hand off to Safari; Android: use intent to Chrome
-      if (isIOS()) {{
-        window.location = 'x-safari:' + PAGE;
-      }} else {{
+      // Copy the page URL to clipboard so the user can paste it in their browser
+      // then open it. On Android, use an intent to hand off to Chrome.
+      if (!isIOS()) {{
         window.location = 'intent://' + PAGE.replace(/https?:\\/\\//, '') +
           '#Intent;scheme=https;package=com.android.chrome;end';
+      }} else {{
+        // On iOS show the instructions panel — x-safari: is deprecated
+        document.getElementById('ios-hint').style.display = 'block';
       }}
     }}
 
     function openApp() {{
-      writeClip(function() {{ window.location = DEEP; }});
+      writeClip(function() {{
+        // Navigate to the deep link. On Android use an intent for better reliability.
+        if (!isIOS()) {{
+          window.location = 'intent://join/{invite_code}#Intent;scheme=shareflow;package=com.adl.shareflow;S.browser_fallback_url=' + encodeURIComponent('{ANDROID_APK}') + ';end';
+        }} else {{
+          window.location = DEEP;
+        }}
+        // If we're still here after 1.8s the app is not installed — show download buttons
+        setTimeout(function() {{
+          document.getElementById('no-app-hint').style.display = 'block';
+        }}, 1800);
+      }});
     }}
 
     function dlApp(e, url) {{
@@ -206,13 +219,10 @@ def create_app(config=None):
 
     window.onload = function() {{
       if (isInAppBrowser()) {{
-        // WhatsApp/in-app browser: cannot open custom schemes - show notice
+        // WhatsApp/Messenger: can't open custom schemes — show notice + still show buttons
         document.getElementById('wa-notice').style.display = 'block';
-        document.getElementById('main-actions').style.display = 'none';
-      }} else {{
-        // Normal browser - try to open app automatically
-        window.location = DEEP;
       }}
+      // Always show main-actions so the user sees the page
     }};
   </script>
 </head>
@@ -223,18 +233,24 @@ def create_app(config=None):
     <p class="subtitle">ניהול הוצאות משותפות בקלות</p>
     <div class="code">{invite_code}</div>
 
-    <!-- Shown only inside WhatsApp / in-app browser -->
+    <!-- Shown inside WhatsApp / Messenger -->
     <div class="wa-notice" id="wa-notice">
-      <p><strong>כדי לפתוח את האפליקציה יש לפתוח קישור זה בדפדפן הרגיל</strong><br>
-      לחץ על הכפתור למטה כדי להמשיך</p>
+      <p><strong>כדי לפתוח את האפליקציה יש לפתוח קישור זה בדפדפן רגיל</strong><br>
+      לחץ על "פתח בדפדפן" או העתק את הקוד למטה ישירות לאפליקציה</p>
       <button class="btn btn-browser" onclick="openInBrowser()">
         &#127758; פתח בדפדפן
       </button>
+      <div id="ios-hint" style="display:none;margin-top:10px;background:#fff8e1;border-radius:10px;padding:12px;font-size:13px;color:#856404;">
+        ב-iPhone: לחץ לחיצה ארוכה על הקישור ב-WhatsApp ובחר "פתח ב-Safari"
+      </div>
     </div>
 
-    <!-- Shown in regular browsers -->
+    <!-- Always shown -->
     <div id="main-actions">
-      <a class="btn btn-primary" href="#" onclick="event.preventDefault();openApp()">פתח באפליקציה</a>
+      <a class="btn btn-primary" href="#" onclick="event.preventDefault();openApp()">&#128241; פתח באפליקציה</a>
+      <div id="no-app-hint" style="display:none;background:#fff3cd;border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;color:#856404;">
+        האפליקציה לא מותקנת במכשיר זה. הורד אותה למטה
+      </div>
       <div class="divider">- אין לך את האפליקציה עדיין? -</div>
       <a class="btn btn-android" href="#" onclick="dlApp(event,'{ANDROID_APK}')">🤖 הורד לאנדרואיד</a>
       <a class="btn btn-ios" href="#" onclick="dlApp(event,'{TESTFLIGHT}')">🍎 הורד ל-iPhone</a>

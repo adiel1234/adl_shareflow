@@ -194,7 +194,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get alreadyMember => 'כבר חבר בקבוצה זו';
 
   @override
-  String get invalidCode => 'קוד לא תקין — בדוק ונסה שוב';
+  String get invalidCode => 'קוד לא תקין - בדוק ונסה שוב';
 
   @override
   String get splitExpenses => 'חלוקת הוצאות';
@@ -460,10 +460,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get addExpenseBtn => 'הוסף הוצאה';
 
   @override
-  String get scanReceiptDescription => 'חסוך זמן — מלא אוטומטית מקבלה';
+  String get scanReceiptDescription => 'חסוך זמן - מלא אוטומטית מקבלה';
 
   @override
-  String get receiptScanned => 'הקבלה נסרקה — ניתן לעדכן את הנתונים';
+  String get receiptScanned => 'הקבלה נסרקה - ניתן לעדכן את הנתונים';
 
   @override
   String get rescan => 'סרוק שוב';
@@ -487,10 +487,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get monthly => 'חודשי';
 
   @override
-  String get eventTypeDesc => 'מתאים לטיולים, אירועים, ומפגשים — עד 25 משתתפים';
+  String get eventTypeDesc => 'מתאים לטיולים, אירועים, ומפגשים - עד 25 משתתפים';
 
   @override
-  String get ongoingTypeDesc => 'מתאים לדירות שותפים, משרדים — חיוב חודשי';
+  String get ongoingTypeDesc => 'מתאים לדירות שותפים, משרדים - חיוב חודשי';
 
   @override
   String get groupNameHint => 'לדוגמה: דירה ברחוב הרצל';
@@ -694,21 +694,21 @@ class AppLocalizationsHe extends AppLocalizations {
   String get activatedSuccess => 'הקבוצה הופעלה בהצלחה 🎉';
 
   @override
-  String get errorTryAgain => 'שגיאה — נסה שוב';
+  String get errorTryAgain => 'שגיאה - נסה שוב';
 
   @override
   String extendBtnLabel(int price) {
-    return 'הארך ב-7 ימים — $price ₪';
+    return 'הארך ב-7 ימים - $price ₪';
   }
 
   @override
   String renewBtnLabel(int price) {
-    return 'חדש לחודש — $price ₪';
+    return 'חדש לחודש - $price ₪';
   }
 
   @override
   String activateBtnLabel(int price) {
-    return 'הפעל קבוצה — $price ₪';
+    return 'הפעל קבוצה - $price ₪';
   }
 
   @override
@@ -1074,7 +1074,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get proPlanTitle => 'תוכנית Pro';
 
   @override
-  String get proPlanSubtitle => 'בקרוב — ניתוחים, סטטיסטיקות ועוד';
+  String get proPlanSubtitle => 'בקרוב - ניתוחים, סטטיסטיקות ועוד';
 
   @override
   String get appSection => 'אפליקציה';
@@ -1099,17 +1099,17 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get freeTierLabel => 'חינם — עד 7 חברים';
+  String get freeTierLabel => 'חינם - עד 7 חברים';
 
   @override
   String get freeIncluded => 'חינמי: עד 7 חברים ו-7 ימים';
 
   @override
-  String get createGroupFree => 'צור קבוצה — חינם';
+  String get createGroupFree => 'צור קבוצה - חינם';
 
   @override
   String createGroupPaid(int price) {
-    return 'צור קבוצה — $price ₪';
+    return 'צור קבוצה - $price ₪';
   }
 
   @override
@@ -1125,7 +1125,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String tierUpgradeSubtitle(int price) {
-    return 'הקבוצה גדלה — נדרש תשלום של $price ₪ לשדרוג';
+    return 'הקבוצה גדלה - נדרש תשלום של $price ₪ לשדרוג';
   }
 
   @override
@@ -1140,7 +1140,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String upgradeBtnLabel(int price) {
-    return 'שדרג — $price ₪';
+    return 'שדרג - $price ₪';
   }
 
   @override
@@ -1234,7 +1234,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get openDebtCount => 'חוב פתוח 1';
 
   @override
-  String get noDebtsBalanced => 'כל החשבונות מאוזנים — אין חובות';
+  String get noDebtsBalanced => 'כל החשבונות מאוזנים - אין חובות';
 
   @override
   String get markAsPaid => 'שולם ✓';
@@ -1248,7 +1248,7 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get openDebtsGroupClosed => 'חובות פתוחים — הקבוצה סגורה';
+  String get openDebtsGroupClosed => 'חובות פתוחים - הקבוצה סגורה';
 
   @override
   String get groupClosedUnpaidDebts => 'הקבוצה סגורה אך יש חובות שטרם שולמו';
@@ -1280,4 +1280,81 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get errorDeletingGroup => 'שגיאה במחיקת הקבוצה';
+
+  @override
+  String get addGuest => 'הוסף אורח';
+
+  @override
+  String get addGuestTitle => 'הוסף חבר ללא אפליקציה';
+
+  @override
+  String get addGuestHint => 'שם החבר (לדוגמה: ישי כהן)';
+
+  @override
+  String get addGuestBtn => 'הוסף';
+
+  @override
+  String get guestBadge => 'אורח';
+
+  @override
+  String get guestAddedSuccess => 'האורח נוסף לקבוצה';
+
+  @override
+  String get guestLabel => '👤 אורח';
+
+  @override
+  String get guestExplainTitle => 'מה זה אורח?';
+
+  @override
+  String get guestExplainBody =>
+      'אורח הוא חבר שעדיין אין לו את האפליקציה.\n• הוא נכלל בחישוב ההוצאות כמו כל חבר אחר\n• המנהל מנהל את תשלומיו עד שיוריד את האפליקציה\n• ברגע שיוריד — המנהל מקשר אותו לחשבון שלו ומשם הוא פועל עצמאית';
+
+  @override
+  String get guestReminderTitle => 'אורחים ללא חשבון';
+
+  @override
+  String guestReminderBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count חברים',
+      one: 'חבר אחד',
+    );
+    return '$_temp0 מסומנים כאורחים.\nכשיורידו את האפליקציה, קשר אותם לחשבון שלהם דרך לחצן הקישור.';
+  }
+
+  @override
+  String get guestReminderAction => 'לניהול אורחים';
+
+  @override
+  String get linkGuestTitle => 'קשר אורח לחשבון';
+
+  @override
+  String linkGuestSubtitle(String name) {
+    return 'בחר את החבר הרשום שאליו תרצה לשייך את $name';
+  }
+
+  @override
+  String get linkGuestExplain =>
+      'כל ההוצאות והיתרות של האורח יועברו לחשבון הנבחר.';
+
+  @override
+  String get linkGuestBtn => 'קשר';
+
+  @override
+  String get linkGuestSuccess => 'האורח שויך בהצלחה';
+
+  @override
+  String get removeGuest => 'הסר אורח';
+
+  @override
+  String removeGuestConfirm(String name) {
+    return 'הסרת האורח $name תמחק את כל ההוצאות שלו בקבוצה. להמשיך?';
+  }
+
+  @override
+  String get markGuestPaid => 'סמן שולם (עבור אורח)';
+
+  @override
+  String get guestNoApp => 'עבור חברים שעדיין לא הורידו את האפליקציה';
 }

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../providers/groups_provider.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/balances_provider.dart';
@@ -38,6 +39,8 @@ class MembersTabScreen extends ConsumerWidget {
           }
         }
 
+        final guestMembers = members.where((m) => m.isGuest).toList();
+
         return RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(groupMembersProvider(group.id));
@@ -45,9 +48,18 @@ class MembersTabScreen extends ConsumerWidget {
           },
           child: ListView.builder(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-            itemCount: members.length,
+            // +1 header slot when admin has guests
+            itemCount: members.length + (isAdmin && guestMembers.isNotEmpty ? 1 : 0),
             itemBuilder: (context, i) {
-              final m = members[i];
+              // First item: guest reminder banner for admin
+              if (isAdmin && guestMembers.isNotEmpty && i == 0) {
+                return _GuestReminderCard(
+                  count: guestMembers.length,
+                );
+              }
+              // Offset real index when banner is showing
+              final memberIndex = (isAdmin && guestMembers.isNotEmpty) ? i - 1 : i;
+              final m = members[memberIndex];
               final isSelf = m.userId == auth.userId;
               final balanceText = balanceMap[m.userId];
               // Parse net from the formatted string (or default 0)
@@ -77,22 +89,27 @@ class MembersTabScreen extends ConsumerWidget {
                     // Avatar
                     CircleAvatar(
                       radius: 22,
-                      backgroundColor: isSelf
-                          ? AppColors.primary.withOpacity(0.12)
-                          : AppColors.surfaceVariant,
-                      child: Text(
-                        (m.displayLabel.isNotEmpty
-                                ? m.displayLabel[0]
-                                : '?')
-                            .toUpperCase(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                          color: isSelf
-                              ? AppColors.primary
-                              : AppColors.textPrimary,
-                        ),
-                      ),
+                      backgroundColor: m.isGuest
+                          ? Colors.purple.withOpacity(0.12)
+                          : isSelf
+                              ? AppColors.primary.withOpacity(0.12)
+                              : AppColors.surfaceVariant,
+                      child: m.isGuest
+                          ? const Icon(Icons.person_outline,
+                              size: 20, color: Colors.purple)
+                          : Text(
+                              (m.displayLabel.isNotEmpty
+                                      ? m.displayLabel[0]
+                                      : '?')
+                                  .toUpperCase(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                                color: isSelf
+                                    ? AppColors.primary
+                                    : AppColors.textPrimary,
+                              ),
+                            ),
                     ),
                     const SizedBox(width: 12),
 
@@ -142,6 +159,22 @@ class MembersTabScreen extends ConsumerWidget {
                                           fontWeight: FontWeight.w600)),
                                 ),
                               ],
+                              if (m.isGuest) ...[
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.purple.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(AppLocalizations.of(context)!.guestBadge,
+                                      style: const TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.purple,
+                                          fontWeight: FontWeight.w600)),
+                                ),
+                              ],
                             ],
                           ),
                           if (balanceText != null) ...[
@@ -159,8 +192,26 @@ class MembersTabScreen extends ConsumerWidget {
                       ),
                     ),
 
-                    // Remove button (admin only, not self)
-                    if (isAdmin && !isSelf)
+                    // Guest actions (admin only)
+                    if (isAdmin && m.isGuest)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.link, color: Colors.purple, size: 20),
+                            tooltip: AppLocalizations.of(context)!.linkGuestTitle,
+                            onPressed: () => _showLinkGuestSheet(context, ref, m, members),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.person_remove_outlined,
+                                color: AppColors.negative, size: 20),
+                            tooltip: AppLocalizations.of(context)!.removeGuest,
+                            onPressed: () => _confirmRemoveGuest(context, ref, m),
+                          ),
+                        ],
+                      )
+                    // Remove button (admin only, not self, not guest)
+                    else if (isAdmin && !isSelf && !m.isGuest)
                       IconButton(
                         icon: const Icon(Icons.person_remove_outlined,
                             color: AppColors.negative, size: 20),
@@ -176,6 +227,195 @@ class MembersTabScreen extends ConsumerWidget {
         );
       },
     );
+  }
+
+  Future<void> _showLinkGuestSheet(
+    BuildContext context,
+    WidgetRef ref,
+    GroupMember guest,
+    List<GroupMember> allMembers,
+  ) async {
+    final l = AppLocalizations.of(context)!;
+    // Real (non-guest) members only
+    final realMembers = allMembers.where((m) => !m.isGuest && m.userId != guest.userId).toList();
+    if (realMembers.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('אין חברים רשומים לשיוך')),
+      );
+      return;
+    }
+
+    String? selectedUserId = realMembers.first.userId;
+
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) {
+        return StatefulBuilder(builder: (ctx, setState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 24, right: 24, top: 24,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  const Icon(Icons.link, color: Colors.purple, size: 20),
+                  const SizedBox(width: 8),
+                  Text(l.linkGuestTitle,
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.w700)),
+                ]),
+                const SizedBox(height: 8),
+                Text(l.linkGuestSubtitle(guest.displayLabel),
+                    style: const TextStyle(
+                        fontSize: 13, color: AppColors.textSecondary)),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.withOpacity(0.07),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color: Colors.purple.withOpacity(0.2)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.info_outline,
+                          size: 14, color: Colors.purple),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          l.linkGuestExplain,
+                          style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.purple,
+                              height: 1.4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                DropdownButtonFormField<String>(
+                  value: selectedUserId,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.surfaceVariant,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
+                  ),
+                  items: realMembers
+                      .map((m) => DropdownMenuItem(
+                            value: m.userId,
+                            child: Text(m.displayLabel),
+                          ))
+                      .toList(),
+                  onChanged: (v) => setState(() => selectedUserId = v),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: Text(l.linkGuestBtn),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: Text(l.cancel,
+                        style: const TextStyle(color: AppColors.textSecondary)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+      },
+    );
+
+    if (confirmed != true || selectedUserId == null) return;
+
+    try {
+      final api = ApiClient.instance;
+      await api.put(
+        '/groups/${group.id}/guests/${guest.userId}/link',
+        data: {'real_user_id': selectedUserId},
+      );
+      ref.invalidate(groupMembersProvider(group.id));
+      ref.invalidate(balancesProvider(group.id));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.linkGuestSuccess)),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        String msg = 'שגיאה בשיוך האורח';
+        if (e is DioException) {
+          msg = (e.response?.data?['message'] as String?) ?? msg;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      }
+    }
+  }
+
+  Future<void> _confirmRemoveGuest(
+    BuildContext context,
+    WidgetRef ref,
+    GroupMember guest,
+  ) async {
+    final l = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.removeGuest),
+        content: Text(l.removeGuestConfirm(guest.displayLabel)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l.cancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.remove,
+                style: const TextStyle(color: AppColors.negative)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      final api = ApiClient.instance;
+      await api.delete('/groups/${group.id}/guests/${guest.userId}');
+      ref.invalidate(groupMembersProvider(group.id));
+      ref.invalidate(balancesProvider(group.id));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('האורח הוסר מהקבוצה')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        String msg = 'שגיאה בהסרת האורח';
+        if (e is DioException) {
+          msg = (e.response?.data?['message'] as String?) ?? msg;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      }
+    }
   }
 
   Future<void> _confirmRemove(
@@ -287,6 +527,61 @@ class MembersTabScreen extends ConsumerWidget {
         );
       }
     }
+  }
+}
+
+// ── Guest reminder banner ─────────────────────────────────────────────────────
+
+class _GuestReminderCard extends StatelessWidget {
+  final int count;
+  const _GuestReminderCard({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.purple.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.purple.withOpacity(0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 2),
+            child: Icon(Icons.person_outline, color: Colors.purple, size: 20),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l.guestReminderTitle,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: Colors.purple,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l.guestReminderBody(count),
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.5,
+                    color: Colors.purple.shade700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

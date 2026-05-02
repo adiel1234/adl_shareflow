@@ -45,6 +45,8 @@ class User(db.Model):
     bank_name = Column(String(50), nullable=True)
     bank_branch = Column(String(10), nullable=True)
     bank_account_number = Column(String(30), nullable=True)
+    # Guest members: created by admin on behalf of people without the app
+    is_guest = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=_now, onupdate=_now)
 
@@ -71,6 +73,7 @@ class User(db.Model):
             'bank_branch': self.bank_branch,
             'bank_account_number': self.bank_account_number,
             'is_active': self.is_active,
+            'is_guest': self.is_guest,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
         return data

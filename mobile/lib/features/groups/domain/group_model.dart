@@ -157,6 +157,7 @@ class GroupMember {
   final String? displayName;
   final String? email;
   final String? avatarUrl;
+  final bool isGuest;
 
   const GroupMember({
     required this.id,
@@ -167,6 +168,7 @@ class GroupMember {
     this.displayName,
     this.email,
     this.avatarUrl,
+    this.isGuest = false,
   });
 
   factory GroupMember.fromJson(Map<String, dynamic> json) {
@@ -180,6 +182,7 @@ class GroupMember {
       displayName: user?['display_name'] as String?,
       email: user?['email'] as String?,
       avatarUrl: user?['avatar_url'] as String?,
+      isGuest: user?['is_guest'] as bool? ?? false,
     );
   }
 

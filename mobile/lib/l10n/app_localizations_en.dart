@@ -194,7 +194,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alreadyMember => 'Already a member of this group';
 
   @override
-  String get invalidCode => 'Invalid code — check and try again';
+  String get invalidCode => 'Invalid code - check and try again';
 
   @override
   String get splitExpenses => 'Split Expenses';
@@ -461,10 +461,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addExpenseBtn => 'Add Expense';
 
   @override
-  String get scanReceiptDescription => 'Save time — auto-fill from receipt';
+  String get scanReceiptDescription => 'Save time - auto-fill from receipt';
 
   @override
-  String get receiptScanned => 'Receipt scanned — you can update the data';
+  String get receiptScanned => 'Receipt scanned - you can update the data';
 
   @override
   String get rescan => 'Rescan';
@@ -489,10 +489,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventTypeDesc =>
-      'For trips, events & gatherings — up to 25 participants';
+      'For trips, events & gatherings - up to 25 participants';
 
   @override
-  String get ongoingTypeDesc => 'For roommates, offices — monthly billing';
+  String get ongoingTypeDesc => 'For roommates, offices - monthly billing';
 
   @override
   String get groupNameHint => 'e.g. Apartment on Main St';
@@ -697,21 +697,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activatedSuccess => 'Group activated successfully 🎉';
 
   @override
-  String get errorTryAgain => 'Error — try again';
+  String get errorTryAgain => 'Error - try again';
 
   @override
   String extendBtnLabel(int price) {
-    return 'Extend 7 days — ₪$price';
+    return 'Extend 7 days - ₪$price';
   }
 
   @override
   String renewBtnLabel(int price) {
-    return 'Renew for a month — ₪$price';
+    return 'Renew for a month - ₪$price';
   }
 
   @override
   String activateBtnLabel(int price) {
-    return 'Activate group — ₪$price';
+    return 'Activate group - ₪$price';
   }
 
   @override
@@ -1080,7 +1080,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proPlanTitle => 'Pro Plan';
 
   @override
-  String get proPlanSubtitle => 'Coming soon — analytics, stats and more';
+  String get proPlanSubtitle => 'Coming soon - analytics, stats and more';
 
   @override
   String get appSection => 'App';
@@ -1105,17 +1105,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get freeTierLabel => 'Free — up to 7 members';
+  String get freeTierLabel => 'Free - up to 7 members';
 
   @override
   String get freeIncluded => 'Free: up to 7 members & 7 days';
 
   @override
-  String get createGroupFree => 'Create Group — Free';
+  String get createGroupFree => 'Create Group - Free';
 
   @override
   String createGroupPaid(int price) {
-    return 'Create Group — ₪$price';
+    return 'Create Group - ₪$price';
   }
 
   @override
@@ -1131,7 +1131,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String tierUpgradeSubtitle(int price) {
-    return 'Group has grown — upgrade payment of ₪$price required';
+    return 'Group has grown - upgrade payment of ₪$price required';
   }
 
   @override
@@ -1146,7 +1146,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String upgradeBtnLabel(int price) {
-    return 'Upgrade — ₪$price';
+    return 'Upgrade - ₪$price';
   }
 
   @override
@@ -1240,7 +1240,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openDebtCount => '1 open debt';
 
   @override
-  String get noDebtsBalanced => 'All balanced — no debts';
+  String get noDebtsBalanced => 'All balanced - no debts';
 
   @override
   String get markAsPaid => 'Paid ✓';
@@ -1254,7 +1254,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get openDebtsGroupClosed => 'Open debts — group is closed';
+  String get openDebtsGroupClosed => 'Open debts - group is closed';
 
   @override
   String get groupClosedUnpaidDebts =>
@@ -1287,4 +1287,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorDeletingGroup => 'Error deleting group';
+
+  @override
+  String get addGuest => 'Add Guest';
+
+  @override
+  String get addGuestTitle => 'Add member without the app';
+
+  @override
+  String get addGuestHint => 'Member name (e.g. John Smith)';
+
+  @override
+  String get addGuestBtn => 'Add';
+
+  @override
+  String get guestBadge => 'Guest';
+
+  @override
+  String get guestAddedSuccess => 'Guest added to group';
+
+  @override
+  String get guestLabel => '👤 Guest';
+
+  @override
+  String get guestExplainTitle => 'What is a guest?';
+
+  @override
+  String get guestExplainBody =>
+      'A guest is a member who doesn\'t have the app yet.\n• They are included in expense calculations like any other member\n• The admin manages their payments until they download the app\n• Once they download it — the admin links them to their account and they become fully independent';
+
+  @override
+  String get guestReminderTitle => 'Guests without an account';
+
+  @override
+  String guestReminderBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count members',
+      one: '1 member',
+    );
+    return '$_temp0 are marked as guests.\nOnce they download the app, link them to their account using the link button.';
+  }
+
+  @override
+  String get guestReminderAction => 'Manage guests';
+
+  @override
+  String get linkGuestTitle => 'Link guest to account';
+
+  @override
+  String linkGuestSubtitle(String name) {
+    return 'Select the registered member to link $name to';
+  }
+
+  @override
+  String get linkGuestExplain =>
+      'All of the guest\'s expenses and balances will be transferred to the selected account.';
+
+  @override
+  String get linkGuestBtn => 'Link';
+
+  @override
+  String get linkGuestSuccess => 'Guest linked successfully';
+
+  @override
+  String get removeGuest => 'Remove Guest';
+
+  @override
+  String removeGuestConfirm(String name) {
+    return 'Removing guest $name will delete all their expenses in this group. Continue?';
+  }
+
+  @override
+  String get markGuestPaid => 'Mark as paid (on behalf of guest)';
+
+  @override
+  String get guestNoApp => 'For members who haven\'t downloaded the app yet';
 }

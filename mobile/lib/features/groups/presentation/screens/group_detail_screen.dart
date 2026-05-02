@@ -354,6 +354,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
           link: link,
           groupId: group.id,
           groupName: group.name,
+          isAdmin: group.isAdmin,
         ),
       );
     } catch (_) {
@@ -649,7 +650,8 @@ class _InviteSheet extends StatefulWidget {
   final String link;
   final String groupId;
   final String groupName;
-  const _InviteSheet({required this.code, required this.link, required this.groupId, required this.groupName});
+  final bool isAdmin;
+  const _InviteSheet({required this.code, required this.link, required this.groupId, required this.groupName, this.isAdmin = false});
 
   @override
   State<_InviteSheet> createState() => _InviteSheetState();
@@ -657,12 +659,42 @@ class _InviteSheet extends StatefulWidget {
 
 class _InviteSheetState extends State<_InviteSheet> {
   final _emailController = TextEditingController();
+  final _guestNameController = TextEditingController();
   bool _sendingEmail = false;
+  bool _addingGuest = false;
 
   @override
   void dispose() {
     _emailController.dispose();
+    _guestNameController.dispose();
     super.dispose();
+  }
+
+  Future<void> _addGuest() async {
+    final name = _guestNameController.text.trim();
+    if (name.isEmpty) return;
+    setState(() => _addingGuest = true);
+    try {
+      final api = ApiClient.instance;
+      await api.post('/groups/${widget.groupId}/guests', data: {'name': name});
+      if (mounted) {
+        _guestNameController.clear();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.guestAddedSuccess)),
+        );
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        String msg = 'שגיאה בהוספת האורח';
+        if (e is DioException) {
+          msg = (e.response?.data?['message'] as String?) ?? msg;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      }
+    } finally {
+      if (mounted) setState(() => _addingGuest = false);
+    }
   }
 
   Future<void> _sendEmailInvite() async {
@@ -722,7 +754,7 @@ class _InviteSheetState extends State<_InviteSheet> {
           const SizedBox(height: 20),
 
           // QR Code
-          _QrCodeCard(code: widget.code),
+          _QrCodeCard(code: widget.code, link: widget.link),
 
           const SizedBox(height: 16),
 
@@ -844,6 +876,127 @@ class _InviteSheetState extends State<_InviteSheet> {
             ],
           ),
           const SizedBox(height: 8),
+
+          // Guest section — admin only
+          if (widget.isAdmin) ...[
+            const Divider(),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.addGuestTitle,
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                // Info button — explains what a guest is
+                GestureDetector(
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (ctx) {
+                      final l = AppLocalizations.of(ctx)!;
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                        title: Row(
+                          children: [
+                            const Icon(Icons.person_outline,
+                                color: Colors.purple, size: 20),
+                            const SizedBox(width: 8),
+                            Text(l.guestExplainTitle,
+                                style: const TextStyle(fontSize: 15)),
+                          ],
+                        ),
+                        content: Text(
+                          l.guestExplainBody,
+                          style: const TextStyle(
+                              fontSize: 13,
+                              height: 1.6,
+                              color: AppColors.textSecondary),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('הבנתי'),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.only(right: 4),
+                    child: Icon(Icons.info_outline,
+                        size: 18, color: AppColors.textSecondary),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            // Explanatory subtitle
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.purple.withOpacity(0.07),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.purple.withOpacity(0.2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.info_outline,
+                      size: 14, color: Colors.purple),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.guestNoApp,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.purple,
+                          height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _guestNameController,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.addGuestHint,
+                      filled: true,
+                      fillColor: AppColors.surfaceVariant,
+                      prefixIcon: const Icon(Icons.person_outline, size: 18),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                _addingGuest
+                    ? const SizedBox(
+                        width: 42, height: 42,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : IconButton.filled(
+                        onPressed: _addGuest,
+                        icon: const Icon(Icons.person_add),
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
         ],
       ),
     );
@@ -973,9 +1126,10 @@ class _SplitOptionButton extends StatelessWidget {
 
 class _QrCodeCard extends StatelessWidget {
   final String code;
-  const _QrCodeCard({required this.code});
+  final String link;
+  const _QrCodeCard({required this.code, required this.link});
 
-  String get _qrData => 'shareflow://join/$code';
+  String get _qrData => link;
 
   @override
   Widget build(BuildContext context) {
