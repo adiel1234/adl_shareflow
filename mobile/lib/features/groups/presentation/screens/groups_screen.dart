@@ -8,7 +8,6 @@ import '../../../../features/groups/data/group_repository.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../widgets/group_card.dart';
 import 'create_group_screen.dart';
-import 'group_detail_screen.dart';
 import 'qr_scanner_screen.dart';
 
 class GroupsScreen extends ConsumerStatefulWidget {
@@ -140,11 +139,10 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                     final group = groups[i];
                     return GroupCard(
                       group: group,
-                      onTap: () => Navigator.push(
+                      onTap: () => Navigator.pushNamed(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => GroupDetailScreen(group: group),
-                        ),
+                        '/group-detail',
+                        arguments: {'groupId': group.id},
                       ).then((_) => ref.invalidate(groupsProvider)),
                     );
                   },
@@ -315,7 +313,7 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
-          24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 24),
+          24, 16, 24, MediaQuery.of(context).viewInsets.bottom + 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,12 +327,22 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
               ),
             ),
           ),
-          const SizedBox(height: 20),
-          Text(
-            AppLocalizations.of(context)!.joinGroup,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.joinGroup,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.of(context).pop(),
+                tooltip: 'סגור',
+              ),
+            ],
           ),
-          const SizedBox(height: 6),
           Text(
             AppLocalizations.of(context)!.enterInviteCode,
             style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),

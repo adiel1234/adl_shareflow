@@ -89,9 +89,10 @@ def create_app(config=None):
     # Smart join link - opens app if installed, otherwise shows download page
     @app.get('/join/<invite_code>')
     def join_redirect(invite_code):
+        import os
         from flask import request, redirect, Response
         ANDROID_APK = 'https://github.com/adiel1234/adl_shareflow/releases/latest/download/app-release.apk'
-        TESTFLIGHT  = 'https://testflight.apple.com/join/PLACEHOLDER'
+        TESTFLIGHT  = os.environ.get('TESTFLIGHT_URL', 'https://testflight.apple.com/join/PLACEHOLDER')
         deep_link   = f'shareflow://join/{invite_code}'
 
         # Save deferred deep link for this visitor's IP (stored in DB, shared across workers)
@@ -263,9 +264,10 @@ def create_app(config=None):
     # Download landing page
     @app.get('/download')
     def download():
+        import os
         from flask import request, Response
         ANDROID_APK = 'https://github.com/adiel1234/adl_shareflow/releases/latest/download/app-release.apk'
-        TESTFLIGHT  = 'https://testflight.apple.com/join/PLACEHOLDER'  # יעודכן לאחר אישור Apple
+        TESTFLIGHT  = os.environ.get('TESTFLIGHT_URL', 'https://testflight.apple.com/join/PLACEHOLDER')
 
         # Desktop / unknown → show HTML page with both options
         html = f'''<!DOCTYPE html>
@@ -337,7 +339,7 @@ def create_app(config=None):
       <span>🍎</span> הורד ל-iPhone (TestFlight)
     </a>
 
-    <p class="note">גרסת בטא - v1.0.0</p>
+    <p class="note">גרסת בטא - v1.0.2</p>
   </div>
 </body>
 </html>'''

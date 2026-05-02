@@ -12,7 +12,10 @@ import 'core/config/app_config.dart';
 import 'core/config/router.dart';
 import 'core/network/api_client.dart';
 import 'providers/auth_provider.dart';
+import 'providers/balances_provider.dart';
 import 'providers/deep_link_provider.dart';
+import 'providers/expenses_provider.dart';
+import 'providers/notifications_provider.dart';
 import 'services/feedback_service.dart';
 import 'services/fcm_service.dart';
 import 'theme/app_theme.dart';
@@ -147,10 +150,40 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
           arguments: {'groupId': groupId},
         );
       });
+
+      // FCM — refresh Riverpod providers when a data-changing notification
+      // arrives while the app is in the foreground (e.g. new_expense added by
+      // another group member). This avoids a manual pull-to-refresh.
+      FcmService.instance.setDataChangeCallback((groupId, type) {
+        _invalidateForGroup(groupId, type);
+      });
+
       FcmService.instance.initialize().then((_) {
         FcmService.instance.setupOpenedAppHandler();
       });
     }
+  }
+
+  /// Invalidate relevant Riverpod providers when a push notification signals
+  /// that data changed in a group (e.g. new expense, settlement confirmed).
+  void _invalidateForGroup(String groupId, String type) {
+    switch (type) {
+      case 'new_expense':
+        ref.invalidate(expensesProvider(groupId));
+        ref.invalidate(balancesProvider(groupId));
+      case 'settlement_requested':
+      case 'settlement_confirmed':
+        ref.invalidate(balancesProvider(groupId));
+      case 'group_activated':
+      case 'group_expiring_soon':
+      case 'tier_upgrade_required':
+        // Handled by re-fetching group list on next navigation
+        break;
+      default:
+        ref.invalidate(expensesProvider(groupId));
+        ref.invalidate(balancesProvider(groupId));
+    }
+    ref.read(notificationsProvider.notifier).load();
   }
 
   void _handleSessionExpired() {

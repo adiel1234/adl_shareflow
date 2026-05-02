@@ -143,29 +143,36 @@ class FcmService {
 
   void _handleForeground(RemoteMessage message) {
     final notification = message.notification;
-    if (notification == null) return;
+    if (notification != null) {
+      _localNotifications.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            _androidChannel.id,
+            _androidChannel.name,
+            channelDescription: _androidChannel.description,
+            importance: Importance.high,
+            priority: Priority.high,
+            icon: '@mipmap/ic_launcher',
+          ),
+          iOS: const DarwinNotificationDetails(
+            presentAlert: true,
+            presentBadge: true,
+            presentSound: true,
+          ),
+        ),
+        payload: _payloadFromData(message.data),
+      );
+    }
 
-    _localNotifications.show(
-      notification.hashCode,
-      notification.title,
-      notification.body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          _androidChannel.id,
-          _androidChannel.name,
-          channelDescription: _androidChannel.description,
-          importance: Importance.high,
-          priority: Priority.high,
-          icon: '@mipmap/ic_launcher',
-        ),
-        iOS: const DarwinNotificationDetails(
-          presentAlert: true,
-          presentBadge: true,
-          presentSound: true,
-        ),
-      ),
-      payload: _payloadFromData(message.data),
-    );
+    // Trigger data refresh for data-changing events
+    final groupId = message.data['group_id'] as String?;
+    final type = message.data['type'] as String? ?? '';
+    if (groupId != null && groupId.isNotEmpty) {
+      _onDataChanged?.call(groupId, type);
+    }
   }
 
   void _onNotificationTap(NotificationResponse response) {
@@ -193,6 +200,14 @@ class FcmService {
   }
 
   void Function(String groupId)? _navigateToGroup;
+
+  /// Called when a foreground notification arrives — allows the UI to refresh data.
+  void Function(String groupId, String notificationType)? _onDataChanged;
+
+  /// Set callback to refresh Riverpod providers when data changes in foreground.
+  void setDataChangeCallback(void Function(String groupId, String notificationType) callback) {
+    _onDataChanged = callback;
+  }
 
   void _handleNotificationTap(Map<String, dynamic> data) {
     final groupId = data['group_id'] as String?;
