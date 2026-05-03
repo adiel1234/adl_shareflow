@@ -209,14 +209,13 @@ def get_members(group_id, **kwargs):
 def remove_member(group_id, target_user_id, **kwargs):
     """
     Remove a member from the group.
-    mode:
-      'settle'       (default) - create confirmed settlement to clear net debt
-      'redistribute' - redistribute their expense shares among remaining members
-    """
-    from decimal import Decimal, ROUND_HALF_UP
-    from app.models import Expense, ExpenseParticipant, Settlement
-    from app.balances.engine import calculate_group_balances
 
+    Historical expense data and open balances are intentionally preserved:
+    - All expense splits remain intact.
+    - Any outstanding debt continues to appear in the settlements plan
+      until settled manually by the parties involved.
+    The group shrinks by one participant for future expenses.
+    """
     user_id = get_jwt_identity()
     removing_self = (target_user_id == user_id)
 
@@ -226,86 +225,9 @@ def remove_member(group_id, target_user_id, **kwargs):
     if not member:
         return error_response('Member not found', 404)
 
-    group = db.session.get(Group, group_id)
-    mode = (request.get_json(silent=True) or {}).get('mode', 'settle')
-
-    # Block self-removal when the member has an outstanding debt
-    if removing_self and mode != 'redistribute':
-        from app.balances.engine import calculate_group_balances
-        balances = calculate_group_balances(group_id)
-        my_bal = next((b for b in balances if b.user_id == target_user_id), None)
-        if my_bal and my_bal.net_amount < -Decimal('0.01'):
-            return error_response(
-                'לא ניתן לעזוב קבוצה כאשר עדיין חייב בה כסף. '
-                'יש להסדיר את החוב תחילה.',
-                400,
-            )
-
-    if mode == 'redistribute':
-        # Redistribute leaving member's share among remaining participants per expense
-        expenses = Expense.query.filter_by(group_id=group_id).all()
-        for expense in expenses:
-            leaving = ExpenseParticipant.query.filter_by(
-                expense_id=expense.id, user_id=target_user_id
-            ).first()
-            if not leaving:
-                continue
-
-            remaining = ExpenseParticipant.query.filter(
-                ExpenseParticipant.expense_id == expense.id,
-                ExpenseParticipant.user_id != target_user_id,
-            ).all()
-
-            if remaining:
-                extra = (leaving.share_amount / len(remaining)).quantize(
-                    Decimal('0.01'), rounding=ROUND_HALF_UP
-                )
-                for p in remaining:
-                    p.share_amount = (p.share_amount + extra).quantize(
-                        Decimal('0.01'), rounding=ROUND_HALF_UP
-                    )
-
-            db.session.delete(leaving)
-
-    elif mode == 'settle':
-        # Create a confirmed settlement to zero out the member's net balance
-        balances = calculate_group_balances(group_id)
-        member_bal = next(
-            (b for b in balances if b.user_id == target_user_id), None
-        )
-
-        if member_bal and member_bal.net_amount != 0:
-            net = member_bal.net_amount
-            others = [b for b in balances if b.user_id != target_user_id]
-
-            if net < 0:
-                # Member owes → settlement from them to biggest creditor
-                creditor = max(others, key=lambda b: b.net_amount, default=None)
-                if creditor:
-                    db.session.add(Settlement(
-                        group_id=group_id,
-                        from_user_id=target_user_id,
-                        to_user_id=creditor.user_id,
-                        amount=abs(net),
-                        currency=group.base_currency,
-                        status='confirmed',
-                    ))
-            else:
-                # Member is owed → settlement from biggest debtor to them
-                debtor = min(others, key=lambda b: b.net_amount, default=None)
-                if debtor:
-                    db.session.add(Settlement(
-                        group_id=group_id,
-                        from_user_id=debtor.user_id,
-                        to_user_id=target_user_id,
-                        amount=net,
-                        currency=group.base_currency,
-                        status='confirmed',
-                    ))
-
     db.session.delete(member)
 
-    # If admin removed themselves, promote the next member (earliest joined_at)
+    # If admin removed themselves, promote the earliest-joined remaining member
     if removing_self:
         next_member = (
             GroupMember.query
@@ -1079,12 +1001,14 @@ def link_guest_member(group_id, guest_user_id, **kwargs):
 def remove_guest_member(group_id, guest_user_id, **kwargs):
     """Admin removes a guest member from the group.
 
-    Cleans up all related data before deleting the ghost user to avoid
-    FK constraint violations (Expense.paid_by / ExpenseParticipant.user_id
-    / Settlement.from/to_user_id have no ondelete cascade).
+    Only the GroupMember record is removed. The ghost User record and all
+    related expense / split / settlement data are intentionally kept so that:
+    - Historical expense splits remain accurate.
+    - Open debts continue to appear in the settlements plan until manually
+      settled by the admin (via the "שולם" button or a regular settlement).
+    The ghost User record must remain in the DB to satisfy FK constraints on
+    Expense.paid_by, ExpenseParticipant.user_id, and Settlement.*_user_id.
     """
-    from app.models import Expense, ExpenseSplit, Settlement
-
     ghost = db.session.get(User, guest_user_id)
     if not ghost or not ghost.is_guest:
         return error_response('Guest not found', 404)
@@ -1093,39 +1017,6 @@ def remove_guest_member(group_id, guest_user_id, **kwargs):
     if not ghost_member:
         return error_response('Guest is not in this group', 404)
 
-    # 1. Remove all settlements involving the ghost in this group
-    Settlement.query.filter(
-        db.or_(
-            Settlement.from_user_id == guest_user_id,
-            Settlement.to_user_id == guest_user_id,
-        ),
-        Settlement.group_id == group_id,
-    ).delete(synchronize_session=False)
-
-    # 2. Delete expenses where the ghost is the payer
-    #    (cascade='all, delete-orphan' on Expense.participants handles splits)
-    ghost_paid_ids = [
-        e.id for e in Expense.query.filter_by(
-            group_id=group_id, paid_by=guest_user_id
-        ).all()
-    ]
-    if ghost_paid_ids:
-        ExpenseSplit.query.filter(
-            ExpenseSplit.expense_id.in_(ghost_paid_ids)
-        ).delete(synchronize_session=False)
-        Expense.query.filter(Expense.id.in_(ghost_paid_ids)).delete(
-            synchronize_session=False
-        )
-
-    # 3. Remove the ghost from any remaining expense splits
-    #    (expenses in this group where ghost was a participant, not the payer)
-    for split in ExpenseSplit.query.filter_by(user_id=guest_user_id).all():
-        expense = db.session.get(Expense, split.expense_id)
-        if expense and expense.group_id == group_id:
-            db.session.delete(split)
-
-    # 4. Delete ghost membership and ghost user record
     db.session.delete(ghost_member)
-    db.session.delete(ghost)
     db.session.commit()
-    return success_response(data={'deleted': True})
+    return success_response(data={'removed': True})

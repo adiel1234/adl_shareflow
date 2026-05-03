@@ -615,7 +615,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String memberHasBalance(String name, String amount) {
-    return 'ל$name יש יתרה פתוחה של $amount.\nכיצד לטפל?';
+    return 'ל$name יש יתרה פתוחה של $amount — תישאר מוצגת עד להסדרה ידנית.';
   }
 
   @override
@@ -634,15 +634,22 @@ class AppLocalizationsHe extends AppLocalizations {
   String get removeMemberConfirm => 'להסיר את החבר מהקבוצה?';
 
   @override
+  String get removeMemberExplain =>
+      'ההוצאות הקיימות נשארות.\nאם יש חוב פתוח — ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.';
+
+  @override
   String get remove => 'הסר';
 
   @override
   String memberRemovedSuccess(String name) {
-    return '$name הוסר מהקבוצה';
+    return '$name הוסר מהקבוצה. חובות פתוחים ימשיכו להופיע עד הסדרה.';
   }
 
   @override
   String get errorRemovingMember => 'שגיאה בהסרת החבר';
+
+  @override
+  String get formerMember => 'לשעבר';
 
   @override
   String get extendGroupTitle => 'הארכת הקבוצה';
@@ -1349,7 +1356,12 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String removeGuestConfirm(String name) {
-    return 'הסרת האורח $name תמחק את כל ההוצאות שלו בקבוצה. להמשיך?';
+    return 'האורח $name יוסר מרשימת החברים הפעילים.\nההוצאות הקיימות נשארות.\nאם יש חוב פתוח — ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.';
+  }
+
+  @override
+  String guestRemovedSuccess(String name) {
+    return '$name הוסר. חוב פתוח ימשיך להופיע עד הסדרה.';
   }
 
   @override

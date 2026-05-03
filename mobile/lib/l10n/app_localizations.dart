@@ -1253,7 +1253,7 @@ abstract class AppLocalizations {
   /// No description provided for @memberHasBalance.
   ///
   /// In he, this message translates to:
-  /// **'ל{name} יש יתרה פתוחה של {amount}.\nכיצד לטפל?'**
+  /// **'ל{name} יש יתרה פתוחה של {amount} — תישאר מוצגת עד להסדרה ידנית.'**
   String memberHasBalance(String name, String amount);
 
   /// No description provided for @settleDebt.
@@ -1286,6 +1286,12 @@ abstract class AppLocalizations {
   /// **'להסיר את החבר מהקבוצה?'**
   String get removeMemberConfirm;
 
+  /// No description provided for @removeMemberExplain.
+  ///
+  /// In he, this message translates to:
+  /// **'ההוצאות הקיימות נשארות.\nאם יש חוב פתוח — ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.'**
+  String get removeMemberExplain;
+
   /// No description provided for @remove.
   ///
   /// In he, this message translates to:
@@ -1295,7 +1301,7 @@ abstract class AppLocalizations {
   /// No description provided for @memberRemovedSuccess.
   ///
   /// In he, this message translates to:
-  /// **'{name} הוסר מהקבוצה'**
+  /// **'{name} הוסר מהקבוצה. חובות פתוחים ימשיכו להופיע עד הסדרה.'**
   String memberRemovedSuccess(String name);
 
   /// No description provided for @errorRemovingMember.
@@ -1303,6 +1309,12 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'שגיאה בהסרת החבר'**
   String get errorRemovingMember;
+
+  /// No description provided for @formerMember.
+  ///
+  /// In he, this message translates to:
+  /// **'לשעבר'**
+  String get formerMember;
 
   /// No description provided for @extendGroupTitle.
   ///
@@ -2591,8 +2603,14 @@ abstract class AppLocalizations {
   /// No description provided for @removeGuestConfirm.
   ///
   /// In he, this message translates to:
-  /// **'הסרת האורח {name} תמחק את כל ההוצאות שלו בקבוצה. להמשיך?'**
+  /// **'האורח {name} יוסר מרשימת החברים הפעילים.\nההוצאות הקיימות נשארות.\nאם יש חוב פתוח — ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.'**
   String removeGuestConfirm(String name);
+
+  /// No description provided for @guestRemovedSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'{name} הוסר. חוב פתוח ימשיך להופיע עד הסדרה.'**
+  String guestRemovedSuccess(String name);
 
   /// No description provided for @markGuestPaid.
   ///

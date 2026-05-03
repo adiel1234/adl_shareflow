@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 27 אפריל 2026 (גרסה 1.0.1+2)
+> עודכן לאחרונה: 3 מאי 2026 (גרסה 1.0.3+6)
 
 ---
 
@@ -107,7 +107,7 @@
 
 | טבלה | תוכן |
 |------|------|
-| `users` | משתמשים, פרופיל, פרטי תשלום |
+| `users` | משתמשים, פרופיל, פרטי תשלום, `is_guest` (boolean) |
 | `groups` | קבוצות + מצב lifecycle + תמחור |
 | `group_members` | חברות בקבוצות + תפקידים |
 | `expenses` | הוצאות + פיצולים |
@@ -119,6 +119,9 @@
 | `feature_flags` | הגדרות מערכת (PAYMENTS_ENABLED וכו') |
 | `reminder_settings` | הגדרות תזכורות אוטומטיות |
 
+**שינוי סכמה אחרון (migration `480ff4d3679c`):**
+- נוסף עמודה `is_guest BOOLEAN NOT NULL DEFAULT false` לטבלת `users`
+
 ---
 
 ### 4. שירותים חיצוניים
@@ -129,8 +132,19 @@
 | **Firebase Auth** | Google Sign-In | Bundle: `com.adl.shareflow` |
 | **Google Vision** | OCR — סריקת קבלות | 1,000 סריקות/חודש חינם |
 | **ExchangeRate-API** | שערי מטבע בזמן אמת | חינמי |
-| **Resend** | שליחת מיילי הזמנה | `RESEND_API_KEY` בסביבת הייצור |
+| **Resend** | שליחת מיילי הזמנה + דוחות תקופה | `RESEND_API_KEY` + `RESEND_FROM_EMAIL=noreply@adl-studio.com`; דומיין מאומת ב-eu-west-1 (Ireland) |
+| **Namecheap** | רישום דומיין `adl-studio.com` | DNS מנוהל ב-Advanced DNS; רשומות DKIM + SPF + DMARC + MX הוגדרו |
 | **Apple APNs** | Push Notifications ל-iOS | Key ID: `4BT7S9CS4V`, Team: `9QP3FZTL8C` |
+| **Google Postmaster Tools** | ניטור מוניטין דואר יוצא | דומיין `adl-studio.com` מאומת; לצפייה בדוחות spam rate ו-authentication |
+
+#### הגדרות DNS — `adl-studio.com` (Namecheap → Advanced DNS)
+
+| סוג רשומה | Host | ערך / תוכן | מטרה |
+|-----------|------|-----------|------|
+| TXT | `resend._domainkey` | `v=DKIM1; p=...` (ערך מ-Resend) | DKIM — חתימה דיגיטלית |
+| TXT | `@` | `v=spf1 include:amazonses.com ~all` | SPF — אישור שרתי שליחה |
+| TXT | `_dmarc` | `v=DMARC1; p=quarantine; pct=100; rua=mailto:noreply@adl-studio.com` | DMARC — מדיניות טיפול במיילים לא מאומתים |
+| MX | `@` | `feedback-smtp.eu-west-1.amazonses.com` (Priority 10) | MX — קבלת bounce reports |
 
 ---
 
@@ -205,8 +219,8 @@ flutter build apk --release
 flutter install --release
 ```
 
-**APK נוכחי (גרסה 1.0.1+2):**
-- קישור Google Drive: `https://drive.google.com/uc?export=download&id=1gCIuCZOErAJnkbqCpPbpsO_OJk4y89dt`
+**APK נוכחי (גרסה 1.0.3+6):**
+- קישור: מוגדר ב-`APK_DOWNLOAD_URL` ב-Railway
 - זמין להורדה דרך: `https://adlshareflow-production.up.railway.app/download`
 
 ### iOS (TestFlight)
@@ -221,17 +235,48 @@ flutter install --release
 
 ## משתני סביבה קריטיים (Backend)
 
-| משתנה | תיאור | חובה |
-|-------|--------|-------|
-| `DATABASE_URL` | PostgreSQL connection string | ✅ |
-| `JWT_SECRET_KEY` | סוד לחתימת tokens | ✅ |
-| `FIREBASE_CREDENTIALS_PATH` | נתיב לקובץ Firebase Admin JSON | ✅ Push |
-| `GOOGLE_APPLICATION_CREDENTIALS` | נתיב לקובץ Google Vision JSON | ✅ OCR |
-| `ADL_ADMIN_KEY` | מפתח גישה ל-Dashboard | ✅ Dashboard |
-| `RESEND_API_KEY` | מפתח שליחת מיילים | 🟡 אופציונלי |
-| `PAYMENTS_ENABLED` | האם לגבות תשלום אמיתי | 🔴 כבוי בפיילוט |
-| `TESTFLIGHT_URL` | קישור TestFlight חיצוני ל-iOS | 🟡 להגדיר לפני פיילוט |
-| `APK_DOWNLOAD_URL` | קישור הורדת APK ל-Android | 🟡 להגדיר לפני פיילוט |
+| משתנה | תיאור | חובה | ערך נוכחי |
+|-------|--------|-------|-----------|
+| `DATABASE_URL` | PostgreSQL connection string | ✅ | Railway PostgreSQL |
+| `JWT_SECRET_KEY` | סוד לחתימת tokens | ✅ | — |
+| `FIREBASE_CREDENTIALS_PATH` | נתיב לקובץ Firebase Admin JSON | ✅ Push | — |
+| `GOOGLE_APPLICATION_CREDENTIALS` | נתיב לקובץ Google Vision JSON | ✅ OCR | — |
+| `ADL_ADMIN_KEY` | מפתח גישה ל-Dashboard | ✅ Dashboard | — |
+| `RESEND_API_KEY` | מפתח Resend לשליחת מיילים | ✅ | מוגדר ב-Railway |
+| `RESEND_FROM_EMAIL` | כתובת שולח המיילים | ✅ | `noreply@adl-studio.com` |
+| `SMTP_SENDER_NAME` | שם השולח בכותרת המייל | 🟡 | `ADL ShareFlow` (ברירת מחדל) |
+| `PAYMENTS_ENABLED` | האם לגבות תשלום אמיתי | 🔴 כבוי בפיילוט | `false` |
+| `TESTFLIGHT_URL` | קישור TestFlight חיצוני ל-iOS | ✅ | מוגדר ב-Railway |
+| `APK_DOWNLOAD_URL` | קישור הורדת APK ל-Android | ✅ | Google Drive (גרסה נוכחית) |
+
+---
+
+## פרטי שירותים ודומיין
+
+### Resend (Email)
+| פרמטר | ערך |
+|-------|-----|
+| דומיין שליחה | `adl-studio.com` |
+| כתובת שולח | `noreply@adl-studio.com` |
+| שם שולח | `ADL ShareFlow` |
+| אזור Resend | `eu-west-1` (Ireland) |
+| סטטוס דומיין | ✅ Verified |
+| Dashboard | [resend.com/domains](https://resend.com/domains) |
+
+### Namecheap (Domain Registrar)
+| פרמטר | ערך |
+|-------|-----|
+| דומיין | `adl-studio.com` |
+| תאריך רכישה | 2 מאי 2026 |
+| תוקף | 2027 (חידוש אוטומטי מומלץ) |
+| DNS ניהול | Advanced DNS בלוח הבקרה של Namecheap |
+
+### Google Postmaster Tools
+| פרמטר | ערך |
+|-------|-----|
+| דומיין מנוטר | `adl-studio.com` |
+| מטרה | מעקב אחר spam rate, authentication, delivery errors |
+| כניסה | [postmaster.google.com](https://postmaster.google.com) עם Google Account |
 
 ---
 
@@ -271,21 +316,46 @@ flutter install --release
 
 ---
 
-## מצב פיילוט (אפריל 2026)
+## מצב פיילוט (מאי 2026)
 
 | נושא | מצב |
 |------|-----|
 | Backend (Railway) | ✅ פעיל |
-| iOS (TestFlight) | ✅ Internal — נדרש עדכון ל-1.0.1+3 |
-| Android (APK) | ✅ גרסה 1.0.1+2 — זמין ב-/download |
+| iOS (TestFlight) | ✅ גרסה 1.0.3+6 — Internal |
+| Android (APK) | ✅ גרסה 1.0.3+6 — זמין ב-/download |
 | QR + הזמנות | ✅ עובד בשני הכיוונים |
-| Push Notifications | ✅ מגיעות — ניווט תוקן |
+| Push Notifications | ✅ מגיעות + real-time refresh בפורגראונד |
+| Email Invitations | ✅ `noreply@adl-studio.com` — נבדק, מגיע לתיבה הראשית |
+| Domain `adl-studio.com` | ✅ מאומת ב-Resend; DKIM + SPF + DMARC + MX פעילים |
+| Google Postmaster Tools | ✅ דומיין מאומת — ניטור מוניטין |
+| DMARC Policy | ✅ `p=quarantine` — מוגן מזיוף |
+| Guest Member Feature | ✅ הוספה / קישור / הסרה / חיוב / settlement |
 | PAYMENTS_ENABLED | 🔴 כבוי (פיילוט חינמי) |
 | Firebase App Distribution | 🟡 מתוכנן — טרם הוגדר |
 
 ---
 
-## שינויים אחרונים — גל אפריל 2026 (גרסה 1.0.1+3)
+## שינויים אחרונים — גל מאי 2026 (גרסה 1.0.3+6)
+
+### Flutter (Mobile)
+- **FCM Real-Time Refresh**: `FcmService.setDataChangeCallback` + `_invalidateForGroup` ב-`main.dart` — כשמגיעה התראה FCM ב-foreground, מתבצע `ref.invalidate` על `expensesProvider` / `balancesProvider` / `notificationsProvider` לפי סוג ההתראה.
+- **Guest Member UI**: תג סגול "אורח" + avatar סגול + כפתורי 🔗 ו-🗑️ ברשימת חברים; Banner למנהל; Sheet "קשר אורח לחשבון"; "שולם" סגול ביתרות.
+- **Close Buttons**: נוסף `IconButton(Icons.close)` ל-`_InviteSheet` ו-`_JoinGroupSheet` כדי לאפשר יציאה מפורשת מ-modal bottom sheets.
+- **Group Detail Freshness**: `GroupCard.onTap` מנווט דרך `/group-detail` עם `groupId` בלבד — `_GroupDetailLoader` שולף נתוני קבוצה עדכניים מהשרת בכל ניווט.
+
+### Backend
+- **Guest Endpoints** (`groups/routes.py`):
+  - `POST /groups/<id>/guests` — הוסף אורח לקבוצה
+  - `PUT /groups/<id>/guests/<guest_id>/link` — קשר אורח לחשבון קיים
+  - `DELETE /groups/<id>/guests/<guest_id>` — הסר אורח
+- **Guest Settlement** (`settlements/routes.py`): endpoint חדש `POST /groups/<id>/settlements/mark-guest-paid` — מנהל מסמן חוב אורח כשולם ישירות (confirmed, ללא אישור).
+- **Notification Routing** (`notifications/service.py`): התראות לאורחים מנותבות למנהל הקבוצה; האורח עצמו אינו מקבל push.
+- **DB Migration** (`480ff4d3679c`): נוסף `is_guest BOOLEAN NOT NULL DEFAULT false` ל-`users`.
+- **Download Page**: גרסה עודכנה ל-v1.0.2; `TESTFLIGHT_URL` + `APK_DOWNLOAD_URL` נקראים ממשתני סביבה.
+
+---
+
+## שינויים — גל אפריל 2026 (גרסה 1.0.1+3)
 
 ### Flutter (Mobile)
 - **JWT Refresh + API Errors**: `ApiClient._AuthInterceptor` מנסה refresh אוטומטי. אם נכשל → ניווט ל-login + הודעה. שגיאות 5xx → Snackbar אדום.

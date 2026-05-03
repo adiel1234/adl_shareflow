@@ -729,13 +729,10 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
     final currentUserId = ref.watch(authProvider).userId;
     final group = widget.group;
     final suggestions = widget.suggestions;
-    // Collect guest user IDs from members list
-    final membersAsync = ref.watch(groupMembersProvider(group.id));
-    final guestIds = membersAsync.valueOrNull
-            ?.where((m) => m.isGuest)
-            .map((m) => m.userId)
-            .toSet() ??
-        {};
+    // Guest / former-member detection comes from the settlement suggestion itself
+    // (from_is_guest / from_is_former_member fields returned by the backend).
+    // We still watch members to keep the provider alive for other widgets.
+    ref.watch(groupMembersProvider(group.id));
     final isClosed = group.isClosed;
     final headerColor = isClosed ? const Color(0xFFEF4444) : const Color(0xFF6366F1);
     final bgColor     = isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF0F0FF);
@@ -787,7 +784,8 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
           ...suggestions.map(
             (s) {
               final isMyDebt = s.fromUserId == currentUserId;
-              final isGuestDebt = group.isAdmin && guestIds.contains(s.fromUserId);
+              final isGuestDebt = group.isAdmin && s.fromIsGuest;
+              final isFormerMember = s.fromIsFormerMember && !s.fromIsGuest;
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -802,7 +800,33 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                       child: Builder(builder: (ctx) {
                         final dl = AppLocalizations.of(ctx)!;
                         final text = dl.transferNeeded(s.fromDisplayName, s.toDisplayName);
-                        return Text(text, style: const TextStyle(fontSize: 13));
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(text, style: const TextStyle(fontSize: 13)),
+                            if (isFormerMember) ...[
+                              const SizedBox(height: 3),
+                              Builder(builder: (ctx2) {
+                                final dl2 = AppLocalizations.of(ctx2)!;
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    dl2.formerMember,
+                                    style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                );
+                              }),
+                            ],
+                          ],
+                        );
                       }),
                     ),
                     const SizedBox(width: 8),

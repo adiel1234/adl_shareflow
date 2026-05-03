@@ -48,9 +48,15 @@ def get_settlement_plan(group_id, **kwargs):
 
     suggestions = calculate_settlement_plan(group_id, group.base_currency)
 
-    # Build a lookup map of user payment details for creditors
-    creditor_ids = {s.to_user_id for s in suggestions}
-    creditors = {u.id: u for u in db.session.query(User).filter(User.id.in_(creditor_ids)).all()}
+    # Build lookup maps: creditor payment details + guest/member status for all users
+    all_user_ids = {s.from_user_id for s in suggestions} | {s.to_user_id for s in suggestions}
+    all_users = {u.id: u for u in db.session.query(User).filter(User.id.in_(all_user_ids)).all()}
+    creditors = all_users  # reuse — all users already fetched
+
+    # Current active member IDs in this group
+    active_member_ids = {
+        m.user_id for m in GroupMember.query.filter_by(group_id=group_id).all()
+    }
 
     return success_response(data={
         'group_id': group_id,
@@ -59,6 +65,8 @@ def get_settlement_plan(group_id, **kwargs):
             {
                 'from_user_id': s.from_user_id,
                 'from_display_name': s.from_display_name,
+                'from_is_guest': all_users[s.from_user_id].is_guest if s.from_user_id in all_users else False,
+                'from_is_former_member': s.from_user_id not in active_member_ids,
                 'to_user_id': s.to_user_id,
                 'to_display_name': s.to_display_name,
                 'amount': str(s.amount),

@@ -70,6 +70,8 @@ class UserBalance {
 class SettlementSuggestion {
   final String fromUserId;
   final String fromDisplayName;
+  final bool fromIsGuest;
+  final bool fromIsFormerMember;
   final String toUserId;
   final String toDisplayName;
   final String amount;
@@ -83,6 +85,8 @@ class SettlementSuggestion {
   const SettlementSuggestion({
     required this.fromUserId,
     required this.fromDisplayName,
+    this.fromIsGuest = false,
+    this.fromIsFormerMember = false,
     required this.toUserId,
     required this.toDisplayName,
     required this.amount,
@@ -97,6 +101,8 @@ class SettlementSuggestion {
       SettlementSuggestion(
         fromUserId: json['from_user_id'] as String,
         fromDisplayName: json['from_display_name'] as String,
+        fromIsGuest: json['from_is_guest'] as bool? ?? false,
+        fromIsFormerMember: json['from_is_former_member'] as bool? ?? false,
         toUserId: json['to_user_id'] as String,
         toDisplayName: json['to_display_name'] as String,
         amount: json['amount'] as String,

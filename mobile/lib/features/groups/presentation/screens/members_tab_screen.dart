@@ -423,20 +423,57 @@ class MembersTabScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.removeGuest),
-        content: Text(l.removeGuestConfirm(guest.displayLabel)),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(l.cancel)),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l.remove,
-                style: const TextStyle(color: AppColors.negative)),
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(children: [
+            const Icon(Icons.person_remove_outlined, color: AppColors.negative, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(dl.removeGuest,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ]),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${dl.removeMemberTitle(guest.displayLabel)}',
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9F9F9),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Text(
+                  dl.removeGuestConfirm(guest.displayLabel),
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade700,
+                      height: 1.5),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(dl.cancel)),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(dl.remove,
+                  style: const TextStyle(
+                      color: AppColors.negative, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true) return;
 
@@ -447,7 +484,7 @@ class MembersTabScreen extends ConsumerWidget {
       ref.invalidate(balancesProvider(group.id));
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('האורח הוסר מהקבוצה')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.guestRemovedSuccess(guest.displayLabel))),
         );
       }
     } catch (e) {
@@ -470,84 +507,94 @@ class MembersTabScreen extends ConsumerWidget {
   ) async {
     final l = AppLocalizations.of(context)!;
     final hasDebt = net.abs() > 0.001;
-    String? mode;
 
-    if (hasDebt) {
-      mode = await showDialog<String>(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) {
-          final dl = AppLocalizations.of(ctx)!;
-          return AlertDialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: Text(dl.removeMemberTitle(member.displayLabel),
-                style: const TextStyle(fontWeight: FontWeight.w700),
-                textAlign: TextAlign.right),
-            content: Text(
-              dl.memberHasBalance(
-                  member.displayLabel, '${net.abs().round()} $currency'),
-              style: const TextStyle(
-                  color: AppColors.textSecondary, height: 1.5),
-              textAlign: TextAlign.right,
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(children: [
+            const Icon(Icons.person_remove_outlined,
+                color: AppColors.negative, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(dl.removeMemberTitle(member.displayLabel),
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
-            actionsAlignment: MainAxisAlignment.center,
-            actions: [
-              _OptionBtn(
-                icon: Icons.handshake_outlined,
-                color: AppColors.positive,
-                title: dl.settleDebt,
-                subtitle: dl.settleDebtDesc,
-                onTap: () => Navigator.pop(ctx, 'settle'),
-              ),
-              const SizedBox(height: 8),
-              _OptionBtn(
-                icon: Icons.people_outline,
-                color: AppColors.primary,
-                title: dl.redistributeDebt,
-                subtitle: dl.redistributeDebtDesc,
-                onTap: () => Navigator.pop(ctx, 'redistribute'),
-              ),
-              const SizedBox(height: 4),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: Text(dl.cancel,
-                    style: const TextStyle(color: AppColors.textSecondary)),
+          ]),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (hasDebt) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF3CD),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFFFD700)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded,
+                          size: 16, color: Color(0xFF856404)),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          dl.memberHasBalance(member.displayLabel,
+                              '${net.abs().round()} $currency'),
+                          style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF856404),
+                              height: 1.4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9F9F9),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Text(
+                  dl.removeMemberExplain,
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade700,
+                      height: 1.5),
+                ),
               ),
             ],
-          );
-        },
-      );
-    } else {
-      final ok = await showDialog<bool>(
-        context: context,
-        builder: (ctx) {
-          final dl = AppLocalizations.of(ctx)!;
-          return AlertDialog(
-            title: Text(dl.removeMemberTitle(member.displayLabel)),
-            content: Text(dl.removeMemberConfirm),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(dl.cancel)),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(dl.remove,
-                    style: const TextStyle(color: AppColors.negative)),
-              ),
-            ],
-          );
-        },
-      );
-      if (ok == true) mode = 'settle';
-    }
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(dl.cancel)),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(dl.remove,
+                  style: const TextStyle(
+                      color: AppColors.negative, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        );
+      },
+    );
 
-    if (mode == null) return;
+    if (confirmed != true) return;
 
     try {
       await ref
           .read(groupRepositoryProvider)
-          .removeMember(group.id, member.userId, mode: mode);
+          .removeMember(group.id, member.userId);
       ref.invalidate(groupMembersProvider(group.id));
       ref.invalidate(balancesProvider(group.id));
       if (context.mounted) {
@@ -565,7 +612,7 @@ class MembersTabScreen extends ConsumerWidget {
           SnackBar(
             content: Text(msg),
             duration: const Duration(seconds: 5),
-            backgroundColor: msg.contains('חייב') ? const Color(0xFFEF4444) : null,
+            backgroundColor: AppColors.negative,
           ),
         );
       }

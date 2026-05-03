@@ -617,7 +617,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String memberHasBalance(String name, String amount) {
-    return '$name has an open balance of $amount.\nHow to handle?';
+    return '$name has an open balance of $amount — it will remain visible until manually settled.';
   }
 
   @override
@@ -637,15 +637,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get removeMemberConfirm => 'Remove this member from the group?';
 
   @override
+  String get removeMemberExplain =>
+      'Existing expenses remain.\nIf there is an open debt — it will continue to appear in settlements until manually resolved.\nThis action cannot be undone.';
+
+  @override
   String get remove => 'Remove';
 
   @override
   String memberRemovedSuccess(String name) {
-    return '$name was removed from the group';
+    return '$name was removed. Open debts will remain visible until settled.';
   }
 
   @override
   String get errorRemovingMember => 'Error removing member';
+
+  @override
+  String get formerMember => 'Former';
 
   @override
   String get extendGroupTitle => 'Extend Group';
@@ -1356,7 +1363,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String removeGuestConfirm(String name) {
-    return 'Removing guest $name will delete all their expenses in this group. Continue?';
+    return 'Guest $name will be removed from the active members list.\nExisting expenses remain.\nIf there is an open debt — it will continue to appear in settlements until manually resolved.\nThis action cannot be undone.';
+  }
+
+  @override
+  String guestRemovedSuccess(String name) {
+    return '$name removed. Open debt will remain visible until settled.';
   }
 
   @override
