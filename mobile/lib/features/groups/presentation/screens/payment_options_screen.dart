@@ -12,6 +12,7 @@ class PaymentOptionsScreen extends StatefulWidget {
   final double amount;
   final String currency;
   final String? recipientPhone;
+  final String? recipientPayboxLink;
   final String? bankName;
   final String? bankBranch;
   final String? bankAccountNumber;
@@ -22,6 +23,7 @@ class PaymentOptionsScreen extends StatefulWidget {
     required this.amount,
     required this.currency,
     this.recipientPhone,
+    this.recipientPayboxLink,
     this.bankName,
     this.bankBranch,
     this.bankAccountNumber,
@@ -57,16 +59,148 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
     }
   }
 
-  /// Opens Bit with phone + amount via deep link
-  void _openBit(String phone) =>
-      _launchUrl('bitmoney://pay?amount=$_roundedAmount&phone=$phone');
+  /// Shows a confirmation sheet with amount + phone, then opens the app
+  void _showAppLaunchConfirm(String appName, String phone, String scheme) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.07),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    '$_roundedAmount ${widget.currency}',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'לטלפון $phone',
+                    style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _launchUrl('$scheme://');
+                },
+                child: Text('פתח $appName'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-  /// Opens PayBox with phone + amount via deep link
-  void _openPayBox(String phone) =>
-      _launchUrl('payboxapp://payment?amount=$_roundedAmount&phone=$phone');
+  /// Opens Bit via confirmation sheet
+  void _openBit(String phone) => _showAppLaunchConfirm('Bit', phone, 'bit');
 
-  /// Shows a bottom sheet to enter phone number manually, then calls [onConfirm]
-  void _showPhoneInput(String appName, void Function(String) onConfirm) {
+  /// Opens PayBox via confirmation sheet.
+  /// If a personal PayBox link is stored, opens it directly (Universal Link).
+  /// Otherwise falls back to manual phone input then `paybox://`.
+  void _openPayBox(String phone) {
+    final link = widget.recipientPayboxLink;
+    if (link != null && link.isNotEmpty) {
+      _showPayboxLinkConfirm(link, phone);
+    } else {
+      _showAppLaunchConfirm('PayBox', phone, 'paybox');
+    }
+  }
+
+  /// Shows amount + confirmation sheet, then opens the PayBox Universal Link.
+  void _showPayboxLinkConfirm(String link, String phone) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.07),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    '$_roundedAmount ${widget.currency}',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  if (phone.isNotEmpty)
+                    Text(
+                      'לטלפון $phone',
+                      style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _launchUrl(link);
+                },
+                child: const Text('פתח PayBox'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Shows a bottom sheet to enter phone number manually, then opens [scheme]://
+  void _showPhoneInput(String appName, String scheme) {
     final controller = TextEditingController();
     showModalBottomSheet(
       context: context,
@@ -91,13 +225,31 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
               style: const TextStyle(
                   fontWeight: FontWeight.w700, fontSize: 17),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.07),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+              ),
+              child: Text(
+                'סכום להעברה: $_roundedAmount ${widget.currency}',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             Text(
               'הזן את מספר הטלפון של ${widget.recipientName}',
               style: const TextStyle(
                   color: AppColors.textSecondary, fontSize: 13),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             TextField(
               controller: controller,
               keyboardType: TextInputType.phone,
@@ -124,7 +276,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                   final phone = controller.text.trim();
                   if (phone.length < 9) return;
                   Navigator.pop(ctx);
-                  onConfirm(phone);
+                  _launchUrl('$scheme://');
                 },
                 child: Text('פתח $appName'),
               ),
@@ -139,6 +291,8 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final phone = widget.recipientPhone;
+    final payboxLink = widget.recipientPayboxLink;
+    final hasPayboxDetails = payboxLink != null || phone != null;
     final hasBankDetails = widget.bankAccountNumber != null;
 
     return Scaffold(
@@ -203,7 +357,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                 if (phone != null) {
                   _openBit(phone);
                 } else {
-                  _showPhoneInput('Bit', _openBit);
+                  _showPhoneInput('Bit', 'bit');
                 }
               },
             ),
@@ -212,15 +366,17 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
             _PaymentTile(
               emoji: '🟢',
               title: 'PayBox',
-              subtitle: phone != null
-                  ? phone
-                  : 'המקבל לא הגדיר מספר טלפון',
-              hasDetails: phone != null,
+              subtitle: payboxLink != null
+                  ? 'קישור אישי מוגדר'
+                  : phone != null
+                      ? phone
+                      : 'המקבל לא הגדיר קישור PayBox',
+              hasDetails: hasPayboxDetails,
               onTap: () {
-                if (phone != null) {
-                  _openPayBox(phone);
+                if (hasPayboxDetails) {
+                  _openPayBox(phone ?? '');
                 } else {
-                  _showPhoneInput('PayBox', _openPayBox);
+                  _showPhoneInput('PayBox', 'paybox');
                 }
               },
             ),

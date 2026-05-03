@@ -72,6 +72,7 @@ def get_settlement_plan(group_id, **kwargs):
                 'amount': str(s.amount),
                 'currency': s.currency,
                 'to_payment_phone': creditors[s.to_user_id].payment_phone if s.to_user_id in creditors else None,
+                'to_paybox_link': creditors[s.to_user_id].paybox_link if s.to_user_id in creditors else None,
                 'to_bank_name': creditors[s.to_user_id].bank_name if s.to_user_id in creditors else None,
                 'to_bank_branch': creditors[s.to_user_id].bank_branch if s.to_user_id in creditors else None,
                 'to_bank_account_number': creditors[s.to_user_id].bank_account_number if s.to_user_id in creditors else None,

@@ -13,6 +13,7 @@ class PaymentDetailsScreen extends StatefulWidget {
 
 class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
   final _phoneCtrl = TextEditingController();
+  final _payboxLinkCtrl = TextEditingController();
   final _bankNameCtrl = TextEditingController();
   final _branchCtrl = TextEditingController();
   final _accountCtrl = TextEditingController();
@@ -31,6 +32,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
       final response = await ApiClient.instance.get('/users/me');
       final data = response.data['data'] as Map<String, dynamic>;
       _phoneCtrl.text = data['payment_phone'] ?? '';
+      _payboxLinkCtrl.text = data['paybox_link'] ?? '';
       _bankNameCtrl.text = data['bank_name'] ?? '';
       _branchCtrl.text = data['bank_branch'] ?? '';
       _accountCtrl.text = data['bank_account_number'] ?? '';
@@ -47,6 +49,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
     try {
       await ApiClient.instance.put('/users/me', data: {
         'payment_phone': _phoneCtrl.text.trim(),
+        'paybox_link': _payboxLinkCtrl.text.trim(),
         'bank_name': _bankNameCtrl.text.trim(),
         'bank_branch': _branchCtrl.text.trim(),
         'bank_account_number': _accountCtrl.text.trim(),
@@ -71,6 +74,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
   @override
   void dispose() {
     _phoneCtrl.dispose();
+    _payboxLinkCtrl.dispose();
     _bankNameCtrl.dispose();
     _branchCtrl.dispose();
     _accountCtrl.dispose();
@@ -105,6 +109,17 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                     decoration: const InputDecoration(
                       hintText: '05X-XXXXXXX',
                       prefixIcon: Icon(Icons.phone_outlined),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _payboxLinkCtrl,
+                    keyboardType: TextInputType.url,
+                    textDirection: TextDirection.ltr,
+                    decoration: const InputDecoration(
+                      hintText: 'https://payboxapp.page.link/...',
+                      prefixIcon: Icon(Icons.link_outlined),
+                      labelText: 'קישור PayBox אישי',
                     ),
                   ),
 

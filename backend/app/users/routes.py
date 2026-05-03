@@ -51,6 +51,11 @@ def update_me():
     # Payment details
     if 'payment_phone' in data:
         user.payment_phone = (data['payment_phone'] or '').strip() or None
+    if 'paybox_link' in data:
+        raw_link = (data['paybox_link'] or '').strip()
+        if raw_link and not raw_link.startswith('https://'):
+            return error_response('paybox_link must start with https://')
+        user.paybox_link = raw_link or None
     if 'bank_name' in data:
         user.bank_name = (data['bank_name'] or '').strip() or None
     if 'bank_branch' in data:

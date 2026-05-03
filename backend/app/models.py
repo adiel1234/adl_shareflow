@@ -42,6 +42,7 @@ class User(db.Model):
     is_active = Column(Boolean, nullable=False, default=True)
     # Payment details (for settling debts via Bit / PayBox / bank transfer)
     payment_phone = Column(String(20), nullable=True)   # Bit / PayBox phone
+    paybox_link = Column(String(500), nullable=True)    # personal PayBox "שלם לי" link
     bank_name = Column(String(50), nullable=True)
     bank_branch = Column(String(10), nullable=True)
     bank_account_number = Column(String(30), nullable=True)
@@ -69,6 +70,7 @@ class User(db.Model):
             'language': self.language,
             'plan': self.plan,
             'payment_phone': self.payment_phone,
+            'paybox_link': self.paybox_link,
             'bank_name': self.bank_name,
             'bank_branch': self.bank_branch,
             'bank_account_number': self.bank_account_number,

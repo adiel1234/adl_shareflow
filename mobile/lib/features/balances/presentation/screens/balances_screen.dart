@@ -573,6 +573,7 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
           amount: s.amountDouble,
           currency: s.currency,
           recipientPhone: s.toPaymentPhone,
+          recipientPayboxLink: s.toPayboxLink,
           bankName: s.toBankName,
           bankBranch: s.toBankBranch,
           bankAccountNumber: s.toBankAccountNumber,

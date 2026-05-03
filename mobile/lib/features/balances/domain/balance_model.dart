@@ -78,6 +78,7 @@ class SettlementSuggestion {
   final String currency;
   // Recipient's payment details (for Bit / PayBox / bank transfer)
   final String? toPaymentPhone;
+  final String? toPayboxLink;
   final String? toBankName;
   final String? toBankBranch;
   final String? toBankAccountNumber;
@@ -92,6 +93,7 @@ class SettlementSuggestion {
     required this.amount,
     required this.currency,
     this.toPaymentPhone,
+    this.toPayboxLink,
     this.toBankName,
     this.toBankBranch,
     this.toBankAccountNumber,
@@ -108,6 +110,7 @@ class SettlementSuggestion {
         amount: json['amount'] as String,
         currency: json['currency'] as String,
         toPaymentPhone: json['to_payment_phone'] as String?,
+        toPayboxLink: json['to_paybox_link'] as String?,
         toBankName: json['to_bank_name'] as String?,
         toBankBranch: json['to_bank_branch'] as String?,
         toBankAccountNumber: json['to_bank_account_number'] as String?,
