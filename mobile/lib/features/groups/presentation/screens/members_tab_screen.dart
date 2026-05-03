@@ -237,10 +237,12 @@ class MembersTabScreen extends ConsumerWidget {
     List<GroupMember> allMembers,
   ) async {
     final l = AppLocalizations.of(context)!;
+    // Capture messenger before the sheet opens so it stays usable after close
+    final messenger = ScaffoldMessenger.of(context);
     // Real (non-guest) members only
     final realMembers = allMembers.where((m) => !m.isGuest && m.userId != guest.userId).toList();
     if (realMembers.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('אין חברים רשומים לשיוך')),
       );
       return;
@@ -369,7 +371,17 @@ class MembersTabScreen extends ConsumerWidget {
                           inviteCode: code,
                           inviteUrl: link,
                         );
-                      } catch (_) {}
+                      } catch (e) {
+                        if (context.mounted) {
+                          String msg = 'שגיאה בקבלת קישור ההזמנה';
+                          if (e is DioException) {
+                            msg = (e.response?.data?['message'] as String?) ?? msg;
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(msg)),
+                          );
+                        }
+                      }
                     },
                   ),
                 ),
@@ -399,19 +411,15 @@ class MembersTabScreen extends ConsumerWidget {
       );
       ref.invalidate(groupMembersProvider(group.id));
       ref.invalidate(balancesProvider(group.id));
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.linkGuestSuccess)),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text(l.linkGuestSuccess)),
+      );
     } catch (e) {
-      if (context.mounted) {
-        String msg = 'שגיאה בשיוך האורח';
-        if (e is DioException) {
-          msg = (e.response?.data?['message'] as String?) ?? msg;
-        }
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      String msg = 'שגיאה בשיוך האורח';
+      if (e is DioException) {
+        msg = (e.response?.data?['message'] as String?) ?? msg;
       }
+      messenger.showSnackBar(SnackBar(content: Text(msg)));
     }
   }
 

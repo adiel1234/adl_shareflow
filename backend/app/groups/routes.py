@@ -946,7 +946,7 @@ def add_guest_member(group_id, **kwargs):
 @require_group_admin
 def link_guest_member(group_id, guest_user_id, **kwargs):
     """Admin links a guest placeholder to a real registered member of the group."""
-    from app.models import Expense, ExpenseSplit, Settlement
+    from app.models import Expense, ExpenseParticipant, Settlement
 
     group = db.session.get(Group, group_id)
     if not group or not group.is_active:
@@ -977,10 +977,20 @@ def link_guest_member(group_id, guest_user_id, **kwargs):
     # Transfer all expenses paid by ghost
     Expense.query.filter_by(group_id=group_id, paid_by=guest_user_id).update({'paid_by': real_user_id})
 
-    # Transfer all expense splits
-    for split in ExpenseSplit.query.filter_by(user_id=guest_user_id).all():
+    # Transfer all expense splits.
+    # If the real user is already a participant in the same expense, merge the
+    # share amounts instead of creating a duplicate participant record.
+    for split in ExpenseParticipant.query.filter_by(user_id=guest_user_id).all():
         expense = db.session.get(Expense, split.expense_id)
-        if expense and expense.group_id == group_id:
+        if not expense or expense.group_id != group_id:
+            continue
+        existing = ExpenseParticipant.query.filter_by(
+            expense_id=split.expense_id, user_id=real_user_id
+        ).first()
+        if existing:
+            existing.share_amount += split.share_amount
+            db.session.delete(split)
+        else:
             split.user_id = real_user_id
 
     # Transfer settlements (from / to)
