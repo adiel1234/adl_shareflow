@@ -9,6 +9,7 @@ import '../../../groups/domain/group_model.dart';
 import '../../../balances/domain/balance_model.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../services/share_service.dart';
 
 class MembersTabScreen extends ConsumerWidget {
   final Group group;
@@ -328,6 +329,48 @@ class MembersTabScreen extends ConsumerWidget {
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(ctx, true),
                     child: Text(l.linkGuestBtn),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Text('או',
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary)),
+                  ),
+                  const Expanded(child: Divider()),
+                ]),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.share_outlined, size: 16),
+                    label: Text(l.inviteFriends),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.purple,
+                      side: const BorderSide(color: Colors.purple),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onPressed: () async {
+                      Navigator.pop(ctx, false);
+                      try {
+                        final api = ApiClient.instance;
+                        final resp = await api.get(
+                            '/groups/${group.id}/invite-link');
+                        final data = resp.data['data'] as Map<String, dynamic>;
+                        final code = data['invite_code'] as String;
+                        final link = data['invite_link'] as String;
+                        await ShareService.shareGroupInvite(
+                          groupName: group.name,
+                          inviteCode: code,
+                          inviteUrl: link,
+                        );
+                      } catch (_) {}
+                    },
                   ),
                 ),
                 const SizedBox(height: 4),

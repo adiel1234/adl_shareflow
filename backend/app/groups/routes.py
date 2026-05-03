@@ -1077,7 +1077,14 @@ def link_guest_member(group_id, guest_user_id, **kwargs):
 @jwt_required()
 @require_group_admin
 def remove_guest_member(group_id, guest_user_id, **kwargs):
-    """Admin removes a guest member from the group."""
+    """Admin removes a guest member from the group.
+
+    Cleans up all related data before deleting the ghost user to avoid
+    FK constraint violations (Expense.paid_by / ExpenseParticipant.user_id
+    / Settlement.from/to_user_id have no ondelete cascade).
+    """
+    from app.models import Expense, ExpenseSplit, Settlement
+
     ghost = db.session.get(User, guest_user_id)
     if not ghost or not ghost.is_guest:
         return error_response('Guest not found', 404)
@@ -1086,6 +1093,38 @@ def remove_guest_member(group_id, guest_user_id, **kwargs):
     if not ghost_member:
         return error_response('Guest is not in this group', 404)
 
+    # 1. Remove all settlements involving the ghost in this group
+    Settlement.query.filter(
+        db.or_(
+            Settlement.from_user_id == guest_user_id,
+            Settlement.to_user_id == guest_user_id,
+        ),
+        Settlement.group_id == group_id,
+    ).delete(synchronize_session=False)
+
+    # 2. Delete expenses where the ghost is the payer
+    #    (cascade='all, delete-orphan' on Expense.participants handles splits)
+    ghost_paid_ids = [
+        e.id for e in Expense.query.filter_by(
+            group_id=group_id, paid_by=guest_user_id
+        ).all()
+    ]
+    if ghost_paid_ids:
+        ExpenseSplit.query.filter(
+            ExpenseSplit.expense_id.in_(ghost_paid_ids)
+        ).delete(synchronize_session=False)
+        Expense.query.filter(Expense.id.in_(ghost_paid_ids)).delete(
+            synchronize_session=False
+        )
+
+    # 3. Remove the ghost from any remaining expense splits
+    #    (expenses in this group where ghost was a participant, not the payer)
+    for split in ExpenseSplit.query.filter_by(user_id=guest_user_id).all():
+        expense = db.session.get(Expense, split.expense_id)
+        if expense and expense.group_id == group_id:
+            db.session.delete(split)
+
+    # 4. Delete ghost membership and ghost user record
     db.session.delete(ghost_member)
     db.session.delete(ghost)
     db.session.commit()
