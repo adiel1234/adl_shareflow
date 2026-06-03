@@ -652,6 +652,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorRemovingMember => 'Error removing member';
 
   @override
+  String get removeMemberDebtQuestion => 'What should happen with the debt?';
+
+  @override
+  String removeMemberDebtPay(String amount) {
+    return 'Will pay their share ($amount)';
+  }
+
+  @override
+  String get removeMemberDebtForgive => 'Forgive the debt';
+
+  @override
+  String memberRemovedForgiven(String name) {
+    return '$name was removed and their debt was forgiven.';
+  }
+
+  @override
   String get formerMember => 'Former';
 
   @override
@@ -1002,6 +1018,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copyAll => 'Copy all';
 
   @override
+  String get copyAmount => 'Copy amount';
+
+  @override
+  String get amountCopied => 'Amount copied — paste in the payment app';
+
+  @override
+  String get finishEventWizard => 'Finish event';
+
+  @override
+  String get wizardStepSummary => 'Summary';
+
+  @override
+  String get wizardStepSend => 'Send';
+
+  @override
+  String get wizardStepClose => 'Close';
+
+  @override
+  String get closeGroupAfterSummary => 'Close group';
+
+  @override
+  String get unsettledDebtsWarning =>
+      'There are still open debts. Close anyway?';
+
+  @override
+  String get wizardNext => 'Next';
+
+  @override
+  String get wizardBack => 'Back';
+
+  @override
+  String get shareGuestDebtWhatsApp => 'Share reminder via WhatsApp';
+
+  @override
   String get bankDetailsCopied => 'Bank details copied';
 
   @override
@@ -1253,6 +1303,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markAsPaid => 'Paid ✓';
 
   @override
+  String get paidDirectly => 'I paid directly';
+
+  @override
+  String confirmDirectPayment(String name) {
+    return 'Did $name confirm receiving the money?';
+  }
+
+  @override
+  String waitingForConfirmation(String name) {
+    return 'Waiting for $name\'s confirmation';
+  }
+
+  @override
+  String get confirmMarkDebtPaid => 'Mark this debt as paid?';
+
+  @override
+  String confirmMarkDebtPaidBody(
+      String fromName, String toName, String amount, String currency) {
+    return 'Did $fromName pay $toName $amount $currency?';
+  }
+
+  @override
   String get currentPeriodExpenses => 'Current period expenses';
 
   @override
@@ -1376,4 +1448,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guestNoApp => 'For members who haven\'t downloaded the app yet';
+
+  @override
+  String perParticipant(String amount) {
+    return '$amount per participant';
+  }
+
+  @override
+  String get notParticipating => 'Not participating';
+
+  @override
+  String get atLeastOneParticipant => 'At least one participant required';
 }

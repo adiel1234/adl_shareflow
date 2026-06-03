@@ -138,9 +138,23 @@ def mark_guest_paid(group_id, **kwargs):
     if not guest or not guest.is_guest:
         return error_response('guest_user_id must belong to a guest member', 404)
 
-    guest_member = GroupMember.query.filter_by(group_id=group_id, user_id=guest_user_id).first()
-    if not guest_member:
-        return error_response('Guest is not a member of this group', 404)
+    # Allow marking as paid even after the guest has been removed from the group.
+    # Verify the guest has history in this group (active member OR past expense/settlement data).
+    from app.models import Expense, ExpenseParticipant
+    still_member = GroupMember.query.filter_by(
+        group_id=group_id, user_id=guest_user_id
+    ).first() is not None
+    has_expense = Expense.query.filter_by(
+        group_id=group_id, paid_by=guest_user_id
+    ).first() is not None
+    has_participation = (
+        db.session.query(ExpenseParticipant)
+        .join(Expense, Expense.id == ExpenseParticipant.expense_id)
+        .filter(Expense.group_id == group_id, ExpenseParticipant.user_id == guest_user_id)
+        .first()
+    ) is not None
+    if not (still_member or has_expense or has_participation):
+        return error_response('Guest has no history in this group', 404)
 
     try:
         amount = to_decimal(data.get('amount'))

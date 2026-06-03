@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 3 מאי 2026 (גרסה 1.0.3+6)
+> עודכן לאחרונה: 3 יוני 2026 (גרסה 1.0.5+11 — פיילוט: סשן, משתתפים, wizard סיום אירוע, Bit העתק סכום, UX אורח)
 
 ---
 
@@ -53,12 +53,12 @@
 | `core/network/` | ApiClient (Dio) — כל קריאות ה-HTTP |
 | `features/auth/` | התחברות, הרשמה, Google Sign-In, Apple Sign-In |
 | `features/groups/` | קבוצות — יצירה, הזמנה, QR, ניהול |
-| `features/expenses/` | הוצאות — הוספה, עריכה, OCR |
+| `features/expenses/` | הוצאות — הוספה, עריכה, OCR, בחירת משתתפים |
 | `features/balances/` | יתרות, סיכום אירוע, התחשבנות |
 | `features/notifications/` | התראות in-app |
 | `features/profile/` | פרופיל, הגדרות, תזכורות, פרטי תשלום |
 | `features/ocr/` | סריקת קבלות |
-| `l10n/` | עברית (`app_he.arb`) + אנגלית (`app_en.arb`) — 396 מפתחות |
+| `l10n/` | עברית (`app_he.arb`) + אנגלית (`app_en.arb`) — 399 מפתחות |
 | `services/fcm_service.dart` | ניהול Push Notifications — אתחול, רישום token, ניווט מהתראה |
 | `services/share_service.dart` | שיתוף קישורים / WhatsApp |
 | `providers/` | Riverpod state management |
@@ -332,6 +332,40 @@ flutter install --release
 | Guest Member Feature | ✅ הוספה / קישור / הסרה / חיוב / settlement |
 | PAYMENTS_ENABLED | 🔴 כבוי (פיילוט חינמי) |
 | Firebase App Distribution | 🟡 מתוכנן — טרם הוגדר |
+
+---
+
+## שינויים — F1 + F3a (יוני 2026)
+
+### Backend
+- **`DELETE /groups/<group_id>/members/<user_id>`** (`groups/routes.py`): נוסף פרמטר `forgive_debt: bool` (ברירת מחדל: `false`).
+  - `forgive_debt=false` (ברירת מחדל): מסיר את רשומת ה-`GroupMember`; כל חלקי ההוצאות (`ExpenseParticipant`) נשמרים — החוב ממשיך להופיע בהתחשבנות כ-"חבר לשעבר".
+  - `forgive_debt=true`: מאפס את `share_amount` לכל `ExpenseParticipant` של החבר בקבוצה — החוב נמחל לחלוטין מיתרת המערכת.
+
+### Flutter (Mobile)
+- **F1 — הסרת חבר עם בחירת טיפול בחוב** (`groups/presentation/screens/members_tab_screen.dart`):
+  - כשיש יתרה פתוחה: Dialog מורחב עם שני כפתורי פעולה — "ישלם את חלקו (סכום)" → `forgiveDebt=false`, "מחל על החוב" → `forgiveDebt=true`.
+  - ללא יתרה: Dialog אישור פשוט.
+  - `GroupRepository.removeMember` עודכן עם פרמטר `forgiveDebt: bool`.
+- **F3a — כפתור "שילמתי ישירות"** (`balances/presentation/screens/balances_screen.dart`):
+  - בכרטיס "העברות נדרשות": נוסף כפתור outline "שילמתי ישירות" → Dialog "האם {name} אישר?" → `requestSettlement` → snackbar "ממתין לאישור {name}".
+  - ב-`_PeriodReportCard._markPaid` (חובות תקופתיים): כפתור "שולם ✓" פותח עכשיו דיאלוג אישור עם שמות הצדדים לפני ביצוע.
+- **l10n**: נוספו מפתחות `removeMemberDebtQuestion`, `removeMemberDebtPay`, `removeMemberDebtForgive`, `memberRemovedForgiven`, `paidDirectly`, `confirmDirectPayment`, `waitingForConfirmation`, `confirmMarkDebtPaid`, `confirmMarkDebtPaidBody`.
+
+---
+
+## שינויים — גל יוני 2026 (אבטחה ותיקוני לוגיקה)
+
+### Backend
+- **מנוע יתרות** (`balances/engine.py`):
+  - `calculate_group_balances` מחסיר `Settlement` עם `status='confirmed'` מהיתרות — חובות נמחקים לאחר תשלום.
+  - חברים שהוסרו מהקבוצה (`GroupMember` נמחק) עדיין נכללים בחישוב אם הם מופיעים בהוצאות; מסומנים `is_former_member=True`.
+  - `SettlementSuggestion` כולל שדות `from_is_former_member` / `to_is_former_member`.
+- **JWT** (`config.py`): ברירת מחדל של `JWT_REFRESH_TOKEN_EXPIRES` שונתה מ-30 יום ל-3650 יום (10 שנים). ניתן לשנות דרך `JWT_REFRESH_TOKEN_EXPIRES_DAYS`.
+- **`mark_debt_paid`** (`groups/routes.py`): נוספה בדיקת חברות בקבוצה — רק חבר בקבוצה שבבעלות החוב יכול לסמן כשולם.
+- **`POST /currency/rates`** (`currency/routes.py`): מוגן עכשיו בבדיקת `X-ADL-Admin-Key` header — רק אדמין יכול לעדכן שערי מטבע ידניים.
+- **`POST /groups/<id>/expenses`** (`expenses/routes.py`): נוספה ולידציה — `paid_by` וכל משתתף ב-`participants` חייבים להיות חברים פעילים בקבוצה; מחזיר 400 אם לא.
+- **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): הסרת דרישת חברות פעילה — ניתן לסמן חוב אורח כשולם גם לאחר הסרת האורח מהקבוצה, כל עוד יש לו היסטוריית הוצאות בקבוצה.
 
 ---
 

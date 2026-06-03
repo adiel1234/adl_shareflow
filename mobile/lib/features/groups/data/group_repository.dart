@@ -75,11 +75,18 @@ class GroupRepository {
     return response.data['data'] as Map<String, dynamic>;
   }
 
-  Future<void> removeMember(String groupId, String userId,
-      {String mode = 'settle'}) async {
+  Future<void> addGuest(String groupId, String name) async {
+    await _api.post('/groups/$groupId/guests', data: {'name': name.trim()});
+  }
+
+  Future<void> removeMember(
+    String groupId,
+    String userId, {
+    bool forgiveDebt = false,
+  }) async {
     await _api.delete(
       '/groups/$groupId/members/$userId',
-      data: {'mode': mode},
+      data: {'forgive_debt': forgiveDebt},
     );
   }
 

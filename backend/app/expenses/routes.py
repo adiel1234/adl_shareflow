@@ -85,6 +85,10 @@ def create_expense(group_id, **kwargs):
     converted_amount = (original_amount * exchange_rate).quantize(Decimal('0.01'))
 
     paid_by = data.get('paid_by') or user_id
+    paid_by_member = GroupMember.query.filter_by(group_id=group_id, user_id=paid_by).first()
+    if not paid_by_member:
+        return error_response('paid_by must be an active group member', 400)
+
     split_type = data.get('split_type', 'equal')
     if split_type not in ('equal', 'exact', 'percentage'):
         return error_response('split_type must be equal, exact, or percentage')
@@ -127,6 +131,13 @@ def create_expense(group_id, **kwargs):
             )
             db.session.add(p)
     else:
+        active_member_ids = {m.user_id for m in GroupMember.query.filter_by(group_id=group_id).all()}
+        for pd in participants_data:
+            if pd.get('user_id') not in active_member_ids:
+                db.session.rollback()
+                return error_response(
+                    f"participant {pd.get('user_id')} is not an active group member", 400
+                )
         for pd in participants_data:
             p = ExpenseParticipant(
                 expense_id=expense.id,

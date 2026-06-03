@@ -210,12 +210,18 @@ def remove_member(group_id, target_user_id, **kwargs):
     """
     Remove a member from the group.
 
-    Historical expense data and open balances are intentionally preserved:
-    - All expense splits remain intact.
-    - Any outstanding debt continues to appear in the settlements plan
-      until settled manually by the parties involved.
+    Query param / JSON body:
+      forgive_debt (bool, default false)
+        false → historical splits are kept; the debt remains visible until
+                settled manually ("former member" balance).
+        true  → the removed member's share_amount on every expense in this
+                group is zeroed out, effectively forgiving the outstanding debt.
+
+    Historical expense records are always preserved.
     The group shrinks by one participant for future expenses.
     """
+    from app.models import ExpenseParticipant
+
     user_id = get_jwt_identity()
     removing_self = (target_user_id == user_id)
 
@@ -224,6 +230,29 @@ def remove_member(group_id, target_user_id, **kwargs):
     ).first()
     if not member:
         return error_response('Member not found', 404)
+
+    # Resolve forgive_debt from JSON body or query string
+    data = request.get_json(silent=True) or {}
+    forgive_raw = data.get('forgive_debt', request.args.get('forgive_debt', False))
+    if isinstance(forgive_raw, str):
+        forgive_debt = forgive_raw.lower() in ('true', '1', 'yes')
+    else:
+        forgive_debt = bool(forgive_raw)
+
+    if forgive_debt:
+        # Zero out all expense splits for this member in this group.
+        # The expense rows themselves stay intact; only the share amount
+        # that was assigned to the removed member is wiped.
+        from app.models import Expense
+        expense_ids = db.session.query(Expense.id).filter_by(group_id=group_id).subquery()
+        (
+            ExpenseParticipant.query
+            .filter(
+                ExpenseParticipant.user_id == target_user_id,
+                ExpenseParticipant.expense_id.in_(expense_ids),
+            )
+            .update({'share_amount': 0}, synchronize_session='fetch')
+        )
 
     db.session.delete(member)
 
@@ -686,12 +715,24 @@ def settle_period(group_id, **kwargs):
 @groups_bp.post('/period-debts/<debt_id>/mark-paid')
 @jwt_required()
 def mark_debt_paid(debt_id):
-    """Mark a period debt as paid. Only the creditor (to_user) may do this."""
-    from app.models import PeriodDebt
+    """Mark a period debt as paid. Only the creditor (to_user) may do this,
+    and only if they are a member of the group that owns this debt."""
+    from app.models import PeriodDebt, PeriodReport
     user_id = get_jwt_identity()
     debt = db.session.get(PeriodDebt, debt_id)
     if not debt:
         return error_response('Debt not found', 404)
+
+    report = db.session.get(PeriodReport, debt.report_id)
+    if not report:
+        return error_response('Debt not found', 404)
+
+    group_member = GroupMember.query.filter_by(
+        group_id=report.group_id, user_id=user_id
+    ).first()
+    if not group_member:
+        return error_response('You are not a member of this group', 403)
+
     if debt.to_user_id != user_id:
         return error_response('רק מי שמגיע לו הכסף יכול לסמן חוב זה כשולם', 403)
     if debt.is_paid:
@@ -755,8 +796,10 @@ def join_group(invite_code):
     if existing:
         return error_response('You are already a member of this group')
 
-    # Use the split mode set by the inviter (stored on the group)
-    split_mode = group.invite_split_mode or 'forward'
+    data = request.get_json(silent=True) or {}
+    split_mode = data.get('split_mode') or group.invite_split_mode or 'forward'
+    if split_mode not in ('forward', 'full'):
+        split_mode = 'forward'
 
     # Add the new member
     member = GroupMember(group_id=group.id, user_id=user_id, role='member')

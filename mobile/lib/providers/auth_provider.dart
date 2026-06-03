@@ -69,10 +69,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
         preferredCurrency: currency,
       );
+    } on DioException catch (e) {
+      final status = e.response?.statusCode ?? 0;
+      if (status == 401 || status == 403) {
+        await _storage.deleteAll();
+        state = AuthState(isLoggedIn: false, isLoading: false, preferredCurrency: currency);
+      } else {
+        // שגיאת רשת — נשאר מחובר
+        state = AuthState(isLoggedIn: true, isLoading: false, preferredCurrency: currency);
+      }
     } catch (_) {
-      await _storage.deleteAll();
-      state = AuthState(
-          isLoggedIn: false, isLoading: false, preferredCurrency: currency);
+      state = AuthState(isLoggedIn: true, isLoading: false, preferredCurrency: currency);
     }
   }
 

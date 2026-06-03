@@ -165,6 +165,7 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
                         final expense = expenses[i];
                         return _ExpenseItem(
                           expense: expense,
+                          currentUserId: auth.userId,
                           groupCurrency: widget.group.baseCurrency,
                           prefCurrency: prefCurrency,
                           conversionRate: rate,
@@ -223,6 +224,7 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
 
 class _ExpenseItem extends StatelessWidget {
   final Expense expense;
+  final String currentUserId;
   final String groupCurrency;
   final String prefCurrency;
   final double conversionRate;
@@ -230,6 +232,7 @@ class _ExpenseItem extends StatelessWidget {
 
   const _ExpenseItem({
     required this.expense,
+    required this.currentUserId,
     required this.groupCurrency,
     required this.prefCurrency,
     required this.conversionRate,
@@ -242,6 +245,12 @@ class _ExpenseItem extends StatelessWidget {
     final isPayer = expense.isPayer;
     // System expenses (platform payments) are never editable
     final isCreator = expense.isCreator && !expense.isSystemExpense;
+
+    // "Not participating" — shown only when the expense has explicit participants
+    // and the current user is not among them
+    final hasParticipants = expense.participants.isNotEmpty;
+    final isParticipating = !hasParticipants ||
+        expense.participants.any((p) => p.userId == currentUserId);
 
     // Amounts in group base currency
     final convertedTotal =
@@ -308,12 +317,37 @@ class _ExpenseItem extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 3),
-                      Text(
-                        isPayer
-                            ? AppLocalizations.of(context)!.youPaid
-                            : AppLocalizations.of(context)!.paidByPerson(expense.paidByName ?? ''),
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.textSecondary),
+                      Row(
+                        children: [
+                          Text(
+                            isPayer
+                                ? AppLocalizations.of(context)!.youPaid
+                                : AppLocalizations.of(context)!.paidByPerson(expense.paidByName ?? ''),
+                            style: const TextStyle(
+                                fontSize: 12, color: AppColors.textSecondary),
+                          ),
+                          if (!isParticipating) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                    color: const Color(0xFFCBD5E1)),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(context)!.notParticipating,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF64748B),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                       if (expense.createdAt != null) ...[
                         const SizedBox(height: 2),

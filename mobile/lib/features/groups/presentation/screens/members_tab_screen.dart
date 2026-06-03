@@ -10,6 +10,7 @@ import '../../../balances/domain/balance_model.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../services/share_service.dart';
+import '../../data/group_repository.dart';
 
 class MembersTabScreen extends ConsumerWidget {
   final Group group;
@@ -41,6 +42,9 @@ class MembersTabScreen extends ConsumerWidget {
         }
 
         final guestMembers = members.where((m) => m.isGuest).toList();
+        var headerSlots = 0;
+        if (isAdmin) headerSlots++;
+        if (isAdmin && guestMembers.isNotEmpty) headerSlots++;
 
         return RefreshIndicator(
           onRefresh: () async {
@@ -49,18 +53,25 @@ class MembersTabScreen extends ConsumerWidget {
           },
           child: ListView.builder(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-            // +1 header slot when admin has guests
-            itemCount: members.length + (isAdmin && guestMembers.isNotEmpty ? 1 : 0),
+            itemCount: members.length + headerSlots,
             itemBuilder: (context, i) {
-              // First item: guest reminder banner for admin
-              if (isAdmin && guestMembers.isNotEmpty && i == 0) {
-                return _GuestReminderCard(
-                  count: guestMembers.length,
-                );
+              var slot = 0;
+              if (isAdmin) {
+                if (i == slot) {
+                  return _AddGuestCard(group: group);
+                }
+                slot++;
               }
-              // Offset real index when banner is showing
-              final memberIndex = (isAdmin && guestMembers.isNotEmpty) ? i - 1 : i;
-              final m = members[memberIndex];
+              if (isAdmin && guestMembers.isNotEmpty) {
+                if (i == slot) {
+                  return _GuestReminderCard(
+                    count: guestMembers.length,
+                    onTap: () => _showAddGuestSheet(context, ref, group),
+                  );
+                }
+                slot++;
+              }
+              final m = members[i - slot];
               final isSelf = m.userId == auth.userId;
               final balanceText = balanceMap[m.userId];
               // Parse net from the formatted string (or default 0)
@@ -515,31 +526,38 @@ class MembersTabScreen extends ConsumerWidget {
   ) async {
     final l = AppLocalizations.of(context)!;
     final hasDebt = net.abs() > 0.001;
+    final amountLabel = '${net.abs().round()} $currency';
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        final dl = AppLocalizations.of(ctx)!;
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Row(children: [
-            const Icon(Icons.person_remove_outlined,
-                color: AppColors.negative, size: 20),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(dl.removeMemberTitle(member.displayLabel),
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
-            ),
-          ]),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (hasDebt) ...[
+    // When there is an open balance, ask the admin what to do with the debt.
+    // Returns: null → cancelled, true → forgive, false → keep debt.
+    bool? forgiveDebt;
+
+    if (hasDebt) {
+      forgiveDebt = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) {
+          final dl = AppLocalizations.of(ctx)!;
+          return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Row(children: [
+              const Icon(Icons.person_remove_outlined,
+                  color: AppColors.negative, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(dl.removeMemberTitle(member.displayLabel),
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+              ),
+            ]),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Balance warning
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF3CD),
                     borderRadius: BorderRadius.circular(8),
@@ -552,8 +570,8 @@ class MembersTabScreen extends ConsumerWidget {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          dl.memberHasBalance(member.displayLabel,
-                              '${net.abs().round()} $currency'),
+                          dl.memberHasBalance(
+                              member.displayLabel, amountLabel),
                           style: const TextStyle(
                               fontSize: 12,
                               color: Color(0xFF856404),
@@ -563,52 +581,109 @@ class MembersTabScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+                const SizedBox(height: 12),
+                Text(
+                  dl.removeMemberDebtQuestion,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 14),
+                ),
                 const SizedBox(height: 10),
+                // Option A: keep debt
+                _OptionBtn(
+                  icon: Icons.account_balance_wallet_outlined,
+                  color: AppColors.primary,
+                  title: dl.removeMemberDebtPay(amountLabel),
+                  subtitle: dl.removeMemberExplain,
+                  onTap: () => Navigator.pop(ctx, false),
+                ),
+                const SizedBox(height: 8),
+                // Option B: forgive debt
+                _OptionBtn(
+                  icon: Icons.handshake_outlined,
+                  color: const Color(0xFF059669),
+                  title: dl.removeMemberDebtForgive,
+                  subtitle: dl.removeMemberExplain,
+                  onTap: () => Navigator.pop(ctx, true),
+                ),
               ],
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9F9F9),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Text(
-                  dl.removeMemberExplain,
-                  style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade700,
-                      height: 1.5),
-                ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, null),
+                  child: Text(dl.cancel)),
+            ],
+          );
+        },
+      );
+
+      if (forgiveDebt == null) return; // cancelled
+    } else {
+      // No debt — simple confirm dialog
+      final confirmed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) {
+          final dl = AppLocalizations.of(ctx)!;
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16)),
+            title: Row(children: [
+              const Icon(Icons.person_remove_outlined,
+                  color: AppColors.negative, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(dl.removeMemberTitle(member.displayLabel),
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+              ),
+            ]),
+            content: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9F9F9),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Text(
+                dl.removeMemberConfirm,
+                style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade700,
+                    height: 1.5),
+              ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: Text(dl.cancel)),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(dl.remove,
+                    style: const TextStyle(
+                        color: AppColors.negative,
+                        fontWeight: FontWeight.w700)),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(dl.cancel)),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(dl.remove,
-                  style: const TextStyle(
-                      color: AppColors.negative, fontWeight: FontWeight.w700)),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmed != true) return;
+          );
+        },
+      );
+      if (confirmed != true) return;
+      forgiveDebt = false;
+    }
 
     try {
-      await ref
-          .read(groupRepositoryProvider)
-          .removeMember(group.id, member.userId);
+      await ref.read(groupRepositoryProvider).removeMember(
+            group.id,
+            member.userId,
+            forgiveDebt: forgiveDebt,
+          );
       ref.invalidate(groupMembersProvider(group.id));
       ref.invalidate(balancesProvider(group.id));
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.memberRemovedSuccess(member.displayLabel))),
-        );
+        final msg = forgiveDebt
+            ? l.memberRemovedForgiven(member.displayLabel)
+            : l.memberRemovedSuccess(member.displayLabel);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(msg)));
       }
     } catch (e) {
       if (context.mounted) {
@@ -628,16 +703,136 @@ class MembersTabScreen extends ConsumerWidget {
   }
 }
 
+Future<void> _showAddGuestSheet(
+  BuildContext context,
+  WidgetRef ref,
+  Group group,
+) async {
+  final l = AppLocalizations.of(context)!;
+  final nameCtrl = TextEditingController();
+  var loading = false;
+
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setSheetState) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.addGuestTitle,
+                style: const TextStyle(
+                    fontSize: 17, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 8),
+            Text(l.guestNoApp,
+                style: const TextStyle(
+                    fontSize: 13, color: AppColors.textSecondary, height: 1.4)),
+            const SizedBox(height: 14),
+            TextField(
+              controller: nameCtrl,
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                hintText: l.addGuestHint,
+                filled: true,
+                fillColor: AppColors.surfaceVariant,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            ElevatedButton(
+              onPressed: loading
+                  ? null
+                  : () async {
+                      final name = nameCtrl.text.trim();
+                      if (name.isEmpty) return;
+                      setSheetState(() => loading = true);
+                      try {
+                        await GroupRepository().addGuest(group.id, name);
+                        ref.invalidate(groupMembersProvider(group.id));
+                        ref.invalidate(balancesProvider(group.id));
+                        if (ctx.mounted) Navigator.pop(ctx);
+                      } catch (_) {
+                        if (ctx.mounted) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            const SnackBar(content: Text('שגיאה בהוספת אורח')),
+                          );
+                        }
+                      } finally {
+                        if (ctx.mounted) setSheetState(() => loading = false);
+                      }
+                    },
+              child: loading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(l.addGuestTitle),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+  nameCtrl.dispose();
+}
+
+// ── Add guest quick action (admin) ────────────────────────────────────────────
+
+class _AddGuestCard extends ConsumerWidget {
+  final Group group;
+  const _AddGuestCard({required this.group});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: OutlinedButton.icon(
+        onPressed: () => _showAddGuestSheet(context, ref, group),
+        icon: const Icon(Icons.person_add_outlined, color: Colors.purple),
+        label: Text(l.addGuestTitle,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.purple,
+          side: BorderSide(color: Colors.purple.withOpacity(0.4)),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
+      ),
+    );
+  }
+}
+
 // ── Guest reminder banner ─────────────────────────────────────────────────────
 
 class _GuestReminderCard extends StatelessWidget {
   final int count;
-  const _GuestReminderCard({required this.count});
+  final VoidCallback? onTap;
+  const _GuestReminderCard({required this.count, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    return Container(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
@@ -677,7 +872,18 @@ class _GuestReminderCard extends StatelessWidget {
               ],
             ),
           ),
+          if (onTap != null) ...[
+            const SizedBox(width: 8),
+            Text(l.guestReminderAction,
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.purple.shade700)),
+            const Icon(Icons.chevron_left, size: 18, color: Colors.purple),
+          ],
         ],
+      ),
+        ),
       ),
     );
   }

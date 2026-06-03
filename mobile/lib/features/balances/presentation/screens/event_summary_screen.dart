@@ -1,8 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/balances_provider.dart';
 import '../../../../providers/auth_provider.dart';
+import '../../../../providers/groups_provider.dart';
 import '../../../groups/domain/group_model.dart';
+import '../../../groups/data/group_repository.dart';
 import '../../domain/balance_model.dart';
 import '../../data/balance_repository.dart';
 import '../../../../theme/app_colors.dart';
@@ -20,6 +23,8 @@ class EventSummaryScreen extends ConsumerStatefulWidget {
 class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
   bool _loading = true;
   bool _sending = false;
+  bool _closing = false;
+  int _wizardStep = 0;
   Map<String, dynamic>? _summary;
   String? _error;
 
@@ -92,14 +97,145 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
     return d.round().toString();
   }
 
+  Future<void> _closeGroup() async {
+    final l = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.closeGroupAfterSummary),
+        content: Text(l.closeGroupConfirm),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l.cancel)),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l.closeGroupAfterSummary)),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _closing = true);
+    final repo = ref.read(groupRepositoryProvider);
+    try {
+      await repo.closeGroup(widget.group.id);
+      if (mounted) {
+        ref.invalidate(groupsProvider);
+        Navigator.pop(context);
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.groupClosedSuccess)),
+        );
+      }
+    } on DioException catch (e) {
+      final body = e.response?.data as Map<String, dynamic>?;
+      final unsettled = (body?['errors']?['unsettled'] as List?)?.isNotEmpty == true;
+      if (unsettled && mounted) {
+        final force = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(l.unsettledDebts),
+            content: Text(l.unsettledDebtsWarning),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: Text(l.cancel)),
+              ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: Text(l.closeGroupAfterSummary)),
+            ],
+          ),
+        );
+        if (force == true && mounted) {
+          await repo.closeGroup(widget.group.id, force: true);
+          if (mounted) {
+            ref.invalidate(groupsProvider);
+            Navigator.pop(context);
+            Navigator.pop(context);
+          }
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.errorClosingGroup)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _closing = false);
+    }
+  }
+
+  Widget _wizardBar(AppLocalizations l) {
+    final steps = [l.wizardStepSummary, l.wizardStepSend, l.wizardStepClose];
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Row(
+        children: List.generate(steps.length, (i) {
+          final active = i == _wizardStep;
+          final done = i < _wizardStep;
+          return Expanded(
+            child: Row(
+              children: [
+                if (i > 0)
+                  Expanded(
+                    child: Container(
+                      height: 2,
+                      color: done || active
+                          ? AppColors.primary
+                          : AppColors.border,
+                    ),
+                  ),
+                Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 14,
+                      backgroundColor: active || done
+                          ? AppColors.primary
+                          : AppColors.surfaceVariant,
+                      child: Text(
+                        '${i + 1}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: active || done
+                              ? Colors.white
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      steps[i],
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight:
+                            active ? FontWeight.w700 : FontWeight.w400,
+                        color: active
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        title: Text(AppLocalizations.of(context)!.eventSummary,
+        title: Text(l.finishEventWizard,
             style: const TextStyle(fontWeight: FontWeight.w700)),
         centerTitle: true,
       ),
@@ -108,7 +244,48 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
           : _error != null
               ? Center(child: Text(_error!,
                   style: const TextStyle(color: AppColors.textSecondary)))
-              : _buildContent(),
+              : Column(
+                  children: [
+                    _wizardBar(l),
+                    Expanded(child: _buildContent()),
+                  ],
+                ),
+      bottomNavigationBar: _loading || _error != null
+          ? null
+          : SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    if (_wizardStep > 0)
+                      TextButton(
+                        onPressed: () =>
+                            setState(() => _wizardStep--),
+                        child: Text(l.wizardBack),
+                      ),
+                    const Spacer(),
+                    if (_wizardStep < 2)
+                      ElevatedButton(
+                        onPressed: () =>
+                            setState(() => _wizardStep++),
+                        child: Text(l.wizardNext),
+                      )
+                    else
+                      ElevatedButton(
+                        onPressed: _closing ? null : _closeGroup,
+                        child: _closing
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white),
+                              )
+                            : Text(l.closeGroupAfterSummary),
+                      ),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 
@@ -122,7 +299,9 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (_wizardStep >= 0) ...[
           // Header stats card
+          if (_wizardStep == 0)
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -186,7 +365,9 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
           ),
 
           const SizedBox(height: 24),
+          ],
 
+          if (_wizardStep == 0) ...[
           // Transfers section
           Text(
             l.requiredTransfers,
@@ -228,8 +409,9 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                 )),
 
           const SizedBox(height: 32),
+          ],
 
-          // Action buttons
+          if (_wizardStep == 1) ...[
           Text(
             l.sendSummary,
             style: TextStyle(
@@ -238,7 +420,6 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                 color: AppColors.textPrimary),
           ),
           const SizedBox(height: 12),
-
           _ActionButton(
             icon: Icons.notifications_outlined,
             label: l.sendPushToAll,
@@ -255,6 +436,48 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
             color: const Color(0xFF25D366),
             onTap: _shareWhatsApp,
           ),
+          ],
+
+          if (_wizardStep == 2) ...[
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Column(
+                children: [
+                  const Icon(Icons.lock_outline,
+                      size: 40, color: AppColors.primary),
+                  const SizedBox(height: 12),
+                  Text(
+                    l.closeGroupAfterSummary,
+                    style: const TextStyle(
+                        fontSize: 17, fontWeight: FontWeight.w700),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l.closeGroupConfirm,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        color: AppColors.textSecondary, height: 1.5),
+                  ),
+                  if (transfers.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      l.unsettledDebtsTitle,
+                      style: const TextStyle(
+                          color: AppColors.negative,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
 
           const SizedBox(height: 24),
         ],

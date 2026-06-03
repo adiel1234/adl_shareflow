@@ -10,6 +10,7 @@ import '../../../../ui/widgets/app_button.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../features/currency/data/currency_repository.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../widgets/participants_selector.dart';
 
 class EditExpenseScreen extends ConsumerStatefulWidget {
   final Group group;
@@ -37,6 +38,7 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
   late String _expenseDate;
   bool _loading = false;
   late double _exchangeRate;
+  late Set<String> _selectedParticipantIds;
 
   double get _currentAmount => double.tryParse(_amountCtrl.text) ?? 0;
   bool get _showConversion =>
@@ -83,6 +85,9 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
     _category = e.category;
     _paidBy = e.paidById;
     _expenseDate = e.expenseDate ?? DateTime.now().toIso8601String().split('T')[0];
+    _selectedParticipantIds = e.participants.isNotEmpty
+        ? e.participants.map((p) => p.userId).toSet()
+        : {};
     _amountCtrl.addListener(() => setState(() {}));
   }
 
@@ -114,7 +119,17 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_selectedParticipantIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.atLeastOneParticipant)),
+      );
+      return;
+    }
     setState(() => _loading = true);
+
+    final participants = _selectedParticipantIds
+        .map((uid) => {'user_id': uid})
+        .toList();
 
     try {
       await ref.read(expenseRepositoryProvider).updateExpense(
@@ -127,6 +142,7 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
             category: _category,
             notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
             expenseDate: _expenseDate,
+            participants: participants,
           );
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -343,31 +359,57 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
 
               const SizedBox(height: 16),
 
-              // Paid by
-              _SectionLabel(AppLocalizations.of(context)!.paidBy),
-              const SizedBox(height: 8),
+              // Paid by + Participants
               membersAsync.when(
                 loading: () => const LinearProgressIndicator(),
                 error: (_, __) => Text(AppLocalizations.of(context)!.errorLoadingMembers),
                 data: (members) {
                   final l = AppLocalizations.of(context)!;
+
+                  // If participants were not pre-loaded (old expense), init to all members
+                  if (_selectedParticipantIds.isEmpty && members.isNotEmpty) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        _selectedParticipantIds =
+                            members.map((m) => m.userId).toSet();
+                      });
+                    });
+                  }
+
                   final validPaidBy =
                       members.any((m) => m.userId == _paidBy)
                           ? _paidBy
                           : members.first.userId;
-                  return DropdownButtonFormField<String>(
-                    value: validPaidBy,
-                    decoration: const InputDecoration(),
-                    items: members
-                        .map((m) => DropdownMenuItem(
-                              value: m.userId,
-                              child: Text(m.displayLabel),
-                            ))
-                        .toList(),
-                    onChanged: (v) =>
-                        setState(() => _paidBy = v ?? _paidBy),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? l.selectPaidBy : null,
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _SectionLabel(l.paidBy),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: validPaidBy,
+                        decoration: const InputDecoration(),
+                        items: members
+                            .map((m) => DropdownMenuItem(
+                                  value: m.userId,
+                                  child: Text(m.displayLabel),
+                                ))
+                            .toList(),
+                        onChanged: (v) =>
+                            setState(() => _paidBy = v ?? _paidBy),
+                        validator: (v) =>
+                            v == null || v.isEmpty ? l.selectPaidBy : null,
+                      ),
+                      const SizedBox(height: 16),
+                      ParticipantsSelector(
+                        members: members,
+                        selectedIds: _selectedParticipantIds,
+                        totalAmount: _currentAmount,
+                        currency: _currency,
+                        onChanged: (ids) =>
+                            setState(() => _selectedParticipantIds = ids),
+                      ),
+                    ],
                   );
                 },
               ),

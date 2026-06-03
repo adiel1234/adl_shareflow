@@ -21,7 +21,7 @@ class Config:
     # JWT
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'dev-jwt-secret')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES_MINUTES', 60)))
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES_DAYS', 30)))
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES_DAYS', 3650)))
     JWT_TOKEN_LOCATION = ['headers']
     JWT_HEADER_NAME = 'Authorization'
     JWT_HEADER_TYPE = 'Bearer'
@@ -56,8 +56,9 @@ class Config:
     SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', '')
     SMTP_SENDER_NAME = os.getenv('SMTP_SENDER_NAME', 'ADL ShareFlow')
 
-    # ADL Dashboard
+    # ADL Dashboard / Admin
     ADL_CONTROL_DATABASE_URL = os.getenv('ADL_CONTROL_DATABASE_URL', '')
+    ADL_ADMIN_KEY = os.getenv('ADL_ADMIN_KEY', '')
 
     # CORS
     CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')

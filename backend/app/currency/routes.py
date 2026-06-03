@@ -121,6 +121,11 @@ def convert():
 @currency_bp.post('/rates')
 @jwt_required()
 def set_rate():
+    admin_key = request.headers.get('X-ADL-Admin-Key') or ''
+    expected_key = current_app.config.get('ADL_ADMIN_KEY', '')
+    if not expected_key or admin_key != expected_key:
+        return error_response('Admin access required', 403)
+
     data = request.get_json(silent=True) or {}
     from_currency = (data.get('from_currency') or '').upper()
     to_currency = (data.get('to_currency') or '').upper()

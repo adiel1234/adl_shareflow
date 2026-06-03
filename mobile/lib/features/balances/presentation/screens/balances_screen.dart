@@ -16,6 +16,7 @@ import '../../../../ui/widgets/amount_display.dart';
 import '../../../../l10n/app_localizations.dart';
 import 'event_summary_screen.dart';
 import '../../../groups/presentation/screens/payment_options_screen.dart';
+import '../../../../services/share_service.dart';
 
 // ── Provider for period reports ──────────────────────────────────────────────
 
@@ -182,7 +183,8 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  AppLocalizations.of(context)!.summarizeEvent,
+                                  AppLocalizations.of(context)!
+                                      .finishEventWizard,
                                   style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
@@ -361,6 +363,41 @@ class _PeriodReportCard extends StatelessWidget {
   });
 
   Future<void> _markPaid(BuildContext context, PeriodDebt debt) async {
+    // Ask for confirmation before marking paid
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(dl.confirmMarkDebtPaid,
+              style: const TextStyle(fontWeight: FontWeight.w700)),
+          content: Text(
+            dl.confirmMarkDebtPaidBody(
+              debt.fromName,
+              debt.toName,
+              debt.amount.round().toString(),
+              debt.currency,
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(dl.cancel)),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF059669),
+                  foregroundColor: Colors.white),
+              child: Text(dl.markAsPaid),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true) return;
+    if (!context.mounted) return;
     try {
       await ref.read(groupRepositoryProvider).markDebtPaid(debt.id);
       ref.invalidate(periodReportsProvider(groupId));
@@ -618,7 +655,58 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
       if (!mounted) return;
       ref.invalidate(pendingSettlementsProvider(widget.group.id));
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('נשלחה בקשת אישור ל${''}')),
+        SnackBar(content: Text('נשלחה בקשת אישור ל${s.toDisplayName}')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      String msg = 'שגיאה בסימון תשלום';
+      if (e is DioException) {
+        msg = (e.response?.data?['message'] as String?) ?? msg;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
+  }
+
+  Future<void> _paidDirectly(
+      BuildContext context, SettlementSuggestion s) async {
+    if (!mounted) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(dl.paidDirectly,
+              style: const TextStyle(fontWeight: FontWeight.w700)),
+          content: Text(dl.confirmDirectPayment(s.toDisplayName)),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(dl.cancel)),
+            ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text('כן')),
+          ],
+        );
+      },
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      HapticFeedback.mediumImpact();
+      await BalanceRepository().requestSettlement(
+        groupId: widget.group.id,
+        toUserId: s.toUserId,
+        amount: s.amountDouble,
+        currency: s.currency,
+      );
+      if (!mounted) return;
+      ref.invalidate(pendingSettlementsProvider(widget.group.id));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              AppLocalizations.of(context)!.waitingForConfirmation(s.toDisplayName)),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
@@ -677,6 +765,14 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
         );
       }
     }
+  }
+
+  void _shareGuestDebtWhatsApp(BuildContext context, SettlementSuggestion s) {
+    final amount = s.amountDouble.round();
+    final text =
+        'היי ${s.fromDisplayName}, יש לשלם ${amount} ${s.currency} ל-${s.toDisplayName} '
+        '(קבוצה: ${widget.group.name} ב-ADL ShareFlow)';
+    ShareService.shareViaWhatsApp(text);
   }
 
   Future<void> _markGuestPaid(BuildContext context, SettlementSuggestion s) async {
@@ -848,31 +944,79 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                     ),
                     if (isMyDebt) ...[
                       const SizedBox(width: 8),
-                      Builder(builder: (ctx) {
-                        final dl = AppLocalizations.of(ctx)!;
-                        return GestureDetector(
-                          onTap: () => _openPayment(ctx, s),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: headerColor,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              dl.pay,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          // Primary: open payment options screen
+                          Builder(builder: (ctx) {
+                            final dl = AppLocalizations.of(ctx)!;
+                            return GestureDetector(
+                              onTap: () => _openPayment(ctx, s),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: headerColor,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  dl.pay,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      }),
+                            );
+                          }),
+                          const SizedBox(height: 4),
+                          // Secondary: mark as paid directly (requires double confirmation)
+                          Builder(builder: (ctx) {
+                            final dl = AppLocalizations.of(ctx)!;
+                            return GestureDetector(
+                              onTap: () => _paidDirectly(ctx, s),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: headerColor),
+                                ),
+                                child: Text(
+                                  dl.paidDirectly,
+                                  style: TextStyle(
+                                    color: headerColor,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
                     ],
                     if (isGuestDebt && !isMyDebt) ...[
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
+                      GestureDetector(
+                        onTap: () => _shareGuestDebtWhatsApp(context, s),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF25D366).withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: const Color(0xFF25D366).withOpacity(0.4)),
+                          ),
+                          child: Icon(Icons.chat_outlined,
+                              size: 16, color: const Color(0xFF25D366)),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
                       GestureDetector(
                         onTap: () => _markGuestPaid(context, s),
                         child: Container(
@@ -882,9 +1026,9 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                             color: Colors.purple,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Text(
-                            'שולם',
-                            style: TextStyle(
+                          child: Text(
+                            AppLocalizations.of(context)!.markGuestPaid,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
                               fontSize: 12,

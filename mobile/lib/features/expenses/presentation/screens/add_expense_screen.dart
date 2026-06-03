@@ -14,6 +14,7 @@ import '../../../../services/feedback_service.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../features/currency/data/currency_repository.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../widgets/participants_selector.dart';
 
 // 3 professional icon colors — same palette as GroupCard
 const _kCatBlue   = Color(0xFF1D4ED8);
@@ -40,6 +41,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   bool _loading = false;
   String? _scannedReceiptId;
   double _exchangeRate = 1.0;
+  Set<String> _selectedParticipantIds = {};
 
   double get _currentAmount => double.tryParse(_amountCtrl.text) ?? 0;
   bool get _showConversion =>
@@ -142,8 +144,18 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_selectedParticipantIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.atLeastOneParticipant)),
+      );
+      return;
+    }
     HapticFeedback.mediumImpact();
     setState(() => _loading = true);
+
+    final participants = _selectedParticipantIds
+        .map((uid) => {'user_id': uid})
+        .toList();
 
     try {
       await ref.read(expenseRepositoryProvider).createExpense(
@@ -155,6 +167,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             exchangeRate: _exchangeRate,
             category: _category,
             notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+            participants: participants,
           );
       await FeedbackService.newExpense();
       if (mounted) Navigator.pop(context, true);
@@ -361,13 +374,21 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
               const SizedBox(height: 16),
 
-              // Paid by
-              _SectionLabel(AppLocalizations.of(context)!.paidBy),
-              const SizedBox(height: 8),
+              // Paid by + Participants
               membersAsync.when(
                 loading: () => const LinearProgressIndicator(),
                 error: (_, __) => Text(AppLocalizations.of(context)!.errorLoadingMembers),
                 data: (members) {
+                  // Initialise selectedParticipantIds once when members load
+                  if (_selectedParticipantIds.isEmpty && members.isNotEmpty) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        _selectedParticipantIds =
+                            members.map((m) => m.userId).toSet();
+                      });
+                    });
+                  }
+
                   // Ensure _paidBy is valid — reset if not found in list
                   final validPaidBy = members.any((m) => m.userId == _paidBy)
                       ? _paidBy
@@ -377,19 +398,35 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                       (_) => setState(() => _paidBy = validPaidBy),
                     );
                   }
-                  return DropdownButtonFormField<String>(
-                    value: validPaidBy,
-                    decoration: const InputDecoration(),
-                    hint: Text(AppLocalizations.of(context)!.paidByHint),
-                    items: members
-                        .map((m) => DropdownMenuItem(
-                              value: m.userId,
-                              child: Text(m.displayLabel),
-                            ))
-                        .toList(),
-                    onChanged: (v) => setState(() => _paidBy = v),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? AppLocalizations.of(context)!.paidByHint : null,
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _SectionLabel(AppLocalizations.of(context)!.paidBy),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: validPaidBy,
+                        decoration: const InputDecoration(),
+                        hint: Text(AppLocalizations.of(context)!.paidByHint),
+                        items: members
+                            .map((m) => DropdownMenuItem(
+                                  value: m.userId,
+                                  child: Text(m.displayLabel),
+                                ))
+                            .toList(),
+                        onChanged: (v) => setState(() => _paidBy = v),
+                        validator: (v) =>
+                            v == null || v.isEmpty ? AppLocalizations.of(context)!.paidByHint : null,
+                      ),
+                      const SizedBox(height: 16),
+                      ParticipantsSelector(
+                        members: members,
+                        selectedIds: _selectedParticipantIds,
+                        totalAmount: _currentAmount,
+                        currency: _currency,
+                        onChanged: (ids) => setState(() => _selectedParticipantIds = ids),
+                      ),
+                    ],
                   );
                 },
               ),

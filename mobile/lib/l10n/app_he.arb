@@ -244,6 +244,12 @@
   "memberRemovedSuccess": "{name} הוסר מהקבוצה. חובות פתוחים ימשיכו להופיע עד הסדרה.",
   "@memberRemovedSuccess": {"placeholders": {"name": {"type": "String"}}},
   "errorRemovingMember": "שגיאה בהסרת החבר",
+  "removeMemberDebtQuestion": "מה לעשות עם החוב?",
+  "removeMemberDebtPay": "ישלם את חלקו ({amount})",
+  "@removeMemberDebtPay": {"placeholders": {"amount": {"type": "String"}}},
+  "removeMemberDebtForgive": "מחל על החוב",
+  "memberRemovedForgiven": "{name} הוסר והחוב נמחל.",
+  "@memberRemovedForgiven": {"placeholders": {"name": {"type": "String"}}},
   "formerMember": "לשעבר",
 
   "extendGroupTitle": "הארכת הקבוצה",
@@ -374,6 +380,17 @@
   "noPaymentDetails": "המקבל עדיין לא הגדיר פרטי תשלום.",
   "noPaymentDetailsHint": "בקש ממנו להוסיף מספר טלפון לBit/PayBox או פרטי בנק בפרופיל שלו.",
   "copyAll": "העתק הכל",
+  "copyAmount": "העתק סכום",
+  "amountCopied": "הסכום הועתק — הדבק באפליקציית התשלום",
+  "finishEventWizard": "סיים אירוע",
+  "wizardStepSummary": "סיכום",
+  "wizardStepSend": "שליחה",
+  "wizardStepClose": "סגירה",
+  "closeGroupAfterSummary": "סגור את הקבוצה",
+  "unsettledDebtsWarning": "עדיין יש חובות פתוחים. לסגור בכל זאת?",
+  "wizardNext": "המשך",
+  "wizardBack": "חזרה",
+  "shareGuestDebtWhatsApp": "שתף תזכורת ב-WhatsApp",
   "bankDetailsCopied": "פרטי הבנק הועתקו",
   "bankLabel": "בנק",
   "branchLabel": "סניף",
@@ -466,6 +483,14 @@
   "openDebtCount": "חוב פתוח 1",
   "noDebtsBalanced": "כל החשבונות מאוזנים - אין חובות",
   "markAsPaid": "שולם ✓",
+  "paidDirectly": "שילמתי ישירות",
+  "confirmDirectPayment": "האם {name} אישר שקיבל את הכסף?",
+  "@confirmDirectPayment": {"placeholders": {"name": {"type": "String"}}},
+  "waitingForConfirmation": "ממתין לאישור {name}",
+  "@waitingForConfirmation": {"placeholders": {"name": {"type": "String"}}},
+  "confirmMarkDebtPaid": "לסמן שחוב זה שולם?",
+  "confirmMarkDebtPaidBody": "{fromName} שילם ל{toName} את הסכום {amount} {currency}?",
+  "@confirmMarkDebtPaidBody": {"placeholders": {"fromName": {"type": "String"}, "toName": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
   "currentPeriodExpenses": "הוצאות תקופה נוכחית",
   "periodSince": "מתאריך {date}",
   "@periodSince": {"placeholders": {"date": {"type": "String"}}},
@@ -509,5 +534,14 @@
   "guestRemovedSuccess": "{name} הוסר. חוב פתוח ימשיך להופיע עד הסדרה.",
   "@guestRemovedSuccess": {"placeholders": {"name": {"type": "String"}}},
   "markGuestPaid": "סמן שולם (עבור אורח)",
-  "guestNoApp": "עבור חברים שעדיין לא הורידו את האפליקציה"
+  "guestNoApp": "עבור חברים שעדיין לא הורידו את האפליקציה",
+
+  "perParticipant": "{amount} לכל משתתף",
+  "@perParticipant": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "notParticipating": "לא שותף",
+  "atLeastOneParticipant": "יש לבחור לפחות משתתף אחד"
 }

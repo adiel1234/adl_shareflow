@@ -98,7 +98,27 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(
+                    text: '$_roundedAmount ${widget.currency}',
+                  ));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.of(context)!.amountCopied,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.copy, size: 18),
+                label: Text(AppLocalizations.of(context)!.copyAmount),
+              ),
+            ),
+            const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -176,7 +196,27 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(
+                    text: '$_roundedAmount ${widget.currency}',
+                  ));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.of(context)!.amountCopied,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.copy, size: 18),
+                label: Text(AppLocalizations.of(context)!.copyAmount),
+              ),
+            ),
+            const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

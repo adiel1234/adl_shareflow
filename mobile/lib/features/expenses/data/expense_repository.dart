@@ -53,6 +53,7 @@ class ExpenseRepository {
     String? notes,
     String? expenseDate,
     double exchangeRate = 1.0,
+    List<Map<String, dynamic>>? participants,
   }) async {
     final response = await _api.put('/expenses/$expenseId', data: {
       'title': title,
@@ -64,6 +65,7 @@ class ExpenseRepository {
       'notes': notes ?? '',
       'expense_date':
           expenseDate ?? DateTime.now().toIso8601String().split('T')[0],
+      if (participants != null) 'participants': participants,
     });
     return Expense.fromJson(response.data['data'] as Map<String, dynamic>);
   }

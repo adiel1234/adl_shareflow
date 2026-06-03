@@ -649,6 +649,22 @@ class AppLocalizationsHe extends AppLocalizations {
   String get errorRemovingMember => 'שגיאה בהסרת החבר';
 
   @override
+  String get removeMemberDebtQuestion => 'מה לעשות עם החוב?';
+
+  @override
+  String removeMemberDebtPay(String amount) {
+    return 'ישלם את חלקו ($amount)';
+  }
+
+  @override
+  String get removeMemberDebtForgive => 'מחל על החוב';
+
+  @override
+  String memberRemovedForgiven(String name) {
+    return '$name הוסר והחוב נמחל.';
+  }
+
+  @override
   String get formerMember => 'לשעבר';
 
   @override
@@ -996,6 +1012,39 @@ class AppLocalizationsHe extends AppLocalizations {
   String get copyAll => 'העתק הכל';
 
   @override
+  String get copyAmount => 'העתק סכום';
+
+  @override
+  String get amountCopied => 'הסכום הועתק — הדבק באפליקציית התשלום';
+
+  @override
+  String get finishEventWizard => 'סיים אירוע';
+
+  @override
+  String get wizardStepSummary => 'סיכום';
+
+  @override
+  String get wizardStepSend => 'שליחה';
+
+  @override
+  String get wizardStepClose => 'סגירה';
+
+  @override
+  String get closeGroupAfterSummary => 'סגור את הקבוצה';
+
+  @override
+  String get unsettledDebtsWarning => 'עדיין יש חובות פתוחים. לסגור בכל זאת?';
+
+  @override
+  String get wizardNext => 'המשך';
+
+  @override
+  String get wizardBack => 'חזרה';
+
+  @override
+  String get shareGuestDebtWhatsApp => 'שתף תזכורת ב-WhatsApp';
+
+  @override
   String get bankDetailsCopied => 'פרטי הבנק הועתקו';
 
   @override
@@ -1247,6 +1296,28 @@ class AppLocalizationsHe extends AppLocalizations {
   String get markAsPaid => 'שולם ✓';
 
   @override
+  String get paidDirectly => 'שילמתי ישירות';
+
+  @override
+  String confirmDirectPayment(String name) {
+    return 'האם $name אישר שקיבל את הכסף?';
+  }
+
+  @override
+  String waitingForConfirmation(String name) {
+    return 'ממתין לאישור $name';
+  }
+
+  @override
+  String get confirmMarkDebtPaid => 'לסמן שחוב זה שולם?';
+
+  @override
+  String confirmMarkDebtPaidBody(
+      String fromName, String toName, String amount, String currency) {
+    return '$fromName שילם ל$toName את הסכום $amount $currency?';
+  }
+
+  @override
   String get currentPeriodExpenses => 'הוצאות תקופה נוכחית';
 
   @override
@@ -1369,4 +1440,15 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get guestNoApp => 'עבור חברים שעדיין לא הורידו את האפליקציה';
+
+  @override
+  String perParticipant(String amount) {
+    return '$amount לכל משתתף';
+  }
+
+  @override
+  String get notParticipating => 'לא שותף';
+
+  @override
+  String get atLeastOneParticipant => 'יש לבחור לפחות משתתף אחד';
 }

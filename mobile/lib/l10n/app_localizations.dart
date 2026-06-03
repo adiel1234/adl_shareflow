@@ -1310,6 +1310,30 @@ abstract class AppLocalizations {
   /// **'שגיאה בהסרת החבר'**
   String get errorRemovingMember;
 
+  /// No description provided for @removeMemberDebtQuestion.
+  ///
+  /// In he, this message translates to:
+  /// **'מה לעשות עם החוב?'**
+  String get removeMemberDebtQuestion;
+
+  /// No description provided for @removeMemberDebtPay.
+  ///
+  /// In he, this message translates to:
+  /// **'ישלם את חלקו ({amount})'**
+  String removeMemberDebtPay(String amount);
+
+  /// No description provided for @removeMemberDebtForgive.
+  ///
+  /// In he, this message translates to:
+  /// **'מחל על החוב'**
+  String get removeMemberDebtForgive;
+
+  /// No description provided for @memberRemovedForgiven.
+  ///
+  /// In he, this message translates to:
+  /// **'{name} הוסר והחוב נמחל.'**
+  String memberRemovedForgiven(String name);
+
   /// No description provided for @formerMember.
   ///
   /// In he, this message translates to:
@@ -1970,6 +1994,72 @@ abstract class AppLocalizations {
   /// **'העתק הכל'**
   String get copyAll;
 
+  /// No description provided for @copyAmount.
+  ///
+  /// In he, this message translates to:
+  /// **'העתק סכום'**
+  String get copyAmount;
+
+  /// No description provided for @amountCopied.
+  ///
+  /// In he, this message translates to:
+  /// **'הסכום הועתק — הדבק באפליקציית התשלום'**
+  String get amountCopied;
+
+  /// No description provided for @finishEventWizard.
+  ///
+  /// In he, this message translates to:
+  /// **'סיים אירוע'**
+  String get finishEventWizard;
+
+  /// No description provided for @wizardStepSummary.
+  ///
+  /// In he, this message translates to:
+  /// **'סיכום'**
+  String get wizardStepSummary;
+
+  /// No description provided for @wizardStepSend.
+  ///
+  /// In he, this message translates to:
+  /// **'שליחה'**
+  String get wizardStepSend;
+
+  /// No description provided for @wizardStepClose.
+  ///
+  /// In he, this message translates to:
+  /// **'סגירה'**
+  String get wizardStepClose;
+
+  /// No description provided for @closeGroupAfterSummary.
+  ///
+  /// In he, this message translates to:
+  /// **'סגור את הקבוצה'**
+  String get closeGroupAfterSummary;
+
+  /// No description provided for @unsettledDebtsWarning.
+  ///
+  /// In he, this message translates to:
+  /// **'עדיין יש חובות פתוחים. לסגור בכל זאת?'**
+  String get unsettledDebtsWarning;
+
+  /// No description provided for @wizardNext.
+  ///
+  /// In he, this message translates to:
+  /// **'המשך'**
+  String get wizardNext;
+
+  /// No description provided for @wizardBack.
+  ///
+  /// In he, this message translates to:
+  /// **'חזרה'**
+  String get wizardBack;
+
+  /// No description provided for @shareGuestDebtWhatsApp.
+  ///
+  /// In he, this message translates to:
+  /// **'שתף תזכורת ב-WhatsApp'**
+  String get shareGuestDebtWhatsApp;
+
   /// No description provided for @bankDetailsCopied.
   ///
   /// In he, this message translates to:
@@ -2420,6 +2510,37 @@ abstract class AppLocalizations {
   /// **'שולם ✓'**
   String get markAsPaid;
 
+  /// No description provided for @paidDirectly.
+  ///
+  /// In he, this message translates to:
+  /// **'שילמתי ישירות'**
+  String get paidDirectly;
+
+  /// No description provided for @confirmDirectPayment.
+  ///
+  /// In he, this message translates to:
+  /// **'האם {name} אישר שקיבל את הכסף?'**
+  String confirmDirectPayment(String name);
+
+  /// No description provided for @waitingForConfirmation.
+  ///
+  /// In he, this message translates to:
+  /// **'ממתין לאישור {name}'**
+  String waitingForConfirmation(String name);
+
+  /// No description provided for @confirmMarkDebtPaid.
+  ///
+  /// In he, this message translates to:
+  /// **'לסמן שחוב זה שולם?'**
+  String get confirmMarkDebtPaid;
+
+  /// No description provided for @confirmMarkDebtPaidBody.
+  ///
+  /// In he, this message translates to:
+  /// **'{fromName} שילם ל{toName} את הסכום {amount} {currency}?'**
+  String confirmMarkDebtPaidBody(
+      String fromName, String toName, String amount, String currency);
+
   /// No description provided for @currentPeriodExpenses.
   ///
   /// In he, this message translates to:
@@ -2623,6 +2744,24 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'עבור חברים שעדיין לא הורידו את האפליקציה'**
   String get guestNoApp;
+
+  /// No description provided for @perParticipant.
+  ///
+  /// In he, this message translates to:
+  /// **'{amount} לכל משתתף'**
+  String perParticipant(String amount);
+
+  /// No description provided for @notParticipating.
+  ///
+  /// In he, this message translates to:
+  /// **'לא שותף'**
+  String get notParticipating;
+
+  /// No description provided for @atLeastOneParticipant.
+  ///
+  /// In he, this message translates to:
+  /// **'יש לבחור לפחות משתתף אחד'**
+  String get atLeastOneParticipant;
 }
 
 class _AppLocalizationsDelegate

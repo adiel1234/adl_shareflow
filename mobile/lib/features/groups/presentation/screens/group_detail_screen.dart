@@ -46,7 +46,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final group = widget.group;
+    final groupAsync = ref.watch(groupDetailProvider(widget.group.id));
+    final group = groupAsync.maybeWhen(data: (g) => g, orElse: () => widget.group);
 
     return Scaffold(
       backgroundColor: AppColors.background,

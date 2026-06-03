@@ -124,8 +124,13 @@ class _AuthInterceptor extends Interceptor {
       final newToken = response.data['data']['access_token'];
       await _storage.write(key: AppConstants.accessTokenKey, value: newToken);
       return true;
+    } on DioException catch (e) {
+      final status = e.response?.statusCode ?? 0;
+      if (status == 401 || status == 403) {
+        await _storage.deleteAll();
+      }
+      return false;
     } catch (_) {
-      await _storage.deleteAll();
       return false;
     }
   }

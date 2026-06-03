@@ -244,6 +244,12 @@
   "memberRemovedSuccess": "{name} was removed. Open debts will remain visible until settled.",
   "@memberRemovedSuccess": {"placeholders": {"name": {"type": "String"}}},
   "errorRemovingMember": "Error removing member",
+  "removeMemberDebtQuestion": "What should happen with the debt?",
+  "removeMemberDebtPay": "Will pay their share ({amount})",
+  "@removeMemberDebtPay": {"placeholders": {"amount": {"type": "String"}}},
+  "removeMemberDebtForgive": "Forgive the debt",
+  "memberRemovedForgiven": "{name} was removed and their debt was forgiven.",
+  "@memberRemovedForgiven": {"placeholders": {"name": {"type": "String"}}},
   "formerMember": "Former",
 
   "extendGroupTitle": "Extend Group",
@@ -374,6 +380,17 @@
   "noPaymentDetails": "The recipient hasn't set up payment details yet.",
   "noPaymentDetailsHint": "Ask them to add a Bit/PayBox phone number or bank details in their profile.",
   "copyAll": "Copy all",
+  "copyAmount": "Copy amount",
+  "amountCopied": "Amount copied — paste in the payment app",
+  "finishEventWizard": "Finish event",
+  "wizardStepSummary": "Summary",
+  "wizardStepSend": "Send",
+  "wizardStepClose": "Close",
+  "closeGroupAfterSummary": "Close group",
+  "unsettledDebtsWarning": "There are still open debts. Close anyway?",
+  "wizardNext": "Next",
+  "wizardBack": "Back",
+  "shareGuestDebtWhatsApp": "Share reminder via WhatsApp",
   "bankDetailsCopied": "Bank details copied",
   "bankLabel": "Bank",
   "branchLabel": "Branch",
@@ -466,6 +483,14 @@
   "openDebtCount": "1 open debt",
   "noDebtsBalanced": "All balanced - no debts",
   "markAsPaid": "Paid ✓",
+  "paidDirectly": "I paid directly",
+  "confirmDirectPayment": "Did {name} confirm receiving the money?",
+  "@confirmDirectPayment": {"placeholders": {"name": {"type": "String"}}},
+  "waitingForConfirmation": "Waiting for {name}'s confirmation",
+  "@waitingForConfirmation": {"placeholders": {"name": {"type": "String"}}},
+  "confirmMarkDebtPaid": "Mark this debt as paid?",
+  "confirmMarkDebtPaidBody": "Did {fromName} pay {toName} {amount} {currency}?",
+  "@confirmMarkDebtPaidBody": {"placeholders": {"fromName": {"type": "String"}, "toName": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
   "currentPeriodExpenses": "Current period expenses",
   "periodSince": "Since {date}",
   "@periodSince": {"placeholders": {"date": {"type": "String"}}},
@@ -509,5 +534,14 @@
   "guestRemovedSuccess": "{name} removed. Open debt will remain visible until settled.",
   "@guestRemovedSuccess": {"placeholders": {"name": {"type": "String"}}},
   "markGuestPaid": "Mark as paid (on behalf of guest)",
-  "guestNoApp": "For members who haven't downloaded the app yet"
+  "guestNoApp": "For members who haven't downloaded the app yet",
+
+  "perParticipant": "{amount} per participant",
+  "@perParticipant": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "notParticipating": "Not participating",
+  "atLeastOneParticipant": "At least one participant required"
 }

@@ -4,16 +4,18 @@ Balance Engine — ADL ShareFlow
 Algorithm:
 1. Calculate net balance for every user in the group:
    net[user] = total_paid - total_owed
-2. Separate into creditors (net > 0) and debtors (net < 0)
-3. Greedy two-pointer matching to minimize number of transactions
+2. Apply confirmed settlements (reduces outstanding balances)
+3. Include former members who appear in expenses but are no longer active GroupMembers
+4. Separate into creditors (net > 0) and debtors (net < 0)
+5. Greedy two-pointer matching to minimize number of transactions
 
 This produces the minimum number of settlements needed to clear all debts.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal, ROUND_HALF_UP
 from typing import List, Dict
 
-from app.models import Expense, ExpenseParticipant, GroupMember
+from app.models import Expense, ExpenseParticipant, GroupMember, Settlement
 
 
 @dataclass
@@ -23,6 +25,7 @@ class UserBalance:
     net_amount: Decimal       # positive = owed money, negative = owes money
     total_paid: Decimal
     total_owed: Decimal
+    is_former_member: bool = False
 
 
 @dataclass
@@ -33,34 +36,77 @@ class SettlementSuggestion:
     to_display_name: str
     amount: Decimal
     currency: str
+    from_is_former_member: bool = False
+    to_is_former_member: bool = False
 
 
 def calculate_group_balances(group_id: str) -> List[UserBalance]:
-    """Returns net balance per user in base currency (converted_amount)."""
+    """Returns net balance per user in base currency (converted_amount).
+
+    Includes former members who appear in expenses but are no longer active
+    GroupMembers. Confirmed settlements are factored into net balances.
+    """
+    from app.models import User
+    from app import db
+
     members = GroupMember.query.filter_by(group_id=group_id).all()
     user_map: Dict[str, GroupMember] = {m.user_id: m for m in members}
+    active_user_ids = set(user_map.keys())
 
     paid: Dict[str, Decimal] = {uid: Decimal('0') for uid in user_map}
     owed: Dict[str, Decimal] = {uid: Decimal('0') for uid in user_map}
 
+    def _ensure(uid: str) -> None:
+        if uid not in paid:
+            paid[uid] = Decimal('0')
+        if uid not in owed:
+            owed[uid] = Decimal('0')
+
     expenses = Expense.query.filter_by(group_id=group_id).all()
     for expense in expenses:
-        if expense.paid_by in paid:
-            paid[expense.paid_by] += expense.converted_amount
+        _ensure(expense.paid_by)
+        paid[expense.paid_by] += Decimal(str(expense.converted_amount))
 
         for participant in expense.participants:
-            if participant.user_id in owed:
-                owed[participant.user_id] += participant.share_amount
+            _ensure(participant.user_id)
+            owed[participant.user_id] += Decimal(str(participant.share_amount))
+
+    # Subtract confirmed settlements from net balances:
+    # - from_user paid their debt → net[from] increases (add to paid)
+    # - to_user received payment  → net[to]   decreases (add to owed)
+    confirmed = Settlement.query.filter_by(
+        group_id=group_id, status='confirmed'
+    ).all()
+    for s in confirmed:
+        amount = Decimal(str(s.amount))
+        _ensure(s.from_user_id)
+        _ensure(s.to_user_id)
+        paid[s.from_user_id] += amount
+        owed[s.to_user_id] += amount
+
+    all_user_ids = set(paid.keys()) | set(owed.keys())
 
     balances = []
-    for uid, member in user_map.items():
-        net = paid[uid] - owed[uid]
+    for uid in all_user_ids:
+        p = paid.get(uid, Decimal('0'))
+        o = owed.get(uid, Decimal('0'))
+        net = p - o
+        is_former = uid not in active_user_ids
+
+        if uid in user_map:
+            member = user_map[uid]
+            display_name = member.user.display_name if member.user else uid
+        else:
+            user = db.session.get(User, uid)
+            display_name = user.display_name if user else uid
+
         balances.append(UserBalance(
             user_id=uid,
-            display_name=member.user.display_name if member.user else uid,
+            display_name=display_name,
             net_amount=net.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP),
-            total_paid=paid[uid].quantize(Decimal('0.01'), rounding=ROUND_HALF_UP),
-            total_owed=owed[uid].quantize(Decimal('0.01'), rounding=ROUND_HALF_UP),
+            total_paid=p.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP),
+            total_owed=o.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP),
+            is_former_member=is_former,
         ))
 
     return sorted(balances, key=lambda b: b.net_amount, reverse=True)
@@ -76,6 +122,8 @@ def calculate_settlement_plan(group_id: str, base_currency: str = 'ILS') -> List
     - match largest creditor with largest debtor
     """
     balances = calculate_group_balances(group_id)
+
+    former_ids = {b.user_id for b in balances if b.is_former_member}
 
     creditors = []
     debtors = []
@@ -104,6 +152,8 @@ def calculate_settlement_plan(group_id: str, base_currency: str = 'ILS') -> List
                 to_display_name=creditor['name'],
                 amount=transfer,
                 currency=base_currency,
+                from_is_former_member=debtor['user_id'] in former_ids,
+                to_is_former_member=creditor['user_id'] in former_ids,
             ))
 
         debtor['amount'] -= transfer
