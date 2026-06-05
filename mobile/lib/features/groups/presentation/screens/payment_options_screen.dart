@@ -63,6 +63,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
   void _showAppLaunchConfirm(String appName, String phone, String scheme) {
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -336,7 +337,12 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                   final phone = controller.text.trim();
                   if (phone.length < 9) return;
                   Navigator.pop(ctx);
-                  _showAppLaunchConfirm(appName, phone, scheme);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Future.delayed(const Duration(milliseconds: 300), () {
+                      if (!mounted) return;
+                      _showAppLaunchConfirm(appName, phone, scheme);
+                    });
+                  });
                 },
                 child: Text('המשך'),
               ),
