@@ -3,7 +3,45 @@ from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
 from app.balances.engine import calculate_settlement_plan
-from app.settlements.routes import _can_confirm_settlement
+from app.settlements.routes import (
+    _can_confirm_settlement,
+    _guest_mark_paid_status,
+    _guest_settlement_auto_confirms,
+)
+
+
+class TestGuestMarkPaidStatus:
+    def test_guest_to_guest_confirmed(self):
+        to_user = MagicMock()
+        to_user.is_guest = True
+        assert _guest_mark_paid_status('admin-1', 'guest-2', to_user) == 'confirmed'
+
+    def test_guest_to_member_admin_creditor_confirmed(self):
+        to_user = MagicMock()
+        to_user.is_guest = False
+        assert _guest_mark_paid_status('admin-1', 'admin-1', to_user) == 'confirmed'
+
+    def test_guest_to_member_other_creditor_pending(self):
+        to_user = MagicMock()
+        to_user.is_guest = False
+        assert _guest_mark_paid_status('admin-1', 'member-2', to_user) == 'pending'
+
+
+class TestGuestSettlementAutoConfirm:
+    def test_admin_creditor_auto_confirms(self):
+        creditor = MagicMock()
+        creditor.is_guest = False
+        assert _guest_settlement_auto_confirms('admin-1', 'admin-1', creditor) is True
+
+    def test_other_admin_does_not_auto_confirm(self):
+        creditor = MagicMock()
+        creditor.is_guest = False
+        assert _guest_settlement_auto_confirms('admin-1', 'member-2', creditor) is False
+
+    def test_guest_creditor_never_auto_confirms_via_mark_paid(self):
+        guest_creditor = MagicMock()
+        guest_creditor.is_guest = True
+        assert _guest_settlement_auto_confirms('admin-1', 'guest-2', guest_creditor) is False
 
 
 class TestGuestSettlementPermissions:

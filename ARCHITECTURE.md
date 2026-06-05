@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 6 יוני 2026 (מדריך TestFlight iOS לפיילוט; build 20)
+> עודכן לאחרונה: 6 יוני 2026 (תיקון סגירת חוב אורח→נושה כשמנהל=נושה; build 21)
 
 ---
 
@@ -436,7 +436,8 @@ flutter install --release
 - **`POST /groups/<id>/summary`** (`balances/routes.py`): שדות `books_balanced` / `books_warning` — מזהה חשבונות לא מאוזנים (חלקים שגויים או שני זכאים בלי חייבים).
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): מניעת כפילויות — אם כבר קיים pending לאותו אורח→נושה, מחזיר אותו במקום ליצור כפילות; תוכנית העברות (`calculate_settlement_plan`) מפחיתה סכומי pending כדי שלא יופיע חוב כפול ב-UI.
 - **`MonetizationService`** (`groups/monetization_service.py`): הוצאת מערכת (`ADL ShareFlow Service`) **תמיד** נוצרת בהפעלה/הארכה/חידוש/שדרוג — גם כש-`PAYMENTS_ENABLED=false` (פיילוט חינמי). `GroupPayment.amount=0` כשאין גבייה אמיתית; `split_among_group=true` מחלק שווה בין **כל** `GroupMember` פעילים בהפעלה; `add_member_to_group_split_expenses` מוסיף חברים/אורחים חדשים להוצאות מערכת (הצטרפות + `POST /groups/<id>/guests`).
-- **`GET /groups/<id>/settlements/pending`** (build 20): מחזיר `can_confirm` / `is_creditor_confirm`; אורחים מסוננים לפי קבוצה (לא גלובלי). אחרי `mark-guest-paid` באפליקציה — נושה (כולל מנהל=נושה) מקבל דיאלוג «אשר קבלה» מיד.
+- **`POST /groups/<id>/settlements/mark-guest-paid`** (build 21): כשהמנהל שמסמן תשלום הוא גם הנושה (אורח→חבר) — הסטטוס `confirmed` מיד (ללא שלב pending נוסף); pending קיים מאותו סכום מועלה ל-`confirmed` באותה קריאה.
+- **`GET /groups/<id>/settlements/pending`** (build 20): מחזיר `can_confirm` / `is_creditor_confirm`; אורחים מסוננים לפי קבוצה (לא גלובלי). אחרי `mark-guest-paid` — נושה שאינו המנהל מאשר בנפרד; מנהל=נושה נסגר בפעולה אחת (build 21).
 
 ---
 
@@ -459,7 +460,7 @@ flutter install --release
 - **4 תרחישי תשלום** (גרסה 1.0.5+17, תיקון רענון ב-+18):
   1. חבר→חבר: חייב «שילמתי» → נושה «אשר קבלה».
   2. חבר→אורח: חייב «שילמתי» → מנהל «אשר קבלה לאורח».
-  3. אורח→חבר: מנהל «אשר העברת אורח» → נושה «אשר קבלה».
+  3. אורח→חבר: מנהל «אשר העברת אורח» → נושה «אשר קבלה» (אם המנהל הוא הנושה — סגירה מיידית, build 21).
   4. אורח→אורח: מנהל «אשר העברת אורח» (סגירה מיידית).
 - **`GET /groups/<id>/settlements/pending`**: מחזיר `from_is_guest` / `to_is_guest` / `is_creditor_confirm`; מנהל רואה תשלומים עם אורחים **בקבוצה**.
 - **`PUT /settlements/<id>/confirm`**: נושה מאשר; מנהל יכול לאשר בשם אורח-נושה (תרחיש 2).

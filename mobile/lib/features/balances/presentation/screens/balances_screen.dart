@@ -868,17 +868,24 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
     try {
       HapticFeedback.mediumImpact();
       final api = ApiClient.instance;
-      await api.post('/groups/${widget.group.id}/settlements/mark-guest-paid', data: {
-        'guest_user_id': s.fromUserId,
-        'to_user_id': s.toUserId,
-        'amount': s.amountDouble,
-        'currency': s.currency,
-      });
+      final response = await api.post(
+        '/groups/${widget.group.id}/settlements/mark-guest-paid',
+        data: {
+          'guest_user_id': s.fromUserId,
+          'to_user_id': s.toUserId,
+          'amount': s.amountDouble,
+          'currency': s.currency,
+        },
+      );
       if (!mounted) return;
+      final settlementStatus =
+          (response.data['data'] as Map<String, dynamic>?)?['status'] as String?;
       ref.invalidate(pendingSettlementsProvider(widget.group.id));
       ref.invalidate(balancesProvider(widget.group.id));
       ref.invalidate(settlementPlanProvider(widget.group.id));
-      if (scenario == PaymentScenario.guestToGuest) {
+      ref.invalidate(expensesProvider(widget.group.id));
+      if (settlementStatus == 'confirmed' ||
+          scenario == PaymentScenario.guestToGuest) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('החוב נסגר')),
         );

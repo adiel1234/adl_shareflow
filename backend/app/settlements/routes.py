@@ -107,6 +107,20 @@ def confirm_settlement(settlement_id):
     return success_response(data=settlement.to_dict())
 
 
+def _guest_settlement_auto_confirms(admin_id: str, to_user_id: str, to_user) -> bool:
+    """Guest→member closes in one step when the admin marking paid is the creditor."""
+    return not to_user.is_guest and to_user_id == admin_id
+
+
+def _guest_mark_paid_status(admin_id: str, to_user_id: str, to_user) -> str:
+    """Return settlement status for mark-guest-paid."""
+    if to_user.is_guest:
+        return 'confirmed'
+    if _guest_settlement_auto_confirms(admin_id, to_user_id, to_user):
+        return 'confirmed'
+    return 'pending'
+
+
 def _guest_user_ids_in_group(group_id: str) -> list[str]:
     """Guest member user IDs in this group (not all guests system-wide)."""
     from app.models import User
@@ -232,13 +246,19 @@ def mark_guest_paid(group_id, **kwargs):
         status='pending',
     ).order_by(Settlement.created_at.desc()).first()
     if existing and Decimal(str(existing.amount)) == amount and existing.currency == currency:
+        if (
+            existing.status == 'pending'
+            and _guest_settlement_auto_confirms(admin_id, to_user_id, to_user)
+        ):
+            existing.status = 'confirmed'
+            existing.confirmed_at = datetime.now(timezone.utc)
+            db.session.commit()
         d = existing.to_dict()
         d['from_is_guest'] = True
         d['to_is_guest'] = to_user.is_guest
         return success_response(data=d)
 
-    # guest→guest: one admin step closes debt; guest→member: member confirms receipt
-    is_guest_to_guest = to_user.is_guest
+    status = _guest_mark_paid_status(admin_id, to_user_id, to_user)
     now = datetime.now(timezone.utc)
     settlement = Settlement(
         group_id=group_id,
@@ -246,8 +266,8 @@ def mark_guest_paid(group_id, **kwargs):
         to_user_id=to_user_id,
         amount=amount,
         currency=data.get('currency', group.base_currency),
-        status='confirmed' if is_guest_to_guest else 'pending',
-        confirmed_at=now if is_guest_to_guest else None,
+        status=status,
+        confirmed_at=now if status == 'confirmed' else None,
         notes=f'סומן ע"י מנהל בשם האורח {guest.display_name}',
     )
     db.session.add(settlement)
