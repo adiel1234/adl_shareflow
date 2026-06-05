@@ -1117,23 +1117,53 @@ class _PendingSettlementsCard extends ConsumerWidget {
 
   Future<void> _approve(BuildContext context, WidgetRef ref,
       SettlementRecord r) async {
+    final l = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.confirmReceipt),
+        content: Text(
+          l.debtOwesAmount(
+            r.fromDisplayName,
+            r.toDisplayName,
+            r.amountDouble.round().toString(),
+            r.currency,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.confirmReceipt),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
     HapticFeedback.mediumImpact();
     try {
       await BalanceRepository().approveSettlement(r.id);
       ref.invalidate(pendingSettlementsProvider(groupId));
       ref.invalidate(balancesProvider(groupId));
       ref.invalidate(settlementPlanProvider(groupId));
+      ref.invalidate(expensesProvider(groupId));
+      await ref.read(pendingSettlementsProvider(groupId).future);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('תשלום אושר בהצלחה ✓')),
         );
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('שגיאה באישור התשלום')),
-        );
+      if (!context.mounted) return;
+      String msg = 'שגיאה באישור התשלום';
+      if (e is DioException) {
+        msg = (e.response?.data?['message'] as String?) ?? msg;
       }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
   }
 

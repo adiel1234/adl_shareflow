@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from decimal import Decimal
 
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -85,6 +86,9 @@ def confirm_settlement(settlement_id):
 
     if not _can_confirm_settlement(settlement, user_id):
         return error_response('Only the recipient (or admin for guest) can confirm', 403)
+
+    if settlement.status == 'confirmed':
+        return success_response(data=settlement.to_dict())
     if settlement.status != 'pending':
         return error_response(f'Settlement is already {settlement.status}')
 
@@ -167,6 +171,7 @@ def mark_guest_paid(group_id, **kwargs):
     guest→guest: confirmed immediately (single admin action).
     """
     from app.models import User
+    admin_id = get_jwt_identity()
     data = request.get_json(silent=True) or {}
 
     guest_user_id = data.get('guest_user_id')
@@ -208,6 +213,24 @@ def mark_guest_paid(group_id, **kwargs):
         return error_response('amount must be a positive number')
 
     group = db.session.get(Group, group_id)
+    if not group:
+        return error_response('Group not found', 404)
+
+    currency = data.get('currency', group.base_currency)
+
+    # Idempotent: return existing pending settlement for the same transfer
+    existing = Settlement.query.filter_by(
+        group_id=group_id,
+        from_user_id=guest_user_id,
+        to_user_id=to_user_id,
+        status='pending',
+    ).order_by(Settlement.created_at.desc()).first()
+    if existing and Decimal(str(existing.amount)) == amount and existing.currency == currency:
+        d = existing.to_dict()
+        d['from_is_guest'] = True
+        d['to_is_guest'] = to_user.is_guest
+        return success_response(data=d)
+
     # guest→guest: one admin step closes debt; guest→member: member confirms receipt
     is_guest_to_guest = to_user.is_guest
     now = datetime.now(timezone.utc)
@@ -227,7 +250,9 @@ def mark_guest_paid(group_id, **kwargs):
     if settlement.status == 'pending':
         try:
             from app.notifications.service import notify_settlement_requested
-            notify_settlement_requested(settlement, guest.display_name)
+            admin = db.session.get(User, admin_id)
+            actor_name = admin.display_name if admin else 'מנהל'
+            notify_settlement_requested(settlement, actor_name)
         except Exception:
             pass
 

@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 5 יוני 2026 (PAYMENTS_ENABLED — feature flag ב-DB, ניהול מ-ADL Control `/shareflow`)
+> עודכן לאחרונה: 6 יוני 2026 (הוצאת הפעלה תמיד; תיקון אורח→חבר build 19)
 
 ---
 
@@ -431,14 +431,15 @@ flutter install --release
 - **`POST /groups/<id>/expenses`** (`expenses/routes.py`): `paid_by` ומשתתפים — חברים פעילים בלבד; כש-`participants` מכיל רק `user_id` (ללא `share_amount`) — חלוקה שווה כמו בעריכה; ולידציה שסכום החלקים = `converted_amount`.
 - **`PUT /expenses/<id>`** (`expenses/routes.py`): כשהלקוח שולח `participants`, השרת מחליף את רשימת המשתתפים ומחלק שווה את `converted_amount` (כולל אורחים — `GroupMember` פעיל עם `is_guest`); ולידציה על סכום החלקים.
 - **`POST /groups/<id>/summary`** (`balances/routes.py`): שדות `books_balanced` / `books_warning` — מזהה חשבונות לא מאוזנים (חלקים שגויים או שני זכאים בלי חייבים).
-- **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): הסרת דרישת חברות פעילה — ניתן לסמן חוב אורח כשולם גם לאחר הסרת האורח מהקבוצה, כל עוד יש לו היסטוריית הוצאות בקבוצה.
+- **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): מניעת כפילויות — אם כבר קיים pending לאותו אורח→נושה, מחזיר אותו במקום ליצור כפילות; תוכנית העברות (`calculate_settlement_plan`) מפחיתה סכומי pending כדי שלא יופיע חוב כפול ב-UI.
+- **`MonetizationService`** (`groups/monetization_service.py`): הוצאת מערכת (`ADL ShareFlow Service`) **תמיד** נוצרת בהפעלה/הארכה/חידוש/שדרוג — גם כש-`PAYMENTS_ENABLED=false` (פיילוט חינמי). `GroupPayment.amount=0` כשאין גבייה אמיתית; `split_among_group=true` מוסיף חברים חדשים להוצאה (`add_member_to_group_split_expenses`) בכל הצטרפות.
 
 ---
 
 ## שינויים אחרונים — גל מאי 2026 (גרסה 1.0.3+6)
 
 ### Flutter (Mobile)
-- **FCM Real-Time Refresh**: `FcmService.setDataChangeCallback` + `_invalidateForGroup` ב-`main.dart` — כשמגיעה התראה FCM ב-foreground, מתבצע `ref.invalidate` על `expensesProvider` / `balancesProvider` / `notificationsProvider` לפי סוג ההתראה.
+- **FCM Real-Time Refresh**: `FcmService.setDataChangeCallback` + `_invalidateForGroup` ב-`main.dart` — כשמגיעה התראה FCM ב-foreground, מתבצע `ref.invalidate` על `expensesProvider` / `balancesProvider` / `pendingSettlementsProvider` / `settlementPlanProvider` / `notificationsProvider` לפי סוג ההתראה.
 - **Guest Member UI**: תג סגול "אורח" + avatar סגול + כפתורי 🔗 ו-🗑️ ברשימת חברים; Banner למנהל; Sheet "קשר אורח לחשבון"; "שולם" סגול ביתרות.
 - **Close Buttons**: נוסף `IconButton(Icons.close)` ל-`_InviteSheet` ו-`_JoinGroupSheet` כדי לאפשר יציאה מפורשת מ-modal bottom sheets.
 - **Group Detail Freshness**: `GroupCard.onTap` מנווט דרך `/group-detail` עם `groupId` בלבד — `_GroupDetailLoader` שולף נתוני קבוצה עדכניים מהשרת בכל ניווט.
@@ -451,7 +452,7 @@ flutter install --release
 - **Guest Settlement** (`settlements/routes.py`): `POST /groups/<id>/settlements/mark-guest-paid` — מנהל מאשר תשלום אורח:
   - **אורח→חבר**: יוצר `pending` — החבר (נושה) מאשר קבלה.
   - **אורח→אורח**: יוצר `confirmed` מיד (פעולת מנהל אחת).
-- **4 תרחישי תשלום** (גרסה 1.0.5+17):
+- **4 תרחישי תשלום** (גרסה 1.0.5+17, תיקון רענון ב-+18):
   1. חבר→חבר: חייב «שילמתי» → נושה «אשר קבלה».
   2. חבר→אורח: חייב «שילמתי» → מנהל «אשר קבלה לאורח».
   3. אורח→חבר: מנהל «אשר העברת אורח» → נושה «אשר קבלה».

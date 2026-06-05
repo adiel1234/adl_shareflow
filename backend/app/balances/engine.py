@@ -116,23 +116,40 @@ def calculate_settlement_plan(group_id: str, base_currency: str = 'ILS') -> List
     """
     Returns the minimum set of transfers to settle all debts.
 
-    Uses greedy two-pointer algorithm:
-    - creditors list (net > 0), sorted descending
-    - debtors list (net < 0), sorted ascending
-    - match largest creditor with largest debtor
+    Pending settlements (awaiting creditor confirmation) are treated as
+    in-flight payments so open debts don't duplicate in the UI.
     """
     balances = calculate_group_balances(group_id)
 
     former_ids = {b.user_id for b in balances if b.is_former_member}
 
+    # Adjust nets for pending settlements (same logic as confirmed, but not yet final)
+    net_by_user: Dict[str, Decimal] = {b.user_id: b.net_amount for b in balances}
+    pending = Settlement.query.filter_by(group_id=group_id, status='pending').all()
+    for s in pending:
+        amount = Decimal(str(s.amount))
+        net_by_user[s.from_user_id] = net_by_user.get(s.from_user_id, Decimal('0')) + amount
+        net_by_user[s.to_user_id] = net_by_user.get(s.to_user_id, Decimal('0')) - amount
+
+    name_by_user = {b.user_id: b.display_name for b in balances}
+
     creditors = []
     debtors = []
 
-    for b in balances:
-        if b.net_amount > Decimal('0.01'):
-            creditors.append({'user_id': b.user_id, 'name': b.display_name, 'amount': b.net_amount})
-        elif b.net_amount < Decimal('-0.01'):
-            debtors.append({'user_id': b.user_id, 'name': b.display_name, 'amount': abs(b.net_amount)})
+    for uid, net in net_by_user.items():
+        display_name = name_by_user.get(uid)
+        if not display_name:
+            from app.models import User
+            from app import db
+            user = db.session.get(User, uid)
+            display_name = user.display_name if user else uid
+        if net > Decimal('0.01'):
+            creditors.append({'user_id': uid, 'name': display_name, 'amount': net})
+        elif net < Decimal('-0.01'):
+            debtors.append({'user_id': uid, 'name': display_name, 'amount': abs(net)})
+
+    creditors.sort(key=lambda x: x['amount'], reverse=True)
+    debtors.sort(key=lambda x: x['amount'], reverse=True)
 
     suggestions: List[SettlementSuggestion] = []
 

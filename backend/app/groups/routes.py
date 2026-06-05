@@ -806,6 +806,9 @@ def join_group(invite_code):
     db.session.add(member)
     db.session.flush()
 
+    from app.groups.internal_expense_service import add_member_to_group_split_expenses
+    add_member_to_group_split_expenses(group.id, user_id)
+
     if split_mode == 'full':
         # Retroactively add the new member to all existing expenses
         expenses = Expense.query.filter_by(group_id=group.id).all()

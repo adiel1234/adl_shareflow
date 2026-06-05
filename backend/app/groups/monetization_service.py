@@ -1,9 +1,9 @@
 """
 MonetizationService - handles group activation, extension, and renewal.
 
-Beta mode: activation is triggered manually (no real payment gateway).
-The service records the payment, injects it as a group expense, and
-transitions the group to ACTIVE state.
+Activation always records a group expense so balances reflect the admin's
+split choice (among all members vs payer alone). Real payment gateway charges
+only when PAYMENTS_ENABLED is true in feature_flags.
 """
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
@@ -23,6 +23,38 @@ def _payments_enabled() -> bool:
     return str(flag.value).lower() in ('true', '1', 'yes')
 
 
+def _record_platform_payment(
+    group,
+    payer_id: str,
+    amount: Decimal,
+    payment_type: str,
+    source: str,
+    split_among_group: bool,
+):
+    """
+    Always inject a system expense into group balances.
+    GroupPayment audit row is always created; amount is zero when payments disabled.
+    """
+    expense = create_payment_expense(
+        group=group,
+        payer_id=payer_id,
+        amount=amount,
+        source=source,
+        split_among_group=split_among_group,
+    )
+    recorded_amount = amount if _payments_enabled() else Decimal('0')
+    payment = GroupPayment(
+        group_id=group.id,
+        payer_id=payer_id,
+        amount=recorded_amount,
+        payment_type=payment_type,
+        split_among_group=split_among_group,
+        expense_id=expense.id,
+    )
+    db.session.add(payment)
+    return expense
+
+
 class MonetizationService:
 
     @staticmethod
@@ -30,7 +62,7 @@ class MonetizationService:
         """
         Activate a free/limited group.
         Computes price based on current member count, sets expiry, records payment.
-        When PAYMENTS_ENABLED flag is off - activates for free (beta/testing mode).
+        Expense is always created; gateway charge only when PAYMENTS_ENABLED=true.
         """
         member_count = GroupMember.query.filter_by(group_id=group.id).count()
         pricing = MonetizationConfig.resolve_price(group.group_type, member_count)
@@ -50,23 +82,9 @@ class MonetizationService:
         group.expiry_date = now + timedelta(days=duration_days)
         group.max_participants_snapshot = member_count
 
-        if _payments_enabled():
-            expense = create_payment_expense(
-                group=group,
-                payer_id=payer_id,
-                amount=amount,
-                source='activation',
-                split_among_group=split_among_group,
-            )
-            payment = GroupPayment(
-                group_id=group.id,
-                payer_id=payer_id,
-                amount=amount,
-                payment_type='activation',
-                split_among_group=split_among_group,
-                expense_id=expense.id,
-            )
-            db.session.add(payment)
+        _record_platform_payment(
+            group, payer_id, amount, 'activation', 'activation', split_among_group
+        )
 
         db.session.commit()
 
@@ -81,6 +99,8 @@ class MonetizationService:
             'amount_paid': str(amount) if _payments_enabled() else '0',
             'pricing_tier': pricing['tier'],
             'payments_enabled': _payments_enabled(),
+            'expense_recorded': True,
+            'split_among_group': split_among_group,
         }
 
     @staticmethod
@@ -88,7 +108,6 @@ class MonetizationService:
         """
         Upgrade a group's pricing tier when member count has grown past the
         snapshot taken at last activation/upgrade.
-        Charges the price difference between old and new tier.
         """
         member_count = GroupMember.query.filter_by(group_id=group.id).count()
         upgrade_info = check_tier_upgrade(
@@ -103,23 +122,9 @@ class MonetizationService:
         group.pricing_tier = new_tier
         group.max_participants_snapshot = member_count
 
-        if _payments_enabled():
-            expense = create_payment_expense(
-                group=group,
-                payer_id=payer_id,
-                amount=diff,
-                source='upgrade',
-                split_among_group=split_among_group,
-            )
-            payment = GroupPayment(
-                group_id=group.id,
-                payer_id=payer_id,
-                amount=diff,
-                payment_type='upgrade',
-                split_among_group=split_among_group,
-                expense_id=expense.id,
-            )
-            db.session.add(payment)
+        _record_platform_payment(
+            group, payer_id, diff, 'upgrade', 'upgrade', split_among_group
+        )
 
         db.session.commit()
 
@@ -129,6 +134,8 @@ class MonetizationService:
             'max_participants_snapshot': member_count,
             'amount_paid': str(diff) if _payments_enabled() else '0',
             'payments_enabled': _payments_enabled(),
+            'expense_recorded': True,
+            'split_among_group': split_among_group,
         }
 
     @staticmethod
@@ -136,7 +143,6 @@ class MonetizationService:
         """
         Extend an event group by EVENT_EXTENSION_DAYS (15 ILS flat).
         Works even when group is already EXPIRED.
-        When PAYMENTS_ENABLED flag is off - extends for free.
         """
         amount = Decimal(str(MonetizationConfig.EVENT_EXTENSION_PRICE))
         ext_days = MonetizationConfig.EVENT_EXTENSION_DAYS
@@ -149,23 +155,9 @@ class MonetizationService:
         group.expiry_date = base + timedelta(days=ext_days)
         group.group_state = 'active'
 
-        if _payments_enabled():
-            expense = create_payment_expense(
-                group=group,
-                payer_id=payer_id,
-                amount=amount,
-                source='extension',
-                split_among_group=split_among_group,
-            )
-            payment = GroupPayment(
-                group_id=group.id,
-                payer_id=payer_id,
-                amount=amount,
-                payment_type='extension',
-                split_among_group=split_among_group,
-                expense_id=expense.id,
-            )
-            db.session.add(payment)
+        _record_platform_payment(
+            group, payer_id, amount, 'extension', 'extension', split_among_group
+        )
 
         db.session.commit()
 
@@ -174,6 +166,8 @@ class MonetizationService:
             'expiry_date': group.expiry_date.isoformat(),
             'amount_paid': str(amount) if _payments_enabled() else '0',
             'payments_enabled': _payments_enabled(),
+            'expense_recorded': True,
+            'split_among_group': split_among_group,
         }
 
     @staticmethod
@@ -181,7 +175,6 @@ class MonetizationService:
         """
         Renew an ongoing group for another billing period.
         Works even when group is READ_ONLY (expired ongoing).
-        When PAYMENTS_ENABLED flag is off - renews for free.
         """
         member_count = GroupMember.query.filter_by(group_id=group.id).count()
         pricing = MonetizationConfig.resolve_ongoing_price(member_count)
@@ -204,23 +197,9 @@ class MonetizationService:
         group.pricing_tier = pricing['tier']
         group.max_participants_snapshot = member_count
 
-        if _payments_enabled():
-            expense = create_payment_expense(
-                group=group,
-                payer_id=payer_id,
-                amount=amount,
-                source='renewal',
-                split_among_group=split_among_group,
-            )
-            payment = GroupPayment(
-                group_id=group.id,
-                payer_id=payer_id,
-                amount=amount,
-                payment_type='renewal',
-                split_among_group=split_among_group,
-                expense_id=expense.id,
-            )
-            db.session.add(payment)
+        _record_platform_payment(
+            group, payer_id, amount, 'renewal', 'renewal', split_among_group
+        )
 
         db.session.commit()
 
@@ -230,4 +209,6 @@ class MonetizationService:
             'amount_paid': str(amount) if _payments_enabled() else '0',
             'pricing_tier': pricing['tier'],
             'payments_enabled': _payments_enabled(),
+            'expense_recorded': True,
+            'split_among_group': split_among_group,
         }

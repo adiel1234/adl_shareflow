@@ -5,12 +5,15 @@ When a group is activated, extended, or renewed, the payment amount is injected
 as a group expense so it is visible in balances. The payer can choose to:
   - split it equally among all group members (split_among_group=True)
   - bear it alone (split_among_group=False)
+
+When split_among_group=True, new members who join later are automatically added
+to the expense (see add_member_to_group_split_expenses).
 """
 from datetime import date
 from decimal import Decimal, ROUND_HALF_UP
 
 from app import db
-from app.models import Expense, ExpenseParticipant, GroupMember
+from app.models import Expense, ExpenseParticipant, GroupMember, GroupPayment
 
 
 _SOURCE_LABELS = {
@@ -21,11 +24,34 @@ _SOURCE_LABELS = {
 }
 
 
+def _rebalance_equal_participants(expense: Expense, participant_ids: list[str]) -> None:
+    """Replace participants with equal shares that sum to converted_amount."""
+    amount = Decimal(str(expense.converted_amount))
+    n = len(participant_ids)
+    if n == 0:
+        return
+
+    base_share = (amount / n).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    last_share = amount - base_share * (n - 1)
+
+    for p in expense.participants:
+        db.session.delete(p)
+    db.session.flush()
+
+    for i, uid in enumerate(participant_ids):
+        share = base_share if i < n - 1 else last_share
+        db.session.add(ExpenseParticipant(
+            expense_id=expense.id,
+            user_id=uid,
+            share_amount=share,
+        ))
+
+
 def create_payment_expense(
     group,
     payer_id: str,
     amount: Decimal,
-    source: str,        # 'activation' | 'extension' | 'renewal'
+    source: str,        # 'activation' | 'extension' | 'renewal' | 'upgrade'
     split_among_group: bool,
 ) -> Expense:
     """
@@ -54,7 +80,6 @@ def create_payment_expense(
     db.session.add(expense)
     db.session.flush()  # get expense.id
 
-    # Determine participants
     if split_among_group:
         member_ids = [
             m.user_id for m in
@@ -63,20 +88,31 @@ def create_payment_expense(
     else:
         member_ids = [payer_id]
 
-    n = len(member_ids)
-    if n == 0:
+    if not member_ids:
         member_ids = [payer_id]
-        n = 1
 
-    base_share = (amount / n).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-    last_share = amount - base_share * (n - 1)
-
-    for i, uid in enumerate(member_ids):
-        share = base_share if i < n - 1 else last_share
-        db.session.add(ExpenseParticipant(
-            expense_id=expense.id,
-            user_id=uid,
-            share_amount=share,
-        ))
-
+    _rebalance_equal_participants(expense, member_ids)
     return expense
+
+
+def add_member_to_group_split_expenses(group_id: str, user_id: str) -> None:
+    """
+    When a new member joins, add them to system expenses that were marked
+    split_among_group at payment time (activation / extension / renewal / upgrade).
+    """
+    payments = GroupPayment.query.filter_by(
+        group_id=group_id,
+        split_among_group=True,
+    ).filter(GroupPayment.expense_id.isnot(None)).all()
+
+    for payment in payments:
+        expense = db.session.get(Expense, payment.expense_id)
+        if not expense or not expense.is_system_expense:
+            continue
+
+        participant_ids = {p.user_id for p in expense.participants}
+        if user_id in participant_ids:
+            continue
+
+        participant_ids.add(user_id)
+        _rebalance_equal_participants(expense, sorted(participant_ids))
