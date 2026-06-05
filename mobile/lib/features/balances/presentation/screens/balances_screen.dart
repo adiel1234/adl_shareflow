@@ -99,6 +99,8 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen> {
       onRefresh: () async {
         ref.invalidate(balancesProvider(group.id));
         ref.invalidate(periodReportsProvider(group.id));
+        ref.invalidate(pendingSettlementsProvider(group.id));
+        ref.invalidate(settlementPlanProvider(group.id));
       },
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),

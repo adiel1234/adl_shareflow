@@ -174,6 +174,8 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
       case 'settlement_requested':
       case 'settlement_confirmed':
         ref.invalidate(balancesProvider(groupId));
+        ref.invalidate(pendingSettlementsProvider(groupId));
+        ref.invalidate(settlementPlanProvider(groupId));
       case 'group_activated':
       case 'group_expiring_soon':
       case 'tier_upgrade_required':
