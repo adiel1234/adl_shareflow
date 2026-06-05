@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 6 יוני 2026 (תיקון סגירת חוב אורח→נושה כשמנהל=נושה; build 21)
+> עודכן לאחרונה: 6 יוני 2026 (פישוט UX תשלומים build 22; מדריך אונבורדינג מאוחד iOS+Android)
 
 ---
 
@@ -45,7 +45,8 @@
 
 **מפת מוצרים, env, ניקוי Railway ותוכנית פירוד:** [`docs/ADL_PRODUCTS.md`](docs/ADL_PRODUCTS.md)  
 **יום 2 — בדיקות פיילוט ו-15–20 משתתפים:** [`docs/PILOT_DAY2.md`](docs/PILOT_DAY2.md)  
-**מדריך התקנה iOS (TestFlight):** [`docs/TESTFLIGHT_IOS_GUIDE.html`](docs/TESTFLIGHT_IOS_GUIDE.html) · [`docs/TESTFLIGHT_IOS_GUIDE.md`](docs/TESTFLIGHT_IOS_GUIDE.md)
+**מדריך אונבורדינג פיילוט (iOS + Android):** [`docs/PILOT_ONBOARDING_GUIDE.html`](docs/PILOT_ONBOARDING_GUIDE.html) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)  
+**מדריך iOS (legacy):** [`docs/TESTFLIGHT_IOS_GUIDE.html`](docs/TESTFLIGHT_IOS_GUIDE.html)
 
 שלושה פרויקטים נפרדים ב-Railway:
 
@@ -296,7 +297,7 @@ flutter install --release
 4. App Store Connect → TestFlight → Build חדש מופיע אוטומטית
 ```
 
-**מדריך למשתמשי פיילוט:** [`docs/TESTFLIGHT_IOS_GUIDE.html`](docs/TESTFLIGHT_IOS_GUIDE.html) — HTML עצמאי (RTL, מיתוג ADL) לשיתוף ב-WhatsApp. עדכן `href` בכפתור ההזמנה או `TESTFLIGHT_URL` ב-Railway.
+**מדריך למשתמשי פיילוט:** [`docs/PILOT_ONBOARDING_GUIDE.html`](docs/PILOT_ONBOARDING_GUIDE.html) — iOS (TestFlight) + Android (APK), RTL, מיתוג ADL, offline. עדכן קישורי TestFlight / WhatsApp / `APK_DOWNLOAD_URL` ב-Railway.
 
 ---
 

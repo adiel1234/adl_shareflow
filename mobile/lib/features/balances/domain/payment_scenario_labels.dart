@@ -92,4 +92,62 @@ class PaymentScenarioLabels {
 
   static bool isDebtorWaiting(SettlementRecord r, String currentUserId) =>
       r.fromUserId == currentUserId;
+
+  /// Show in pending card only when this user must act or is waiting.
+  static bool isRelevantPending(
+    SettlementRecord r,
+    String currentUserId,
+    bool isAdmin,
+  ) =>
+      isDebtorWaiting(r, currentUserId) ||
+      canCreditorApprove(r, currentUserId) ||
+      canAdminConfirmGuestReceipt(r, currentUserId, isAdmin);
+
+  static bool matchesTransfer(SettlementSuggestion s, SettlementRecord r) =>
+      s.fromUserId == r.fromUserId && s.toUserId == r.toUserId;
+
+  static bool hasPendingForTransfer(
+    SettlementSuggestion s,
+    List<SettlementRecord> pending,
+  ) =>
+      pending.any(
+        (r) => r.status == 'pending' && matchesTransfer(s, r),
+      );
+
+  /// Transfers list: debtor, creditor, or admin for guest flows.
+  static bool isInvolvedInTransfer(
+    SettlementSuggestion s,
+    String currentUserId,
+    bool isAdmin,
+  ) {
+    if (s.fromUserId == currentUserId || s.toUserId == currentUserId) {
+      return true;
+    }
+    return isAdmin && (s.fromIsGuest || s.toIsGuest);
+  }
+
+  static String approveButtonLabel(
+    AppLocalizations l,
+    SettlementRecord r, {
+    required String currentUserId,
+    required bool isAdmin,
+  }) {
+    if (canAdminConfirmGuestReceipt(r, currentUserId, isAdmin)) {
+      return l.confirmGuestReceived;
+    }
+    return l.confirmReceipt;
+  }
+
+  static String approveDialogTitle(
+    AppLocalizations l,
+    SettlementRecord r, {
+    required String currentUserId,
+    required bool isAdmin,
+  }) =>
+      approveButtonLabel(
+        l,
+        r,
+        currentUserId: currentUserId,
+        isAdmin: isAdmin,
+      );
 }

@@ -1,38 +1,20 @@
-# מדריך התקנה — ADL ShareFlow ל-iPhone (TestFlight)
+# מדריך התקנה — ADL ShareFlow (iOS + Android)
 
-> **גרסת פיילוט:** 1.0.5 build 20 · **ADL Projects**
+> **המדריך עבר למסמך מאוחד:** [`PILOT_ONBOARDING_GUIDE.md`](PILOT_ONBOARDING_GUIDE.md)
 
-## קובץ לשיתוף
+## קובץ HTML לשיתוף
 
-**המדריך המעוצב (HTML):** [`TESTFLIGHT_IOS_GUIDE.html`](TESTFLIGHT_IOS_GUIDE.html)
+**מדריך אונבורדינג מלא (iOS + Android):** [`PILOT_ONBOARDING_GUIDE.html`](PILOT_ONBOARDING_GUIDE.html)
 
-שלחו את קובץ ה-HTML ב-WhatsApp / מייל, או העלו ל-Google Drive / iCloud ושתפו קישור. הקובץ עובד גם **offline** (ללא תלות ב-CDN), ומותאם **למובייל** (iPhone) — כפתור CTA דביק, גופנים גדולים, עמודה אחת.
+קובץ זה (`TESTFLIGHT_IOS_GUIDE.html`) נשמר לתאימות לאחור. לפיילוט חדש — השתמשו במדריך המאוחד.
 
-## לפני השיתוף — עדכון קישור TestFlight
+## קישורים מהירים
 
-1. App Store Connect → TestFlight → External / Internal Group → **Public Link**
-2. עדכנו את `href` בכפתור «הצטרפות ל-TestFlight» בקובץ HTML  
-   **או** הגדירו `TESTFLIGHT_URL` ב-Railway — דף ההורדה יפנה אוטומטית:  
-   `https://adlshareflow-production.up.railway.app/download`
-
-> ⚠️ כרגע ב-HTML מופיע placeholder `[קישור TestFlight]` — יש להחליף לפני הפצה לקבוצת הפיילוט.
-
-## שלבים (תקציר)
-
-1. התקנת **TestFlight** מ-App Store (אם חסר)
-2. פתיחת **קישור ההזמנה**
-3. **Accept** ב-TestFlight
-4. **Install** — ADL ShareFlow
-5. התחברות והצטרפות לקבוצה
-6. עדכונים דרך TestFlight + אפשרת Push
+- דף הורדה: `https://adlshareflow-production.up.railway.app/download`
+- TestFlight: עדכנו `TESTFLIGHT_URL` ב-Railway או `href` ב-HTML
+- APK: `APK_DOWNLOAD_URL` ב-Railway
 
 ## תמיכה
 
-- **מייל:** info@adlprojects.co.il  
+- **מייל:** info@adlprojects.co.il
 - **אתר:** [adlprojects.co.il](https://adlprojects.co.il)
-
-## מסמכים קשורים
-
-- [`DEPLOY_PILOT.md`](../DEPLOY_PILOT.md) — פריסה ובניית TestFlight  
-- [`PILOT_TEST_CHECKLIST.md`](../PILOT_TEST_CHECKLIST.md) — רשימת בדיקות  
-- [`docs/PILOT_DAY2.md`](PILOT_DAY2.md) — יום 2 פיילוט

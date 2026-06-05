@@ -616,55 +616,7 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
           bankAccountNumber: s.toBankAccountNumber,
         ),
       ),
-    ).then((_) {
-      // After returning from PaymentOptions, offer to mark as paid
-      if (mounted) _promptMarkPaid(context, s);
-    });
-  }
-
-  Future<void> _promptMarkPaid(
-      BuildContext context, SettlementSuggestion s) async {
-    if (!mounted) return;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('סמן כשולם?'),
-        content: Text(
-          'האם העברת ${s.amountDouble.round()} ${s.currency} ל-${s.toDisplayName}?\n'
-          '${s.toDisplayName} יקבל/ת הודעה לאישור קבלת התשלום.',
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('ביטול')),
-          ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('כן, שלמתי')),
-        ],
-      ),
     );
-    if (confirmed != true || !mounted) return;
-    try {
-      HapticFeedback.mediumImpact();
-      await BalanceRepository().requestSettlement(
-        groupId: widget.group.id,
-        toUserId: s.toUserId,
-        amount: s.amountDouble,
-        currency: s.currency,
-      );
-      if (!mounted) return;
-      ref.invalidate(pendingSettlementsProvider(widget.group.id));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('נשלחה בקשת אישור ל${s.toDisplayName}')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      String msg = 'שגיאה בסימון תשלום';
-      if (e is DioException) {
-        msg = (e.response?.data?['message'] as String?) ?? msg;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-    }
   }
 
   Future<void> _paidDirectly(
@@ -767,58 +719,6 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
     }
   }
 
-  Future<void> _confirmPendingReceipt(
-      BuildContext context, SettlementRecord r) async {
-    final l = AppLocalizations.of(context)!;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.confirmReceipt),
-        content: Text(
-          l.debtOwesAmount(
-            r.fromDisplayName,
-            r.toDisplayName,
-            r.amountDouble.round().toString(),
-            r.currency,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l.confirmReceipt),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-
-    HapticFeedback.mediumImpact();
-    try {
-      await BalanceRepository().approveSettlement(r.id);
-      ref.invalidate(pendingSettlementsProvider(widget.group.id));
-      ref.invalidate(balancesProvider(widget.group.id));
-      ref.invalidate(settlementPlanProvider(widget.group.id));
-      ref.invalidate(expensesProvider(widget.group.id));
-      await ref.read(pendingSettlementsProvider(widget.group.id).future);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('תשלום אושר בהצלחה ✓')),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      String msg = 'שגיאה באישור התשלום';
-      if (e is DioException) {
-        msg = (e.response?.data?['message'] as String?) ?? msg;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-    }
-  }
-
   void _shareGuestDebtWhatsApp(BuildContext context, SettlementSuggestion s) {
     final amount = s.amountDouble.round();
     final text =
@@ -864,7 +764,6 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
       ),
     );
     if (confirmed != true || !mounted) return;
-    final currentUserId = ref.read(authProvider).userId;
     try {
       HapticFeedback.mediumImpact();
       final api = ApiClient.instance;
@@ -891,31 +790,8 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
         );
         return;
       }
-      final pending = await ref.read(
-        pendingSettlementsProvider(widget.group.id).future,
-      );
-      if (!mounted) return;
-      SettlementRecord? creditorRecord;
-      for (final r in pending) {
-        if (r.fromUserId == s.fromUserId &&
-            r.toUserId == s.toUserId &&
-            PaymentScenarioLabels.canCreditorApprove(r, currentUserId)) {
-          creditorRecord = r;
-          break;
-        }
-      }
-      if (creditorRecord != null) {
-        await _confirmPendingReceipt(context, creditorRecord);
-        return;
-      }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            s.toUserId == currentUserId
-                ? 'אשר קבלה בכרטיס «ממתין לאישור» למטה'
-                : 'נשלח לאישור המקבל',
-          ),
-        ),
+        SnackBar(content: Text(dl.waitingForConfirmation(s.toDisplayName))),
       );
     } catch (e) {
       if (!mounted) return;
@@ -927,9 +803,18 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUserId = ref.watch(authProvider).userId;
+    final currentUserId = ref.watch(authProvider).userId ?? '';
     final group = widget.group;
-    final suggestions = widget.suggestions;
+    final pendingAsync = ref.watch(pendingSettlementsProvider(group.id));
+    final pending = pendingAsync.asData?.value ?? <SettlementRecord>[];
+    final suggestions = widget.suggestions.where((s) {
+      return PaymentScenarioLabels.isInvolvedInTransfer(
+        s,
+        currentUserId,
+        group.isAdmin,
+      );
+    }).toList();
+    if (suggestions.isEmpty) return const SizedBox.shrink();
     // Guest / former-member detection comes from the settlement suggestion itself
     // (from_is_guest / from_is_former_member fields returned by the backend).
     // We still watch members to keep the provider alive for other widgets.
@@ -993,7 +878,20 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                 fromIsGuest: s.fromIsGuest,
                 toIsGuest: s.toIsGuest,
               );
-              final isGuestDebt = group.isAdmin && s.fromIsGuest;
+              final hasPending = PaymentScenarioLabels.hasPendingForTransfer(
+                s,
+                pending,
+              );
+              final showDebtorActions = isMyDebt &&
+                  !hasPending &&
+                  (scenario == PaymentScenario.memberToMember ||
+                      scenario == PaymentScenario.memberToGuest);
+              final showAdminGuestAction = group.isAdmin &&
+                  s.fromIsGuest &&
+                  !isMyDebt &&
+                  !hasPending &&
+                  (scenario == PaymentScenario.guestToMember ||
+                      scenario == PaymentScenario.guestToGuest);
               final isFormerMember = s.fromIsFormerMember && !s.fromIsGuest;
               final amountStr = s.amountDouble.round().toString();
               return Container(
@@ -1076,13 +974,23 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                         ],
                       );
                     }),
+                    if (hasPending && isMyDebt)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          AppLocalizations.of(context)!.transferPendingBadge,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: headerColor.withOpacity(0.85),
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         const Spacer(),
-                        if (isMyDebt &&
-                            (scenario == PaymentScenario.memberToMember ||
-                                scenario == PaymentScenario.memberToGuest)) ...[
+                        if (showDebtorActions) ...[
                           Builder(builder: (ctx) {
                             final dl = AppLocalizations.of(ctx)!;
                             return GestureDetector(
@@ -1130,7 +1038,7 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                             );
                           }),
                         ],
-                        if (isGuestDebt && !isMyDebt) ...[
+                        if (showAdminGuestAction) ...[
                           GestureDetector(
                             onTap: () => _shareGuestDebtWhatsApp(context, s),
                             child: Container(
@@ -1168,9 +1076,11 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                             ),
                           ),
                         ],
-                        if (!isMyDebt &&
-                            !isGuestDebt &&
-                            s.toUserId == currentUserId)
+                        if (!showDebtorActions &&
+                            !showAdminGuestAction &&
+                            !hasPending &&
+                            s.toUserId == currentUserId &&
+                            scenario == PaymentScenario.memberToMember)
                           IconButton(
                             icon: Icon(Icons.alarm_add_outlined,
                                 size: 20, color: headerColor),
@@ -1207,13 +1117,31 @@ class _PendingSettlementsCard extends ConsumerWidget {
     required this.isAdmin,
   });
 
-  Future<void> _approve(BuildContext context, WidgetRef ref,
-      SettlementRecord r) async {
+  Future<void> _approve(
+    BuildContext context,
+    WidgetRef ref,
+    SettlementRecord r, {
+    required String currentUserId,
+    required bool isAdmin,
+  }) async {
     final l = AppLocalizations.of(context)!;
+    final approveLabel = PaymentScenarioLabels.approveButtonLabel(
+      l,
+      r,
+      currentUserId: currentUserId,
+      isAdmin: isAdmin,
+    );
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l.confirmReceipt),
+        title: Text(
+          PaymentScenarioLabels.approveDialogTitle(
+            l,
+            r,
+            currentUserId: currentUserId,
+            isAdmin: isAdmin,
+          ),
+        ),
         content: Text(
           l.debtOwesAmount(
             r.fromDisplayName,
@@ -1229,7 +1157,7 @@ class _PendingSettlementsCard extends ConsumerWidget {
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l.confirmReceipt),
+            child: Text(approveLabel),
           ),
         ],
       ),
@@ -1274,9 +1202,20 @@ class _PendingSettlementsCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context)!;
+    final relevant = records
+        .where(
+          (r) => PaymentScenarioLabels.isRelevantPending(
+            r,
+            currentUserId,
+            isAdmin,
+          ),
+        )
+        .toList();
+    if (relevant.isEmpty) return const SizedBox.shrink();
+
     final cardTitle = PaymentScenarioLabels.pendingCardTitle(
       l,
-      records,
+      relevant,
       currentUserId: currentUserId,
       isAdmin: isAdmin,
     );
@@ -1309,7 +1248,7 @@ class _PendingSettlementsCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 10),
-          ...records.map((r) {
+          ...relevant.map((r) {
             final scenario = detectPaymentScenario(
               fromIsGuest: r.fromIsGuest,
               toIsGuest: r.toIsGuest,
@@ -1376,9 +1315,22 @@ class _PendingSettlementsCard extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () => _approve(context, ref, r),
+                            onPressed: () => _approve(
+                              context,
+                              ref,
+                              r,
+                              currentUserId: currentUserId,
+                              isAdmin: isAdmin,
+                            ),
                             icon: const Icon(Icons.check, size: 16),
-                            label: Text(l.confirmReceipt),
+                            label: Text(
+                              PaymentScenarioLabels.approveButtonLabel(
+                                l,
+                                r,
+                                currentUserId: currentUserId,
+                                isAdmin: isAdmin,
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF059669),
                               foregroundColor: Colors.white,
@@ -1404,7 +1356,13 @@ class _PendingSettlementsCard extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () => _approve(context, ref, r),
+                            onPressed: () => _approve(
+                              context,
+                              ref,
+                              r,
+                              currentUserId: currentUserId,
+                              isAdmin: isAdmin,
+                            ),
                             icon: const Icon(Icons.check, size: 16),
                             label: Text(l.confirmGuestReceived),
                             style: ElevatedButton.styleFrom(
@@ -1437,18 +1395,10 @@ class _PendingSettlementsCard extends ConsumerWidget {
                       ],
                     )
                   else
-                    Row(
+                    const Row(
                       children: [
-                        const Icon(Icons.access_time_rounded,
+                        Icon(Icons.access_time_rounded,
                             size: 14, color: Color(0xFFF59E0B)),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            hint,
-                            style: const TextStyle(
-                                fontSize: 12, color: Color(0xFFB45309)),
-                          ),
-                        ),
                       ],
                     ),
                 ],

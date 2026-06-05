@@ -2668,6 +2668,12 @@ abstract class AppLocalizations {
   /// **'המנהל מאשר העברה וקבלה בפעולה אחת'**
   String get transferHintGuestToGuest;
 
+  /// No description provided for @transferPendingBadge.
+  ///
+  /// In he, this message translates to:
+  /// **'ממתין לאישור — אין פעולה נוספת'**
+  String get transferPendingBadge;
+
   /// No description provided for @pendingHintMemberPaid.
   ///
   /// In he, this message translates to:

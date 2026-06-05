@@ -1403,6 +1403,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Admin confirms transfer and receipt in one step';
 
   @override
+  String get transferPendingBadge => 'Awaiting approval — no further action';
+
+  @override
   String pendingHintMemberPaid(String debtor, String creditor) {
     return '$debtor paid $creditor — awaiting approval';
   }

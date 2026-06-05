@@ -1392,6 +1392,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get transferHintGuestToGuest => 'המנהל מאשר העברה וקבלה בפעולה אחת';
 
   @override
+  String get transferPendingBadge => 'ממתין לאישור — אין פעולה נוספת';
+
+  @override
   String pendingHintMemberPaid(String debtor, String creditor) {
     return '$debtor שילם ל-$creditor — ממתין לאישור';
   }

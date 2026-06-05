@@ -517,6 +517,7 @@
   "transferHintMemberToGuest": "החבר משלם — המנהל מאשר שהאורח קיבל",
   "transferHintGuestToMember": "המנהל מאשר שהאורח שילם — החבר מאשר קבלה",
   "transferHintGuestToGuest": "המנהל מאשר העברה וקבלה בפעולה אחת",
+  "transferPendingBadge": "ממתין לאישור — אין פעולה נוספת",
   "pendingHintMemberPaid": "{debtor} שילם ל-{creditor} — ממתין לאישור",
   "@pendingHintMemberPaid": {"placeholders": {"debtor": {"type": "String"}, "creditor": {"type": "String"}}},
   "pendingHintMemberToGuestDebtor": "שילמת — ממתין לאישור מנהל שהאורח קיבל",

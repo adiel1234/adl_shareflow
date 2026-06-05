@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ADL ShareFlow — מדריך פיילוט (iOS + Android)</title>
+  <meta name="description" content="מדריך התקנה לקבוצת הבטא של ADL ShareFlow — iPhone (TestFlight) ו-Android (APK). הפיילוט חינמי לחלוטין.">
+  <meta property="og:title" content="ADL ShareFlow — מדריך פיילוט">
+  <meta property="og:description" content="התקנה, שימוש ומשוב — גרסת בטא של ShareFlow by ADL Projects.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="he_IL">
+  <meta name="theme-color" content="#1E40AF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <style>
+    :root {
+      --primary: #1E40AF;
+      --primary-dark: #1E3A8A;
+      --primary-soft: #DBEAFE;
+      --secondary: #059669;
+      --secondary-soft: #D1FAE5;
+      --bg: #F1F5F9;
+      --surface: #FFFFFF;
+      --text: #0F172A;
+      --text-muted: #475569;
+      --text-light: #94A3B8;
+      --border: #E2E8F0;
+      --radius-sm: 12px;
+      --radius: 20px;
+      --radius-lg: 28px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+      --shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 16px 48px rgba(30, 64, 175, 0.12);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --sticky-h: 76px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: calc(var(--sticky-h) + var(--safe-bottom) + 24px);
+    }
+
+    .hero {
+      background: linear-gradient(160deg, var(--primary) 0%, #2563EB 45%, var(--secondary) 100%);
+      color: #fff;
+      padding: calc(32px + var(--safe-top)) 20px 72px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before, .hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 280px; height: 280px;
+      top: -80px; left: -60px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .hero::after {
+      width: 200px; height: 200px;
+      bottom: -40px; right: -50px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .hero-inner { position: relative; max-width: 480px; margin: 0 auto; }
+
+    .wordmark {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .logo-wrap {
+      width: 64px; height: 64px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      flex-shrink: 0;
+    }
+
+    .brand-text { text-align: right; }
+    .brand-text .company {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+    .brand-text .product {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .hero .tagline {
+      font-size: 1.0625rem;
+      opacity: 0.92;
+      margin-bottom: 24px;
+      max-width: 360px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      backdrop-filter: blur(4px);
+    }
+
+    .container {
+      max-width: 520px;
+      margin: -44px auto 0;
+      padding: 0 16px;
+    }
+
+    .welcome-card, .info-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .welcome-card::before, .info-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; left: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .welcome-card { text-align: center; }
+    .welcome-card h2, .info-card h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .welcome-card p, .info-card p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .info-card p:last-child { margin-bottom: 0; }
+
+    .free-banner {
+      background: linear-gradient(135deg, var(--secondary-soft), var(--primary-soft));
+      border: 1px solid rgba(5, 150, 105, 0.2);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .free-banner .icon {
+      flex-shrink: 0;
+      width: 44px; height: 44px;
+      background: #fff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.375rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .free-banner h3 {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+    }
+
+    .free-banner p {
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .platform-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .platform-tab {
+      flex: 1;
+      min-height: 48px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      border-radius: 14px;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .platform-tab.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .platform-panel { display: none; }
+    .platform-panel.active { display: block; }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 56px;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, var(--primary) 0%, #2563EB 50%, var(--secondary) 100%);
+      color: #fff;
+      font-size: 1.0625rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(30, 64, 175, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97);
+      box-shadow: 0 3px 12px rgba(30, 64, 175, 0.25);
+    }
+
+    .btn-secondary, .btn-android {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 52px;
+      margin-top: 12px;
+      padding: 14px 24px;
+      background: var(--surface);
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 16px;
+      border: 2px solid var(--border);
+      transition: background 0.2s, border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-secondary { color: var(--primary); }
+    .btn-android {
+      color: var(--secondary);
+      border-color: rgba(5, 150, 105, 0.3);
+      background: var(--secondary-soft);
+    }
+
+    .btn-secondary:active { background: var(--primary-soft); border-color: var(--primary); }
+    .btn-android:active { background: #A7F3D0; }
+
+    .section-title {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin: 28px 4px 12px;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.0625rem;
+      box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+    }
+
+    .step-body h3 {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    .step-body p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .step-body p + p { margin-top: 8px; }
+
+    .step-body a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .wa-card {
+      background: linear-gradient(135deg, #DCFCE7, #D1FAE5);
+      border: 1px solid rgba(5, 150, 105, 0.25);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .wa-card h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .wa-card p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .btn-wa {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 52px;
+      padding: 14px 24px;
+      background: #25D366;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .tip {
+      display: flex;
+      gap: 12px;
+      background: linear-gradient(135deg, var(--primary-soft), var(--secondary-soft));
+      border: 1px solid rgba(30, 64, 175, 0.12);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin: 20px 0;
+      font-size: 1rem;
+      color: var(--primary-dark);
+      line-height: 1.5;
+    }
+
+    .tip-icon {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      background: #fff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.125rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .faq-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .faq-card > h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text);
+      padding: 20px 20px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    details.faq-item { border-top: 1px solid var(--border); }
+
+    details.faq-item summary {
+      list-style: none;
+      padding: 18px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 56px;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    details.faq-item summary::-webkit-details-marker { display: none; }
+
+    details.faq-item summary::after {
+      content: '+';
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      background: var(--bg);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: var(--text-muted);
+    }
+
+    details.faq-item[open] summary::after {
+      content: '−';
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    details.faq-item p {
+      padding: 0 20px 18px;
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .contact-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      padding: 28px 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .contact-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .contact-links a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 14px 20px;
+      background: var(--bg);
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    footer {
+      text-align: center;
+      padding: 8px 20px calc(20px + var(--safe-bottom));
+      color: var(--text-light);
+      font-size: 0.875rem;
+    }
+
+    footer .brand {
+      font-weight: 800;
+      font-size: 1rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+
+    footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+    .sticky-cta {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 12px 16px calc(12px + var(--safe-bottom));
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -4px 24px rgba(15, 23, 42, 0.08);
+      transition: transform 0.3s ease;
+    }
+
+    .sticky-cta.hidden { transform: translateY(110%); }
+    .sticky-cta .btn-primary { font-size: 1rem; min-height: 52px; border-radius: 14px; }
+
+    .admin-note {
+      margin-top: 16px;
+      border-top: 1px dashed var(--border);
+      padding-top: 12px;
+    }
+
+    .admin-note details summary {
+      list-style: none;
+      font-size: 0.8125rem;
+      color: var(--text-light);
+      cursor: pointer;
+      text-align: center;
+      min-height: 40px;
+    }
+
+    .admin-note details summary::-webkit-details-marker { display: none; }
+
+    .admin-note .admin-body {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      line-height: 1.55;
+      text-align: right;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 600px) {
+      body { padding-bottom: 40px; }
+      .sticky-cta { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="wordmark">
+        <div class="logo-wrap" aria-hidden="true">
+          <svg width="36" height="36" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 28C12 22.4772 16.4772 18 22 18C27.5228 18 32 22.4772 32 28" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="22" cy="14" r="4" fill="white"/>
+            <path d="M8 32H36" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+            <path d="M14 36L22 30L30 36" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="company">ADL Projects</div>
+          <div class="product">ShareFlow</div>
+        </div>
+      </div>
+      <p class="tagline">שיתוף הוצאות קל ומהיר — גרסת בטא לקבוצת הפיילוט</p>
+      <div class="badge-row">
+        <span class="badge">🍎 iPhone</span>
+        <span class="badge">🤖 Android</span>
+        <span class="badge">1.0.5 · build 22</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <section class="welcome-card" id="cta-section">
+      <h2>ברוך הבא לפיילוט!</h2>
+      <p>נבחרתם לקבוצת הבטא של <strong>ShareFlow</strong> מבית <strong>ADL Projects</strong>. תודה שאתם עוזרים לנו לבנות את האפליקציה הטובה ביותר לשיתוף הוצאות.</p>
+      <p>בחרו את המכשיר שלכם והתקינו את האפליקציה:</p>
+      <div class="platform-tabs" role="tablist">
+        <button class="platform-tab active" type="button" data-platform="ios" role="tab" aria-selected="true">🍎 iPhone</button>
+        <button class="platform-tab" type="button" data-platform="android" role="tab" aria-selected="false">🤖 Android</button>
+      </div>
+      <div class="platform-panel active" id="panel-ios" role="tabpanel">
+        <a class="btn-primary" id="testflight-link" href="[קישור TestFlight]">
+          <span aria-hidden="true">✈️</span>
+          הצטרפות ל-TestFlight
+        </a>
+      </div>
+      <div class="platform-panel" id="panel-android" role="tabpanel">
+        <a class="btn-android" id="apk-link" href="https://adlshareflow-production.up.railway.app/download">
+          <span aria-hidden="true">📥</span>
+          הורדת APK ל-Android
+        </a>
+      </div>
+      <a class="btn-secondary" href="https://adlshareflow-production.up.railway.app/download">
+        <span aria-hidden="true">🌐</span>
+        דף הורדה חלופי (שני המכשירים)
+      </a>
+      <div class="admin-note" id="link-note">
+        <details>
+          <summary>⚙️ הערה למנהל הפיילוט</summary>
+          <div class="admin-body">
+            עדכנו את קישור TestFlight ב-<code>href</code> או הגדירו <code>TESTFLIGHT_URL</code> ב-Railway.
+            ל-Android: הגדירו <code>APK_DOWNLOAD_URL</code> — דף <code>/download</code> יפנה אוטומטית.
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <div class="free-banner" id="no-payment">
+      <span class="icon" aria-hidden="true">🎁</span>
+      <div>
+        <h3>אין תשלום — הפיילוט חינמי לחלוטין</h3>
+        <p>גם אם האפליקציה מציגה מחירים או מסך הפעלה — <strong>אין חיוב</strong> בגרסת הפיילוט. התשלומים כבויים בשרת (<code>PAYMENTS_ENABLED=off</code>) ולא יגבו מכם כסף אמיתי. השתמשו באפליקציה בחופשיות.</p>
+      </div>
+    </div>
+
+    <p class="section-title">התקנה — iPhone (TestFlight)</p>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num">1</span>
+        <div class="step-body">
+          <h3>התקינו TestFlight</h3>
+          <p>אם אין לכם — הורידו בחינם מ-App Store. חפשו <strong>TestFlight</strong> (מפתח: Apple).</p>
+          <p><a href="https://apps.apple.com/app/testflight/id899247664">פתיחה ב-App Store</a></p>
+        </div>
+      </div>
+    </article>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num">2</span>
+        <div class="step-body">
+          <h3>פתחו את קישור ההזמנה</h3>
+          <p>לחצו <strong>«הצטרפות ל-TestFlight»</strong> למעלה — או על הקישור שקיבלתם ב-WhatsApp / במייל.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num">3</span>
+        <div class="step-body">
+          <h3>קבלו והתקינו</h3>
+          <p>ב-TestFlight לחצו <strong>Accept</strong> / <strong>קבל</strong>, ואז <strong>Install</strong> / <strong>התקן</strong> ליד ADL ShareFlow.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num">4</span>
+        <div class="step-body">
+          <h3>התחברות והצטרפות</h3>
+          <p>פתחו את ShareFlow, הירשמו או התחברו, והצטרפו לקבוצה דרך קישור ההזמנה שקיבלתם.</p>
+        </div>
+      </div>
+    </article>
+
+    <p class="section-title">התקנה — Android (APK)</p>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num">1</span>
+        <div class="step-body">
+          <h3>אפשרו התקנה ממקורות לא ידועים</h3>
+          <p>הגדרות → אבטחה / אפליקציות → אפשרו «התקנה ממקורות לא ידועים» לדפדפן או ל-Files (שם תורידו את הקובץ).</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num">2</span>
+        <div class="step-body">
+          <h3>הורידו את ה-APK</h3>
+          <p>לחצו <strong>«הורדת APK»</strong> למעלה, או פתחו:</p>
+          <p><a href="https://adlshareflow-production.up.railway.app/download">adlshareflow-production.up.railway.app/download</a></p>
+          <p>הדף יזהה Android ויפנה ישירות לקובץ ה-APK.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num">3</span>
+        <div class="step-body">
+          <h3>התקינו את הקובץ</h3>
+          <p>פתחו את קובץ ה-<strong>.apk</strong> מההורדות → לחצו <strong>התקן</strong>. אם מופיעה אזהרת אבטחה — אשרו (זו גרסת פיילוט חתומה על ידנו).</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num">4</span>
+        <div class="step-body">
+          <h3>פתחו והתחברו</h3>
+          <p>לאחר ההתקנה — פתחו ShareFlow, הירשמו והצטרפו לקבוצה דרך קישור ההזמנה.</p>
+        </div>
+      </div>
+    </article>
+
+    <div class="tip">
+      <span class="tip-icon" aria-hidden="true">💡</span>
+      <span>ב-iPhone — שמרו את TestFlight במסך הבית לעדכונים. ב-Android — כשתשוחרר גרסה חדשה, הורידו APK מחדש מאותו דף.</span>
+    </div>
+
+    <section class="wa-card" id="whatsapp">
+      <h2><span aria-hidden="true">💬</span> קבוצת WhatsApp של הפיילוט</h2>
+      <p>שתפו איתנו רושם, רעיונות, באגים ומשוב — הקבוצה היא המקום המרכזי לתקשורת עם צוות ADL.</p>
+      <a class="btn-wa" id="wa-link" href="[קישור קבוצת WhatsApp]">
+        <span aria-hidden="true">📱</span>
+        הצטרפות לקבוצת WhatsApp
+      </a>
+    </section>
+
+    <section class="faq-card">
+      <h2><span aria-hidden="true">🔧</span> שאלות נפוצות</h2>
+
+      <details class="faq-item">
+        <summary>האם אשלם משהו?</summary>
+        <p>לא. הפיילוט חינמי. מסכי מחיר או הפעלה באפליקציה אינם גובים תשלום אמיתי.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>iPhone: «Processing» / Build לא זמין</summary>
+        <p>Apple מעבדת build חדש (5–30 דקות, לפעמים עד שעה). חזרו לקישור מאוחר יותר.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>Android: «חסום להתקנה»</summary>
+        <p>ודאו שאפשרתם התקנה ממקורות לא ידועים. נסו להוריד שוב מדף <code>/download</code>.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>גרסה ישנה מותקנת</summary>
+        <p>iPhone: TestFlight → Update. Android: הורידו APK חדש. גרסה נוכחית: <strong>1.0.5 build 22</strong>.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>לא מגיעות התראות</summary>
+        <p>הגדרות המכשיר → ShareFlow → התראות → אפשרו. ב-iPhone גם ב-TestFlight.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>איך מדווחים על באג?</summary>
+        <p>בקבוצת WhatsApp או במייל לתמיכה — תארו מה עשיתם, מה ציפיתם ומה קרה. צילום מסך עוזר מאוד.</p>
+      </details>
+    </section>
+
+    <section class="contact-card">
+      <h2>צריכים עזרה?</h2>
+      <p>שאלות, תקלות או משוב — נשמח לשמוע.</p>
+      <div class="contact-links">
+        <a href="mailto:info@adlprojects.co.il?subject=ADL%20ShareFlow%20Pilot">
+          <span aria-hidden="true">📧</span>
+          info@adlprojects.co.il
+        </a>
+        <a href="https://adlprojects.co.il">
+          <span aria-hidden="true">🌐</span>
+          adlprojects.co.il
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p class="brand">ADL Projects</p>
+    <p>גרסת פיילוט · ADL ShareFlow 1.0.5 (build 22)</p>
+    <p><a href="https://adlshareflow-production.up.railway.app/privacy">מדיניות פרטיות</a></p>
+  </footer>
+
+  <div class="sticky-cta" id="sticky-cta">
+    <a class="btn-primary" id="sticky-cta-link" href="[קישור TestFlight]">
+      <span aria-hidden="true">✈️</span>
+      התקנת ShareFlow
+    </a>
+  </div>
+
+  <script>
+    (function () {
+      var tabs = document.querySelectorAll('.platform-tab');
+      var panels = {
+        ios: document.getElementById('panel-ios'),
+        android: document.getElementById('panel-android')
+      };
+      var tfLink = document.getElementById('testflight-link');
+      var apkLink = document.getElementById('apk-link');
+      var stickyLink = document.getElementById('sticky-cta-link');
+      var sticky = document.getElementById('sticky-cta');
+      var ctaSection = document.getElementById('cta-section');
+      var note = document.getElementById('link-note');
+      var currentPlatform = 'ios';
+
+      function setPlatform(p) {
+        currentPlatform = p;
+        tabs.forEach(function (t) {
+          var active = t.getAttribute('data-platform') === p;
+          t.classList.toggle('active', active);
+          t.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        Object.keys(panels).forEach(function (key) {
+          panels[key].classList.toggle('active', key === p);
+        });
+        if (stickyLink) {
+          if (p === 'android') {
+            stickyLink.href = apkLink.href;
+            stickyLink.innerHTML = '<span aria-hidden="true">📥</span> הורדת APK';
+          } else {
+            stickyLink.href = tfLink.href;
+            stickyLink.innerHTML = '<span aria-hidden="true">✈️</span> הצטרפות ל-TestFlight';
+          }
+        }
+      }
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          setPlatform(tab.getAttribute('data-platform'));
+        });
+      });
+
+      var tfHref = tfLink.getAttribute('href');
+      var isTfPlaceholder = !tfHref || tfHref.indexOf('[קישור') !== -1;
+
+      function handleTfClick(e) {
+        if (isTfPlaceholder) {
+          e.preventDefault();
+          alert('קישור TestFlight עדיין לא עודכן.\n\nנסו:\nhttps://adlshareflow-production.up.railway.app/download');
+        }
+      }
+
+      tfLink.addEventListener('click', handleTfClick);
+      stickyLink.addEventListener('click', function (e) {
+        if (currentPlatform === 'ios') handleTfClick(e);
+      });
+
+      var waLink = document.getElementById('wa-link');
+      waLink.addEventListener('click', function (e) {
+        var href = waLink.getAttribute('href');
+        if (!href || href.indexOf('[קישור') !== -1) {
+          e.preventDefault();
+          alert('קישור קבוצת WhatsApp יתווסף בקרוב.\n\nבינתיים: info@adlprojects.co.il');
+        }
+      });
+
+      if (!isTfPlaceholder && note) note.style.display = 'none';
+
+      if (sticky && ctaSection && 'IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            sticky.classList.toggle('hidden', entry.isIntersecting);
+          });
+        }, { threshold: 0.15 });
+        observer.observe(ctaSection);
+      }
+    })();
+  </script>
+
+</body>
+</html>

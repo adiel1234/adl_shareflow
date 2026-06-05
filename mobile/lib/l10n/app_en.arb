@@ -517,6 +517,7 @@
   "transferHintMemberToGuest": "Member pays — admin confirms guest received",
   "transferHintGuestToMember": "Admin confirms guest paid — member confirms receipt",
   "transferHintGuestToGuest": "Admin confirms transfer and receipt in one step",
+  "transferPendingBadge": "Awaiting approval — no further action",
   "pendingHintMemberPaid": "{debtor} paid {creditor} — awaiting approval",
   "@pendingHintMemberPaid": {"placeholders": {"debtor": {"type": "String"}, "creditor": {"type": "String"}}},
   "pendingHintMemberToGuestDebtor": "You paid — waiting for admin to confirm guest received",
