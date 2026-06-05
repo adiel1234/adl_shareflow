@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 5 יוני 2026 (4 תרחישי תשלום + תוויות עברית; `mark-guest-paid` דו-שלבי לאורח→חבר; גרסה 1.0.5+17)
+> עודכן לאחרונה: 5 יוני 2026 (PAYMENTS_ENABLED — feature flag ב-DB, ניהול מ-ADL Control `/shareflow`)
 
 ---
 
@@ -309,7 +309,7 @@ flutter install --release
 | `RESEND_API_KEY` | מפתח Resend לשליחת מיילים | ✅ | מוגדר ב-Railway |
 | `RESEND_FROM_EMAIL` | כתובת שולח המיילים | ✅ | `noreply@adl-studio.com` |
 | `SMTP_SENDER_NAME` | שם השולח בכותרת המייל | 🟡 | `ADL ShareFlow` (ברירת מחדל) |
-| `PAYMENTS_ENABLED` | האם לגבות תשלום אמיתי | 🔴 כבוי בפיילוט | `false` |
+| _(DB: `feature_flags`)_ | `PAYMENTS_ENABLED` — גביית תשלום אמיתי (לא משתנה סביבה) | 🔴 כבוי בפיילוט | `false` ב-PostgreSQL; ניהול: Control → `/shareflow` |
 | `TESTFLIGHT_URL` | קישור TestFlight חיצוני ל-iOS | ✅ | מוגדר ב-Railway |
 | `APK_DOWNLOAD_URL` | קישור הורדת APK ל-Android | ✅ | Google Drive (גרסה נוכחית) |
 
