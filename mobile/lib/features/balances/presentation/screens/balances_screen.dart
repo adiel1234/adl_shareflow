@@ -856,16 +856,20 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                 size: 20,
               ),
               const SizedBox(width: 8),
-              Builder(builder: (ctx) => Text(
-                isClosed
-                    ? AppLocalizations.of(ctx)!.openDebtsGroupClosed
-                    : AppLocalizations.of(ctx)!.requiredTransfersTitle,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                  color: headerColor,
+              Expanded(
+                child: Builder(
+                  builder: (ctx) => Text(
+                    isClosed
+                        ? AppLocalizations.of(ctx)!.openDebtsGroupClosed
+                        : AppLocalizations.of(ctx)!.requiredTransfersTitle,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: headerColor,
+                    ),
+                  ),
                 ),
-              )),
+              ),
             ],
           ),
           if (isClosed)
@@ -891,64 +895,62 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: borderColor),
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Builder(builder: (ctx) {
-                        final dl = AppLocalizations.of(ctx)!;
-                        final text = dl.transferNeeded(s.fromDisplayName, s.toDisplayName);
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(text, style: const TextStyle(fontSize: 13)),
-                            if (isFormerMember) ...[
-                              const SizedBox(height: 3),
-                              Builder(builder: (ctx2) {
-                                final dl2 = AppLocalizations.of(ctx2)!;
-                                return Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade200,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    dl2.formerMember,
-                                    style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.grey.shade600,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                );
-                              }),
-                            ],
-                          ],
-                        );
-                      }),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: headerColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        '${s.amountDouble.round()} ${s.currency}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                    if (isMyDebt) ...[
-                      const SizedBox(width: 8),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                    Builder(builder: (ctx) {
+                      final dl = AppLocalizations.of(ctx)!;
+                      final text = dl.transferNeeded(
+                          s.fromDisplayName, s.toDisplayName);
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Primary: open payment options screen
+                          Text(text, style: const TextStyle(fontSize: 13)),
+                          if (isFormerMember) ...[
+                            const SizedBox(height: 3),
+                            Builder(builder: (ctx2) {
+                              final dl2 = AppLocalizations.of(ctx2)!;
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade200,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  dl2.formerMember,
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.grey.shade600,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              );
+                            }),
+                          ],
+                        ],
+                      );
+                    }),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: headerColor,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${s.amountDouble.round()} ${s.currency}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        if (isMyDebt) ...[
                           Builder(builder: (ctx) {
                             final dl = AppLocalizations.of(ctx)!;
                             return GestureDetector(
@@ -971,8 +973,7 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                               ),
                             );
                           }),
-                          const SizedBox(height: 4),
-                          // Secondary: mark as paid directly (requires double confirmation)
+                          const SizedBox(width: 6),
                           Builder(builder: (ctx) {
                             final dl = AppLocalizations.of(ctx)!;
                             return GestureDetector(
@@ -997,57 +998,57 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                             );
                           }),
                         ],
-                      ),
-                    ],
-                    if (isGuestDebt && !isMyDebt) ...[
-                      const SizedBox(width: 6),
-                      GestureDetector(
-                        onTap: () => _shareGuestDebtWhatsApp(context, s),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF25D366).withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                                color: const Color(0xFF25D366).withOpacity(0.4)),
-                          ),
-                          child: Icon(Icons.chat_outlined,
-                              size: 16, color: const Color(0xFF25D366)),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      GestureDetector(
-                        onTap: () => _markGuestPaid(context, s),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.purple,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            AppLocalizations.of(context)!.markGuestPaid,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12,
+                        if (isGuestDebt && !isMyDebt) ...[
+                          GestureDetector(
+                            onTap: () => _shareGuestDebtWhatsApp(context, s),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF25D366).withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                    color: const Color(0xFF25D366)
+                                        .withOpacity(0.4)),
+                              ),
+                              child: const Icon(Icons.chat_outlined,
+                                  size: 16, color: Color(0xFF25D366)),
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                    if (!isMyDebt && !isGuestDebt && s.toUserId == currentUserId) ...[
-                      const SizedBox(width: 4),
-                      IconButton(
-                        icon: Icon(Icons.alarm_add_outlined,
-                            size: 20, color: headerColor),
-                        onPressed: () => _scheduleReminder(context, s),
-                        tooltip: 'קבע תזכורת',
-                        constraints: const BoxConstraints(),
-                        padding: const EdgeInsets.all(4),
-                      ),
-                    ],
+                          const SizedBox(width: 6),
+                          GestureDetector(
+                            onTap: () => _markGuestPaid(context, s),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.purple,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(context)!.markGuestPaid,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                        if (!isMyDebt &&
+                            !isGuestDebt &&
+                            s.toUserId == currentUserId)
+                          IconButton(
+                            icon: Icon(Icons.alarm_add_outlined,
+                                size: 20, color: headerColor),
+                            onPressed: () => _scheduleReminder(context, s),
+                            tooltip: 'קבע תזכורת',
+                            constraints: const BoxConstraints(),
+                            padding: const EdgeInsets.all(4),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               );
