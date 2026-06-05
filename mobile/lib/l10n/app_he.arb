@@ -313,6 +313,7 @@
   "costPerParticipant": "עלות לכל משתתף",
   "requiredTransfers": "💸 העברות נדרשות",
   "allSettled": "הכל מסודר! אין העברות נדרשות",
+  "booksImbalancedWarning": "החשבונות לא מאוזנים — ייתכן שחלוקת הוצאות ישנה שגויה. ערכו הוצאות ושמרו מחדש, או פנו למנהל.",
   "sendSummary": "📤 שלח סיכום",
   "sendPushToAll": "שלח התראה לכל החברים",
   "sendPushSubtitle": "Push notification לכל משתמשי הקבוצה",

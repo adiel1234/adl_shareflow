@@ -109,6 +109,9 @@ def send_event_summary(group_id, **kwargs):
     member_count = len(members)
     suggestions = calculate_settlement_plan(group_id, group.base_currency)
 
+    from app.balances.engine import check_group_books_balanced
+    books_balanced, books_warning = check_group_books_balanced(group_id)
+
     base_total = sum(e.converted_amount for e in expenses)
     avg_per_member = (
         f'{int(base_total / member_count)} {group.base_currency}'
@@ -148,6 +151,8 @@ def send_event_summary(group_id, **kwargs):
             }
             for s in suggestions
         ],
+        'books_balanced': books_balanced,
+        'books_warning': books_warning,
     }
 
     lines = [

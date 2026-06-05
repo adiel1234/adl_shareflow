@@ -1664,6 +1664,12 @@ abstract class AppLocalizations {
   /// **'הכל מסודר! אין העברות נדרשות'**
   String get allSettled;
 
+  /// No description provided for @booksImbalancedWarning.
+  ///
+  /// In he, this message translates to:
+  /// **'החשבונות לא מאוזנים — ייתכן שחלוקת הוצאות ישנה שגויה. ערכו הוצאות ושמרו מחדש, או פנו למנהל.'**
+  String get booksImbalancedWarning;
+
   /// No description provided for @sendSummary.
   ///
   /// In he, this message translates to:

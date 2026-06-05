@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 5 יוני 2026 (`PUT /expenses/<id>` — עדכון `participants` בעריכת הוצאה; Blueprint: `control_dashboard_url`; `docs/ADL_PRODUCTS.md`; גרסה 1.0.5+11)
+> עודכן לאחרונה: 5 יוני 2026 (תיקון `POST /expenses` — חלוקה שווה כשהלקוח שולח רק `user_id`; `books_balanced` בסיכום אירוע; גרסה 1.0.5+13)
 
 ---
 
@@ -428,8 +428,9 @@ flutter install --release
 - **JWT** (`config.py`): ברירת מחדל של `JWT_REFRESH_TOKEN_EXPIRES` שונתה מ-30 יום ל-3650 יום (10 שנים). ניתן לשנות דרך `JWT_REFRESH_TOKEN_EXPIRES_DAYS`.
 - **`mark_debt_paid`** (`groups/routes.py`): נוספה בדיקת חברות בקבוצה — רק חבר בקבוצה שבבעלות החוב יכול לסמן כשולם.
 - **`POST /currency/rates`** (`currency/routes.py`): מוגן עכשיו בבדיקת `X-ADL-Admin-Key` header — רק אדמין יכול לעדכן שערי מטבע ידניים.
-- **`POST /groups/<id>/expenses`** (`expenses/routes.py`): נוספה ולידציה — `paid_by` וכל משתתף ב-`participants` חייבים להיות חברים פעילים בקבוצה; מחזיר 400 אם לא.
-- **`PUT /expenses/<id>`** (`expenses/routes.py`): כשהלקוח שולח `participants`, השרת מחליף את רשימת המשתתפים ומחלק שווה את `converted_amount` (כולל אורחים — `GroupMember` פעיל עם `is_guest`).
+- **`POST /groups/<id>/expenses`** (`expenses/routes.py`): `paid_by` ומשתתפים — חברים פעילים בלבד; כש-`participants` מכיל רק `user_id` (ללא `share_amount`) — חלוקה שווה כמו בעריכה; ולידציה שסכום החלקים = `converted_amount`.
+- **`PUT /expenses/<id>`** (`expenses/routes.py`): כשהלקוח שולח `participants`, השרת מחליף את רשימת המשתתפים ומחלק שווה את `converted_amount` (כולל אורחים — `GroupMember` פעיל עם `is_guest`); ולידציה על סכום החלקים.
+- **`POST /groups/<id>/summary`** (`balances/routes.py`): שדות `books_balanced` / `books_warning` — מזהה חשבונות לא מאוזנים (חלקים שגויים או שני זכאים בלי חייבים).
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): הסרת דרישת חברות פעילה — ניתן לסמן חוב אורח כשולם גם לאחר הסרת האורח מהקבוצה, כל עוד יש לו היסטוריית הוצאות בקבוצה.
 
 ---

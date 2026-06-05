@@ -837,6 +837,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get allSettled => 'הכל מסודר! אין העברות נדרשות';
 
   @override
+  String get booksImbalancedWarning =>
+      'החשבונות לא מאוזנים — ייתכן שחלוקת הוצאות ישנה שגויה. ערכו הוצאות ושמרו מחדש, או פנו למנהל.';
+
+  @override
   String get sendSummary => '📤 שלח סיכום';
 
   @override

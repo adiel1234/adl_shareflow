@@ -840,6 +840,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allSettled => 'All settled! No transfers needed';
 
   @override
+  String get booksImbalancedWarning =>
+      'Books are not balanced — expense splits may be incorrect. Re-save affected expenses or contact the group admin.';
+
+  @override
   String get sendSummary => 'Send summary';
 
   @override

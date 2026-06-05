@@ -166,6 +166,7 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
                         return _ExpenseItem(
                           expense: expense,
                           currentUserId: auth.userId,
+                          activeMemberCount: widget.group.memberCount,
                           groupCurrency: widget.group.baseCurrency,
                           prefCurrency: prefCurrency,
                           conversionRate: rate,
@@ -225,6 +226,7 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
 class _ExpenseItem extends StatelessWidget {
   final Expense expense;
   final String currentUserId;
+  final int activeMemberCount;
   final String groupCurrency;
   final String prefCurrency;
   final double conversionRate;
@@ -233,6 +235,7 @@ class _ExpenseItem extends StatelessWidget {
   const _ExpenseItem({
     required this.expense,
     required this.currentUserId,
+    required this.activeMemberCount,
     required this.groupCurrency,
     required this.prefCurrency,
     required this.conversionRate,
@@ -251,6 +254,9 @@ class _ExpenseItem extends StatelessWidget {
     final hasParticipants = expense.participants.isNotEmpty;
     final isParticipating = !hasParticipants ||
         expense.participants.any((p) => p.userId == currentUserId);
+    final isPartialParticipation = hasParticipants &&
+        activeMemberCount > 0 &&
+        expense.participants.length < activeMemberCount;
 
     // Amounts in group base currency
     final convertedTotal =
@@ -267,7 +273,9 @@ class _ExpenseItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Material(
-        color: AppColors.surface,
+        color: isPartialParticipation
+            ? AppColors.primary.withOpacity(0.05)
+            : AppColors.surface,
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
@@ -276,7 +284,11 @@ class _ExpenseItem extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(
+                color: isPartialParticipation
+                    ? AppColors.primary.withOpacity(0.22)
+                    : AppColors.border,
+              ),
             ),
             child: Row(
               children: [

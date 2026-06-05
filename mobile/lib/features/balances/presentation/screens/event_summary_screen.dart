@@ -293,6 +293,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
     final l = AppLocalizations.of(context)!;
     final s = _summary!;
     final transfers = (s['transfers'] as List? ?? []);
+    final booksBalanced = s['books_balanced'] as bool? ?? true;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -378,7 +379,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
           ),
           const SizedBox(height: 12),
 
-          if (transfers.isEmpty)
+          if (transfers.isEmpty && booksBalanced)
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -396,6 +397,32 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                       style: TextStyle(
                           color: AppColors.positive,
                           fontWeight: FontWeight.w600)),
+                ],
+              ),
+            )
+          else if (transfers.isEmpty && !booksBalanced)
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.negative.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                    color: AppColors.negative.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Text('⚠️', style: TextStyle(fontSize: 22)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      l.booksImbalancedWarning,
+                      style: const TextStyle(
+                        color: AppColors.negative,
+                        fontWeight: FontWeight.w600,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             )

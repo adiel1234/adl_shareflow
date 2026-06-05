@@ -165,3 +165,29 @@ def calculate_settlement_plan(group_id: str, base_currency: str = 'ILS') -> List
             j += 1
 
     return suggestions
+
+
+def check_group_books_balanced(group_id: str) -> tuple[bool, str | None]:
+    """
+    Returns (True, None) when expenses and settlement plan are consistent.
+    False when participant shares don't sum to expense amounts, or when
+    there are creditors but no debtors (unmatched surplus from bad shares).
+    """
+    expenses = Expense.query.filter_by(group_id=group_id).all()
+    for expense in expenses:
+        share_sum = sum(
+            Decimal(str(p.share_amount)) for p in expense.participants
+        )
+        expected = Decimal(str(expense.converted_amount))
+        if abs(share_sum - expected) > Decimal('0.01'):
+            return False, 'share_mismatch'
+
+    balances = calculate_group_balances(group_id)
+    creditors = [b for b in balances if b.net_amount > Decimal('0.01')]
+    debtors = [b for b in balances if b.net_amount < Decimal('-0.01')]
+
+    if creditors and not debtors:
+        return False, 'unmatched_surplus'
+    if debtors and not creditors:
+        return False, 'unmatched_deficit'
+    return True, None

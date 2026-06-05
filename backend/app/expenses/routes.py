@@ -28,6 +28,29 @@ def _equal_participant_shares(converted_amount: Decimal, count: int) -> list[Dec
     return [base_share] * (count - 1) + [last_share]
 
 
+def _participants_have_explicit_shares(participants_data: list) -> bool:
+    """True when client sent non-zero share_amount values (exact/percentage split)."""
+    for pd in participants_data:
+        raw = pd.get('share_amount')
+        if raw is not None and to_decimal(raw) > 0:
+            return True
+    return False
+
+
+def _validate_participant_shares_sum(expense: Expense) -> str | None:
+    """Ensure sum(share_amount) matches converted_amount within 1 agora."""
+    participants = ExpenseParticipant.query.filter_by(expense_id=expense.id).all()
+    if not participants:
+        return 'participants cannot be empty'
+    total = sum(Decimal(str(p.share_amount)) for p in participants)
+    expected = Decimal(str(expense.converted_amount))
+    if abs(total - expected) > Decimal('0.01'):
+        return (
+            f'participant shares sum to {total}, expected {expected}'
+        )
+    return None
+
+
 def _set_expense_participants(expense: Expense, participants_data: list) -> str | None:
     """
     Replace all participants with an equal split among the given user_ids.
@@ -175,8 +198,15 @@ def create_expense(group_id, **kwargs):
                 share_amount=share,
             )
             db.session.add(p)
+    elif split_type == 'equal' or not _participants_have_explicit_shares(participants_data):
+        err = _set_expense_participants(expense, participants_data)
+        if err:
+            db.session.rollback()
+            return error_response(err, 400)
     else:
-        active_member_ids = {m.user_id for m in GroupMember.query.filter_by(group_id=group_id).all()}
+        active_member_ids = {
+            m.user_id for m in GroupMember.query.filter_by(group_id=group_id).all()
+        }
         for pd in participants_data:
             if pd.get('user_id') not in active_member_ids:
                 db.session.rollback()
@@ -188,9 +218,15 @@ def create_expense(group_id, **kwargs):
                 expense_id=expense.id,
                 user_id=pd['user_id'],
                 share_amount=to_decimal(pd.get('share_amount', 0)),
-                share_percentage=to_decimal(pd.get('share_percentage')) if pd.get('share_percentage') else None,
+                share_percentage=to_decimal(pd.get('share_percentage'))
+                if pd.get('share_percentage') else None,
             )
             db.session.add(p)
+
+    share_err = _validate_participant_shares_sum(expense)
+    if share_err:
+        db.session.rollback()
+        return error_response(share_err, 400)
 
     db.session.commit()
 
@@ -312,6 +348,11 @@ def update_expense(expense_id):
         if err:
             db.session.rollback()
             return error_response(err, 400)
+
+    share_err = _validate_participant_shares_sum(expense)
+    if share_err:
+        db.session.rollback()
+        return error_response(share_err, 400)
 
     db.session.commit()
 

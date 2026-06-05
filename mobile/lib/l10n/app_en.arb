@@ -313,6 +313,7 @@
   "costPerParticipant": "Cost per participant",
   "requiredTransfers": "Required transfers",
   "allSettled": "All settled! No transfers needed",
+  "booksImbalancedWarning": "Books are not balanced — expense splits may be incorrect. Re-save affected expenses or contact the group admin.",
   "sendSummary": "Send summary",
   "sendPushToAll": "Send notification to all members",
   "sendPushSubtitle": "Push notification to all group members",
