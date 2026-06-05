@@ -275,12 +275,32 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                 border: Border.all(color: AppColors.primary.withOpacity(0.2)),
               ),
               child: Text(
-                'סכום להעברה: $_roundedAmount ${widget.currency}',
+                '$_roundedAmount ${widget.currency}',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.primary,
                 ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(
+                    text: '$_roundedAmount ${widget.currency}',
+                  ));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        AppLocalizations.of(context)!.amountCopied,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.copy, size: 18),
+                label: Text(AppLocalizations.of(context)!.copyAmount),
               ),
             ),
             const SizedBox(height: 12),
@@ -316,9 +336,9 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                   final phone = controller.text.trim();
                   if (phone.length < 9) return;
                   Navigator.pop(ctx);
-                  _launchUrl('$scheme://');
+                  _showAppLaunchConfirm(appName, phone, scheme);
                 },
-                child: Text('פתח $appName'),
+                child: Text('המשך'),
               ),
             ),
           ],
