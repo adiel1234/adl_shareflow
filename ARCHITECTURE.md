@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 3 יוני 2026 (גרסה 1.0.5+11 — פיילוט: סשן, משתתפים, wizard סיום אירוע, Bit העתק סכום, UX אורח)
+> עודכן לאחרונה: 5 יוני 2026 (`PUT /expenses/<id>` — עדכון `participants` בעריכת הוצאה; Blueprint: `control_dashboard_url`; `docs/ADL_PRODUCTS.md`; גרסה 1.0.5+11)
 
 ---
 
@@ -38,6 +38,39 @@
 │      │    │          │   │ • Resend Mail│
 └──────┘    └──────────┘   └──────────────┘
 ```
+
+---
+
+## תשתית Railway (יעד)
+
+**מפת מוצרים, env, ניקוי Railway ותוכנית פירוד:** [`docs/ADL_PRODUCTS.md`](docs/ADL_PRODUCTS.md)  
+**יום 2 — בדיקות פיילוט ו-15–20 משתתפים:** [`docs/PILOT_DAY2.md`](docs/PILOT_DAY2.md)
+
+שלושה פרויקטים נפרדים ב-Railway:
+
+| פרויקט Railway | שם קנוני | תפקיד | URL ייצור | Repo |
+|----------------|-----------|--------|-----------|------|
+| **ADL Control** | ADL Control | דשבורד ניהול + Blueprint (`/dashboard`, `/shareflow`, `/blueprint`) | `https://web-production-cddac.up.railway.app` (עד מעבר דומיין) | `adl_control` |
+| **ADL ShareFlow** | ADL ShareFlow | Backend API + PostgreSQL ShareFlow | `https://adlshareflow-production.up.railway.app` | repo זה → `backend/` |
+| **ADL Blueprint** | ADL Blueprint | legacy — לאחר מעבר Control לארכיון | — | — |
+
+```
+┌──────────────────── ADL Control ────────────────────┐
+│  adl_control (Flask מונולית)                        │
+│  /dashboard  ·  /shareflow (מ-adl_platform_module)  │
+│  DB: adl_control (PostgreSQL)                       │
+└────────────────────────┬────────────────────────────┘
+                         │ HTTPS + X-ADL-Admin-Key
+                         ▼
+┌──────────────────── ADL ShareFlow ──────────────────┐
+│  backend/ Flask API  ·  PostgreSQL ShareFlow        │
+│  /api/*  ·  /download  ·  /api/adl/*                │
+└─────────────────────────────────────────────────────┘
+```
+
+**מדריך מעבר:** `DEPLOY_ADL_CONTROL.md`
+
+**מצב נוכחי (5 יוני 2026):** ב-repo `adl_control` קיימים שני factories לפריסה נפרדת; ב-Railway עדיין יכול לרוץ `create_app()` מונוליתי עד הגדרת שני שירותים (`railway.control.toml` / `railway.blueprint.toml`).
 
 ---
 
@@ -148,14 +181,45 @@
 
 ---
 
-### 5. ADL Dashboard Integration
+### 5. ADL Control (דשבורד ניהול — שם קנוני)
 
-**מיקום:** `/adl_platform_module/` + `/backend/app/dashboard/routes.py`
+**שם קנוני:** ADL Control (לא "ADL Platform" / "Blueprint Web").
 
-ה-Dashboard של ADL מתממשק לשרת דרך:
-- **כתובת:** `GET /dashboard/stats` / `/dashboard/monetization` / `/dashboard/revenue`
-- **אבטחה:** Header `X-ADL-Admin-Key` (מוגדר ב-`.env` → `ADL_ADMIN_KEY`)
-- **נתונים:** משתמשים, קבוצות, הכנסות, OCR stats, Feature Flags
+**מיקום קוד:**
+
+| שכבה | נתיב | פרויקט Railway |
+|------|------|----------------|
+| דשבורד ראשי + `/shareflow` + Blueprint | repo `adl_control` | **ADL Control** (יעד) — כיום ב-**ADL Blueprint** |
+| מודול ShareFlow (blueprint) | `/adl_platform_module/shareflow/` | משולב ב-ADL Control |
+| API נתוני ShareFlow | `/backend/app/dashboard/routes.py` → `/api/adl/*` | **ADL ShareFlow** |
+
+מודול `/shareflow` **לא** קורא ישירות מ-DB של ShareFlow — רק HTTP ל-backend:
+
+| שכבה | משתנה | תפקיד |
+|------|--------|--------|
+| ADL Control UI | `SHAREFLOW_API_URL` | בסיס API ShareFlow |
+| ADL Control UI | `SHAREFLOW_ADMIN_KEY` | = `ADL_ADMIN_KEY` ב-ADL ShareFlow |
+| ADL ShareFlow Backend | `ADL_ADMIN_KEY` | אימות `X-ADL-Admin-Key` |
+
+**שני מצבי הפעלה:**
+
+| מצב | כתובת | איפה מגדירים env |
+|-----|--------|-------------------|
+| מקומי (standalone) | `http://localhost:5002/shareflow` | `adl_platform_module/.env` |
+| ייצור (ADL Control) | `https://web-production-cddac.up.railway.app/shareflow/` | **Variables בשירות ADL Control** — לא ב-ADL ShareFlow |
+
+על שירות **ADL Control** (repo `adl_control`):
+
+```
+SHAREFLOW_API_URL=https://adlshareflow-production.up.railway.app/api
+SHAREFLOW_ADMIN_KEY=<זהה ל-ADL_ADMIN_KEY ב-adlshareflow-production>
+```
+
+`adl_platform_module/.env` **לא** משפיע על ADL Control בייצור. `ADL_ADMIN_KEY` ב-backend בלבד **לא מספיק** — חובה `SHAREFLOW_ADMIN_KEY` על ADL Control.
+
+- **Endpoints (ShareFlow API):** `GET /api/adl/stats`, `/users`, `/groups`, `/monetization`, `/ocr-stats`, `/feature-flags`
+- **נתוני ShareFlow:** PostgreSQL ShareFlow (`DATABASE_URL` בפרויקט **ADL ShareFlow** בלבד)
+- **DB של ADL Control:** `adl_control` PostgreSQL (`DATABASE_URL` בפרויקט **ADL Control**)
 
 ---
 
@@ -365,6 +429,7 @@ flutter install --release
 - **`mark_debt_paid`** (`groups/routes.py`): נוספה בדיקת חברות בקבוצה — רק חבר בקבוצה שבבעלות החוב יכול לסמן כשולם.
 - **`POST /currency/rates`** (`currency/routes.py`): מוגן עכשיו בבדיקת `X-ADL-Admin-Key` header — רק אדמין יכול לעדכן שערי מטבע ידניים.
 - **`POST /groups/<id>/expenses`** (`expenses/routes.py`): נוספה ולידציה — `paid_by` וכל משתתף ב-`participants` חייבים להיות חברים פעילים בקבוצה; מחזיר 400 אם לא.
+- **`PUT /expenses/<id>`** (`expenses/routes.py`): כשהלקוח שולח `participants`, השרת מחליף את רשימת המשתתפים ומחלק שווה את `converted_amount` (כולל אורחים — `GroupMember` פעיל עם `is_guest`).
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): הסרת דרישת חברות פעילה — ניתן לסמן חוב אורח כשולם גם לאחר הסרת האורח מהקבוצה, כל עוד יש לו היסטוריית הוצאות בקבוצה.
 
 ---

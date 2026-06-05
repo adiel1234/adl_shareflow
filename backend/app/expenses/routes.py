@@ -1,5 +1,5 @@
 from datetime import date
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -12,6 +12,51 @@ from app.common.decorators import require_group_member, require_group_operationa
 from app.common.utils import to_decimal
 
 expenses_bp = Blueprint('expenses', __name__)
+
+
+def _equal_participant_shares(converted_amount: Decimal, count: int) -> list[Decimal]:
+    """Split converted_amount equally; last share absorbs rounding remainder."""
+    if count < 1:
+        return []
+    base_share = (converted_amount / count).quantize(
+        Decimal('0.01'), rounding=ROUND_HALF_UP
+    )
+    total_distributed = base_share * (count - 1)
+    last_share = (converted_amount - total_distributed).quantize(
+        Decimal('0.01'), rounding=ROUND_HALF_UP
+    )
+    return [base_share] * (count - 1) + [last_share]
+
+
+def _set_expense_participants(expense: Expense, participants_data: list) -> str | None:
+    """
+    Replace all participants with an equal split among the given user_ids.
+    Returns an error message string on validation failure, else None.
+    """
+    if not participants_data:
+        return 'participants cannot be empty'
+
+    active_member_ids = {
+        m.user_id for m in GroupMember.query.filter_by(group_id=expense.group_id).all()
+    }
+    user_ids: list[str] = []
+    for pd in participants_data:
+        uid = pd.get('user_id')
+        if not uid or uid not in active_member_ids:
+            return f"participant {uid} is not an active group member"
+        user_ids.append(uid)
+
+    ExpenseParticipant.query.filter_by(expense_id=expense.id).delete(
+        synchronize_session='fetch'
+    )
+    shares = _equal_participant_shares(expense.converted_amount, len(user_ids))
+    for uid, share in zip(user_ids, shares):
+        db.session.add(ExpenseParticipant(
+            expense_id=expense.id,
+            user_id=uid,
+            share_amount=share,
+        ))
+    return None
 
 
 @expenses_bp.get('/groups/<group_id>/expenses')
@@ -255,10 +300,18 @@ def update_expense(expense_id):
         # Redistribute shares equally among current participants
         participants = ExpenseParticipant.query.filter_by(expense_id=expense.id).all()
         if participants:
-            n = len(participants)
-            share = (new_converted / n).quantize(Decimal('0.01'))
-            for i, p in enumerate(participants):
+            shares = _equal_participant_shares(new_converted, len(participants))
+            for p, share in zip(participants, shares):
                 p.share_amount = share
+
+    if 'participants' in data:
+        participants_data = data.get('participants')
+        if not isinstance(participants_data, list):
+            return error_response('participants must be a list', 400)
+        err = _set_expense_participants(expense, participants_data)
+        if err:
+            db.session.rollback()
+            return error_response(err, 400)
 
     db.session.commit()
 
