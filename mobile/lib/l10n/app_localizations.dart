@@ -2583,6 +2583,159 @@ abstract class AppLocalizations {
   /// **'{from} צריך להעביר ל-{to}'**
   String transferNeeded(String from, String to);
 
+  /// No description provided for @debtOwesAmount.
+  ///
+  /// In he, this message translates to:
+  /// **'{debtor} חייב ל-{creditor} {amount} {currency}'**
+  String debtOwesAmount(
+      String debtor, String creditor, String amount, String currency);
+
+  /// No description provided for @debtPaidTo.
+  ///
+  /// In he, this message translates to:
+  /// **'{debtor} שילם ל-{creditor}'**
+  String debtPaidTo(String debtor, String creditor);
+
+  /// No description provided for @paymentScenarioMemberToMember.
+  ///
+  /// In he, this message translates to:
+  /// **'תשלום בין חברים'**
+  String get paymentScenarioMemberToMember;
+
+  /// No description provided for @paymentScenarioMemberToGuest.
+  ///
+  /// In he, this message translates to:
+  /// **'תשלום לאורח'**
+  String get paymentScenarioMemberToGuest;
+
+  /// No description provided for @paymentScenarioGuestToMember.
+  ///
+  /// In he, this message translates to:
+  /// **'אורח משלם חוב'**
+  String get paymentScenarioGuestToMember;
+
+  /// No description provided for @paymentScenarioGuestToGuest.
+  ///
+  /// In he, this message translates to:
+  /// **'תשלום אורח לאורח'**
+  String get paymentScenarioGuestToGuest;
+
+  /// No description provided for @pendingCardTitleCreditor.
+  ///
+  /// In he, this message translates to:
+  /// **'ממתין לאישורך'**
+  String get pendingCardTitleCreditor;
+
+  /// No description provided for @pendingCardTitleDebtor.
+  ///
+  /// In he, this message translates to:
+  /// **'ממתין לאישור המקבל'**
+  String get pendingCardTitleDebtor;
+
+  /// No description provided for @pendingCardTitleAdmin.
+  ///
+  /// In he, this message translates to:
+  /// **'נדרשת פעולת מנהל'**
+  String get pendingCardTitleAdmin;
+
+  /// No description provided for @pendingCardTitleMixed.
+  ///
+  /// In he, this message translates to:
+  /// **'תשלומים בהמתנה'**
+  String get pendingCardTitleMixed;
+
+  /// No description provided for @transferHintMemberToMember.
+  ///
+  /// In he, this message translates to:
+  /// **'החייב מסמן «שילמתי» — המקבל מאשר'**
+  String get transferHintMemberToMember;
+
+  /// No description provided for @transferHintMemberToGuest.
+  ///
+  /// In he, this message translates to:
+  /// **'החבר משלם — המנהל מאשר שהאורח קיבל'**
+  String get transferHintMemberToGuest;
+
+  /// No description provided for @transferHintGuestToMember.
+  ///
+  /// In he, this message translates to:
+  /// **'המנהל מאשר שהאורח שילם — החבר מאשר קבלה'**
+  String get transferHintGuestToMember;
+
+  /// No description provided for @transferHintGuestToGuest.
+  ///
+  /// In he, this message translates to:
+  /// **'המנהל מאשר העברה וקבלה בפעולה אחת'**
+  String get transferHintGuestToGuest;
+
+  /// No description provided for @pendingHintMemberPaid.
+  ///
+  /// In he, this message translates to:
+  /// **'{debtor} שילם ל-{creditor} — ממתין לאישור'**
+  String pendingHintMemberPaid(String debtor, String creditor);
+
+  /// No description provided for @pendingHintMemberToGuestDebtor.
+  ///
+  /// In he, this message translates to:
+  /// **'שילמת — ממתין לאישור מנהל שהאורח קיבל'**
+  String get pendingHintMemberToGuestDebtor;
+
+  /// No description provided for @pendingHintMemberToGuestAdmin.
+  ///
+  /// In he, this message translates to:
+  /// **'החבר שילם — אשר שהאורח {guest} קיבל'**
+  String pendingHintMemberToGuestAdmin(String guest);
+
+  /// No description provided for @pendingHintGuestToMemberCreditor.
+  ///
+  /// In he, this message translates to:
+  /// **'האורח שילם — אשר שקיבלת את הכסף'**
+  String get pendingHintGuestToMemberCreditor;
+
+  /// No description provided for @pendingHintGuestToMemberWaiting.
+  ///
+  /// In he, this message translates to:
+  /// **'ממתין לאישור {member} שקיבל'**
+  String pendingHintGuestToMemberWaiting(String member);
+
+  /// No description provided for @confirmReceipt.
+  ///
+  /// In he, this message translates to:
+  /// **'אשר קבלה'**
+  String get confirmReceipt;
+
+  /// No description provided for @rejectPayment.
+  ///
+  /// In he, this message translates to:
+  /// **'דחה'**
+  String get rejectPayment;
+
+  /// No description provided for @confirmGuestReceived.
+  ///
+  /// In he, this message translates to:
+  /// **'אשר קבלה לאורח'**
+  String get confirmGuestReceived;
+
+  /// No description provided for @confirmGuestTransfer.
+  ///
+  /// In he, this message translates to:
+  /// **'אשר העברת אורח'**
+  String get confirmGuestTransfer;
+
+  /// No description provided for @markGuestPaidConfirmGuestToGuest.
+  ///
+  /// In he, this message translates to:
+  /// **'סמן שהאורח {from} שילם {amount} {currency} לאורח {to}?'**
+  String markGuestPaidConfirmGuestToGuest(
+      String from, String to, String amount, String currency);
+
+  /// No description provided for @markGuestPaidConfirmGuestToMember.
+  ///
+  /// In he, this message translates to:
+  /// **'סמן שהאורח {from} שילם {amount} {currency} ל-{to}? המקבל יאשר קבלה.'**
+  String markGuestPaidConfirmGuestToMember(
+      String from, String to, String amount, String currency);
+
   /// No description provided for @deleteGroup.
   ///
   /// In he, this message translates to:

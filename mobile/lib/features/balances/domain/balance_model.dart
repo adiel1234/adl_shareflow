@@ -3,8 +3,10 @@ class SettlementRecord {
   final String id;
   final String fromUserId;
   final String fromDisplayName;
+  final bool fromIsGuest;
   final String toUserId;
   final String toDisplayName;
+  final bool toIsGuest;
   final String amount;
   final String currency;
   final String status; // pending | confirmed | cancelled
@@ -13,8 +15,10 @@ class SettlementRecord {
     required this.id,
     required this.fromUserId,
     required this.fromDisplayName,
+    this.fromIsGuest = false,
     required this.toUserId,
     required this.toDisplayName,
+    this.toIsGuest = false,
     required this.amount,
     required this.currency,
     required this.status,
@@ -24,8 +28,10 @@ class SettlementRecord {
         id: j['id'] as String,
         fromUserId: j['from_user_id'] as String,
         fromDisplayName: j['from_display_name'] as String? ?? '',
+        fromIsGuest: j['from_is_guest'] as bool? ?? false,
         toUserId: j['to_user_id'] as String,
         toDisplayName: j['to_display_name'] as String? ?? '',
+        toIsGuest: j['to_is_guest'] as bool? ?? false,
         amount: j['amount'] as String,
         currency: j['currency'] as String,
         status: j['status'] as String,
@@ -74,6 +80,7 @@ class SettlementSuggestion {
   final bool fromIsFormerMember;
   final String toUserId;
   final String toDisplayName;
+  final bool toIsGuest;
   final String amount;
   final String currency;
   // Recipient's payment details (for Bit / PayBox / bank transfer)
@@ -90,6 +97,7 @@ class SettlementSuggestion {
     this.fromIsFormerMember = false,
     required this.toUserId,
     required this.toDisplayName,
+    this.toIsGuest = false,
     required this.amount,
     required this.currency,
     this.toPaymentPhone,
@@ -107,6 +115,7 @@ class SettlementSuggestion {
         fromIsFormerMember: json['from_is_former_member'] as bool? ?? false,
         toUserId: json['to_user_id'] as String,
         toDisplayName: json['to_display_name'] as String,
+        toIsGuest: json['to_is_guest'] as bool? ?? false,
         amount: json['amount'] as String,
         currency: json['currency'] as String,
         toPaymentPhone: json['to_payment_phone'] as String?,

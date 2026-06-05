@@ -1352,6 +1352,104 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String debtOwesAmount(
+      String debtor, String creditor, String amount, String currency) {
+    return '$debtor owes $creditor $amount $currency';
+  }
+
+  @override
+  String debtPaidTo(String debtor, String creditor) {
+    return '$debtor paid $creditor';
+  }
+
+  @override
+  String get paymentScenarioMemberToMember => 'Member payment';
+
+  @override
+  String get paymentScenarioMemberToGuest => 'Payment to guest';
+
+  @override
+  String get paymentScenarioGuestToMember => 'Guest pays debt';
+
+  @override
+  String get paymentScenarioGuestToGuest => 'Guest to guest';
+
+  @override
+  String get pendingCardTitleCreditor => 'Awaiting your approval';
+
+  @override
+  String get pendingCardTitleDebtor => 'Awaiting recipient approval';
+
+  @override
+  String get pendingCardTitleAdmin => 'Admin action required';
+
+  @override
+  String get pendingCardTitleMixed => 'Pending payments';
+
+  @override
+  String get transferHintMemberToMember =>
+      'Debtor marks paid — creditor confirms';
+
+  @override
+  String get transferHintMemberToGuest =>
+      'Member pays — admin confirms guest received';
+
+  @override
+  String get transferHintGuestToMember =>
+      'Admin confirms guest paid — member confirms receipt';
+
+  @override
+  String get transferHintGuestToGuest =>
+      'Admin confirms transfer and receipt in one step';
+
+  @override
+  String pendingHintMemberPaid(String debtor, String creditor) {
+    return '$debtor paid $creditor — awaiting approval';
+  }
+
+  @override
+  String get pendingHintMemberToGuestDebtor =>
+      'You paid — waiting for admin to confirm guest received';
+
+  @override
+  String pendingHintMemberToGuestAdmin(String guest) {
+    return 'Member paid — confirm guest $guest received';
+  }
+
+  @override
+  String get pendingHintGuestToMemberCreditor =>
+      'Guest paid — confirm you received the money';
+
+  @override
+  String pendingHintGuestToMemberWaiting(String member) {
+    return 'Waiting for $member to confirm receipt';
+  }
+
+  @override
+  String get confirmReceipt => 'Confirm receipt';
+
+  @override
+  String get rejectPayment => 'Reject';
+
+  @override
+  String get confirmGuestReceived => 'Confirm guest received';
+
+  @override
+  String get confirmGuestTransfer => 'Confirm guest transfer';
+
+  @override
+  String markGuestPaidConfirmGuestToGuest(
+      String from, String to, String amount, String currency) {
+    return 'Mark guest $from paid $amount $currency to guest $to?';
+  }
+
+  @override
+  String markGuestPaidConfirmGuestToMember(
+      String from, String to, String amount, String currency) {
+    return 'Mark guest $from paid $amount $currency to $to? Recipient will confirm receipt.';
+  }
+
+  @override
   String get deleteGroup => 'Delete Group';
 
   @override

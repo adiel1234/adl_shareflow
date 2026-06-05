@@ -69,6 +69,7 @@ def get_settlement_plan(group_id, **kwargs):
                 'from_is_former_member': s.from_user_id not in active_member_ids,
                 'to_user_id': s.to_user_id,
                 'to_display_name': s.to_display_name,
+                'to_is_guest': all_users[s.to_user_id].is_guest if s.to_user_id in all_users else False,
                 'amount': str(s.amount),
                 'currency': s.currency,
                 'to_payment_phone': creditors[s.to_user_id].payment_phone if s.to_user_id in creditors else None,

@@ -61,6 +61,20 @@ def create_settlement(group_id, **kwargs):
     return success_response(data=settlement.to_dict(), status_code=201)
 
 
+def _can_confirm_settlement(settlement, user_id) -> bool:
+    """Creditor confirms receipt; admin confirms on behalf of guest creditor."""
+    if settlement.to_user_id == user_id:
+        return True
+    from app.models import User
+    to_user = db.session.get(User, settlement.to_user_id)
+    if to_user and to_user.is_guest:
+        member = GroupMember.query.filter_by(
+            group_id=settlement.group_id, user_id=user_id
+        ).first()
+        return member is not None and member.role == 'admin'
+    return False
+
+
 @settlements_bp.put('/settlements/<settlement_id>/confirm')
 @jwt_required()
 def confirm_settlement(settlement_id):
@@ -69,8 +83,8 @@ def confirm_settlement(settlement_id):
     if not settlement:
         return error_response('Settlement not found', 404)
 
-    if settlement.to_user_id != user_id:
-        return error_response('Only the recipient can confirm a settlement', 403)
+    if not _can_confirm_settlement(settlement, user_id):
+        return error_response('Only the recipient (or admin for guest) can confirm', 403)
     if settlement.status != 'pending':
         return error_response(f'Settlement is already {settlement.status}')
 
@@ -93,28 +107,51 @@ def confirm_settlement(settlement_id):
 @jwt_required()
 @require_group_member
 def list_pending_settlements(group_id, **kwargs):
-    """Return all pending settlements in this group that involve the current user."""
+    """Return pending settlements involving the user; admins also see guest-related ones."""
     user_id = get_jwt_identity()
-    settlements = Settlement.query.filter_by(
-        group_id=group_id,
-        status='pending',
-    ).filter(
-        (Settlement.from_user_id == user_id) | (Settlement.to_user_id == user_id)
-    ).order_by(Settlement.created_at.desc()).all()
-
     from app.models import User
+
+    member = GroupMember.query.filter_by(group_id=group_id, user_id=user_id).first()
+    is_admin = member is not None and member.role == 'admin'
+
+    base = Settlement.query.filter_by(group_id=group_id, status='pending')
+
+    if is_admin:
+        guest_ids = [
+            row[0] for row in db.session.query(User.id).filter(User.is_guest.is_(True)).all()
+        ]
+        if guest_ids:
+            settlements = base.filter(
+                (Settlement.from_user_id == user_id)
+                | (Settlement.to_user_id == user_id)
+                | Settlement.from_user_id.in_(guest_ids)
+                | Settlement.to_user_id.in_(guest_ids)
+            ).order_by(Settlement.created_at.desc()).all()
+        else:
+            settlements = base.filter(
+                (Settlement.from_user_id == user_id) | (Settlement.to_user_id == user_id)
+            ).order_by(Settlement.created_at.desc()).all()
+    else:
+        settlements = base.filter(
+            (Settlement.from_user_id == user_id) | (Settlement.to_user_id == user_id)
+        ).order_by(Settlement.created_at.desc()).all()
+
     user_map = {}
+    guest_map = {}
     for s in settlements:
         for uid in [s.from_user_id, s.to_user_id]:
             if uid not in user_map:
                 u = db.session.get(User, uid)
                 user_map[uid] = u.display_name if u else uid
+                guest_map[uid] = bool(u and u.is_guest)
 
     result = []
     for s in settlements:
         d = s.to_dict()
         d['from_display_name'] = user_map.get(s.from_user_id, s.from_user_id)
         d['to_display_name'] = user_map.get(s.to_user_id, s.to_user_id)
+        d['from_is_guest'] = guest_map.get(s.from_user_id, False)
+        d['to_is_guest'] = guest_map.get(s.to_user_id, False)
         result.append(d)
 
     return success_response(data={'settlements': result})
@@ -124,9 +161,12 @@ def list_pending_settlements(group_id, **kwargs):
 @jwt_required()
 @require_group_admin
 def mark_guest_paid(group_id, **kwargs):
-    """Admin directly marks a guest's debt as settled (no two-step confirmation needed)."""
+    """Admin confirms guest payment.
+
+    guest→member: pending (member must confirm receipt).
+    guest→guest: confirmed immediately (single admin action).
+    """
     from app.models import User
-    admin_id = get_jwt_identity()
     data = request.get_json(silent=True) or {}
 
     guest_user_id = data.get('guest_user_id')
@@ -137,6 +177,10 @@ def mark_guest_paid(group_id, **kwargs):
     guest = db.session.get(User, guest_user_id)
     if not guest or not guest.is_guest:
         return error_response('guest_user_id must belong to a guest member', 404)
+
+    to_user = db.session.get(User, to_user_id)
+    if not to_user:
+        return error_response('to_user_id not found', 404)
 
     # Allow marking as paid even after the guest has been removed from the group.
     # Verify the guest has history in this group (active member OR past expense/settlement data).
@@ -164,20 +208,33 @@ def mark_guest_paid(group_id, **kwargs):
         return error_response('amount must be a positive number')
 
     group = db.session.get(Group, group_id)
+    # guest→guest: one admin step closes debt; guest→member: member confirms receipt
+    is_guest_to_guest = to_user.is_guest
+    now = datetime.now(timezone.utc)
     settlement = Settlement(
         group_id=group_id,
         from_user_id=guest_user_id,
         to_user_id=to_user_id,
         amount=amount,
         currency=data.get('currency', group.base_currency),
-        status='confirmed',
-        confirmed_at=datetime.now(timezone.utc),
+        status='confirmed' if is_guest_to_guest else 'pending',
+        confirmed_at=now if is_guest_to_guest else None,
         notes=f'סומן ע"י מנהל בשם האורח {guest.display_name}',
     )
     db.session.add(settlement)
     db.session.commit()
 
-    return success_response(data=settlement.to_dict(), status_code=201)
+    if settlement.status == 'pending':
+        try:
+            from app.notifications.service import notify_settlement_requested
+            notify_settlement_requested(settlement, guest.display_name)
+        except Exception:
+            pass
+
+    d = settlement.to_dict()
+    d['from_is_guest'] = True
+    d['to_is_guest'] = to_user.is_guest
+    return success_response(data=d, status_code=201)
 
 
 @settlements_bp.put('/settlements/<settlement_id>/cancel')

@@ -11,6 +11,8 @@ import '../../../groups/domain/group_model.dart';
 import '../../../groups/domain/period_report_model.dart';
 import '../../../../providers/groups_provider.dart';
 import '../../domain/balance_model.dart';
+import '../../domain/payment_scenario.dart';
+import '../../domain/payment_scenario_labels.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/amount_display.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -257,8 +259,9 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen> {
                     padding: const EdgeInsets.only(bottom: 16),
                     child: _PendingSettlementsCard(
                       records: records,
-                      currentUserId: authState.userId,
+                      currentUserId: authState.userId ?? '',
                       groupId: widget.group.id,
+                      isAdmin: widget.group.isAdmin,
                     ),
                   );
                 },
@@ -532,24 +535,13 @@ class _DebtRow extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: debt.fromName,
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-                  ),
-                  const TextSpan(
-                    text: ' → ',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                  ),
-                  TextSpan(
-                    text: debt.toName,
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
+            child: Builder(builder: (ctx) {
+              final dl = AppLocalizations.of(ctx)!;
+              return Text(
+                dl.debtPaidTo(debt.fromName, debt.toName),
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              );
+            }),
           ),
           const SizedBox(width: 8),
           Text(
@@ -777,28 +769,43 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
 
   Future<void> _markGuestPaid(BuildContext context, SettlementSuggestion s) async {
     if (!mounted) return;
+    final dl = AppLocalizations.of(context)!;
+    final scenario = detectPaymentScenario(
+      fromIsGuest: s.fromIsGuest,
+      toIsGuest: s.toIsGuest,
+    );
+    final amountStr = s.amountDouble.round().toString();
+    final confirmBody = scenario == PaymentScenario.guestToGuest
+        ? dl.markGuestPaidConfirmGuestToGuest(
+            s.fromDisplayName,
+            s.toDisplayName,
+            amountStr,
+            s.currency,
+          )
+        : dl.markGuestPaidConfirmGuestToMember(
+            s.fromDisplayName,
+            s.toDisplayName,
+            amountStr,
+            s.currency,
+          );
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(ctx)!.markGuestPaid),
-        content: Text(
-          'סמן שהאורח ${s.fromDisplayName} שילם ${s.amountDouble.round()} ${s.currency} ל-${s.toDisplayName}?',
-        ),
+        title: Text(dl.confirmGuestTransfer),
+        content: Text(confirmBody),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text(AppLocalizations.of(ctx)!.cancel)),
+              child: Text(dl.cancel)),
           ElevatedButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('כן, שולם')),
+              child: Text(dl.confirmGuestTransfer)),
         ],
       ),
     );
     if (confirmed != true || !mounted) return;
     try {
       HapticFeedback.mediumImpact();
-      // Dedicated admin endpoint: creates a confirmed settlement directly
-      // on behalf of the guest — no two-step approval needed.
       final api = ApiClient.instance;
       await api.post('/groups/${widget.group.id}/settlements/mark-guest-paid', data: {
         'guest_user_id': s.fromUserId,
@@ -810,8 +817,11 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
       ref.invalidate(pendingSettlementsProvider(widget.group.id));
       ref.invalidate(balancesProvider(widget.group.id));
       ref.invalidate(settlementPlanProvider(widget.group.id));
+      final msg = scenario == PaymentScenario.guestToGuest
+          ? 'החוב נסגר'
+          : 'נשלח לאישור המקבל';
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('החוב סומן כשולם')),
+        SnackBar(content: Text(msg)),
       );
     } catch (e) {
       if (!mounted) return;
@@ -885,8 +895,13 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
           ...suggestions.map(
             (s) {
               final isMyDebt = s.fromUserId == currentUserId;
+              final scenario = detectPaymentScenario(
+                fromIsGuest: s.fromIsGuest,
+                toIsGuest: s.toIsGuest,
+              );
               final isGuestDebt = group.isAdmin && s.fromIsGuest;
               final isFormerMember = s.fromIsFormerMember && !s.fromIsGuest;
+              final amountStr = s.amountDouble.round().toString();
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -898,34 +913,71 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (group.isAdmin && scenario != PaymentScenario.memberToMember)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.purple.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            PaymentScenarioLabels.scenarioName(
+                              AppLocalizations.of(context)!,
+                              scenario,
+                            ),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.purple,
+                            ),
+                          ),
+                        ),
+                      ),
                     Builder(builder: (ctx) {
                       final dl = AppLocalizations.of(ctx)!;
-                      final text = dl.transferNeeded(
-                          s.fromDisplayName, s.toDisplayName);
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(text, style: const TextStyle(fontSize: 13)),
+                          Text(
+                            dl.debtOwesAmount(
+                              s.fromDisplayName,
+                              s.toDisplayName,
+                              amountStr,
+                              s.currency,
+                            ),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            PaymentScenarioLabels.transferHint(dl, scenario),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: headerColor.withOpacity(0.75),
+                            ),
+                          ),
                           if (isFormerMember) ...[
                             const SizedBox(height: 3),
-                            Builder(builder: (ctx2) {
-                              final dl2 = AppLocalizations.of(ctx2)!;
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade200,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  dl2.formerMember,
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.grey.shade600,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              );
-                            }),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                dl.formerMember,
+                                style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ),
                           ],
                         ],
                       );
@@ -933,24 +985,10 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: headerColor,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            '${s.amountDouble.round()} ${s.currency}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
                         const Spacer(),
-                        if (isMyDebt) ...[
+                        if (isMyDebt &&
+                            (scenario == PaymentScenario.memberToMember ||
+                                scenario == PaymentScenario.memberToGuest)) ...[
                           Builder(builder: (ctx) {
                             final dl = AppLocalizations.of(ctx)!;
                             return GestureDetector(
@@ -1026,7 +1064,7 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                AppLocalizations.of(context)!.markGuestPaid,
+                                AppLocalizations.of(context)!.confirmGuestTransfer,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
@@ -1066,11 +1104,13 @@ class _PendingSettlementsCard extends ConsumerWidget {
   final List<SettlementRecord> records;
   final String currentUserId;
   final String groupId;
+  final bool isAdmin;
 
   const _PendingSettlementsCard({
     required this.records,
     required this.currentUserId,
     required this.groupId,
+    required this.isAdmin,
   });
 
   Future<void> _approve(BuildContext context, WidgetRef ref,
@@ -1109,6 +1149,14 @@ class _PendingSettlementsCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final cardTitle = PaymentScenarioLabels.pendingCardTitle(
+      l,
+      records,
+      currentUserId: currentUserId,
+      isAdmin: isAdmin,
+    );
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1121,23 +1169,42 @@ class _PendingSettlementsCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(Icons.hourglass_top_rounded,
+            children: [
+              const Icon(Icons.hourglass_top_rounded,
                   color: Color(0xFFF59E0B), size: 18),
-              SizedBox(width: 8),
-              Text(
-                'ממתין לאישורך',
-                style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: Color(0xFFB45309)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  cardTitle,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: Color(0xFFB45309)),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 10),
           ...records.map((r) {
-            final isCreditor = r.toUserId == currentUserId;
-            final isDebtor = r.fromUserId == currentUserId;
+            final scenario = detectPaymentScenario(
+              fromIsGuest: r.fromIsGuest,
+              toIsGuest: r.toIsGuest,
+            );
+            final canCreditorApprove =
+                PaymentScenarioLabels.canCreditorApprove(r, currentUserId);
+            final canAdminGuest =
+                PaymentScenarioLabels.canAdminConfirmGuestReceipt(
+                    r, currentUserId, isAdmin);
+            final isDebtor =
+                PaymentScenarioLabels.isDebtorWaiting(r, currentUserId);
+            final amountStr = r.amountDouble.round().toString();
+            final hint = PaymentScenarioLabels.pendingHint(
+              l,
+              r,
+              currentUserId: currentUserId,
+              isAdmin: isAdmin,
+            );
+
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
               padding:
@@ -1151,28 +1218,43 @@ class _PendingSettlementsCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (isAdmin && scenario != PaymentScenario.memberToMember)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        PaymentScenarioLabels.scenarioName(l, scenario),
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF7C3AED),
+                        ),
+                      ),
+                    ),
                   Text(
-                    '${r.fromDisplayName} → ${r.toDisplayName}',
+                    l.debtOwesAmount(
+                      r.fromDisplayName,
+                      r.toDisplayName,
+                      amountStr,
+                      r.currency,
+                    ),
                     style: const TextStyle(
                         fontWeight: FontWeight.w600, fontSize: 13),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
-                    '${r.amountDouble.round()} ${r.currency}',
+                    hint,
                     style: const TextStyle(
-                        color: Color(0xFFB45309),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15),
+                        fontSize: 12, color: Color(0xFFB45309)),
                   ),
                   const SizedBox(height: 8),
-                  if (isCreditor)
+                  if (canCreditorApprove)
                     Row(
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () => _approve(context, ref, r),
                             icon: const Icon(Icons.check, size: 16),
-                            label: const Text('אשר קבלה'),
+                            label: Text(l.confirmReceipt),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF059669),
                               foregroundColor: Colors.white,
@@ -1188,7 +1270,32 @@ class _PendingSettlementsCard extends ConsumerWidget {
                             padding: const EdgeInsets.symmetric(
                                 vertical: 8, horizontal: 12),
                           ),
-                          child: const Text('דחה', style: TextStyle(fontSize: 13)),
+                          child: Text(l.rejectPayment,
+                              style: const TextStyle(fontSize: 13)),
+                        ),
+                      ],
+                    )
+                  else if (canAdminGuest)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _approve(context, ref, r),
+                            icon: const Icon(Icons.check, size: 16),
+                            label: Text(l.confirmGuestReceived),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.purple,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              textStyle: const TextStyle(fontSize: 13),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton(
+                          onPressed: () => _cancel(context, ref, r),
+                          child: Text(l.cancel,
+                              style: const TextStyle(fontSize: 13)),
                         ),
                       ],
                     )
@@ -1197,17 +1304,26 @@ class _PendingSettlementsCard extends ConsumerWidget {
                       children: [
                         const Icon(Icons.access_time_rounded,
                             size: 14, color: Color(0xFFF59E0B)),
-                        const SizedBox(width: 4),
-                        const Text(
-                          'ממתין לאישור המקבל',
-                          style: TextStyle(
-                              fontSize: 12, color: Color(0xFFB45309)),
-                        ),
                         const Spacer(),
                         TextButton(
                           onPressed: () => _cancel(context, ref, r),
-                          child: const Text('בטל',
-                              style: TextStyle(fontSize: 12)),
+                          child: Text(l.cancel,
+                              style: const TextStyle(fontSize: 12)),
+                        ),
+                      ],
+                    )
+                  else
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time_rounded,
+                            size: 14, color: Color(0xFFF59E0B)),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            hint,
+                            style: const TextStyle(
+                                fontSize: 12, color: Color(0xFFB45309)),
+                          ),
                         ),
                       ],
                     ),

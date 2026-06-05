@@ -1344,6 +1344,101 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
+  String debtOwesAmount(
+      String debtor, String creditor, String amount, String currency) {
+    return '$debtor חייב ל-$creditor $amount $currency';
+  }
+
+  @override
+  String debtPaidTo(String debtor, String creditor) {
+    return '$debtor שילם ל-$creditor';
+  }
+
+  @override
+  String get paymentScenarioMemberToMember => 'תשלום בין חברים';
+
+  @override
+  String get paymentScenarioMemberToGuest => 'תשלום לאורח';
+
+  @override
+  String get paymentScenarioGuestToMember => 'אורח משלם חוב';
+
+  @override
+  String get paymentScenarioGuestToGuest => 'תשלום אורח לאורח';
+
+  @override
+  String get pendingCardTitleCreditor => 'ממתין לאישורך';
+
+  @override
+  String get pendingCardTitleDebtor => 'ממתין לאישור המקבל';
+
+  @override
+  String get pendingCardTitleAdmin => 'נדרשת פעולת מנהל';
+
+  @override
+  String get pendingCardTitleMixed => 'תשלומים בהמתנה';
+
+  @override
+  String get transferHintMemberToMember => 'החייב מסמן «שילמתי» — המקבל מאשר';
+
+  @override
+  String get transferHintMemberToGuest => 'החבר משלם — המנהל מאשר שהאורח קיבל';
+
+  @override
+  String get transferHintGuestToMember =>
+      'המנהל מאשר שהאורח שילם — החבר מאשר קבלה';
+
+  @override
+  String get transferHintGuestToGuest => 'המנהל מאשר העברה וקבלה בפעולה אחת';
+
+  @override
+  String pendingHintMemberPaid(String debtor, String creditor) {
+    return '$debtor שילם ל-$creditor — ממתין לאישור';
+  }
+
+  @override
+  String get pendingHintMemberToGuestDebtor =>
+      'שילמת — ממתין לאישור מנהל שהאורח קיבל';
+
+  @override
+  String pendingHintMemberToGuestAdmin(String guest) {
+    return 'החבר שילם — אשר שהאורח $guest קיבל';
+  }
+
+  @override
+  String get pendingHintGuestToMemberCreditor =>
+      'האורח שילם — אשר שקיבלת את הכסף';
+
+  @override
+  String pendingHintGuestToMemberWaiting(String member) {
+    return 'ממתין לאישור $member שקיבל';
+  }
+
+  @override
+  String get confirmReceipt => 'אשר קבלה';
+
+  @override
+  String get rejectPayment => 'דחה';
+
+  @override
+  String get confirmGuestReceived => 'אשר קבלה לאורח';
+
+  @override
+  String get confirmGuestTransfer => 'אשר העברת אורח';
+
+  @override
+  String markGuestPaidConfirmGuestToGuest(
+      String from, String to, String amount, String currency) {
+    return 'סמן שהאורח $from שילם $amount $currency לאורח $to?';
+  }
+
+  @override
+  String markGuestPaidConfirmGuestToMember(
+      String from, String to, String amount, String currency) {
+    return 'סמן שהאורח $from שילם $amount $currency ל-$to? המקבל יאשר קבלה.';
+  }
+
+  @override
   String get deleteGroup => 'מחק קבוצה';
 
   @override

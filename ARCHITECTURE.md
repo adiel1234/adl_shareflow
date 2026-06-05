@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 5 יוני 2026 (תיקון `POST /expenses` — חלוקה שווה כשהלקוח שולח רק `user_id`; `books_balanced` בסיכום אירוע; גרסה 1.0.5+13)
+> עודכן לאחרונה: 5 יוני 2026 (4 תרחישי תשלום + תוויות עברית; `mark-guest-paid` דו-שלבי לאורח→חבר; גרסה 1.0.5+17)
 
 ---
 
@@ -448,7 +448,17 @@ flutter install --release
   - `POST /groups/<id>/guests` — הוסף אורח לקבוצה
   - `PUT /groups/<id>/guests/<guest_id>/link` — קשר אורח לחשבון קיים
   - `DELETE /groups/<id>/guests/<guest_id>` — הסר אורח
-- **Guest Settlement** (`settlements/routes.py`): endpoint חדש `POST /groups/<id>/settlements/mark-guest-paid` — מנהל מסמן חוב אורח כשולם ישירות (confirmed, ללא אישור).
+- **Guest Settlement** (`settlements/routes.py`): `POST /groups/<id>/settlements/mark-guest-paid` — מנהל מאשר תשלום אורח:
+  - **אורח→חבר**: יוצר `pending` — החבר (נושה) מאשר קבלה.
+  - **אורח→אורח**: יוצר `confirmed` מיד (פעולת מנהל אחת).
+- **4 תרחישי תשלום** (גרסה 1.0.5+17):
+  1. חבר→חבר: חייב «שילמתי» → נושה «אשר קבלה».
+  2. חבר→אורח: חייב «שילמתי» → מנהל «אשר קבלה לאורח».
+  3. אורח→חבר: מנהל «אשר העברת אורח» → נושה «אשר קבלה».
+  4. אורח→אורח: מנהל «אשר העברת אורח» (סגירה מיידית).
+- **`GET /groups/<id>/settlements/pending`**: מחזיר `from_is_guest` / `to_is_guest`; מנהל רואה גם תשלומים עם אורח.
+- **`PUT /settlements/<id>/confirm`**: נושה מאשר; מנהל יכול לאשר בשם אורח-נושה (תרחיש 2).
+- **`GET /groups/<id>/balances/settlements-plan`**: שדה `to_is_guest` נוסף לכל הצעה.
 - **Notification Routing** (`notifications/service.py`): התראות לאורחים מנותבות למנהל הקבוצה; האורח עצמו אינו מקבל push.
 - **DB Migration** (`480ff4d3679c`): נוסף `is_guest BOOLEAN NOT NULL DEFAULT false` ל-`users`.
 - **Download Page**: גרסה עודכנה ל-v1.0.2; `TESTFLIGHT_URL` + `APK_DOWNLOAD_URL` נקראים ממשתני סביבה.
