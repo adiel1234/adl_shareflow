@@ -59,8 +59,15 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
     }
   }
 
-  /// Shows a confirmation sheet with amount + phone, then opens the app
-  void _showAppLaunchConfirm(String appName, String phone, String scheme) {
+  /// Shows a confirmation sheet with amount + phone, then opens the app.
+  /// [launchUri] defaults to [scheme]:// — Bit uses plain `bit://` (no amount deep link).
+  void _showAppLaunchConfirm(
+    String appName,
+    String phone,
+    String scheme, {
+    Uri? launchUri,
+  }) {
+    final uri = launchUri ?? Uri(scheme: scheme);
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
@@ -99,6 +106,18 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                 ],
               ),
             ),
+            if (scheme == 'bit') ...[
+              const SizedBox(height: 10),
+              const Text(
+                'ביט לא מאפשר למלא סכום אוטומטית מאפליקציה אחרת. מומלץ להעתיק את הסכום לפני הפתיחה.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                  height: 1.35,
+                ),
+              ),
+            ],
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
@@ -131,7 +150,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                 ),
                 onPressed: () {
                   Navigator.pop(ctx);
-                  _launchUrl('$scheme://');
+                  _launchUrl(uri.toString());
                 },
                 child: Text('פתח $appName'),
               ),
@@ -142,8 +161,12 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
     );
   }
 
-  /// Opens Bit via confirmation sheet
-  void _openBit(String phone) => _showAppLaunchConfirm('Bit', phone, 'bit');
+  /// Bit accepts only `bit://` from third-party apps; amount/phone query params are ignored.
+  Uri get _bitLaunchUri => Uri(scheme: 'bit');
+
+  /// Opens Bit via confirmation sheet (amount shown for copy — not pre-filled in Bit).
+  void _openBit(String phone) =>
+      _showAppLaunchConfirm('Bit', phone, 'bit', launchUri: _bitLaunchUri);
 
   /// Opens PayBox via confirmation sheet.
   /// If a personal PayBox link is stored, opens it directly (Universal Link).
