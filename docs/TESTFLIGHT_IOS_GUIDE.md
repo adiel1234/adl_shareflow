@@ -6,7 +6,7 @@
 
 **המדריך המעוצב (HTML):** [`TESTFLIGHT_IOS_GUIDE.html`](TESTFLIGHT_IOS_GUIDE.html)
 
-שלחו את קובץ ה-HTML ב-WhatsApp / מייל, או העלו ל-Google Drive / iCloud ושתפו קישור. הקובץ עובד גם **offline** (ללא תלות ב-CDN).
+שלחו את קובץ ה-HTML ב-WhatsApp / מייל, או העלו ל-Google Drive / iCloud ושתפו קישור. הקובץ עובד גם **offline** (ללא תלות ב-CDN), ומותאם **למובייל** (iPhone) — כפתור CTA דביק, גופנים גדולים, עמודה אחת.
 
 ## לפני השיתוף — עדכון קישור TestFlight
 

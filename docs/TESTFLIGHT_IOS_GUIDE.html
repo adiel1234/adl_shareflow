@@ -8,81 +8,140 @@
   <meta property="og:title" content="ADL ShareFlow — התקנה ב-iPhone">
   <meta property="og:description" content="מדריך שלב-אחר-שלב להורדת ShareFlow דרך TestFlight. גרסת פיילוט — ADL Projects.">
   <meta property="og:type" content="website">
+  <meta property="og:locale" content="he_IL">
   <meta name="theme-color" content="#1E40AF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>
     :root {
       --primary: #1E40AF;
       --primary-dark: #1E3A8A;
+      --primary-soft: #DBEAFE;
       --secondary: #059669;
-      --bg: #F8FAFC;
+      --secondary-soft: #D1FAE5;
+      --bg: #F1F5F9;
       --surface: #FFFFFF;
       --text: #0F172A;
       --text-muted: #475569;
-      --text-light: #64748B;
+      --text-light: #94A3B8;
       --border: #E2E8F0;
-      --warning-bg: #FFFBEB;
-      --warning-border: #FCD34D;
-      --warning-text: #92400E;
-      --info-bg: #EFF6FF;
-      --info-border: #BFDBFE;
-      --radius: 16px;
-      --shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+      --radius-sm: 12px;
+      --radius: 20px;
+      --radius-lg: 28px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+      --shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 16px 48px rgba(30, 64, 175, 0.12);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --sticky-h: 76px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.65;
+      font-size: 17px;
+      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      padding-bottom: calc(var(--sticky-h) + var(--safe-bottom) + 24px);
     }
 
+    /* ── Hero ── */
     .hero {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      background: linear-gradient(160deg, var(--primary) 0%, #2563EB 45%, var(--secondary) 100%);
       color: #fff;
-      padding: 48px 24px 56px;
+      padding: calc(32px + var(--safe-top)) 20px 72px;
       text-align: center;
       position: relative;
       overflow: hidden;
     }
 
-    .hero::before {
+    .hero::before,
+    .hero::after {
       content: '';
       position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.12) 0%, transparent 50%),
-                  radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 40%);
+      border-radius: 50%;
       pointer-events: none;
     }
 
-    .hero-inner { position: relative; max-width: 520px; margin: 0 auto; }
+    .hero::before {
+      width: 280px;
+      height: 280px;
+      top: -80px;
+      left: -60px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .hero::after {
+      width: 200px;
+      height: 200px;
+      bottom: -40px;
+      right: -50px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .hero-inner {
+      position: relative;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .wordmark {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
 
     .logo-wrap {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-      background: rgba(255,255,255,0.18);
-      border-radius: 22px;
+      width: 64px;
+      height: 64px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      flex-shrink: 0;
     }
 
-    .hero h1 {
-      font-size: 1.75rem;
+    .brand-text {
+      text-align: right;
+    }
+
+    .brand-text .company {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+
+    .brand-text .product {
+      font-size: 1.5rem;
       font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
     }
 
     .hero .tagline {
-      font-size: 1rem;
+      font-size: 1.0625rem;
       opacity: 0.92;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      max-width: 340px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .badge-row {
@@ -96,85 +155,82 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255,255,255,0.2);
-      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.22);
       border-radius: 999px;
-      padding: 6px 14px;
+      padding: 8px 14px;
       font-size: 0.8125rem;
       font-weight: 600;
+      backdrop-filter: blur(4px);
     }
 
+    /* ── Layout ── */
     .container {
-      max-width: 560px;
-      margin: -28px auto 40px;
+      max-width: 520px;
+      margin: -44px auto 0;
       padding: 0 16px;
     }
 
-    .card {
+    /* ── Welcome card ── */
+    .welcome-card {
       background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 24px;
-      margin-bottom: 16px;
-      border: 1px solid var(--border);
-    }
-
-    .card h2 {
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: var(--primary-dark);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .card h2 .icon {
-      width: 28px;
-      height: 28px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      flex-shrink: 0;
-    }
-
-    .cta-box {
-      background: linear-gradient(135deg, #EFF6FF 0%, #ECFDF5 100%);
-      border: 2px solid var(--primary);
-      border-radius: var(--radius);
-      padding: 24px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 28px 24px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.8);
       text-align: center;
-      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .cta-box p { color: var(--text-muted); font-size: 0.9375rem; margin-bottom: 16px; }
+    .welcome-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .welcome-card h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .welcome-card p {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
 
     .btn-primary {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
       width: 100%;
-      max-width: 360px;
+      min-height: 56px;
       padding: 16px 24px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      background: linear-gradient(135deg, var(--primary) 0%, #2563EB 50%, var(--secondary) 100%);
       color: #fff;
       font-size: 1.0625rem;
       font-weight: 700;
       text-decoration: none;
-      border-radius: 14px;
+      border-radius: 16px;
       border: none;
       cursor: pointer;
-      box-shadow: 0 4px 16px rgba(30, 64, 175, 0.35);
-      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 6px 20px rgba(30, 64, 175, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .btn-primary:active {
-      transform: scale(0.98);
-      box-shadow: 0 2px 8px rgba(30, 64, 175, 0.25);
+      transform: scale(0.97);
+      box-shadow: 0 3px 12px rgba(30, 64, 175, 0.25);
     }
 
     .btn-secondary {
@@ -183,157 +239,476 @@
       justify-content: center;
       gap: 8px;
       width: 100%;
-      max-width: 360px;
-      margin-top: 10px;
+      min-height: 52px;
+      margin-top: 12px;
       padding: 14px 24px;
       background: var(--surface);
       color: var(--primary);
-      font-size: 0.9375rem;
+      font-size: 1rem;
       font-weight: 600;
       text-decoration: none;
-      border-radius: 14px;
+      border-radius: 16px;
       border: 2px solid var(--border);
+      transition: background 0.2s, border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .placeholder-note {
-      margin-top: 14px;
-      padding: 12px 16px;
-      background: var(--warning-bg);
-      border: 1px solid var(--warning-border);
-      border-radius: 12px;
+    .btn-secondary:active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+
+    /* ── Step cards ── */
+    .section-title {
       font-size: 0.8125rem;
-      color: var(--warning-text);
-      text-align: right;
-      line-height: 1.5;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-light);
+      margin: 28px 4px 12px;
     }
 
-    .steps { list-style: none; }
-
-    .step {
-      display: flex;
+    .step-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr;
       gap: 16px;
-      padding: 18px 0;
-      border-bottom: 1px solid var(--border);
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
     }
 
-    .step:last-child { border-bottom: none; padding-bottom: 0; }
-    .step:first-child { padding-top: 0; }
+    .step-card:active {
+      transform: scale(0.995);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
 
     .step-num {
       flex-shrink: 0;
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: #fff;
-      border-radius: 50%;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      font-size: 0.9375rem;
+      font-size: 1.0625rem;
+      box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
     }
 
     .step-body h3 {
-      font-size: 1rem;
+      font-size: 1.0625rem;
       font-weight: 700;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       color: var(--text);
+      line-height: 1.35;
     }
 
     .step-body p {
-      font-size: 0.875rem;
+      font-size: 1rem;
       color: var(--text-muted);
       line-height: 1.55;
     }
+
+    .step-body p + p { margin-top: 8px; }
 
     .step-body a {
       color: var(--primary);
       font-weight: 600;
       text-decoration: none;
-      border-bottom: 1px solid rgba(30, 64, 175, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 44px;
+      padding: 4px 0;
     }
 
+    .step-body a::after {
+      content: '←';
+      font-size: 0.875rem;
+      opacity: 0.7;
+    }
+
+    /* iOS-style mock illustration */
+    .mock-phone {
+      background: linear-gradient(180deg, #F8FAFC 0%, #EEF2FF 100%);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mock-phone::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48px;
+      height: 5px;
+      background: #CBD5E1;
+      border-radius: 999px;
+    }
+
+    .mock-screen {
+      margin-top: 14px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: var(--shadow-sm);
+      min-height: 72px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mock-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mock-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      flex-shrink: 0;
+    }
+
+    .mock-icon.blue { background: linear-gradient(135deg, #3B82F6, var(--primary)); }
+    .mock-icon.green { background: linear-gradient(135deg, #34D399, var(--secondary)); }
+    .mock-icon.purple { background: linear-gradient(135deg, #A78BFA, #7C3AED); }
+
+    .mock-lines { flex: 1; }
+
+    .mock-line {
+      height: 8px;
+      background: #E2E8F0;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    .mock-line.short { width: 55%; }
+    .mock-line.medium { width: 75%; }
+
+    .mock-btn {
+      align-self: flex-start;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 8px;
+      margin-top: 4px;
+    }
+
+    .mock-btn.green { background: var(--secondary); }
+
+    /* ── Tip ── */
     .tip {
       display: flex;
-      gap: 10px;
-      background: var(--info-bg);
-      border: 1px solid var(--info-border);
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-top: 16px;
-      font-size: 0.8125rem;
+      gap: 12px;
+      background: linear-gradient(135deg, var(--primary-soft), var(--secondary-soft));
+      border: 1px solid rgba(30, 64, 175, 0.12);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin: 20px 0;
+      font-size: 1rem;
       color: var(--primary-dark);
+      line-height: 1.5;
     }
 
-    .tip-icon { flex-shrink: 0; font-size: 1.125rem; }
-
-    .faq-item {
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
+    .tip-icon {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      background: #fff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.125rem;
+      box-shadow: var(--shadow-sm);
     }
 
-    .faq-item:last-child { border-bottom: none; padding-bottom: 0; }
+    /* ── FAQ accordion ── */
+    .faq-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
 
-    .faq-item h3 {
-      font-size: 0.9375rem;
+    .faq-card > h2 {
+      font-size: 1.125rem;
       font-weight: 700;
-      margin-bottom: 6px;
       color: var(--text);
+      padding: 20px 20px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .faq-item p {
-      font-size: 0.875rem;
+    .faq-card > h2 .icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary-soft), var(--secondary-soft));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    details.faq-item {
+      border-top: 1px solid var(--border);
+    }
+
+    details.faq-item summary {
+      list-style: none;
+      padding: 18px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 56px;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    details.faq-item summary::-webkit-details-marker { display: none; }
+
+    details.faq-item summary::after {
+      content: '+';
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      background: var(--bg);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 400;
       color: var(--text-muted);
+      transition: transform 0.2s, background 0.2s;
     }
 
+    details.faq-item[open] summary::after {
+      content: '−';
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    details.faq-item p {
+      padding: 0 20px 18px;
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* ── Contact ── */
     .contact-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      padding: 28px 24px;
       text-align: center;
+      margin-bottom: 20px;
     }
 
-    .contact-card p {
-      font-size: 0.875rem;
+    .contact-card h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .contact-card > p {
+      font-size: 1rem;
       color: var(--text-muted);
-      margin-bottom: 12px;
+      margin-bottom: 20px;
     }
 
     .contact-links {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      align-items: center;
+      gap: 10px;
     }
 
     .contact-links a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 14px 20px;
+      background: var(--bg);
       color: var(--primary);
       font-weight: 600;
+      font-size: 1rem;
       text-decoration: none;
-      font-size: 0.9375rem;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      transition: background 0.2s, border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
     }
 
+    .contact-links a:active {
+      background: var(--primary-soft);
+      border-color: rgba(30, 64, 175, 0.2);
+    }
+
+    /* ── Footer ── */
     footer {
       text-align: center;
-      padding: 24px 16px 40px;
+      padding: 8px 20px calc(20px + var(--safe-bottom));
       color: var(--text-light);
-      font-size: 0.8125rem;
+      font-size: 0.875rem;
     }
 
-    footer a { color: var(--primary); text-decoration: none; }
-
     footer .brand {
-      font-weight: 700;
+      font-weight: 800;
+      font-size: 1rem;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      font-size: 0.9375rem;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
-    @media (min-width: 480px) {
-      .hero { padding: 56px 32px 64px; }
-      .hero h1 { font-size: 2rem; }
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer p + p { margin-top: 4px; }
+
+    /* ── Admin note (collapsible, subtle) ── */
+    .admin-note {
+      margin-top: 20px;
+      border-top: 1px dashed var(--border);
+      padding-top: 16px;
+    }
+
+    .admin-note details summary {
+      list-style: none;
+      font-size: 0.8125rem;
+      color: var(--text-light);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .admin-note details summary::-webkit-details-marker { display: none; }
+
+    .admin-note details[open] summary { margin-bottom: 10px; }
+
+    .admin-note .admin-body {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      line-height: 1.55;
+      text-align: right;
+    }
+
+    .admin-note code {
+      font-size: 0.75rem;
+      background: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      word-break: break-all;
+    }
+
+    /* ── Sticky CTA (mobile) ── */
+    .sticky-cta {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 12px 16px calc(12px + var(--safe-bottom));
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -4px 24px rgba(15, 23, 42, 0.08);
+      transform: translateY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .sticky-cta.hidden {
+      transform: translateY(110%);
+    }
+
+    .sticky-cta .btn-primary {
+      font-size: 1rem;
+      min-height: 52px;
+      border-radius: 14px;
+    }
+
+    /* ── Desktop tweaks ── */
+    @media (min-width: 600px) {
+      body { padding-bottom: 40px; }
+
+      .hero { padding: calc(48px + var(--safe-top)) 32px 80px; }
+
+      .brand-text .product { font-size: 1.75rem; }
+
       .container { padding: 0 24px; }
-      .card { padding: 28px; }
+
+      .welcome-card,
+      .step-card,
+      .faq-card,
+      .contact-card { padding: 28px; }
+
+      .step-card {
+        grid-template-columns: 1fr 180px;
+        align-items: center;
+      }
+
+      .step-card .mock-phone { margin-top: 0; }
+
+      .sticky-cta { display: none; }
+
+      body { padding-bottom: 40px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      html { scroll-behavior: auto; }
     }
   </style>
 </head>
@@ -341,133 +716,231 @@
 
   <header class="hero">
     <div class="hero-inner">
-      <div class="logo-wrap" aria-hidden="true">
-        <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 28C12 22.4772 16.4772 18 22 18C27.5228 18 32 22.4772 32 28" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          <circle cx="22" cy="14" r="4" fill="white"/>
-          <path d="M8 32H36" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
-          <path d="M14 36L22 30L30 36" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
-        </svg>
+      <div class="wordmark">
+        <div class="logo-wrap" aria-hidden="true">
+          <svg width="36" height="36" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 28C12 22.4772 16.4772 18 22 18C27.5228 18 32 22.4772 32 28" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="22" cy="14" r="4" fill="white"/>
+            <path d="M8 32H36" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+            <path d="M14 36L22 30L30 36" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="company">ADL Projects</div>
+          <div class="product">ShareFlow</div>
+        </div>
       </div>
-      <h1>ADL ShareFlow</h1>
       <p class="tagline">שיתוף הוצאות קל ומהיר עם חברים ומשפחה</p>
       <div class="badge-row">
         <span class="badge">🍎 iPhone</span>
         <span class="badge">✈️ TestFlight</span>
-        <span class="badge">גרסה 1.0.5 (build 20)</span>
+        <span class="badge">1.0.5 · build 20</span>
       </div>
     </div>
   </header>
 
   <main class="container">
 
-    <section class="cta-box">
-      <p><strong>ברוכים הבאים לפיילוט!</strong><br>לחצו על הקישור כדי להצטרף ל-TestFlight ולהתקין את האפליקציה.</p>
-      <!-- עדכן את href למטה בקישור TestFlight האמיתי מ-App Store Connect -->
+    <section class="welcome-card" id="cta-section">
+      <h2>ברוכים הבאים לפיילוט!</h2>
+      <p>לחצו על הכפתור כדי להצטרף ל-TestFlight ולהתקין את האפליקציה על ה-iPhone.</p>
       <a class="btn-primary" id="testflight-link" href="[קישור TestFlight]">
-        ✈️ הצטרפות ל-TestFlight
+        <span aria-hidden="true">✈️</span>
+        הצטרפות ל-TestFlight
       </a>
       <a class="btn-secondary" href="https://adlshareflow-production.up.railway.app/download">
-        🌐 דף הורדה חלופי
+        <span aria-hidden="true">🌐</span>
+        דף הורדה חלופי
       </a>
-      <div class="placeholder-note" id="link-note">
-        ⚠️ <strong>למנהל הפיילוט:</strong> הקישור למעלה הוא placeholder. החלף את <code>href</code> בקישור ההזמנה מ-App Store Connect (Public Link) או עדכן <code>TESTFLIGHT_URL</code> ב-Railway — דף ההורדה החלופי יפנה אוטומטית.
+      <div class="admin-note" id="link-note">
+        <details>
+          <summary>⚙️ הערה למנהל הפיילוט</summary>
+          <div class="admin-body">
+            הקישור למעלה הוא placeholder. החליפו את <code>href</code> בקישור ההזמנה מ-App Store Connect (Public Link), או הגדירו <code>TESTFLIGHT_URL</code> ב-Railway — דף ההורדה החלופי יפנה אוטומטית.
+          </div>
+        </details>
       </div>
     </section>
 
-    <section class="card">
-      <h2><span class="icon">📋</span> שלבי ההתקנה</h2>
-      <ol class="steps">
-        <li class="step">
-          <span class="step-num">1</span>
-          <div class="step-body">
-            <h3>התקינו את TestFlight</h3>
-            <p>אם אין לכם את האפליקציה — הורידו אותה בחינם מ-App Store. חפשו <strong>TestFlight</strong> (מפתח: Apple).</p>
-            <p style="margin-top:6px"><a href="https://apps.apple.com/app/testflight/id899247664">פתיחה ב-App Store →</a></p>
-          </div>
-        </li>
-        <li class="step">
-          <span class="step-num">2</span>
-          <div class="step-body">
-            <h3>פתחו את קישור ההזמנה</h3>
-            <p>לחצו על כפתור <strong>«הצטרפות ל-TestFlight»</strong> למעלה — או על הקישור שקיבלתם ב-WhatsApp / במייל. הקישור ייפתח ב-Safari או יעביר ישירות ל-TestFlight.</p>
-          </div>
-        </li>
-        <li class="step">
-          <span class="step-num">3</span>
-          <div class="step-body">
-            <h3>קבלו את ההזמנה</h3>
-            <p>ב-TestFlight יופיע <strong>ADL ShareFlow</strong>. לחצו <strong>Accept</strong> / <strong>קבל</strong> כדי לאשר השתתפות בבדיקות.</p>
-          </div>
-        </li>
-        <li class="step">
-          <span class="step-num">4</span>
-          <div class="step-body">
-            <h3>התקינו את ShareFlow</h3>
-            <p>לחצו <strong>Install</strong> / <strong>התקן</strong>. ההתקנה דומה להתקנת אפליקציה רגילה — אין צורך «לסמוך על מפתח» כמו בגרסאות Enterprise.</p>
-          </div>
-        </li>
-        <li class="step">
-          <span class="step-num">5</span>
-          <div class="step-body">
-            <h3>פתחו והתחברו</h3>
-            <p>לאחר ההתקנה — פתחו את ShareFlow, הירשמו או התחברו, והצטרפו לקבוצה דרך קישור ההזמנה שקיבלתם.</p>
-          </div>
-        </li>
-        <li class="step">
-          <span class="step-num">6</span>
-          <div class="step-body">
-            <h3>עדכונים והתראות</h3>
-            <p>כשתשוחרר גרסה חדשה — TestFlight ישלח התראה. פתחו TestFlight → ShareFlow → <strong>Update</strong>. מומלץ לאפשר התראות Push גם ל-ShareFlow (הגדרות iOS → ShareFlow → התראות).</p>
-          </div>
-        </li>
-      </ol>
-      <div class="tip">
-        <span class="tip-icon">💡</span>
-        <span>שמרו את TestFlight במסך הבית — דרכה תקבלו עדכוני פיילוט עד לשחרור ב-App Store.</span>
+    <p class="section-title">שלבי ההתקנה</p>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num" aria-hidden="true">1</span>
+        <div class="step-body">
+          <h3>התקינו את TestFlight</h3>
+          <p>אם אין לכם את האפליקציה — הורידו אותה בחינם מ-App Store. חפשו <strong>TestFlight</strong> (מפתח: Apple).</p>
+          <p><a href="https://apps.apple.com/app/testflight/id899247664">פתיחה ב-App Store</a></p>
+        </div>
       </div>
-    </section>
+      <div class="mock-phone" aria-hidden="true">
+        <div class="mock-screen">
+          <div class="mock-row">
+            <div class="mock-icon blue"></div>
+            <div class="mock-lines">
+              <div class="mock-line medium"></div>
+              <div class="mock-line short"></div>
+            </div>
+          </div>
+          <span class="mock-btn">GET</span>
+        </div>
+      </div>
+    </article>
 
-    <section class="card">
-      <h2><span class="icon">🔧</span> פתרון בעיות</h2>
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num" aria-hidden="true">2</span>
+        <div class="step-body">
+          <h3>פתחו את קישור ההזמנה</h3>
+          <p>לחצו על <strong>«הצטרפות ל-TestFlight»</strong> — או על הקישור שקיבלתם ב-WhatsApp / במייל. הקישור ייפתח ב-Safari או יעביר ישירות ל-TestFlight.</p>
+        </div>
+      </div>
+      <div class="mock-phone" aria-hidden="true">
+        <div class="mock-screen">
+          <div class="mock-row">
+            <div class="mock-icon green"></div>
+            <div class="mock-lines">
+              <div class="mock-line medium"></div>
+              <div class="mock-line short"></div>
+            </div>
+          </div>
+          <span class="mock-btn green">Open</span>
+        </div>
+      </div>
+    </article>
 
-      <div class="faq-item">
-        <h3>«Processing» / «מעבד» — Build לא זמין</h3>
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num" aria-hidden="true">3</span>
+        <div class="step-body">
+          <h3>קבלו את ההזמנה</h3>
+          <p>ב-TestFlight יופיע <strong>ADL ShareFlow</strong>. לחצו <strong>Accept</strong> / <strong>קבל</strong> כדי לאשר השתתפות בבדיקות.</p>
+        </div>
+      </div>
+      <div class="mock-phone" aria-hidden="true">
+        <div class="mock-screen">
+          <div class="mock-row">
+            <div class="mock-icon purple"></div>
+            <div class="mock-lines">
+              <div class="mock-line medium"></div>
+              <div class="mock-line short"></div>
+            </div>
+          </div>
+          <span class="mock-btn">Accept</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num" aria-hidden="true">4</span>
+        <div class="step-body">
+          <h3>התקינו את ShareFlow</h3>
+          <p>לחצו <strong>Install</strong> / <strong>התקן</strong>. ההתקנה דומה להתקנת אפליקציה רגילה — אין צורך «לסמוך על מפתח» כמו בגרסאות Enterprise.</p>
+        </div>
+      </div>
+      <div class="mock-phone" aria-hidden="true">
+        <div class="mock-screen">
+          <div class="mock-row">
+            <div class="mock-icon green"></div>
+            <div class="mock-lines">
+              <div class="mock-line medium"></div>
+              <div class="mock-line short"></div>
+            </div>
+          </div>
+          <span class="mock-btn green">Install</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num" aria-hidden="true">5</span>
+        <div class="step-body">
+          <h3>פתחו והתחברו</h3>
+          <p>לאחר ההתקנה — פתחו את ShareFlow, הירשמו או התחברו, והצטרפו לקבוצה דרך קישור ההזמנה שקיבלתם.</p>
+        </div>
+      </div>
+      <div class="mock-phone" aria-hidden="true">
+        <div class="mock-screen" style="align-items:center;justify-content:center;min-height:80px;">
+          <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--secondary));"></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="step-card">
+      <div class="step-header">
+        <span class="step-num" aria-hidden="true">6</span>
+        <div class="step-body">
+          <h3>עדכונים והתראות</h3>
+          <p>כשתשוחרר גרסה חדשה — TestFlight ישלח התראה. פתחו TestFlight → ShareFlow → <strong>Update</strong>. מומלץ לאפשר התראות Push גם ל-ShareFlow.</p>
+        </div>
+      </div>
+      <div class="mock-phone" aria-hidden="true">
+        <div class="mock-screen">
+          <div class="mock-row">
+            <div class="mock-icon blue"></div>
+            <div class="mock-lines">
+              <div class="mock-line medium"></div>
+              <div class="mock-line short"></div>
+            </div>
+          </div>
+          <span class="mock-btn">Update</span>
+        </div>
+      </div>
+    </article>
+
+    <div class="tip">
+      <span class="tip-icon" aria-hidden="true">💡</span>
+      <span>שמרו את TestFlight במסך הבית — דרכה תקבלו עדכוני פיילוט עד לשחרור ב-App Store.</span>
+    </div>
+
+    <section class="faq-card">
+      <h2><span class="icon" aria-hidden="true">🔧</span> פתרון בעיות</h2>
+
+      <details class="faq-item">
+        <summary>«Processing» / «מעבד» — Build לא זמין</summary>
         <p>Apple מעבדת build חדש (לרוב 5–30 דקות, לפעמים עד שעה). חזרו לקישור מאוחר יותר. אם מופיע «Unable to Install» — ה-build עדיין לא מוכן.</p>
-      </div>
+      </details>
 
-      <div class="faq-item">
-        <h3>גרסה ישנה מותקנת</h3>
-        <p>פתחו TestFlight → ADL ShareFlow → בדקו אם יש כפתור <strong>Update</strong>. אם לא — משוך למטה לרענון. גרסת הפיילוט הנוכחית: <strong>1.0.5 build 20</strong>.</p>
-      </div>
+      <details class="faq-item">
+        <summary>גרסה ישנה מותקנת</summary>
+        <p>פתחו TestFlight → ADL ShareFlow → בדקו אם יש כפתור <strong>Update</strong>. אם לא — משכו למטה לרענון. גרסת הפיילוט הנוכחית: <strong>1.0.5 build 20</strong>.</p>
+      </details>
 
-      <div class="faq-item">
-        <h3>לא מגיעות התראות</h3>
+      <details class="faq-item">
+        <summary>לא מגיעות התראות</summary>
         <p>הגדרות → ShareFlow → התראות → אפשרו. גם ב-TestFlight: הגדרות → התראות. וודאו שמצב «לא להפריע» כבוי.</p>
-      </div>
+      </details>
 
-      <div class="faq-item">
-        <h3>הקישור לא נפתח / «הזמנה לא תקפה»</h3>
+      <details class="faq-item">
+        <summary>הקישור לא נפתח / «הזמנה לא תקפה»</summary>
         <p>ודאו שאתם ב-iPhone (לא Android). נסו להעתיק את הקישור ל-Safari. אם עדיין לא עובד — פנו לתמיכה (פרטים למטה).</p>
-      </div>
+      </details>
 
-      <div class="faq-item">
-        <h3>Build פג תוקף (Expired)</h3>
+      <details class="faq-item">
+        <summary>Build פג תוקף (Expired)</summary>
         <p>Builds של TestFlight תקפים ~90 יום. אם האפליקציה הפסיקה לעבוד — צרו קשר; נשחרר build חדש.</p>
-      </div>
+      </details>
 
-      <div class="faq-item">
-        <h3>אין מקום ב-iPhone</h3>
+      <details class="faq-item">
+        <summary>אין מקום ב-iPhone</summary>
         <p>ShareFlow דורשת ~50 MB. פנו מקום והתקינו מחדש דרך TestFlight.</p>
-      </div>
+      </details>
     </section>
 
-    <section class="card contact-card">
-      <h2 style="justify-content:center"><span class="icon">💬</span> צריכים עזרה?</h2>
+    <section class="contact-card">
+      <h2><span aria-hidden="true">💬</span> צריכים עזרה?</h2>
       <p>שאלות, תקלות או משוב על הפיילוט — נשמח לשמוע.</p>
       <div class="contact-links">
-        <a href="mailto:info@adlprojects.co.il?subject=ADL%20ShareFlow%20Support">📧 info@adlprojects.co.il</a>
-        <a href="https://adlprojects.co.il">🌐 adlprojects.co.il</a>
+        <a href="mailto:info@adlprojects.co.il?subject=ADL%20ShareFlow%20Support">
+          <span aria-hidden="true">📧</span>
+          info@adlprojects.co.il
+        </a>
+        <a href="https://adlprojects.co.il">
+          <span aria-hidden="true">🌐</span>
+          adlprojects.co.il
+        </a>
       </div>
     </section>
 
@@ -480,20 +953,51 @@
     <p style="margin-top:12px"><a href="https://adlshareflow-production.up.railway.app/privacy">מדיניות פרטיות</a></p>
   </footer>
 
+  <div class="sticky-cta" id="sticky-cta" aria-hidden="true">
+    <a class="btn-primary" id="sticky-testflight-link" href="[קישור TestFlight]">
+      <span aria-hidden="true">✈️</span>
+      הצטרפות ל-TestFlight
+    </a>
+  </div>
+
   <script>
     (function () {
-      var link = document.getElementById('testflight-link');
+      var links = [
+        document.getElementById('testflight-link'),
+        document.getElementById('sticky-testflight-link')
+      ];
       var note = document.getElementById('link-note');
-      var href = link.getAttribute('href');
+      var sticky = document.getElementById('sticky-cta');
+      var ctaSection = document.getElementById('cta-section');
+      var href = links[0].getAttribute('href');
       var isPlaceholder = !href || href.indexOf('[קישור') !== -1 || href.indexOf('placeholder') !== -1;
-      if (!isPlaceholder) {
-        note.style.display = 'none';
-        link.style.pointerEvents = 'auto';
-      } else {
-        link.addEventListener('click', function (e) {
+
+      function handleClick(e) {
+        if (isPlaceholder) {
           e.preventDefault();
           alert('קישור TestFlight עדיין לא עודכן.\n\nבקשו מהמנהל את קישור ההזמנה, או נסו:\nhttps://adlshareflow-production.up.railway.app/download');
-        });
+        }
+      }
+
+      links.forEach(function (link) {
+        link.addEventListener('click', handleClick);
+      });
+
+      if (!isPlaceholder) {
+        note.style.display = 'none';
+      }
+
+      if (sticky && ctaSection && 'IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            sticky.classList.toggle('hidden', entry.isIntersecting);
+            sticky.setAttribute('aria-hidden', entry.isIntersecting ? 'true' : 'false');
+          });
+        }, { threshold: 0.15 });
+        observer.observe(ctaSection);
+      } else if (sticky) {
+        sticky.classList.remove('hidden');
+        sticky.setAttribute('aria-hidden', 'false');
       }
     })();
   </script>
