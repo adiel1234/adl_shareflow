@@ -107,6 +107,18 @@ def confirm_settlement(settlement_id):
     return success_response(data=settlement.to_dict())
 
 
+def _guest_user_ids_in_group(group_id: str) -> list[str]:
+    """Guest member user IDs in this group (not all guests system-wide)."""
+    from app.models import User
+    rows = (
+        db.session.query(GroupMember.user_id)
+        .join(User, User.id == GroupMember.user_id)
+        .filter(GroupMember.group_id == group_id, User.is_guest.is_(True))
+        .all()
+    )
+    return [row[0] for row in rows]
+
+
 @settlements_bp.get('/groups/<group_id>/settlements/pending')
 @jwt_required()
 @require_group_member
@@ -120,25 +132,15 @@ def list_pending_settlements(group_id, **kwargs):
 
     base = Settlement.query.filter_by(group_id=group_id, status='pending')
 
+    involved = (
+        (Settlement.from_user_id == user_id) | (Settlement.to_user_id == user_id)
+    )
     if is_admin:
-        guest_ids = [
-            row[0] for row in db.session.query(User.id).filter(User.is_guest.is_(True)).all()
-        ]
+        guest_ids = _guest_user_ids_in_group(group_id)
         if guest_ids:
-            settlements = base.filter(
-                (Settlement.from_user_id == user_id)
-                | (Settlement.to_user_id == user_id)
-                | Settlement.from_user_id.in_(guest_ids)
-                | Settlement.to_user_id.in_(guest_ids)
-            ).order_by(Settlement.created_at.desc()).all()
-        else:
-            settlements = base.filter(
-                (Settlement.from_user_id == user_id) | (Settlement.to_user_id == user_id)
-            ).order_by(Settlement.created_at.desc()).all()
-    else:
-        settlements = base.filter(
-            (Settlement.from_user_id == user_id) | (Settlement.to_user_id == user_id)
-        ).order_by(Settlement.created_at.desc()).all()
+            involved = involved | Settlement.from_user_id.in_(guest_ids) | Settlement.to_user_id.in_(guest_ids)
+
+    settlements = base.filter(involved).order_by(Settlement.created_at.desc()).all()
 
     user_map = {}
     guest_map = {}
@@ -156,6 +158,10 @@ def list_pending_settlements(group_id, **kwargs):
         d['to_display_name'] = user_map.get(s.to_user_id, s.to_user_id)
         d['from_is_guest'] = guest_map.get(s.from_user_id, False)
         d['to_is_guest'] = guest_map.get(s.to_user_id, False)
+        d['can_confirm'] = _can_confirm_settlement(s, user_id)
+        d['is_creditor_confirm'] = (
+            s.to_user_id == user_id and not guest_map.get(s.to_user_id, False)
+        )
         result.append(d)
 
     return success_response(data={'settlements': result})

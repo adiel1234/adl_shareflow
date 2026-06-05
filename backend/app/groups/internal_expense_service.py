@@ -34,9 +34,11 @@ def _rebalance_equal_participants(expense: Expense, participant_ids: list[str]) 
     base_share = (amount / n).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
     last_share = amount - base_share * (n - 1)
 
-    for p in expense.participants:
-        db.session.delete(p)
+    ExpenseParticipant.query.filter_by(expense_id=expense.id).delete(
+        synchronize_session=False
+    )
     db.session.flush()
+    db.session.expire(expense, ['participants'])
 
     for i, uid in enumerate(participant_ids):
         share = base_share if i < n - 1 else last_share
@@ -83,7 +85,9 @@ def create_payment_expense(
     if split_among_group:
         member_ids = [
             m.user_id for m in
-            GroupMember.query.filter_by(group_id=group.id).all()
+            GroupMember.query.filter_by(group_id=group.id)
+            .order_by(GroupMember.joined_at.asc())
+            .all()
         ]
     else:
         member_ids = [payer_id]
@@ -92,6 +96,7 @@ def create_payment_expense(
         member_ids = [payer_id]
 
     _rebalance_equal_participants(expense, member_ids)
+    db.session.flush()
     return expense
 
 
@@ -116,3 +121,4 @@ def add_member_to_group_split_expenses(group_id: str, user_id: str) -> None:
 
         participant_ids.add(user_id)
         _rebalance_equal_participants(expense, sorted(participant_ids))
+        db.session.flush()

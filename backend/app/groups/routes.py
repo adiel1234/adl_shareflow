@@ -977,6 +977,11 @@ def add_guest_member(group_id, **kwargs):
 
     member = GroupMember(group_id=group_id, user_id=ghost_id, role='member')
     db.session.add(member)
+    db.session.flush()
+
+    from app.groups.internal_expense_service import add_member_to_group_split_expenses
+    add_member_to_group_split_expenses(group_id, ghost_id)
+
     db.session.commit()
 
     return success_response(data={

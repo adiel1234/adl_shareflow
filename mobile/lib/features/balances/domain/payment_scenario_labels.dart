@@ -83,7 +83,8 @@ class PaymentScenarioLabels {
   }
 
   static bool canCreditorApprove(SettlementRecord r, String currentUserId) =>
-      r.toUserId == currentUserId && !r.toIsGuest;
+      r.isCreditorConfirm ||
+      (r.toUserId == currentUserId && !r.toIsGuest);
 
   static bool canAdminConfirmGuestReceipt(
           SettlementRecord r, String currentUserId, bool isAdmin) =>

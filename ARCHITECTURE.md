@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 6 יוני 2026 (הוצאת הפעלה תמיד; תיקון אורח→חבר build 19)
+> עודכן לאחרונה: 6 יוני 2026 (חלוקת הפעלה מלאה; אישור קבלה נושה build 20)
 
 ---
 
@@ -432,7 +432,8 @@ flutter install --release
 - **`PUT /expenses/<id>`** (`expenses/routes.py`): כשהלקוח שולח `participants`, השרת מחליף את רשימת המשתתפים ומחלק שווה את `converted_amount` (כולל אורחים — `GroupMember` פעיל עם `is_guest`); ולידציה על סכום החלקים.
 - **`POST /groups/<id>/summary`** (`balances/routes.py`): שדות `books_balanced` / `books_warning` — מזהה חשבונות לא מאוזנים (חלקים שגויים או שני זכאים בלי חייבים).
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): מניעת כפילויות — אם כבר קיים pending לאותו אורח→נושה, מחזיר אותו במקום ליצור כפילות; תוכנית העברות (`calculate_settlement_plan`) מפחיתה סכומי pending כדי שלא יופיע חוב כפול ב-UI.
-- **`MonetizationService`** (`groups/monetization_service.py`): הוצאת מערכת (`ADL ShareFlow Service`) **תמיד** נוצרת בהפעלה/הארכה/חידוש/שדרוג — גם כש-`PAYMENTS_ENABLED=false` (פיילוט חינמי). `GroupPayment.amount=0` כשאין גבייה אמיתית; `split_among_group=true` מוסיף חברים חדשים להוצאה (`add_member_to_group_split_expenses`) בכל הצטרפות.
+- **`MonetizationService`** (`groups/monetization_service.py`): הוצאת מערכת (`ADL ShareFlow Service`) **תמיד** נוצרת בהפעלה/הארכה/חידוש/שדרוג — גם כש-`PAYMENTS_ENABLED=false` (פיילוט חינמי). `GroupPayment.amount=0` כשאין גבייה אמיתית; `split_among_group=true` מחלק שווה בין **כל** `GroupMember` פעילים בהפעלה; `add_member_to_group_split_expenses` מוסיף חברים/אורחים חדשים להוצאות מערכת (הצטרפות + `POST /groups/<id>/guests`).
+- **`GET /groups/<id>/settlements/pending`** (build 20): מחזיר `can_confirm` / `is_creditor_confirm`; אורחים מסוננים לפי קבוצה (לא גלובלי). אחרי `mark-guest-paid` באפליקציה — נושה (כולל מנהל=נושה) מקבל דיאלוג «אשר קבלה» מיד.
 
 ---
 
@@ -457,7 +458,7 @@ flutter install --release
   2. חבר→אורח: חייב «שילמתי» → מנהל «אשר קבלה לאורח».
   3. אורח→חבר: מנהל «אשר העברת אורח» → נושה «אשר קבלה».
   4. אורח→אורח: מנהל «אשר העברת אורח» (סגירה מיידית).
-- **`GET /groups/<id>/settlements/pending`**: מחזיר `from_is_guest` / `to_is_guest`; מנהל רואה גם תשלומים עם אורח.
+- **`GET /groups/<id>/settlements/pending`**: מחזיר `from_is_guest` / `to_is_guest` / `is_creditor_confirm`; מנהל רואה תשלומים עם אורחים **בקבוצה**.
 - **`PUT /settlements/<id>/confirm`**: נושה מאשר; מנהל יכול לאשר בשם אורח-נושה (תרחיש 2).
 - **`GET /groups/<id>/balances/settlements-plan`**: שדה `to_is_guest` נוסף לכל הצעה.
 - **Notification Routing** (`notifications/service.py`): התראות לאורחים מנותבות למנהל הקבוצה; האורח עצמו אינו מקבל push.

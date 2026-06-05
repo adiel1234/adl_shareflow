@@ -254,7 +254,13 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen> {
                   ref.watch(pendingSettlementsProvider(widget.group.id));
               return pendingAsync.when(
                 loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (e, _) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    AppLocalizations.of(context)!.errorLoadingBalances,
+                    style: const TextStyle(fontSize: 12, color: Colors.red),
+                  ),
+                ),
                 data: (records) {
                   if (records.isEmpty) return const SizedBox.shrink();
                   return Padding(
@@ -761,6 +767,58 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
     }
   }
 
+  Future<void> _confirmPendingReceipt(
+      BuildContext context, SettlementRecord r) async {
+    final l = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.confirmReceipt),
+        content: Text(
+          l.debtOwesAmount(
+            r.fromDisplayName,
+            r.toDisplayName,
+            r.amountDouble.round().toString(),
+            r.currency,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.confirmReceipt),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    HapticFeedback.mediumImpact();
+    try {
+      await BalanceRepository().approveSettlement(r.id);
+      ref.invalidate(pendingSettlementsProvider(widget.group.id));
+      ref.invalidate(balancesProvider(widget.group.id));
+      ref.invalidate(settlementPlanProvider(widget.group.id));
+      ref.invalidate(expensesProvider(widget.group.id));
+      await ref.read(pendingSettlementsProvider(widget.group.id).future);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('תשלום אושר בהצלחה ✓')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      String msg = 'שגיאה באישור התשלום';
+      if (e is DioException) {
+        msg = (e.response?.data?['message'] as String?) ?? msg;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
+  }
+
   void _shareGuestDebtWhatsApp(BuildContext context, SettlementSuggestion s) {
     final amount = s.amountDouble.round();
     final text =
@@ -806,6 +864,7 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
       ),
     );
     if (confirmed != true || !mounted) return;
+    final currentUserId = ref.read(authProvider).userId;
     try {
       HapticFeedback.mediumImpact();
       final api = ApiClient.instance;
@@ -819,11 +878,37 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
       ref.invalidate(pendingSettlementsProvider(widget.group.id));
       ref.invalidate(balancesProvider(widget.group.id));
       ref.invalidate(settlementPlanProvider(widget.group.id));
-      final msg = scenario == PaymentScenario.guestToGuest
-          ? 'החוב נסגר'
-          : 'נשלח לאישור המקבל';
+      if (scenario == PaymentScenario.guestToGuest) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('החוב נסגר')),
+        );
+        return;
+      }
+      final pending = await ref.read(
+        pendingSettlementsProvider(widget.group.id).future,
+      );
+      if (!mounted) return;
+      SettlementRecord? creditorRecord;
+      for (final r in pending) {
+        if (r.fromUserId == s.fromUserId &&
+            r.toUserId == s.toUserId &&
+            PaymentScenarioLabels.canCreditorApprove(r, currentUserId)) {
+          creditorRecord = r;
+          break;
+        }
+      }
+      if (creditorRecord != null) {
+        await _confirmPendingReceipt(context, creditorRecord);
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
+        SnackBar(
+          content: Text(
+            s.toUserId == currentUserId
+                ? 'אשר קבלה בכרטיס «ממתין לאישור» למטה'
+                : 'נשלח לאישור המקבל',
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;

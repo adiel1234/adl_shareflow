@@ -10,6 +10,8 @@ class SettlementRecord {
   final String amount;
   final String currency;
   final String status; // pending | confirmed | cancelled
+  final bool canConfirm;
+  final bool isCreditorConfirm;
 
   const SettlementRecord({
     required this.id,
@@ -22,6 +24,8 @@ class SettlementRecord {
     required this.amount,
     required this.currency,
     required this.status,
+    this.canConfirm = false,
+    this.isCreditorConfirm = false,
   });
 
   factory SettlementRecord.fromJson(Map<String, dynamic> j) => SettlementRecord(
@@ -32,9 +36,11 @@ class SettlementRecord {
         toUserId: j['to_user_id'] as String,
         toDisplayName: j['to_display_name'] as String? ?? '',
         toIsGuest: j['to_is_guest'] as bool? ?? false,
-        amount: j['amount'] as String,
+        amount: (j['amount'] ?? '0').toString(),
         currency: j['currency'] as String,
         status: j['status'] as String,
+        canConfirm: j['can_confirm'] as bool? ?? false,
+        isCreditorConfirm: j['is_creditor_confirm'] as bool? ?? false,
       );
 
   double get amountDouble => double.tryParse(amount) ?? 0;

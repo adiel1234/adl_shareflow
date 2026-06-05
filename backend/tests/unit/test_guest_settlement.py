@@ -36,6 +36,16 @@ class TestGuestSettlementPermissions:
         settlement.group_id = 'group-1'
         assert _can_confirm_settlement(settlement, 'member-2') is False
 
+    def test_creditor_confirm_flag_for_guest_to_member(self):
+        """Creditor (non-guest payee) should get is_creditor_confirm semantics."""
+        settlement = MagicMock()
+        settlement.to_user_id = 'member-1'
+        settlement.from_user_id = 'guest-1'
+        settlement.group_id = 'group-1'
+
+        assert _can_confirm_settlement(settlement, 'member-1') is True
+        assert settlement.to_user_id == 'member-1'
+
 
 class TestSettlementPlanPendingAdjustment:
     def test_pending_settlement_reduces_open_debt_in_plan(self):
