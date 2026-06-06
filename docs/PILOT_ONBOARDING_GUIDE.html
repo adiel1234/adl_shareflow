@@ -184,6 +184,18 @@
     }
     .info-card p:last-child { margin-bottom: 0; }
 
+    .link-notice {
+      background: var(--primary-soft);
+      border: 1px solid rgba(30, 64, 175, 0.15);
+      border-radius: 14px;
+      padding: 16px 18px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
     .free-banner {
       background: linear-gradient(135deg, var(--secondary-soft), var(--primary-soft));
       border: 1px solid rgba(5, 150, 105, 0.2);
@@ -304,13 +316,45 @@
     .btn-secondary:active { background: var(--primary-soft); border-color: var(--primary); }
     .btn-android:active { background: #A7F3D0; }
 
+    .platform-section {
+      margin-bottom: 28px;
+    }
+
+    .platform-header {
+      background: linear-gradient(135deg, var(--primary), #2563EB);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .platform-header.android {
+      background: linear-gradient(135deg, var(--secondary), #10B981);
+    }
+
+    .platform-header h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .platform-header p {
+      font-size: 0.9375rem;
+      opacity: 0.92;
+      line-height: 1.5;
+    }
+
     .section-title {
       font-size: 0.8125rem;
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: var(--text-light);
-      margin: 28px 4px 12px;
+      margin: 20px 4px 12px;
     }
 
     .step-card {
@@ -342,6 +386,11 @@
       box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
     }
 
+    .platform-section.android-steps .step-num {
+      background: linear-gradient(135deg, var(--secondary), #10B981);
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+    }
+
     .step-body h3 {
       font-size: 1.0625rem;
       font-weight: 700;
@@ -364,13 +413,82 @@
       text-decoration: none;
     }
 
+    .substeps {
+      list-style: none;
+      margin: 12px 0 0;
+      padding: 0;
+    }
+
+    .substeps li {
+      position: relative;
+      padding: 10px 14px 10px 0;
+      font-size: 0.96875rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .substeps li:last-child { border-bottom: none; }
+
+    .substeps li::before {
+      content: attr(data-step);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px; height: 24px;
+      background: var(--bg);
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    .screen-note {
+      display: flex;
+      gap: 10px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-top: 12px;
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .screen-note strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .screen-note .label {
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    .device-variant {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-top: 10px;
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .device-variant strong {
+      color: var(--text);
+      display: block;
+      margin-bottom: 4px;
+    }
+
     .wa-card {
       background: linear-gradient(135deg, #DCFCE7, #D1FAE5);
       border: 1px solid rgba(5, 150, 105, 0.25);
       border-radius: var(--radius);
       padding: 24px;
       margin-bottom: 20px;
-      text-align: center;
     }
 
     .wa-card h2 {
@@ -379,32 +497,46 @@
       margin-bottom: 8px;
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 10px;
     }
 
     .wa-card p {
       font-size: 1rem;
       color: var(--text-muted);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
+      line-height: 1.55;
     }
 
-    .btn-wa {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      width: 100%;
-      min-height: 52px;
-      padding: 14px 24px;
+    .wa-steps {
+      list-style: none;
+      margin: 16px 0 0;
+      padding: 0;
+    }
+
+    .wa-steps li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      font-size: 1rem;
+      color: var(--text);
+      line-height: 1.5;
+      border-bottom: 1px solid rgba(5, 150, 105, 0.15);
+    }
+
+    .wa-steps li:last-child { border-bottom: none; }
+
+    .wa-steps .wa-num {
+      flex-shrink: 0;
+      width: 32px; height: 32px;
       background: #25D366;
       color: #fff;
-      font-size: 1rem;
-      font-weight: 700;
-      text-decoration: none;
-      border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
-      -webkit-tap-highlight-color: transparent;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.875rem;
     }
 
     .tip {
@@ -565,34 +697,6 @@
     .sticky-cta.hidden { transform: translateY(110%); }
     .sticky-cta .btn-primary { font-size: 1rem; min-height: 52px; border-radius: 14px; }
 
-    .admin-note {
-      margin-top: 16px;
-      border-top: 1px dashed var(--border);
-      padding-top: 12px;
-    }
-
-    .admin-note details summary {
-      list-style: none;
-      font-size: 0.8125rem;
-      color: var(--text-light);
-      cursor: pointer;
-      text-align: center;
-      min-height: 40px;
-    }
-
-    .admin-note details summary::-webkit-details-marker { display: none; }
-
-    .admin-note .admin-body {
-      font-size: 0.8125rem;
-      color: var(--text-muted);
-      background: var(--bg);
-      border-radius: var(--radius-sm);
-      padding: 14px 16px;
-      line-height: 1.55;
-      text-align: right;
-      margin-top: 8px;
-    }
-
     @media (min-width: 600px) {
       body { padding-bottom: 40px; }
       .sticky-cta { display: none; }
@@ -636,15 +740,16 @@
     <section class="welcome-card" id="cta-section">
       <h2>ברוך הבא לפיילוט!</h2>
       <p>נבחרתם לקבוצת הבטא של <strong>ShareFlow</strong> מבית <strong>ADL Projects</strong>. תודה שאתם עוזרים לנו לבנות את האפליקציה הטובה ביותר לשיתוף הוצאות.</p>
-      <p>בחרו את המכשיר שלכם והתקינו את האפליקציה:</p>
+      <p>בחרו את המכשיר שלכם:</p>
       <div class="platform-tabs" role="tablist">
         <button class="platform-tab active" type="button" data-platform="ios" role="tab" aria-selected="true">🍎 iPhone</button>
         <button class="platform-tab" type="button" data-platform="android" role="tab" aria-selected="false">🤖 Android</button>
       </div>
       <div class="platform-panel active" id="panel-ios" role="tabpanel">
-        <a class="btn-primary" id="testflight-link" href="[קישור TestFlight]">
-          <span aria-hidden="true">✈️</span>
-          הצטרפות ל-TestFlight
+        <div class="link-notice">✈️ קישור ההזמנה ל-TestFlight יישלח אליכם בוואטסאפ</div>
+        <a class="btn-secondary" href="#ios-install">
+          <span aria-hidden="true">📖</span>
+          מדריך התקנה מלא ל-iPhone
         </a>
       </div>
       <div class="platform-panel" id="panel-android" role="tabpanel">
@@ -652,19 +757,10 @@
           <span aria-hidden="true">📥</span>
           הורדת APK ל-Android
         </a>
-      </div>
-      <a class="btn-secondary" href="https://adlshareflow-production.up.railway.app/download">
-        <span aria-hidden="true">🌐</span>
-        דף הורדה חלופי (שני המכשירים)
-      </a>
-      <div class="admin-note" id="link-note">
-        <details>
-          <summary>⚙️ הערה למנהל הפיילוט</summary>
-          <div class="admin-body">
-            עדכנו את קישור TestFlight ב-<code>href</code> או הגדירו <code>TESTFLIGHT_URL</code> ב-Railway.
-            ל-Android: הגדירו <code>APK_DOWNLOAD_URL</code> — דף <code>/download</code> יפנה אוטומטית.
-          </div>
-        </details>
+        <a class="btn-secondary" href="#android-install">
+          <span aria-hidden="true">📖</span>
+          מדריך התקנה מלא ל-Android
+        </a>
       </div>
     </section>
 
@@ -672,142 +768,375 @@
       <span class="icon" aria-hidden="true">🎁</span>
       <div>
         <h3>אין תשלום — הפיילוט חינמי לחלוטין</h3>
-        <p>גם אם האפליקציה מציגה מחירים או מסך הפעלה — <strong>אין חיוב</strong> בגרסת הפיילוט. התשלומים כבויים בשרת (<code>PAYMENTS_ENABLED=off</code>) ולא יגבו מכם כסף אמיתי. השתמשו באפליקציה בחופשיות.</p>
+        <p>גם אם האפליקציה מציגה מחירים או מסך הפעלה — <strong>אין חיוב</strong> בגרסת הפיילוט. לא יגבו מכם כסף אמיתי. השתמשו באפליקציה בחופשיות ושתפו איתנו משוב.</p>
       </div>
     </div>
 
-    <p class="section-title">התקנה — iPhone (TestFlight)</p>
-
-    <article class="step-card">
-      <div class="step-header">
-        <span class="step-num">1</span>
-        <div class="step-body">
-          <h3>התקינו TestFlight</h3>
-          <p>אם אין לכם — הורידו בחינם מ-App Store. חפשו <strong>TestFlight</strong> (מפתח: Apple).</p>
-          <p><a href="https://apps.apple.com/app/testflight/id899247664">פתיחה ב-App Store</a></p>
-        </div>
+    <!-- ═══════════════ iOS ═══════════════ -->
+    <section class="platform-section" id="ios-install">
+      <div class="platform-header">
+        <h2><span aria-hidden="true">🍎</span> התקנה ב-iPhone</h2>
+        <p>האפליקציה מגיעה דרך TestFlight — אפליקציית הבטא הרשמית של Apple. עקבו אחרי השלבים בדיוק.</p>
       </div>
-    </article>
 
-    <article class="step-card">
-      <div class="step-header">
-        <span class="step-num">2</span>
-        <div class="step-body">
-          <h3>פתחו את קישור ההזמנה</h3>
-          <p>לחצו <strong>«הצטרפות ל-TestFlight»</strong> למעלה — או על הקישור שקיבלתם ב-WhatsApp / במייל.</p>
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <h3>התקינו את אפליקציית TestFlight</h3>
+            <p>TestFlight היא אפליקציה חינמית של Apple שמאפשרת להתקין גרסאות בטא. בלי TestFlight לא ניתן להתקין את ShareFlow.</p>
+            <ol class="substeps">
+              <li data-step="א">פתחו את <strong>App Store</strong> (אייקון כחול עם חץ לבן)</li>
+              <li data-step="ב">בשורת החיפוש למעלה הקלידו: <strong>TestFlight</strong></li>
+              <li data-step="ג">בחרו את האפליקציה של <strong>Apple</strong> — אייקון מטוס כחול על רקע לבן</li>
+              <li data-step="ד">לחצו <strong>הורדה</strong> (או «קבל») — האפליקציה חינמית</li>
+              <li data-step="ה">המתינו לסיום ההורדה. אייקון TestFlight יופיע במסך הבית</li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> דף TestFlight ב-App Store עם כפתור «הורדה» או «פתח» (אם כבר מותקן).</span>
+            </div>
+            <p style="margin-top:12px"><a href="https://apps.apple.com/app/testflight/id899247664">פתיחה ישירה של TestFlight ב-App Store</a></p>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
 
-    <article class="step-card">
-      <div class="step-header">
-        <span class="step-num">3</span>
-        <div class="step-body">
-          <h3>קבלו והתקינו</h3>
-          <p>ב-TestFlight לחצו <strong>Accept</strong> / <strong>קבל</strong>, ואז <strong>Install</strong> / <strong>התקן</strong> ליד ADL ShareFlow.</p>
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <h3>קבלו את קישור ההזמנה</h3>
+            <p>קישור ההזמנה ל-TestFlight יישלח אליכם בוואטסאפ או במייל מהמארגן. שמרו את ההודעה — תצטרכו אותה.</p>
+            <ol class="substeps">
+              <li data-step="א">פתחו את ההודעה בוואטסאפ (או במייל)</li>
+              <li data-step="ב">מצאו את הקישור הכחול — לרוב מתחיל ב-<strong>testflight.apple.com</strong></li>
+              <li data-step="ג">לחצו <strong>פעם אחת</strong> על הקישור</li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> הדפדפן נפתח ומציג «Open in TestFlight» או «פתח ב-TestFlight».</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
 
-    <article class="step-card">
-      <div class="step-header">
-        <span class="step-num">4</span>
-        <div class="step-body">
-          <h3>התחברות והצטרפות</h3>
-          <p>פתחו את ShareFlow, הירשמו או התחברו, והצטרפו לקבוצה דרך קישור ההזמנה שקיבלתם.</p>
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <h3>פתחו את ההזמנה ב-TestFlight</h3>
+            <ol class="substeps">
+              <li data-step="א">לחצו <strong>Open in TestFlight</strong> / <strong>פתח ב-TestFlight</strong></li>
+              <li data-step="ב">אם נשאלתם — אשרו מעבר לאפליקציית TestFlight</li>
+              <li data-step="ג">במסך ההזמנה תראו את <strong>ADL ShareFlow</strong> עם לוגו האפליקציה</li>
+              <li data-step="ד">לחצו <strong>Accept</strong> / <strong>קבל</strong> כדי לאשר את ההשתתפות בבטא</li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> כרטיס ADL ShareFlow עם כפתור «קבל» ירוק. אחרי הלחיצה — כפתור «התקן».</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
 
-    <p class="section-title">התקנה — Android (APK)</p>
-
-    <article class="step-card">
-      <div class="step-header">
-        <span class="step-num">1</span>
-        <div class="step-body">
-          <h3>אפשרו התקנה ממקורות לא ידועים</h3>
-          <p>הגדרות → אבטחה / אפליקציות → אפשרו «התקנה ממקורות לא ידועים» לדפדפן או ל-Files (שם תורידו את הקובץ).</p>
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">4</span>
+          <div class="step-body">
+            <h3>התקינו את ShareFlow</h3>
+            <ol class="substeps">
+              <li data-step="א">לחצו <strong>Install</strong> / <strong>התקן</strong> ליד ADL ShareFlow</li>
+              <li data-step="ב">המתינו לסיום ההורדה — תראו פס התקדמות</li>
+              <li data-step="ג">כשמופיע <strong>Open</strong> / <strong>פתח</strong> — לחצו כדי להפעיל את האפליקציה</li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> פס התקדמות כחול, ואז כפתור «פתח». אייקון ShareFlow יתווסף למסך הבית.</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
 
-    <article class="step-card">
-      <div class="step-header">
-        <span class="step-num">2</span>
-        <div class="step-body">
-          <h3>הורידו את ה-APK</h3>
-          <p>לחצו <strong>«הורדת APK»</strong> למעלה, או פתחו:</p>
-          <p><a href="https://adlshareflow-production.up.railway.app/download">adlshareflow-production.up.railway.app/download</a></p>
-          <p>הדף יזהה Android ויפנה ישירות לקובץ ה-APK.</p>
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">5</span>
+          <div class="step-body">
+            <h3>הירשמו והתחברו</h3>
+            <ol class="substeps">
+              <li data-step="א">פתחו את <strong>ShareFlow</strong> מהמסך הבית או מ-TestFlight</li>
+              <li data-step="ב">במסך הראשון — הזינו את כתובת המייל והגדירו סיסמה (או התחברו אם כבר נרשמתם)</li>
+              <li data-step="ג">אשרו את תנאי השימוש אם מתבקשים</li>
+              <li data-step="ד">לאחר ההתחברות תגיעו למסך הבית של האפליקציה</li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> מסך כניסה עם שדות מייל וסיסמה, ואז רשימת קבוצות (ריקה בהתחלה).</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
 
-    <article class="step-card">
-      <div class="step-header">
-        <span class="step-num">3</span>
-        <div class="step-body">
-          <h3>התקינו את הקובץ</h3>
-          <p>פתחו את קובץ ה-<strong>.apk</strong> מההורדות → לחצו <strong>התקן</strong>. אם מופיעה אזהרת אבטחה — אשרו (זו גרסת פיילוט חתומה על ידנו).</p>
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">6</span>
+          <div class="step-body">
+            <h3>הצטרפו לקבוצה</h3>
+            <p>קיבלתם קישור הזמנה נפרד לקבוצה? פתחו אותו מהוואטסאפ — האפליקציה תיפתח ותצטרפו אוטומטית.</p>
+            <ol class="substeps">
+              <li data-step="א">לחצו על קישור ההזמנה לקבוצה שקיבלתם</li>
+              <li data-step="ב">ShareFlow תיפתח ותציג «הצטרפת לקבוצה»</li>
+              <li data-step="ג">תראו את שם הקבוצה ברשימת הקבוצות שלכם</li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> הודעת אישור הצטרפות, ואז הקבוצה מופיעה ברשימה.</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
 
-    <article class="step-card">
-      <div class="step-header">
-        <span class="step-num">4</span>
-        <div class="step-body">
-          <h3>פתחו והתחברו</h3>
-          <p>לאחר ההתקנה — פתחו ShareFlow, הירשמו והצטרפו לקבוצה דרך קישור ההזמנה.</p>
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">7</span>
+          <div class="step-body">
+            <h3>עדכונים עתידיים</h3>
+            <p>כשתשוחרר גרסה חדשה, TestFlight ישלח התראה. אין צורך להוריד מחדש — רק לעדכן.</p>
+            <ol class="substeps">
+              <li data-step="א">פתחו את <strong>TestFlight</strong> כשמגיעה התראה על עדכון</li>
+              <li data-step="ב">לחצו <strong>Update</strong> / <strong>עדכן</strong> ליד ADL ShareFlow</li>
+              <li data-step="ג">המתינו לסיום — ואז פתחו את ShareFlow כרגיל</li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> כפתור «עדכן» כתום ליד האפליקציה ב-TestFlight. מומלץ לשמור את TestFlight במסך הבית.</span>
+            </div>
+          </div>
         </div>
+      </article>
+    </section>
+
+    <!-- ═══════════════ Android ═══════════════ -->
+    <section class="platform-section android-steps" id="android-install">
+      <div class="platform-header android">
+        <h2><span aria-hidden="true">🤖</span> התקנה ב-Android</h2>
+        <p>האפליקציה מותקנת מקובץ APK — קובץ התקנה מחוץ לחנות Google Play. זה תקין לגרסת פיילוט.</p>
       </div>
-    </article>
+
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <h3>מה זה APK?</h3>
+            <p><strong>APK</strong> הוא קובץ התקנה לאנדרואיד — בדומה לתוכנית שמותקנת מחוץ לחנות. בגרסת הפיילוט אנחנו מפיצים את ShareFlow כקובץ APK שתורידו ישירות מהדפדפן.</p>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> לאחר ההורדה — קובץ בשם ShareFlow.apk (או דומה) בתיקיית ההורדות.</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <h3>אפשרו התקנה ממקורות לא ידועים</h3>
+            <p>אנדרואיד דורש אישור מיוחד להתקנת אפליקציות מחוץ לחנות. צריך לאשר את זה <strong>לדפדפן שבו תורידו</strong> (Chrome) או ל<strong>אפליקציית הקבצים</strong> (Files).</p>
+
+            <div class="device-variant">
+              <strong>📱 Samsung (גלקסי)</strong>
+              הגדרות → אפליקציות → תפריט (⋮) למעלה → <strong>הגנה מיוחדת על האפליקציות</strong> → <strong>התקנה ממקורות לא ידועים</strong> → בחרו <strong>Chrome</strong> (או Samsung Internet) → הפעילו את המתג
+            </div>
+
+            <div class="device-variant">
+              <strong>📱 Xiaomi / Redmi</strong>
+              הגדרות → <strong>הגדרות נוספות</strong> → <strong>פרטיות</strong> → <strong>התקנה מאפליקציות לא מוכרות</strong> → בחרו <strong>Chrome</strong> → אפשרו
+            </div>
+
+            <div class="device-variant">
+              <strong>📱 Google Pixel</strong>
+              הגדרות → <strong>אבטחה ופרטיות</strong> → <strong>הפעלה של אפליקציות לא ידועות</strong> → <strong>Chrome</strong> → אפשרו
+            </div>
+
+            <div class="device-variant">
+              <strong>📱 מכשירים אחרים</strong>
+              הגדרות → <strong>אבטחה</strong> (או אפליקציות) → חפשו «מקורות לא ידועים» / «Unknown sources» → אפשרו ל-<strong>Chrome</strong> או <strong>Files</strong>
+            </div>
+
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> מתג (Toggle) שצריך להפעיל ליד שם הדפדפן. בחלק מהמכשירים תתבקשו לאשר פעם אחת בלבד.</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <h3>הורידו את קובץ ה-APK</h3>
+            <ol class="substeps">
+              <li data-step="א">גללו למעלה ולחצו <strong>«הורדת APK ל-Android»</strong> (בלשונית Android)</li>
+              <li data-step="ב">או פתחו בדפדפן Chrome את הקישור:</li>
+            </ol>
+            <p><a href="https://adlshareflow-production.up.railway.app/download">adlshareflow-production.up.railway.app/download</a></p>
+            <ol class="substeps">
+              <li data-step="ג">הדף יזהה שאתם ב-Android ויתחיל הורדה אוטומטית</li>
+              <li data-step="ד">אם מופיעה שאלה «להוריד את הקובץ?» — לחצו <strong>הורדה</strong> / <strong>OK</strong></li>
+              <li data-step="ה">המתינו לסיום — תראו סמל הורדה בשורת ההתראות למעלה</li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> פס הורדה בשורת ההתראות. בסיום — הודעה «ההורדה הושלמה» עם אפשרות «פתח».</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">4</span>
+          <div class="step-body">
+            <h3>פתחו את קובץ ההורדות</h3>
+            <ol class="substeps">
+              <li data-step="א">משכו את שורת ההתראות מלמעלה — לחצו על ההודעה «ההורדה הושלמה»</li>
+              <li data-step="ב">או פתחו את אפליקציית <strong>Files</strong> / <strong>הורדות</strong> → תיקיית <strong>Download</strong></li>
+              <li data-step="ג">מצאו את הקובץ <strong>ShareFlow.apk</strong> (או שם דומה)</li>
+              <li data-step="ד">לחצו <strong>פעם אחת</strong> על הקובץ</li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> חלון «האם להתקין את האפליקציה?» עם כפתור «התקן».</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">5</span>
+          <div class="step-body">
+            <h3>אשרו והתקינו</h3>
+            <ol class="substeps">
+              <li data-step="א">לחצו <strong>התקן</strong> / <strong>Install</strong></li>
+              <li data-step="ב">אם מופיעה אזהרת אבטחה — זה נורמלי לפיילוט. לחצו <strong>המשך בכל זאת</strong> / <strong>Install anyway</strong></li>
+              <li data-step="ג">אם מתבקשים לאשר «מקורות לא ידועים» — אשרו (ראו שלב 2)</li>
+              <li data-step="ד">המתינו לסיום — תראו «האפליקציה הותקנה»</li>
+              <li data-step="ה">לחצו <strong>פתח</strong> / <strong>Open</strong></li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> פס התקדמות, ואז כפתור «פתח». אייקון ShareFlow יתווסף למסך הבית.</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">6</span>
+          <div class="step-body">
+            <h3>הירשמו, התחברו והצטרפו לקבוצה</h3>
+            <ol class="substeps">
+              <li data-step="א">פתחו את <strong>ShareFlow</strong> מהמסך הבית</li>
+              <li data-step="ב">הזינו מייל וסיסמה (או התחברו אם כבר נרשמתם)</li>
+              <li data-step="ג">לחצו על קישור ההזמנה לקבוצה שקיבלתם בוואטסאפ</li>
+              <li data-step="ד">האפליקציה תיפתח ותצטרפו לקבוצה אוטומטית</li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> מסך כניסה, ואז רשימת קבוצות עם הקבוצה שלכם.</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="step-card">
+        <div class="step-header">
+          <span class="step-num">7</span>
+          <div class="step-body">
+            <h3>עדכונים עתידיים</h3>
+            <p>בניגוד ל-iPhone, ב-Android צריך להוריד APK חדש בכל עדכון. נודיע בקבוצת הוואטסאפ כשתשוחרר גרסה חדשה.</p>
+            <ol class="substeps">
+              <li data-step="א">פתחו שוב את <a href="https://adlshareflow-production.up.railway.app/download">דף ההורדה</a></li>
+              <li data-step="ב">הורידו את ה-APK החדש</li>
+              <li data-step="ג">התקינו מעל הגרסה הקיימת — הנתונים שלכם נשמרים</li>
+            </ol>
+            <div class="screen-note">
+              <span class="label" aria-hidden="true">👀</span>
+              <span><strong>מה תראו על המסך:</strong> הודעה «לעדכן אפליקציה קיימת?» — לחצו «התקן».</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
 
     <div class="tip">
       <span class="tip-icon" aria-hidden="true">💡</span>
-      <span>ב-iPhone — שמרו את TestFlight במסך הבית לעדכונים. ב-Android — כשתשוחרר גרסה חדשה, הורידו APK מחדש מאותו דף.</span>
+      <span>נתקעתם? צלמו מסך של השלב שבו אתם תקועים ושלחו בקבוצת הוואטסאפ או בוואטסאפ לצוות — נעזור לכם צעד-אחר-צעד.</span>
     </div>
 
     <section class="wa-card" id="whatsapp">
       <h2><span aria-hidden="true">💬</span> קבוצת WhatsApp של הפיילוט</h2>
-      <p>שתפו איתנו רושם, רעיונות, באגים ומשוב — הקבוצה היא המקום המרכזי לתקשורת עם צוות ADL.</p>
-      <a class="btn-wa" id="wa-link" href="[קישור קבוצת WhatsApp]">
-        <span aria-hidden="true">📱</span>
-        הצטרפות לקבוצת WhatsApp
-      </a>
+      <p>הקבוצה היא המקום המרכזי לשאלות, משוב, רושם ובאגים. כולם מוזמנים!</p>
+      <p><strong>קישור ההזמנה לקבוצה יישלח אליכם בהודעה אישית מהמארגן.</strong> אין צורך לחפש קישור — הוא יגיע אליכם.</p>
+      <p>כך מצטרפים לקבוצה:</p>
+      <ol class="wa-steps">
+        <li>
+          <span class="wa-num">1</span>
+          <span>פתחו את ההודעה בוואטסאפ שקיבלתם מהמארגן</span>
+        </li>
+        <li>
+          <span class="wa-num">2</span>
+          <span>לחצו על <strong>קישור ההזמנה</strong> לקבוצה (קישור כחול)</span>
+        </li>
+        <li>
+          <span class="wa-num">3</span>
+          <span>ייפתח WhatsApp עם מסך הקבוצה — לחצו <strong>«פתיחה ב-WhatsApp»</strong> אם מתבקשים</span>
+        </li>
+        <li>
+          <span class="wa-num">4</span>
+          <span>לחצו <strong>«הצטרפות לקבוצה»</strong> / <strong>Join group</strong></span>
+        </li>
+        <li>
+          <span class="wa-num">5</span>
+          <span>ברוכים הבאים! כתבו הודעת הצגה קצרה 😊</span>
+        </li>
+      </ol>
     </section>
 
     <section class="faq-card">
-      <h2><span aria-hidden="true">🔧</span> שאלות נפוצות</h2>
+      <h2><span aria-hidden="true">❓</span> שאלות נפוצות</h2>
 
       <details class="faq-item">
         <summary>האם אשלם משהו?</summary>
-        <p>לא. הפיילוט חינמי. מסכי מחיר או הפעלה באפליקציה אינם גובים תשלום אמיתי.</p>
+        <p>לא. הפיילוט חינמי לחלוטין. מסכי מחיר או הפעלה באפליקציה אינם גובים תשלום אמיתי.</p>
       </details>
 
       <details class="faq-item">
-        <summary>iPhone: «Processing» / Build לא זמין</summary>
-        <p>Apple מעבדת build חדש (5–30 דקות, לפעמים עד שעה). חזרו לקישור מאוחר יותר.</p>
+        <summary>iPhone: מופיע «Processing» או שה-build לא זמין</summary>
+        <p>Apple מעבדת גרסה חדשה — זה לוקח בין 5 ל-30 דקות, ולפעמים עד שעה. חזרו לקישור ההזמנה מאוחר יותר.</p>
       </details>
 
       <details class="faq-item">
-        <summary>Android: «חסום להתקנה»</summary>
-        <p>ודאו שאפשרתם התקנה ממקורות לא ידועים. נסו להוריד שוב מדף <code>/download</code>.</p>
+        <summary>Android: «חסום להתקנה» או «לא ניתן להתקין»</summary>
+        <p>ודאו שאפשרתם «מקורות לא ידועים» לדפדפן Chrome (ראו שלב 2). נסו להוריד שוב מדף ההורדה.</p>
       </details>
 
       <details class="faq-item">
-        <summary>גרסה ישנה מותקנת</summary>
-        <p>iPhone: TestFlight → Update. Android: הורידו APK חדש. גרסה נוכחית: <strong>1.0.5 build 22</strong>.</p>
+        <summary>גרסה ישנה מותקנת — איך מעדכנים?</summary>
+        <p>iPhone: פתחו TestFlight → לחצו «עדכן». Android: הורידו APK חדש מדף ההורדה. גרסה נוכחית: <strong>1.0.5 build 22</strong>.</p>
       </details>
 
       <details class="faq-item">
-        <summary>לא מגיעות התראות</summary>
-        <p>הגדרות המכשיר → ShareFlow → התראות → אפשרו. ב-iPhone גם ב-TestFlight.</p>
+        <summary>לא מגיעות התראות מהאפליקציה</summary>
+        <p>הגדרות המכשיר → ShareFlow → התראות → אפשרו הכל. ב-iPhone כדאי לאשר גם התראות מ-TestFlight.</p>
       </details>
 
       <details class="faq-item">
         <summary>איך מדווחים על באג?</summary>
-        <p>בקבוצת WhatsApp או במייל לתמיכה — תארו מה עשיתם, מה ציפיתם ומה קרה. צילום מסך עוזר מאוד.</p>
+        <p>בקבוצת WhatsApp, בוואטסאפ לצוות, או במייל — תארו מה עשיתם, מה ציפיתם ומה קרה. צילום מסך עוזר מאוד.</p>
       </details>
     </section>
 
@@ -815,6 +1144,10 @@
       <h2>צריכים עזרה?</h2>
       <p>שאלות, תקלות או משוב — נשמח לשמוע.</p>
       <div class="contact-links">
+        <a href="tel:+972529459158">
+          <span aria-hidden="true">📞</span>
+          052-9459158
+        </a>
         <a href="mailto:info@adlprojects.co.il?subject=ADL%20ShareFlow%20Pilot">
           <span aria-hidden="true">📧</span>
           info@adlprojects.co.il
@@ -835,9 +1168,9 @@
   </footer>
 
   <div class="sticky-cta" id="sticky-cta">
-    <a class="btn-primary" id="sticky-cta-link" href="[קישור TestFlight]">
-      <span aria-hidden="true">✈️</span>
-      התקנת ShareFlow
+    <a class="btn-primary" id="sticky-cta-link" href="#ios-install">
+      <span aria-hidden="true">📖</span>
+      מדריך התקנה
     </a>
   </div>
 
@@ -848,12 +1181,10 @@
         ios: document.getElementById('panel-ios'),
         android: document.getElementById('panel-android')
       };
-      var tfLink = document.getElementById('testflight-link');
       var apkLink = document.getElementById('apk-link');
       var stickyLink = document.getElementById('sticky-cta-link');
       var sticky = document.getElementById('sticky-cta');
       var ctaSection = document.getElementById('cta-section');
-      var note = document.getElementById('link-note');
       var currentPlatform = 'ios';
 
       function setPlatform(p) {
@@ -871,8 +1202,8 @@
             stickyLink.href = apkLink.href;
             stickyLink.innerHTML = '<span aria-hidden="true">📥</span> הורדת APK';
           } else {
-            stickyLink.href = tfLink.href;
-            stickyLink.innerHTML = '<span aria-hidden="true">✈️</span> הצטרפות ל-TestFlight';
+            stickyLink.href = '#ios-install';
+            stickyLink.innerHTML = '<span aria-hidden="true">📖</span> מדריך התקנה';
           }
         }
       }
@@ -882,32 +1213,6 @@
           setPlatform(tab.getAttribute('data-platform'));
         });
       });
-
-      var tfHref = tfLink.getAttribute('href');
-      var isTfPlaceholder = !tfHref || tfHref.indexOf('[קישור') !== -1;
-
-      function handleTfClick(e) {
-        if (isTfPlaceholder) {
-          e.preventDefault();
-          alert('קישור TestFlight עדיין לא עודכן.\n\nנסו:\nhttps://adlshareflow-production.up.railway.app/download');
-        }
-      }
-
-      tfLink.addEventListener('click', handleTfClick);
-      stickyLink.addEventListener('click', function (e) {
-        if (currentPlatform === 'ios') handleTfClick(e);
-      });
-
-      var waLink = document.getElementById('wa-link');
-      waLink.addEventListener('click', function (e) {
-        var href = waLink.getAttribute('href');
-        if (!href || href.indexOf('[קישור') !== -1) {
-          e.preventDefault();
-          alert('קישור קבוצת WhatsApp יתווסף בקרוב.\n\nבינתיים: info@adlprojects.co.il');
-        }
-      });
-
-      if (!isTfPlaceholder && note) note.style.display = 'none';
 
       if (sticky && ctaSection && 'IntersectionObserver' in window) {
         var observer = new IntersectionObserver(function (entries) {
