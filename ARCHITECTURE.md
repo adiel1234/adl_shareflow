@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 6 יוני 2026 (פישוט UX תשלומים build 22; מדריך אונבורדינג מאוחד iOS+Android)
+> עודכן לאחרונה: 6 יוני 2026 (נתיב ציבורי `/pilot` למדריך אונבורדינג פיילוט)
 
 ---
 
@@ -45,7 +45,7 @@
 
 **מפת מוצרים, env, ניקוי Railway ותוכנית פירוד:** [`docs/ADL_PRODUCTS.md`](docs/ADL_PRODUCTS.md)  
 **יום 2 — בדיקות פיילוט ו-15–20 משתתפים:** [`docs/PILOT_DAY2.md`](docs/PILOT_DAY2.md)  
-**מדריך אונבורדינג פיילוט (iOS + Android):** [`docs/PILOT_ONBOARDING_GUIDE.html`](docs/PILOT_ONBOARDING_GUIDE.html) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)  
+**מדריך אונבורדינג פיילוט (iOS + Android):** https://adlshareflow-production.up.railway.app/pilot · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)  
 **מדריך iOS (legacy):** [`docs/TESTFLIGHT_IOS_GUIDE.html`](docs/TESTFLIGHT_IOS_GUIDE.html)
 
 שלושה פרויקטים נפרדים ב-Railway:
@@ -66,7 +66,7 @@
                          ▼
 ┌──────────────────── ADL ShareFlow ──────────────────┐
 │  backend/ Flask API  ·  PostgreSQL ShareFlow        │
-│  /api/*  ·  /download  ·  /api/adl/*                │
+│  /api/*  ·  /download  ·  /pilot  ·  /api/adl/*     │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -127,7 +127,7 @@
 | `ocr/` | סריקת קבלות | POST /ocr/scan |
 | `currency/` | שערי חליפין | GET /currency/rates |
 | `dashboard/` | ADL Admin API | GET /dashboard/stats, /monetization |
-| `download/` | דפי הורדה + join | GET /download, /join/<code>, /api/deferred-link |
+| `download/` | דפי הורדה + join + פיילוט | GET /download, /pilot, /privacy, /join/<code>, /api/deferred-link |
 | `scheduler.py` | משימות אוטומטיות | תזכורות שעתיות + בדיקת פקיעה יומית |
 
 **קובץ הגדרות:** `/backend/.env` (לא ב-git)
@@ -297,7 +297,7 @@ flutter install --release
 4. App Store Connect → TestFlight → Build חדש מופיע אוטומטית
 ```
 
-**מדריך למשתמשי פיילוט:** [`docs/PILOT_ONBOARDING_GUIDE.html`](docs/PILOT_ONBOARDING_GUIDE.html) — iOS (TestFlight) + Android (APK), RTL, מיתוג ADL, offline. עדכן קישורי TestFlight / WhatsApp / `APK_DOWNLOAD_URL` ב-Railway.
+**מדריך למשתמשי פיילוט:** https://adlshareflow-production.up.railway.app/pilot — iOS (TestFlight) + Android (APK), RTL, מיתוג ADL. מקור: `backend/app/static/pilot_onboarding.html` (סנכרן מ-`docs/PILOT_ONBOARDING_GUIDE.html`). עדכן קישורי TestFlight / WhatsApp / `APK_DOWNLOAD_URL` ב-Railway.
 
 ---
 

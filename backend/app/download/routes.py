@@ -4,7 +4,8 @@ Handles smart OS detection for app download, web-based invite links,
 and the deferred-link fallback used by the Flutter app on first launch.
 """
 import os
-from flask import Blueprint, request, redirect, render_template_string
+from pathlib import Path
+from flask import Blueprint, request, redirect, render_template_string, send_from_directory
 
 download_bp = Blueprint('download', __name__)
 
@@ -116,6 +117,15 @@ def deferred_link():
     This endpoint returns None when no server-side deferred link is available.
     """
     return {'invite_code': None}
+
+
+_STATIC_DIR = Path(__file__).resolve().parent.parent / 'static'
+
+
+@download_bp.get('/pilot')
+def pilot_onboarding():
+    """Public pilot onboarding guide — shareable URL for beta testers."""
+    return send_from_directory(_STATIC_DIR, 'pilot_onboarding.html', mimetype='text/html; charset=utf-8')
 
 
 @download_bp.get('/privacy')

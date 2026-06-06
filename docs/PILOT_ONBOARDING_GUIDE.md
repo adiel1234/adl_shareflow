@@ -2,16 +2,19 @@
 
 > **גרסת פיילוט:** 1.0.5 build 22 · **ADL Projects**
 
-## קובץ לשיתוף
+## קישור לשיתוף (מומלץ)
 
-**המדריך המעוצב (HTML):** [`PILOT_ONBOARDING_GUIDE.html`](PILOT_ONBOARDING_GUIDE.html)
+**מדריך פיילוט ציבורי:** https://adlshareflow-production.up.railway.app/pilot
 
-שלחו את קובץ ה-HTML ב-WhatsApp / מייל, או העלו ל-Google Drive / iCloud ושתפו קישור. הקובץ עובד **offline** (CSS מוטמע), מותאם **למובייל**, כולל iOS + Android, כפתורים גדולים ו-FAQ מתקפל.
+שלחו את הקישור ב-WhatsApp / מייל / SMS — נפתח ישירות בדפדפן, מותאם **למובייל**, כולל iOS + Android, כפתורים גדולים ו-FAQ מתקפל.
+
+**מקור HTML (לעריכה):** [`PILOT_ONBOARDING_GUIDE.html`](PILOT_ONBOARDING_GUIDE.html) → מסונכרן ל-`backend/app/static/pilot_onboarding.html` בפריסה.
 
 ## קישורים מוכנים
 
 | מה | קישור |
 |-----|--------|
+| **מדריך פיילוט (דף ציבורי)** | https://adlshareflow-production.up.railway.app/pilot |
 | **קבוצת WhatsApp** | https://chat.whatsapp.com/CsLnZVcopXJ83gmhadew9I?s=sh&p=i&mlu=3 |
 | **שם הקבוצה** | פיילוט אפליקציה - ADL Shareflow |
 | **הורדת האפליקציה** | https://adlshareflow-production.up.railway.app/download |
@@ -58,8 +61,8 @@ https://adlshareflow-production.up.railway.app/download
 💬 הצטרפות לקבוצת הוואטסאפ:
 https://chat.whatsapp.com/CsLnZVcopXJ83gmhadew9I?s=sh&p=i&mlu=3
 
-📖 מדריך מפורט (אופציונלי):
-שלחו את קובץ PILOT_ONBOARDING_GUIDE.html
+📖 מדריך מפורט:
+https://adlshareflow-production.up.railway.app/pilot
 
 ❓ שאלות? צלמו מסך ושלחו כאן בקבוצה.
 📧 ADLProjects2025@gmail.com
@@ -74,6 +77,7 @@ https://chat.whatsapp.com/CsLnZVcopXJ83gmhadew9I?s=sh&p=i&mlu=3
 
 | קישור | ערך |
 |--------|------|
+| **מדריך פיילוט** | https://adlshareflow-production.up.railway.app/pilot |
 | **WhatsApp** | https://chat.whatsapp.com/CsLnZVcopXJ83gmhadew9I?s=sh&p=i&mlu=3 |
 | **דף הורדה** | https://adlshareflow-production.up.railway.app/download |
 | **TestFlight (חנות)** | https://apps.apple.com/app/testflight/id899247664 |
