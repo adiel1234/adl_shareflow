@@ -1050,7 +1050,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wizardNext => 'Next';
 
   @override
-  String get wizardBack => 'Back';
+  String get wizardBack => 'Previous';
+
+  @override
+  String wizardStepOf(int current, int total) {
+    return 'Step $current of $total';
+  }
 
   @override
   String get shareGuestDebtWhatsApp => 'Share reminder via WhatsApp';

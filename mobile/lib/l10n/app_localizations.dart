@@ -2051,14 +2051,20 @@ abstract class AppLocalizations {
   /// No description provided for @wizardNext.
   ///
   /// In he, this message translates to:
-  /// **'המשך'**
+  /// **'הבא'**
   String get wizardNext;
 
   /// No description provided for @wizardBack.
   ///
   /// In he, this message translates to:
-  /// **'חזרה'**
+  /// **'הקודם'**
   String get wizardBack;
+
+  /// No description provided for @wizardStepOf.
+  ///
+  /// In he, this message translates to:
+  /// **'שלב {current} מתוך {total}'**
+  String wizardStepOf(int current, int total);
 
   /// No description provided for @shareGuestDebtWhatsApp.
   ///

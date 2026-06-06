@@ -1040,10 +1040,15 @@ class AppLocalizationsHe extends AppLocalizations {
   String get unsettledDebtsWarning => 'עדיין יש חובות פתוחים. לסגור בכל זאת?';
 
   @override
-  String get wizardNext => 'המשך';
+  String get wizardNext => 'הבא';
 
   @override
-  String get wizardBack => 'חזרה';
+  String get wizardBack => 'הקודם';
+
+  @override
+  String wizardStepOf(int current, int total) {
+    return 'שלב $current מתוך $total';
+  }
 
   @override
   String get shareGuestDebtWhatsApp => 'שתף תזכורת ב-WhatsApp';

@@ -390,7 +390,14 @@
   "closeGroupAfterSummary": "Close group",
   "unsettledDebtsWarning": "There are still open debts. Close anyway?",
   "wizardNext": "Next",
-  "wizardBack": "Back",
+  "wizardBack": "Previous",
+  "wizardStepOf": "Step {current} of {total}",
+  "@wizardStepOf": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
   "shareGuestDebtWhatsApp": "Share reminder via WhatsApp",
   "bankDetailsCopied": "Bank details copied",
   "bankLabel": "Bank",

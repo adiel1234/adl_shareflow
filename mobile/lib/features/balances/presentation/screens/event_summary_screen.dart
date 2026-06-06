@@ -227,6 +227,100 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
     );
   }
 
+  Widget _buildBottomBar(AppLocalizations l) {
+    const totalSteps = 3;
+    final displayStep = _loading ? 0 : _wizardStep;
+
+    return SafeArea(
+      top: false,
+      child: Material(
+        color: AppColors.surface,
+        elevation: 4,
+        shadowColor: Colors.black26,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l.wizardStepOf(displayStep + 1, totalSteps),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_error != null)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                    ),
+                    onPressed: () => setState(() {
+                      _error = null;
+                      _loading = true;
+                      _load();
+                    }),
+                    child: Text(l.tryAgain),
+                  ),
+                )
+              else
+                Row(
+                  children: [
+                    if (displayStep > 0) ...[
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(0, 52),
+                          ),
+                          onPressed: _loading
+                              ? null
+                              : () => setState(() => _wizardStep--),
+                          child: Text(l.wizardBack),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                    ],
+                    Expanded(
+                      child: displayStep < 2
+                          ? ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(0, 52),
+                              ),
+                              onPressed: _loading
+                                  ? null
+                                  : () => setState(() => _wizardStep++),
+                              child: Text(l.wizardNext),
+                            )
+                          : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(0, 52),
+                              ),
+                              onPressed:
+                                  _closing || _loading ? null : _closeGroup,
+                              child: _closing
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Text(l.closeGroupAfterSummary),
+                            ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -242,50 +336,23 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text(_error!,
-                  style: const TextStyle(color: AppColors.textSecondary)))
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(color: AppColors.textSecondary),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
               : Column(
                   children: [
                     _wizardBar(l),
                     Expanded(child: _buildContent()),
                   ],
                 ),
-      bottomNavigationBar: _loading || _error != null
-          ? null
-          : SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    if (_wizardStep > 0)
-                      TextButton(
-                        onPressed: () =>
-                            setState(() => _wizardStep--),
-                        child: Text(l.wizardBack),
-                      ),
-                    const Spacer(),
-                    if (_wizardStep < 2)
-                      ElevatedButton(
-                        onPressed: () =>
-                            setState(() => _wizardStep++),
-                        child: Text(l.wizardNext),
-                      )
-                    else
-                      ElevatedButton(
-                        onPressed: _closing ? null : _closeGroup,
-                        child: _closing
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.white),
-                              )
-                            : Text(l.closeGroupAfterSummary),
-                      ),
-                  ],
-                ),
-              ),
-            ),
+      bottomNavigationBar: _buildBottomBar(l),
     );
   }
 

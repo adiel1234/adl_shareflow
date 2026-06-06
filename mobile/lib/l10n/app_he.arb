@@ -389,8 +389,15 @@
   "wizardStepClose": "סגירה",
   "closeGroupAfterSummary": "סגור את הקבוצה",
   "unsettledDebtsWarning": "עדיין יש חובות פתוחים. לסגור בכל זאת?",
-  "wizardNext": "המשך",
-  "wizardBack": "חזרה",
+  "wizardNext": "הבא",
+  "wizardBack": "הקודם",
+  "wizardStepOf": "שלב {current} מתוך {total}",
+  "@wizardStepOf": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
   "shareGuestDebtWhatsApp": "שתף תזכורת ב-WhatsApp",
   "bankDetailsCopied": "פרטי הבנק הועתקו",
   "bankLabel": "בנק",
