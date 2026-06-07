@@ -21,8 +21,11 @@ class FeedbackService {
             audioFocus: AndroidAudioFocus.gainTransientMayDuck,
           ),
           iOS: AudioContextIOS(
-            category: AVAudioSessionCategory.ambient,
-            options: {AVAudioSessionOptions.mixWithOthers},
+            category: AVAudioSessionCategory.playback,
+            options: {
+              AVAudioSessionOptions.mixWithOthers,
+              AVAudioSessionOptions.duckOthers,
+            },
           ),
         ),
       );

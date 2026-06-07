@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 7 יוני 2026 (build 24: סיכום WhatsApp + שיפורי התראות — צליל, דיאלוג בלחיצה, פורמט סיכום אירוע)
+> עודכן לאחרונה: 7 יוני 2026 (תיקון תקיעת סיכום אירוע + צליל push — FCM אסינכרוני, APNs/Android sound)
 
 ---
 
@@ -447,7 +447,8 @@ flutter install --release
 ### Flutter (Mobile)
 - **FCM Real-Time Refresh**: `FcmService.setDataChangeCallback` + `_invalidateForGroup` ב-`main.dart` — כשמגיעה התראה FCM ב-foreground, מתבצע `ref.invalidate` על `expensesProvider` / `balancesProvider` / `pendingSettlementsProvider` / `settlementPlanProvider` / `notificationsProvider` לפי סוג ההתראה.
 - **FCM Tap → Dialog** (build 24): `FcmService.setNotificationTapCallback` + `notification_detail_dialog.dart` — לחיצה על push פותחת דיאלוג עם טקסט מלא וכפתור «סגור»; payload FCM כולל `title`/`body` ב-`data`.
-- **Notification Sound** (build 24): `FeedbackService.notification()` + `assets/sounds/notification.wav` — צליל בהגעת התראה ב-foreground; `playSound` בערוץ Android ו-`presentSound` ב-iOS.
+- **Notification Sound** (build 24+): `FeedbackService.notification()` + `assets/sounds/notification.wav` — צליל ב-foreground; `fcm_service.dart` מציג local notification תמיד (גם כש-iOS מסיר `message.notification`); `FeedbackService` משתמש ב-`playback` ב-iOS.
+- **FCM Sound Payload** (build 25 fix): `fcm_service.py` — `apns.Aps(sound='default')` + `AndroidNotification(sound='default', channel_id='shareflow_default')` לצליל ב-background.
 - **Event Summary Notifications** (build 24): גוף התראה רב-שורתי (`סה"כ` / `משתתפים` / `עלות ממוצעת`) ב-`notifications/service.py`; רשימת in-app מציגה `event_summary` במלואו.
 - **Guest Member UI**: תג סגול "אורח" + avatar סגול + כפתורי 🔗 ו-🗑️ ברשימת חברים; Banner למנהל; Sheet "קשר אורח לחשבון"; "שולם" סגול ביתרות.
 - **Close Buttons**: נוסף `IconButton(Icons.close)` ל-`_InviteSheet` ו-`_JoinGroupSheet` כדי לאפשר יציאה מפורשת מ-modal bottom sheets.
@@ -470,6 +471,7 @@ flutter install --release
 - **`PUT /settlements/<id>/confirm`**: נושה מאשר; מנהל יכול לאשר בשם אורח-נושה (תרחיש 2).
 - **`GET /groups/<id>/balances/settlements-plan`**: שדה `to_is_guest` נוסף לכל הצעה.
 - **Notification Routing** (`notifications/service.py`): התראות לאורחים מנותבות למנהל הקבוצה; האורח עצמו אינו מקבל push.
+- **FCM Async Dispatch** (build 25 fix): `notifications/fcm_service.py` — `send_to_user` / `send_to_users` רצים ב-thread נפרד; `POST /groups/<id>/summary` עם `send_app=true` לא נחסם על שליחת Firebase.
 - **DB Migration** (`480ff4d3679c`): נוסף `is_guest BOOLEAN NOT NULL DEFAULT false` ל-`users`.
 - **Download Page**: גרסה עודכנה ל-v1.0.2; `TESTFLIGHT_URL` + `APK_DOWNLOAD_URL` נקראים ממשתני סביבה.
 

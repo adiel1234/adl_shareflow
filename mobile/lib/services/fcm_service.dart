@@ -162,10 +162,10 @@ class FcmService {
     final info = _tapInfoFromMessage(message);
     FeedbackService.notification();
 
-    final notification = message.notification;
-    if (notification != null) {
+    // Always show local notification (iOS may omit message.notification in foreground).
+    if (info.title.isNotEmpty || info.body.isNotEmpty) {
       _localNotifications.show(
-        notification.hashCode,
+        message.messageId?.hashCode ?? info.title.hashCode,
         info.title,
         info.body,
         NotificationDetails(
@@ -177,6 +177,7 @@ class FcmService {
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
             playSound: true,
+            enableVibration: true,
           ),
           iOS: const DarwinNotificationDetails(
             presentAlert: true,
