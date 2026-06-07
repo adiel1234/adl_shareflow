@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 7 יוני 2026 (build 24: שליחת סיכום WhatsApp עם תצוגה מקדימה + `participants` ב-summary)
+> עודכן לאחרונה: 7 יוני 2026 (build 24: סיכום WhatsApp + שיפורי התראות — צליל, דיאלוג בלחיצה, פורמט סיכום אירוע)
 
 ---
 
@@ -446,6 +446,9 @@ flutter install --release
 
 ### Flutter (Mobile)
 - **FCM Real-Time Refresh**: `FcmService.setDataChangeCallback` + `_invalidateForGroup` ב-`main.dart` — כשמגיעה התראה FCM ב-foreground, מתבצע `ref.invalidate` על `expensesProvider` / `balancesProvider` / `pendingSettlementsProvider` / `settlementPlanProvider` / `notificationsProvider` לפי סוג ההתראה.
+- **FCM Tap → Dialog** (build 24): `FcmService.setNotificationTapCallback` + `notification_detail_dialog.dart` — לחיצה על push פותחת דיאלוג עם טקסט מלא וכפתור «סגור»; payload FCM כולל `title`/`body` ב-`data`.
+- **Notification Sound** (build 24): `FeedbackService.notification()` + `assets/sounds/notification.wav` — צליל בהגעת התראה ב-foreground; `playSound` בערוץ Android ו-`presentSound` ב-iOS.
+- **Event Summary Notifications** (build 24): גוף התראה רב-שורתי (`סה"כ` / `משתתפים` / `עלות ממוצעת`) ב-`notifications/service.py`; רשימת in-app מציגה `event_summary` במלואו.
 - **Guest Member UI**: תג סגול "אורח" + avatar סגול + כפתורי 🔗 ו-🗑️ ברשימת חברים; Banner למנהל; Sheet "קשר אורח לחשבון"; "שולם" סגול ביתרות.
 - **Close Buttons**: נוסף `IconButton(Icons.close)` ל-`_InviteSheet` ו-`_JoinGroupSheet` כדי לאפשר יציאה מפורשת מ-modal bottom sheets.
 - **Group Detail Freshness**: `GroupCard.onTap` מנווט דרך `/group-detail` עם `groupId` בלבד — `_GroupDetailLoader` שולף נתוני קבוצה עדכניים מהשרת בכל ניווט.

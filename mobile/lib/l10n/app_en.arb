@@ -220,6 +220,8 @@
   "notifSettlementRequestedTitle": "Payment request",
   "notifSettlementConfirmedTitle": "Payment confirmed",
   "notifMemberJoinedTitle": "New member",
+  "notifEventSummaryTitle": "Event summary",
+  "notifClose": "Close",
   "notifGeneralTitle": "Notification",
 
   "markAllRead": "Mark all as read",

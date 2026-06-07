@@ -150,15 +150,26 @@ def notify_settlement_confirmed(settlement, confirmer_name: str):
     })
 
 
+def _format_event_summary_body(summary_data: dict) -> str:
+    """Build multi-line Hebrew body — avoids RTL breakage from pipe separators."""
+    totals = summary_data.get('totals_by_currency') or {}
+    if len(totals) == 1:
+        currency, amount = next(iter(totals.items()))
+        total_line = f'סה"כ: {amount} {currency}'
+    else:
+        total_line = f'סה"כ: {summary_data.get("total_summary", "0")}'
+    return '\n'.join([
+        total_line,
+        f'משתתפים: {summary_data["member_count"]}',
+        f'עלות ממוצעת: {summary_data["avg_per_member"]}',
+    ])
+
+
 def notify_event_summary(group_id: str, summary_data: dict, actor_user_id: str):
     """Send event summary notification to all group members (guests skipped)."""
     members = GroupMember.query.filter_by(group_id=group_id).all()
     title = f'סיכום אירוע - {summary_data["group_name"]}'
-    body = (
-        f'סה"כ: {summary_data["total_summary"]} | '
-        f'{summary_data["member_count"]} משתתפים | '
-        f'עלות ממוצעת: {summary_data["avg_per_member"]}'
-    )
+    body = _format_event_summary_body(summary_data)
     for member in members:
         # Skip guests — admin is already in the list
         if member.user and member.user.is_guest:

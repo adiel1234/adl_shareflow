@@ -586,6 +586,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifMemberJoinedTitle => 'New member';
 
   @override
+  String get notifEventSummaryTitle => 'Event summary';
+
+  @override
+  String get notifClose => 'Close';
+
+  @override
   String get notifGeneralTitle => 'Notification';
 
   @override

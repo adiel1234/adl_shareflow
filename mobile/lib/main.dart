@@ -16,6 +16,7 @@ import 'providers/balances_provider.dart';
 import 'providers/deep_link_provider.dart';
 import 'providers/expenses_provider.dart';
 import 'providers/notifications_provider.dart';
+import 'features/notifications/presentation/widgets/notification_detail_dialog.dart';
 import 'services/feedback_service.dart';
 import 'services/fcm_service.dart';
 import 'theme/app_theme.dart';
@@ -142,13 +143,10 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
         }
       });
 
-      // FCM — set navigation callback FIRST (before async initialize),
+      // FCM — set tap callback FIRST (before async initialize),
       // so no notification tap is missed due to race conditions.
-      FcmService.instance.setNavigationCallback((groupId) {
-        _navigatorKey.currentState?.pushNamed(
-          '/group-detail',
-          arguments: {'groupId': groupId},
-        );
+      FcmService.instance.setNotificationTapCallback((info) {
+        _showNotificationDialog(info);
       });
 
       // FCM — refresh Riverpod providers when a data-changing notification
@@ -199,6 +197,19 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
         content: Text('פג תוקף החיבור, נא להתחבר מחדש'),
         duration: Duration(seconds: 4),
       ),
+    );
+  }
+
+  void _showNotificationDialog(NotificationTapInfo info) {
+    final nav = _navigatorKey.currentState;
+    if (nav == null || !nav.mounted) return;
+    final ctx = nav.context;
+    if (!ctx.mounted) return;
+    showNotificationDetailDialog(
+      ctx,
+      title: info.title,
+      body: info.body,
+      type: info.type.isNotEmpty ? info.type : null,
     );
   }
 

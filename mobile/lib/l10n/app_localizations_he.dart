@@ -584,6 +584,12 @@ class AppLocalizationsHe extends AppLocalizations {
   String get notifMemberJoinedTitle => 'חבר חדש';
 
   @override
+  String get notifEventSummaryTitle => 'סיכום אירוע';
+
+  @override
+  String get notifClose => 'סגור';
+
+  @override
   String get notifGeneralTitle => 'התראה';
 
   @override

@@ -220,6 +220,8 @@
   "notifSettlementRequestedTitle": "בקשת תשלום",
   "notifSettlementConfirmedTitle": "תשלום אושר",
   "notifMemberJoinedTitle": "חבר חדש",
+  "notifEventSummaryTitle": "סיכום אירוע",
+  "notifClose": "סגור",
   "notifGeneralTitle": "התראה",
 
   "markAllRead": "סמן הכל כנקרא",

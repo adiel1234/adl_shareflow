@@ -55,9 +55,12 @@ def send_to_user(user_id: str, title: str, body: str, data: Optional[dict] = Non
         sent = 0
         for token_row in tokens:
             try:
+                payload_data = {k: str(v) for k, v in (data or {}).items()}
+                payload_data['title'] = title
+                payload_data['body'] = body
                 message = messaging.Message(
                     notification=messaging.Notification(title=title, body=body),
-                    data={k: str(v) for k, v in (data or {}).items()},
+                    data=payload_data,
                     token=token_row.token,
                 )
                 messaging.send(message, app=app)

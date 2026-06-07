@@ -1196,6 +1196,18 @@ abstract class AppLocalizations {
   /// **'חבר חדש'**
   String get notifMemberJoinedTitle;
 
+  /// No description provided for @notifEventSummaryTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'סיכום אירוע'**
+  String get notifEventSummaryTitle;
+
+  /// No description provided for @notifClose.
+  ///
+  /// In he, this message translates to:
+  /// **'סגור'**
+  String get notifClose;
+
   /// No description provided for @notifGeneralTitle.
   ///
   /// In he, this message translates to:

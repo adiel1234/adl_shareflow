@@ -4,6 +4,7 @@ import '../../../../providers/notifications_provider.dart';
 import '../../domain/notification_model.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../widgets/notification_detail_dialog.dart';
 
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
@@ -110,10 +111,11 @@ class NotificationsScreen extends ConsumerWidget {
           final notif = state.items[i];
           return _NotificationTile(
             notification: notif,
-            onTap: () {
+            onTap: () async {
               if (!notif.isRead) {
                 ref.read(notificationsProvider.notifier).markRead(notif.id);
               }
+              await showAppNotificationDialog(context, notif);
             },
           );
         },
@@ -134,6 +136,7 @@ class _NotificationTile extends StatelessWidget {
       case 'settlement_requested': return Icons.payment_outlined;
       case 'settlement_confirmed': return Icons.check_circle_outline;
       case 'member_joined':       return Icons.person_add_outlined;
+      case 'event_summary':       return Icons.summarize_outlined;
       default:                    return Icons.notifications_outlined;
     }
   }
@@ -156,6 +159,7 @@ class _NotificationTile extends StatelessWidget {
       case 'settlement_requested': return l.notifSettlementRequestedTitle;
       case 'settlement_confirmed': return l.notifSettlementConfirmedTitle;
       case 'member_joined':        return l.notifMemberJoinedTitle;
+      case 'event_summary':        return l.notifEventSummaryTitle;
       default:                     return l.notifGeneralTitle;
     }
   }
@@ -222,9 +226,12 @@ class _NotificationTile extends StatelessWidget {
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
+                      height: 1.35,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                    maxLines: notification.type == 'event_summary' ? null : 2,
+                    overflow: notification.type == 'event_summary'
+                        ? TextOverflow.visible
+                        : TextOverflow.ellipsis,
                   ),
                 ],
               ),

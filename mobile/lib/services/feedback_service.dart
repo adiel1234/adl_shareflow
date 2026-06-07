@@ -60,6 +60,17 @@ class FeedbackService {
     HapticFeedback.vibrate();
   }
 
+  /// Short ding — for push / in-app notifications.
+  static Future<void> notification() async {
+    HapticFeedback.lightImpact();
+    try {
+      if (!_playerReady) await init();
+      await _player.play(AssetSource('sounds/notification.wav'));
+    } catch (_) {
+      // Silently ignore — e.g. silent mode or audio unavailable
+    }
+  }
+
   // ---------------------------------------------------------------------------
 
   static void _playHapticPattern() async {
