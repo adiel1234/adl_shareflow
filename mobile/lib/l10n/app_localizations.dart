@@ -1697,7 +1697,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareWhatsAppSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'פתח WhatsApp עם טקסט הסיכום'**
+  /// **'תצוגה מקדימה ושליחה לכל משתתף עם טלפון'**
   String get shareWhatsAppSubtitle;
 
   /// No description provided for @reminderSent.

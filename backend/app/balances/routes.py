@@ -108,6 +108,16 @@ def send_event_summary(group_id, **kwargs):
 
     members = GroupMember.query.filter_by(group_id=group_id).all()
     member_count = len(members)
+    participants = []
+    for m in members:
+        user = db.session.get(User, m.user_id)
+        if user:
+            participants.append({
+                'user_id': user.id,
+                'display_name': user.display_name,
+                'phone': user.phone,
+                'is_guest': user.is_guest,
+            })
     suggestions = calculate_settlement_plan(group_id, group.base_currency)
 
     from app.balances.engine import check_group_books_balanced
@@ -154,10 +164,11 @@ def send_event_summary(group_id, **kwargs):
         ],
         'books_balanced': books_balanced,
         'books_warning': books_warning,
+        'participants': participants,
     }
 
     lines = [
-        f'*סיכום אירוע - {group.name}*',
+        f'*סיכום אירוע — {group.name}*',
         f'💰 סה"כ הוצאות: {total_summary}',
         f'👥 משתתפים: {member_count}',
         f'📊 עלות לכל משתתף: {avg_per_member}',
@@ -166,9 +177,10 @@ def send_event_summary(group_id, **kwargs):
     ]
     for s in suggestions:
         lines.append(
-            f'• {s.from_display_name} → {s.to_display_name}: '
+            f'• {s.from_display_name} חייב ל-{s.to_display_name} '
             f'{int(s.amount)} {s.currency}'
         )
+    lines += ['', 'סיכום הוצאות מאפליקציית ADL ShareFlow']
 
     whatsapp_text = '\n'.join(lines)
 

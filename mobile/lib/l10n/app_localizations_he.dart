@@ -853,7 +853,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get shareViaWhatsApp => 'שלח ב-WhatsApp';
 
   @override
-  String get shareWhatsAppSubtitle => 'פתח WhatsApp עם טקסט הסיכום';
+  String get shareWhatsAppSubtitle => 'תצוגה מקדימה ושליחה לכל משתתף עם טלפון';
 
   @override
   String reminderSent(String name) {

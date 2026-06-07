@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 7 יוני 2026 (מתוכנן: הזמנה מרובה, הסרת חבר+חלוקה מחדש, שכפול קבוצה סגורה — סעיפים 12–14 ברשימת הפיילוט)
+> עודכן לאחרונה: 7 יוני 2026 (build 24: שליחת סיכום WhatsApp עם תצוגה מקדימה + `participants` ב-summary)
 
 ---
 
@@ -434,7 +434,7 @@ flutter install --release
 - **`POST /currency/rates`** (`currency/routes.py`): מוגן עכשיו בבדיקת `X-ADL-Admin-Key` header — רק אדמין יכול לעדכן שערי מטבע ידניים.
 - **`POST /groups/<id>/expenses`** (`expenses/routes.py`): `paid_by` ומשתתפים — חברים פעילים בלבד; כש-`participants` מכיל רק `user_id` (ללא `share_amount`) — חלוקה שווה כמו בעריכה; ולידציה שסכום החלקים = `converted_amount`.
 - **`PUT /expenses/<id>`** (`expenses/routes.py`): כשהלקוח שולח `participants`, השרת מחליף את רשימת המשתתפים ומחלק שווה את `converted_amount` (כולל אורחים — `GroupMember` פעיל עם `is_guest`); ולידציה על סכום החלקים.
-- **`POST /groups/<id>/summary`** (`balances/routes.py`): שדות `books_balanced` / `books_warning` — מזהה חשבונות לא מאוזנים (חלקים שגויים או שני זכאים בלי חייבים).
+- **`POST /groups/<id>/summary`** (`balances/routes.py`): שדות `books_balanced` / `books_warning` — מזהה חשבונות לא מאוזנים (חלקים שגויים או שני זכאים בלי חייבים). תגובה כוללת `participants` (שם, טלפון, `is_guest`) לשליחת WhatsApp; `whatsapp_text` בפורמט «X חייב ל-Y» + מיתוג ADL ShareFlow.
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): מניעת כפילויות — אם כבר קיים pending לאותו אורח→נושה, מחזיר אותו במקום ליצור כפילות; תוכנית העברות (`calculate_settlement_plan`) מפחיתה סכומי pending כדי שלא יופיע חוב כפול ב-UI.
 - **`MonetizationService`** (`groups/monetization_service.py`): הוצאת מערכת (`ADL ShareFlow Service`) **תמיד** נוצרת בהפעלה/הארכה/חידוש/שדרוג — גם כש-`PAYMENTS_ENABLED=false` (פיילוט חינמי). `GroupPayment.amount=0` כשאין גבייה אמיתית; `split_among_group=true` מחלק שווה בין **כל** `GroupMember` פעילים בהפעלה; `add_member_to_group_split_expenses` מוסיף חברים/אורחים חדשים להוצאות מערכת (הצטרפות + `POST /groups/<id>/guests`).
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (build 21): כשהמנהל שמסמן תשלום הוא גם הנושה (אורח→חבר) — הסטטוס `confirmed` מיד (ללא שלב pending נוסף); pending קיים מאותו סכום מועלה ל-`confirmed` באותה קריאה.

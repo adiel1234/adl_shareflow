@@ -21,7 +21,7 @@ $inviteUrl
     await _share(text, subject: 'הזמנה לקבוצה $groupName');
   }
 
-  /// שיתוף WhatsApp ספציפי
+  /// שיתוף WhatsApp ספציפי (ללא נמען — בוחרים ידנית באפליקציה).
   static Future<void> shareViaWhatsApp(String text) async {
     final encoded = Uri.encodeComponent(text);
     final waUrl = Uri.parse('https://wa.me/?text=$encoded');
@@ -29,9 +29,38 @@ $inviteUrl
     if (await canLaunchUrl(waUrl)) {
       await launchUrl(waUrl, mode: LaunchMode.externalApplication);
     } else {
-      // Fallback to native share
       await Share.share(text);
     }
+  }
+
+  /// מנרמל מספר טלפון לפורמט בינלאומי ל-wa.me (ללא +).
+  static String? normalizePhoneForWaMe(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return null;
+    var digits = raw.replaceAll(RegExp(r'\D'), '');
+    if (digits.length < 9) return null;
+    if (digits.startsWith('0')) {
+      digits = '972${digits.substring(1)}';
+    }
+    return digits;
+  }
+
+  /// פותח שיחת WhatsApp לנמען ספציפי עם טקסט מוכן.
+  ///
+  /// מגבלה: WhatsApp לא מאפשר שליחת הודעות פרטיות בשקט מרובות משתמשי אפליקציה
+  /// רגילה. ללא WhatsApp Business API, כל נמען דורש פתיחת wa.me והקשה על «שלח»
+  /// בתוך WhatsApp.
+  static Future<bool> openWhatsAppToPhone({
+    required String phone,
+    required String text,
+  }) async {
+    final normalized = normalizePhoneForWaMe(phone);
+    if (normalized == null) return false;
+    final encoded = Uri.encodeComponent(text);
+    final waUrl = Uri.parse('https://wa.me/$normalized?text=$encoded');
+    if (await canLaunchUrl(waUrl)) {
+      return launchUrl(waUrl, mode: LaunchMode.externalApplication);
+    }
+    return false;
   }
 
   /// שיתוף סיכום יתרות קבוצה
@@ -65,7 +94,6 @@ $summary
 
   static Future<void> _share(String text, {String? subject}) async {
     if (kIsWeb) {
-      // On web, use clipboard or WhatsApp web
       final encoded = Uri.encodeComponent(text);
       final waUrl = Uri.parse('https://wa.me/?text=$encoded');
       if (await canLaunchUrl(waUrl)) {

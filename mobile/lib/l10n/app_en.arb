@@ -318,7 +318,7 @@
   "sendPushToAll": "Send notification to all members",
   "sendPushSubtitle": "Push notification to all group members",
   "shareViaWhatsApp": "Share via WhatsApp",
-  "shareWhatsAppSubtitle": "Open WhatsApp with summary text",
+  "shareWhatsAppSubtitle": "Preview and send to each participant with a phone",
   "reminderSent": "Reminder sent to {name} ✓",
   "@reminderSent": {"placeholders": {"name": {"type": "String"}}},
   "errorSendingReminder": "Error sending reminder",
