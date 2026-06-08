@@ -41,6 +41,11 @@ def list_groups():
                 )
                 if upgrade_info:
                     d.update(upgrade_info)
+            if g.group_state in ('free', 'limited', 'expired', 'read_only'):
+                from app.groups.lifecycle_service import MonetizationConfig
+                d['required_pricing'] = MonetizationConfig.resolve_price(
+                    g.group_type, d['member_count']
+                )
             groups.append(d)
     if dirty:
         db.session.commit()

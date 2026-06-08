@@ -136,6 +136,30 @@ class Group {
 
   String get groupTypeLabel => groupType == 'ongoing' ? 'שוטף' : 'אירוע';
 
+  /// Price from server (required_pricing.amount) — mirrors MonetizationConfig.
+  int? get requiredPriceAmount {
+    final amount = requiredPricing?['amount'];
+    if (amount == null) return null;
+    return (amount as num).toInt();
+  }
+
+  /// Activation/renewal price: prefer server value, else local tier estimate.
+  int estimatedPrice() {
+    if (requiredPriceAmount != null) return requiredPriceAmount!;
+    final count = memberCount;
+    if (groupType == 'ongoing') {
+      if (count <= 5) return 49;
+      if (count <= 8) return 69;
+      if (count <= 11) return 79;
+      return 89;
+    }
+    if (count <= 5) return 15;
+    if (count <= 10) return 20;
+    if (count <= 15) return 30;
+    if (count <= 39) return 35;
+    return 45;
+  }
+
   String get stateLabel {
     switch (groupState) {
       case 'free': return 'חינמי';

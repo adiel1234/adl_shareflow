@@ -81,6 +81,8 @@ class MonetizationService:
         group.activated_at = now
         group.expiry_date = now + timedelta(days=duration_days)
         group.max_participants_snapshot = member_count
+        group.is_closed = False
+        group.closed_at = None
 
         _record_platform_payment(
             group, payer_id, amount, 'activation', 'activation', split_among_group
@@ -177,7 +179,7 @@ class MonetizationService:
         Works even when group is READ_ONLY (expired ongoing).
         """
         member_count = GroupMember.query.filter_by(group_id=group.id).count()
-        pricing = MonetizationConfig.resolve_ongoing_price(member_count)
+        pricing = MonetizationConfig.resolve_price(group.group_type, member_count)
 
         if pricing is None:
             raise ValueError(
@@ -196,6 +198,8 @@ class MonetizationService:
         group.group_state = 'active'
         group.pricing_tier = pricing['tier']
         group.max_participants_snapshot = member_count
+        group.is_closed = False
+        group.closed_at = None
 
         _record_platform_payment(
             group, payer_id, amount, 'renewal', 'renewal', split_among_group

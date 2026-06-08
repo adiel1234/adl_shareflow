@@ -806,7 +806,7 @@
       <div class="platform-panel active" id="panel-ios" role="tabpanel">
         <div class="tap-box">👆 מה ללחוץ — משתמשי iPhone: כפתור «הורדת האפליקציה» למטה</div>
         <div class="action-stack">
-          <a class="btn-primary" href="https://adlshareflow-production.up.railway.app/download">
+          <a class="btn-primary" href="__IOS_DOWNLOAD_URL__">
             <span aria-hidden="true">🍎</span>
             הורדת האפליקציה ל-iPhone
           </a>
@@ -823,7 +823,7 @@
       <div class="platform-panel" id="panel-android" role="tabpanel">
         <div class="tap-box">👆 מה ללחוץ — משתמשי Android: כפתור «הורדת האפליקציה» למטה</div>
         <div class="action-stack">
-          <a class="btn-android" id="apk-link" href="https://adlshareflow-production.up.railway.app/download">
+          <a class="btn-android" id="apk-link" href="__APK_DOWNLOAD_URL__">
             <span aria-hidden="true">📥</span>
             הורדת האפליקציה ל-Android
           </a>
@@ -878,7 +878,7 @@
             <h3>הורידו את ShareFlow</h3>
             <p>לחצו על הכפתור — הדף יפתח את TestFlight ויתחיל התקנה של ShareFlow.</p>
             <div class="tap-box">👆 מה ללחוץ — כפתור «הורדת האפליקציה»</div>
-            <a class="btn-primary" href="https://adlshareflow-production.up.railway.app/download">
+            <a class="btn-primary" href="__IOS_DOWNLOAD_URL__">
               <span aria-hidden="true">🍎</span>
               הורדת האפליקציה ל-iPhone
             </a>
@@ -964,7 +964,7 @@
           <div class="step-body">
             <h3>הורידו את האפליקציה</h3>
             <div class="tap-box">👆 מה ללחוץ — כפתור «הורדת האפליקציה»</div>
-            <a class="btn-android" href="https://adlshareflow-production.up.railway.app/download">
+            <a class="btn-android" href="__APK_DOWNLOAD_URL__">
               <span aria-hidden="true">📥</span>
               הורדת האפליקציה ל-Android
             </a>
@@ -1056,7 +1056,7 @@
           <div class="step-body">
             <h3>עדכונים עתידיים</h3>
             <p>כשתשוחרר גרסה חדשה — נודיע בקבוצת הוואטסאפ. הורידו שוב מהכפתור:</p>
-            <a class="btn-android" href="https://adlshareflow-production.up.railway.app/download">
+            <a class="btn-android" href="__APK_DOWNLOAD_URL__">
               <span aria-hidden="true">📥</span>
               הורדת גרסה חדשה
             </a>
@@ -1162,7 +1162,7 @@
         <span aria-hidden="true">💬</span>
         הצטרפות לקבוצה
       </a>
-      <a class="btn-primary" id="sticky-cta-link" href="https://adlshareflow-production.up.railway.app/download">
+      <a class="btn-primary" id="sticky-cta-link" href="__IOS_DOWNLOAD_URL__">
         <span aria-hidden="true">🍎</span>
         הורדת האפליקציה
       </a>
@@ -1180,7 +1180,8 @@
       var stickyLink = document.getElementById('sticky-cta-link');
       var sticky = document.getElementById('sticky-cta');
       var ctaSection = document.getElementById('cta-section');
-      var downloadUrl = 'https://adlshareflow-production.up.railway.app/download';
+      var iosDownloadUrl = '__IOS_DOWNLOAD_URL__';
+      var apkDownloadUrl = '__APK_DOWNLOAD_URL__';
 
       function setPlatform(p) {
         tabs.forEach(function (t) {
@@ -1193,10 +1194,10 @@
         });
         if (stickyLink) {
           if (p === 'android') {
-            stickyLink.href = downloadUrl;
+            stickyLink.href = apkDownloadUrl;
             stickyLink.innerHTML = '<span aria-hidden="true">📥</span> הורדת האפליקציה ל-Android';
           } else {
-            stickyLink.href = downloadUrl;
+            stickyLink.href = iosDownloadUrl;
             stickyLink.innerHTML = '<span aria-hidden="true">🍎</span> הורדת האפליקציה ל-iPhone';
           }
         }

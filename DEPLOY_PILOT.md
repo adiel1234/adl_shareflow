@@ -42,7 +42,8 @@ flask db upgrade
 |--------|------|
 | `JWT_REFRESH_TOKEN_EXPIRES_DAYS` | אופציונלי — ברירת מחדל בקוד: 3650 |
 | `ADL_ADMIN_KEY` | לעדכון שערי מטבע בלבד |
-| `APK_DOWNLOAD_URL` / `TESTFLIGHT_URL` | אחרי בניית האפליקציה |
+| `TESTFLIGHT_URL` | **חובה** — Public Link מ-App Store Connect → TestFlight → ShareFlow → Public Link. בלי זה כפתורי iPhone ב-`/pilot` ו-`/download` לא עובדים. |
+| `APK_DOWNLOAD_URL` | קישור ישיר ל-APK (Google Drive / GitHub Releases) |
 
 ---
 

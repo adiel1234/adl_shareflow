@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 8 יוני 2026 (תיקון `GET /event-summary` — `UnboundLocalError` על `User`, build 27)
+> עודכן לאחרונה: 8 יוני 2026 (מחיר חידוש קבוצה, מדריך פיילוט דינמי, build 30)
 
 ---
 
@@ -297,7 +297,7 @@ flutter install --release
 4. App Store Connect → TestFlight → Build חדש מופיע אוטומטית
 ```
 
-**מדריך למשתמשי פיילוט:** https://adlshareflow-production.up.railway.app/pilot — iOS (TestFlight) + Android (APK), RTL, מיתוג ADL. מקור: `backend/app/static/pilot_onboarding.html` (סנכרן מ-`docs/PILOT_ONBOARDING_GUIDE.html`). עדכן קישורי TestFlight / WhatsApp / `APK_DOWNLOAD_URL` ב-Railway.
+**מדריך למשתמשי פיילוט:** https://adlshareflow-production.up.railway.app/pilot — iOS (TestFlight) + Android (APK), RTL, מיתוג ADL. מקור: `docs/PILOT_ONBOARDING_GUIDE.html` → `backend/app/static/pilot_onboarding.html`. דף `/pilot` מחליף placeholders (`__IOS_DOWNLOAD_URL__`, `__APK_DOWNLOAD_URL__`) בזמן הגשה מ-`TESTFLIGHT_URL` / `APK_DOWNLOAD_URL` ב-Railway.
 
 ---
 
@@ -314,8 +314,8 @@ flutter install --release
 | `RESEND_FROM_EMAIL` | כתובת שולח המיילים | ✅ | `noreply@adl-studio.com` |
 | `SMTP_SENDER_NAME` | שם השולח בכותרת המייל | 🟡 | `ADL ShareFlow` (ברירת מחדל) |
 | _(DB: `feature_flags`)_ | `PAYMENTS_ENABLED` — גביית תשלום אמיתי (לא משתנה סביבה) | 🔴 כבוי בפיילוט | `false` ב-PostgreSQL; ניהול: Control → `/shareflow` |
-| `TESTFLIGHT_URL` | קישור TestFlight חיצוני ל-iOS | ✅ | מוגדר ב-Railway |
-| `APK_DOWNLOAD_URL` | קישור הורדת APK ל-Android | ✅ | Google Drive (גרסה נוכחית) |
+| `TESTFLIGHT_URL` | קישור TestFlight Public Link ל-iOS — `/pilot`, `/download` (redirect iPhone) | ✅ **חובה לפיילוט** | Public Link מ-App Store Connect; לא `placeholder` |
+| `APK_DOWNLOAD_URL` | קישור הורדת APK ל-Android — `/pilot`, `/download` | ✅ | Google Drive / GitHub Releases |
 
 ---
 
@@ -475,7 +475,8 @@ flutter install --release
 - **FCM Async Dispatch** (build 25+): `notifications/fcm_service.py` — `send_to_user` / `send_to_users` רצים ב-thread נפרד (`app/common/background.py`).
 - **Event Summary Non-Blocking** (build 26 fix): `queue_notify_event_summary` — כל `notify_event_summary` (DB + FCM) ברקע; האפליקציה קוראת `GET /event-summary` בפתיחת הוויזארד ו-`POST /summary` רק בשלב 2.
 - **DB Migration** (`480ff4d3679c`): נוסף `is_guest BOOLEAN NOT NULL DEFAULT false` ל-`users`.
-- **Download Page**: גרסה עודכנה ל-v1.0.2; `TESTFLIGHT_URL` + `APK_DOWNLOAD_URL` נקראים ממשתני סביבה.
+- **Download / Pilot Pages**: `/download` (blueprint בלבד) — redirect אוטומטי ל-iPhone/Android; `/pilot` — placeholders מוחלפים מ-env בזמן ריצה.
+- **Group Renewal Pricing**: `MonetizationService.renew_group` משתמש ב-`resolve_price(group_type, member_count)` — אותו מחיר כמו הפעלה; אפליקציה קוראת `required_pricing` מהשרת (build 30).
 
 ---
 

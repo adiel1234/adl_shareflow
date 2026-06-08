@@ -5,7 +5,7 @@ and the deferred-link fallback used by the Flutter app on first launch.
 """
 import os
 from pathlib import Path
-from flask import Blueprint, request, redirect, render_template_string, send_from_directory
+from flask import Blueprint, request, redirect, render_template_string, Response
 
 download_bp = Blueprint('download', __name__)
 
@@ -121,11 +121,42 @@ def deferred_link():
 
 _STATIC_DIR = Path(__file__).resolve().parent.parent / 'static'
 
+_PLACEHOLDER_TOKENS = ('placeholder', 'PLACEHOLDER')
+
+
+def _valid_testflight_url() -> str | None:
+    url = TESTFLIGHT_URL.strip()
+    if not url or any(t in url for t in _PLACEHOLDER_TOKENS):
+        return None
+    return url
+
+
+def _pilot_download_urls() -> dict[str, str]:
+    """Resolve download URLs for pilot guide (env-driven at serve time)."""
+    base = request.url_root.rstrip('/')
+    download_page = f'{base}/download'
+    ios = _valid_testflight_url() or download_page
+    apk = APK_URL.strip() or download_page
+    return {
+        'ios': ios,
+        'download_page': download_page,
+        'apk': apk,
+    }
+
 
 @download_bp.get('/pilot')
 def pilot_onboarding():
     """Public pilot onboarding guide — shareable URL for beta testers."""
-    return send_from_directory(_STATIC_DIR, 'pilot_onboarding.html', mimetype='text/html; charset=utf-8')
+    html_path = _STATIC_DIR / 'pilot_onboarding.html'
+    html = html_path.read_text(encoding='utf-8')
+    urls = _pilot_download_urls()
+    html = (
+        html
+        .replace('__IOS_DOWNLOAD_URL__', urls['ios'])
+        .replace('__DOWNLOAD_PAGE_URL__', urls['download_page'])
+        .replace('__APK_DOWNLOAD_URL__', urls['apk'])
+    )
+    return Response(html, mimetype='text/html; charset=utf-8')
 
 
 @download_bp.get('/privacy')

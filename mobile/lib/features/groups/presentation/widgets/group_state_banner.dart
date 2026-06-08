@@ -90,22 +90,6 @@ class _BannerConfig {
   });
 }
 
-int _localPrice(Group group) {
-  final count = group.memberCount;
-  if (group.groupType == 'ongoing') {
-    if (count <= 5) return 49;
-    if (count <= 8) return 69;
-    if (count <= 11) return 79;
-    return 89;
-  } else {
-    if (count <= 5) return 15;
-    if (count <= 10) return 20;
-    if (count <= 15) return 30;
-    if (count <= 39) return 35;
-    return 45;
-  }
-}
-
 _BannerConfig? _bannerConfig(Group group, AppLocalizations l) {
   // Tier upgrade takes priority over state banners
   if (group.tierUpgradeRequired && group.upgradePriceDiff != null) {
@@ -119,7 +103,7 @@ _BannerConfig? _bannerConfig(Group group, AppLocalizations l) {
     );
   }
 
-  final price = _localPrice(group);
+  final price = group.estimatedPrice();
 
   switch (group.groupState) {
     case 'limited':

@@ -21,33 +21,24 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
   bool _loading = false;
 
   bool get _isExtend => widget.group.groupState == 'expired';
-  bool get _isRenew => widget.group.groupState == 'read_only';
+  bool get _isRenew =>
+      widget.group.groupState == 'read_only' &&
+      widget.group.groupType == 'ongoing';
+  bool get _isReactivate =>
+      widget.group.groupState == 'read_only' &&
+      widget.group.groupType == 'event';
   bool get _isUpgrade => widget.group.tierUpgradeRequired;
 
-  /// Compute price locally — mirrors backend MonetizationConfig exactly.
   int get _price {
     if (_isUpgrade) return widget.group.upgradePriceDiff ?? 0;
     if (_isExtend) return 15;
-    final count = widget.group.memberCount;
-    if (widget.group.groupType == 'ongoing') {
-      if (count <= 5) return 49;
-      if (count <= 8) return 69;
-      if (count <= 11) return 79;
-      return 89;
-    } else {
-      // event (default)
-      if (count <= 5) return 15;
-      if (count <= 10) return 20;
-      if (count <= 15) return 30;
-      if (count <= 39) return 35;
-      return 45;
-    }
+    return widget.group.estimatedPrice();
   }
 
   String _title(AppLocalizations l) {
     if (_isUpgrade) return l.upgradeTierTitle;
     if (_isExtend) return l.extendGroupTitle;
-    if (_isRenew) return l.renewGroupTitle;
+    if (_isRenew || _isReactivate) return l.renewGroupTitle;
     return l.activateGroupTitle;
   }
 
@@ -60,7 +51,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
   String _buttonLabel(AppLocalizations l) {
     if (_isUpgrade) return l.upgradeBtnLabel(_price);
     if (_isExtend) return l.extendBtnLabel(_price);
-    if (_isRenew) return l.renewBtnLabel(_price);
+    if (_isRenew || _isReactivate) return l.renewBtnLabel(_price);
     return l.activateBtnLabel(_price);
   }
 
@@ -77,6 +68,9 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
       } else if (_isRenew) {
         await repo.renewGroup(widget.group.id,
             splitAmongGroup: _splitAmongGroup);
+      } else if (_isReactivate) {
+        await repo.activateGroup(widget.group.id,
+            splitAmongGroup: _splitAmongGroup);
       } else {
         await repo.activateGroup(widget.group.id,
             splitAmongGroup: _splitAmongGroup);
@@ -89,7 +83,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
               ? l.upgradedSuccess
               : _isExtend
                   ? l.extendedSuccess
-                  : _isRenew
+                  : (_isRenew || _isReactivate)
                       ? l.renewedSuccess
                       : l.activatedSuccess)),
         );
