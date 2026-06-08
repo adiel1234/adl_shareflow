@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:share_plus/share_plus.dart';
 import '../../../../providers/balances_provider.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/groups_provider.dart';
@@ -13,7 +11,6 @@ import '../../../groups/data/group_repository.dart';
 import '../../domain/balance_model.dart';
 import '../../data/balance_repository.dart';
 import '../../../../theme/app_colors.dart';
-import '../../../../services/share_service.dart';
 import '../../../../l10n/app_localizations.dart';
 
 class EventSummaryScreen extends ConsumerStatefulWidget {
@@ -30,7 +27,6 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
   bool _closing = false;
   int _wizardStep = 0;
   Map<String, dynamic>? _summary;
-  String? _whatsappText;
   String? _error;
 
   @override
@@ -64,7 +60,6 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
       if (!mounted) return;
       setState(() {
         _summary = (data['summary'] as Map<String, dynamic>?) ?? data;
-        _whatsappText = data['whatsapp_text'] as String?;
       });
     } on DioException catch (e) {
       if (mounted) {
@@ -108,221 +103,6 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
       }
     } finally {
       if (mounted) setState(() => _sending = false);
-    }
-  }
-
-  String _buildWhatsAppText() {
-    final s = _summary!;
-    final transfers = (s['transfers'] as List? ?? []);
-    final lines = [
-      '*סיכום אירוע — ${widget.group.name}*',
-      '💰 סה"כ הוצאות: ${s['total_summary']}',
-      '👥 משתתפים: ${s['member_count']}',
-      '📊 עלות לכל משתתף: ${s['avg_per_member']}',
-      '',
-      '*💸 העברות נדרשות:*',
-      ...transfers.map((t) =>
-          '• ${t['from_name']} חייב ל-${t['to_name']} '
-          '${_formatAmount(t['amount'])} ${t['currency']}'),
-      '',
-      'סיכום הוצאות מאפליקציית ADL ShareFlow',
-    ];
-    return lines.join('\n');
-  }
-
-  List<Map<String, dynamic>> _participantsWithPhone(
-      List<Map<String, dynamic>> participants) {
-    return participants
-        .where((p) =>
-            ShareService.normalizePhoneForWaMe(p['phone'] as String?) != null)
-        .toList();
-  }
-
-  List<Map<String, dynamic>> _participantsWithoutPhone(
-      List<Map<String, dynamic>> participants) {
-    return participants
-        .where((p) =>
-            ShareService.normalizePhoneForWaMe(p['phone'] as String?) == null)
-        .toList();
-  }
-
-  Future<void> _shareWhatsApp() async {
-    if (_summary == null) return;
-    final text = _whatsappText ?? _buildWhatsAppText();
-    final participants = ((_summary!['participants'] as List?) ?? [])
-        .cast<Map<String, dynamic>>();
-    final withPhone = _participantsWithPhone(participants);
-    final withoutPhone = _participantsWithoutPhone(participants);
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('תצוגה מקדימה — WhatsApp'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  text,
-                  style: const TextStyle(fontSize: 13, height: 1.45),
-                ),
-              ),
-              const SizedBox(height: 14),
-              if (withPhone.isNotEmpty)
-                Text(
-                  'יישלח ל-${withPhone.length} משתתפים עם מספר טלפון',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
-              if (withoutPhone.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  'לא ניתן לשלוח אוטומטית (${withoutPhone.length}):',
-                  style: const TextStyle(
-                    color: AppColors.negative,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
-                ...withoutPhone.map(
-                  (p) => Text(
-                    '• ${p['display_name']}${p['is_guest'] == true ? ' (אורח)' : ''}',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 10),
-              const Text(
-                'לאחר אישור תיפתח WhatsApp לכל משתתף בנפרד — יש ללחוץ «שלח» בכל שיחה.',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textSecondary,
-                  height: 1.35,
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          if (withoutPhone.isNotEmpty)
-            TextButton(
-              onPressed: () async {
-                await Clipboard.setData(ClipboardData(text: text));
-                if (ctx.mounted) {
-                  ScaffoldMessenger.of(ctx).showSnackBar(
-                    const SnackBar(content: Text('הטקסט הועתק')),
-                  );
-                }
-              },
-              child: const Text('העתק טקסט'),
-            ),
-          ElevatedButton(
-            onPressed: withPhone.isEmpty
-                ? null
-                : () => Navigator.pop(ctx, true),
-            child: Text(withPhone.isEmpty ? 'אין נמענים' : 'אישור ושליחה'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true || !mounted) {
-      if (confirmed != true &&
-          withoutPhone.isNotEmpty &&
-          withPhone.isEmpty &&
-          mounted) {
-        await Share.share(text);
-      }
-      return;
-    }
-
-    for (var i = 0; i < withPhone.length; i++) {
-      if (!mounted) break;
-      final p = withPhone[i];
-      final name = p['display_name'] as String? ?? '';
-      final proceed = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => AlertDialog(
-          title: Text('שולח ל-${withPhone.length} משתתפים'),
-          content: Text(
-            '${i + 1} מתוך ${withPhone.length}: $name\n\n'
-            'יפתח WhatsApp עם הודעת הסיכום. לחץ «שלח» ב-WhatsApp, '
-            'ואז חזור לאפליקציה ולחץ «המשך».',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('דלג'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(i + 1 < withPhone.length ? 'פתח והמשך' : 'פתח WhatsApp'),
-            ),
-          ],
-        ),
-      );
-      if (proceed != true) continue;
-      final opened = await ShareService.openWhatsAppToPhone(
-        phone: p['phone'] as String,
-        text: text,
-      );
-      if (!opened && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('לא ניתן לפתוח WhatsApp עבור $name')),
-        );
-      }
-    }
-
-    if (withoutPhone.isNotEmpty && mounted) {
-      await showDialog<void>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('משתתפים ללא טלפון'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'למשתתפים הבאים אין מספר טלפון — העתק או שתף את הסיכום ידנית:',
-              ),
-              const SizedBox(height: 8),
-              ...withoutPhone.map(
-                (p) => Text('• ${p['display_name']}'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                await Clipboard.setData(ClipboardData(text: text));
-                if (ctx.mounted) Navigator.pop(ctx);
-              },
-              child: const Text('העתק טקסט'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(ctx);
-                Share.share(text);
-              },
-              child: const Text('שתף'),
-            ),
-          ],
-        ),
-      );
     }
   }
 
@@ -755,14 +535,6 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
             color: AppColors.primary,
             loading: _sending,
             onTap: _sendAppNotifications,
-          ),
-          const SizedBox(height: 10),
-          _ActionButton(
-            icon: Icons.chat_outlined,
-            label: l.shareViaWhatsApp,
-            subtitle: l.shareWhatsAppSubtitle,
-            color: const Color(0xFF25D366),
-            onTap: _shareWhatsApp,
           ),
           ],
 

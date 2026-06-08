@@ -237,9 +237,10 @@ class FcmService {
   NotificationTapInfo _tapInfoFromMessage(RemoteMessage message) {
     final data = message.data;
     final notification = message.notification;
+    // Prefer data payload — notification.body may be truncated by the OS.
     return NotificationTapInfo(
-      title: notification?.title ?? data['title'] as String? ?? '',
-      body: notification?.body ?? data['body'] as String? ?? '',
+      title: data['title'] as String? ?? notification?.title ?? '',
+      body: data['body'] as String? ?? notification?.body ?? '',
       groupId: data['group_id'] as String?,
       type: data['type'] as String? ?? '',
     );

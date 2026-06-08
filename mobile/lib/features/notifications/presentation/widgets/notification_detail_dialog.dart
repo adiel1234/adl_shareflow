@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
+import '../../data/notifications_repository.dart';
 import '../../domain/notification_model.dart';
 
 /// Shows a dialog with the full notification title and body.
@@ -57,6 +58,32 @@ Future<void> showAppNotificationDialog(
     body: resolveNotificationDisplayBody(notification),
     type: notification.type,
   );
+}
+
+/// Resolves full body when user taps a push (app closed/background).
+/// Fetches in-app notification from API so event_summary includes transfers.
+Future<String> resolveNotificationBodyForPushTap({
+  required String type,
+  required String body,
+  String? groupId,
+}) async {
+  if (type != 'event_summary' ||
+      groupId == null ||
+      groupId.isEmpty) {
+    return body;
+  }
+  try {
+    final result = await NotificationsRepository().getNotifications(page: 1);
+    for (final n in result.items) {
+      if (n.type == 'event_summary' &&
+          (n.data['group_id'] as String?) == groupId) {
+        return resolveNotificationDisplayBody(n);
+      }
+    }
+  } catch (_) {
+    // Fall back to push body.
+  }
+  return body;
 }
 
 /// Prefer full summary from [AppNotification.data] when body was stored short.

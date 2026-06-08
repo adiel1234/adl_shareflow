@@ -200,15 +200,23 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
     );
   }
 
-  void _showNotificationDialog(NotificationTapInfo info) {
+  Future<void> _showNotificationDialog(NotificationTapInfo info) async {
     final nav = _navigatorKey.currentState;
     if (nav == null || !nav.mounted) return;
     final ctx = nav.context;
     if (!ctx.mounted) return;
+
+    final body = await resolveNotificationBodyForPushTap(
+      type: info.type,
+      body: info.body,
+      groupId: info.groupId,
+    );
+
+    if (!ctx.mounted) return;
     showNotificationDetailDialog(
       ctx,
       title: info.title,
-      body: info.body,
+      body: body,
       type: info.type.isNotEmpty ? info.type : null,
     );
   }
