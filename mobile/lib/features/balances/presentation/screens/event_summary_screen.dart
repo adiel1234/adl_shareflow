@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,6 +41,17 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
 
   static const _summaryTimeout = Duration(seconds: 20);
 
+  String _formatLoadError(DioException e) {
+    final l = AppLocalizations.of(context)!;
+    final status = e.response?.statusCode;
+    final data = e.response?.data;
+    final serverMsg = data is Map ? data['message'] as String? : null;
+    final parts = <String>[l.errorLoadingSummary];
+    if (status != null) parts.add('($status)');
+    if (serverMsg != null && serverMsg.isNotEmpty) parts.add(serverMsg);
+    return parts.join(' ');
+  }
+
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -53,10 +66,22 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
         _summary = (data['summary'] as Map<String, dynamic>?) ?? data;
         _whatsappText = data['whatsapp_text'] as String?;
       });
-    } catch (_) {
+    } on DioException catch (e) {
       if (mounted) {
         setState(() {
-          _error = AppLocalizations.of(context)!.errorLoadingSummary;
+          _error = _formatLoadError(e);
+        });
+      }
+    } on TimeoutException {
+      if (mounted) {
+        setState(() {
+          _error = '${AppLocalizations.of(context)!.errorLoadingSummary} (timeout)';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = '${AppLocalizations.of(context)!.errorLoadingSummary} ($e)';
         });
       }
     } finally {

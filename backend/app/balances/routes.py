@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from flask import Blueprint, request
+from flask import Blueprint, request, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.models import Group, GroupMember, Expense, User
@@ -125,7 +125,6 @@ def _build_event_summary_payload(group_id: str, group: Group) -> dict:
         payer_totals[e.paid_by] = payer_totals.get(e.paid_by, Decimal('0')) + e.converted_amount
     top_payer_data = None
     if payer_totals:
-        from app.models import User
         top_uid = max(payer_totals, key=lambda k: payer_totals[k])
         top_user = db.session.get(User, top_uid)
         top_payer_data = {
@@ -189,7 +188,13 @@ def get_event_summary_preview(group_id, **kwargs):
     if not group:
         return error_response('Group not found', 404)
 
-    return success_response(data=_build_event_summary_payload(group_id, group))
+    try:
+        return success_response(data=_build_event_summary_payload(group_id, group))
+    except Exception:
+        current_app.logger.exception(
+            'event-summary build failed group_id=%s', group_id
+        )
+        return error_response('שגיאה בבניית סיכום האירוע', 500)
 
 
 @balances_bp.post('/groups/<group_id>/summary')
@@ -204,7 +209,13 @@ def send_event_summary(group_id, **kwargs):
     data = request.get_json(silent=True) or {}
     send_app = bool(data.get('send_app', False))
 
-    payload = _build_event_summary_payload(group_id, group)
+    try:
+        payload = _build_event_summary_payload(group_id, group)
+    except Exception:
+        current_app.logger.exception(
+            'event-summary build failed group_id=%s', group_id
+        )
+        return error_response('שגיאה בבניית סיכום האירוע', 500)
 
     if send_app:
         from app.notifications import service as notif_svc
