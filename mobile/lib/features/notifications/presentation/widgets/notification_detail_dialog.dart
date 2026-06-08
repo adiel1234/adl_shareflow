@@ -54,9 +54,51 @@ Future<void> showAppNotificationDialog(
   return showNotificationDetailDialog(
     context,
     title: notification.title,
-    body: notification.body,
+    body: resolveNotificationDisplayBody(notification),
     type: notification.type,
   );
+}
+
+/// Prefer full summary from [AppNotification.data] when body was stored short.
+String resolveNotificationDisplayBody(AppNotification notification) {
+  if (notification.type != 'event_summary') return notification.body;
+  final summary = notification.data['summary'];
+  if (summary is! Map) return notification.body;
+  return _formatEventSummaryBody(Map<String, dynamic>.from(summary));
+}
+
+String _formatEventSummaryBody(Map<String, dynamic> summary) {
+  final totals = summary['totals_by_currency'];
+  String totalLine;
+  if (totals is Map && totals.length == 1) {
+    final entry = totals.entries.first;
+    totalLine = 'סה"כ: ${entry.value} ${entry.key}';
+  } else {
+    totalLine = 'סה"כ: ${summary['total_summary'] ?? '0'}';
+  }
+  final lines = <String>[
+    totalLine,
+    'משתתפים: ${summary['member_count']}',
+    'עלות ממוצעת: ${summary['avg_per_member']}',
+  ];
+  final transfers = summary['transfers'];
+  if (transfers is List && transfers.isNotEmpty) {
+    lines.add('');
+    lines.add('העברות נדרשות:');
+    for (final t in transfers) {
+      if (t is! Map) continue;
+      final amount = t['amount']?.toString() ?? '0';
+      final amountStr =
+          (double.tryParse(amount)?.round() ?? amount).toString();
+      lines.add(
+        '• ${t['from_name']} חייב ל-${t['to_name']} $amountStr ${t['currency']}',
+      );
+    }
+  } else if (summary['books_balanced'] != false) {
+    lines.add('');
+    lines.add('הכל מאוזן — אין חובות');
+  }
+  return lines.join('\n');
 }
 
 String? _localizedTitle(AppLocalizations l, String? type) {

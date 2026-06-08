@@ -863,7 +863,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareWhatsAppSubtitle =>
-      'Preview and send to each participant with a phone';
+      'Opens WhatsApp per participant — tap Send in each chat';
 
   @override
   String reminderSent(String name) {

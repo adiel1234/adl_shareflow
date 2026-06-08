@@ -158,11 +158,29 @@ def _format_event_summary_body(summary_data: dict) -> str:
         total_line = f'סה"כ: {amount} {currency}'
     else:
         total_line = f'סה"כ: {summary_data.get("total_summary", "0")}'
-    return '\n'.join([
+    lines = [
         total_line,
         f'משתתפים: {summary_data["member_count"]}',
         f'עלות ממוצעת: {summary_data["avg_per_member"]}',
-    ])
+    ]
+    transfers = summary_data.get('transfers') or []
+    if transfers:
+        lines.append('')
+        lines.append('העברות נדרשות:')
+        for t in transfers:
+            amount = t.get('amount', '0')
+            try:
+                amount_str = str(int(float(amount)))
+            except (TypeError, ValueError):
+                amount_str = str(amount)
+            lines.append(
+                f'• {t["from_name"]} חייב ל-{t["to_name"]} '
+                f'{amount_str} {t["currency"]}'
+            )
+    elif summary_data.get('books_balanced', True):
+        lines.append('')
+        lines.append('הכל מאוזן — אין חובות')
+    return '\n'.join(lines)
 
 
 def notify_event_summary(group_id: str, summary_data: dict, actor_user_id: str):

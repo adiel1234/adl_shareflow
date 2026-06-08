@@ -320,7 +320,7 @@
   "sendPushToAll": "שלח התראה לכל החברים",
   "sendPushSubtitle": "Push notification לכל משתמשי הקבוצה",
   "shareViaWhatsApp": "שלח ב-WhatsApp",
-  "shareWhatsAppSubtitle": "תצוגה מקדימה ושליחה לכל משתתף עם טלפון",
+  "shareWhatsAppSubtitle": "יפתח WhatsApp לכל משתתף — יש ללחוץ «שלח» בכל שיחה",
   "reminderSent": "תזכורת נשלחה ל-{name} ✓",
   "@reminderSent": {"placeholders": {"name": {"type": "String"}}},
   "errorSendingReminder": "שגיאה בשליחת תזכורת",

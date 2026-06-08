@@ -859,7 +859,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get shareViaWhatsApp => 'שלח ב-WhatsApp';
 
   @override
-  String get shareWhatsAppSubtitle => 'תצוגה מקדימה ושליחה לכל משתתף עם טלפון';
+  String get shareWhatsAppSubtitle =>
+      'יפתח WhatsApp לכל משתתף — יש ללחוץ «שלח» בכל שיחה';
 
   @override
   String reminderSent(String name) {

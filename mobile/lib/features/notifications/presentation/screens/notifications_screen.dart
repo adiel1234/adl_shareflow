@@ -222,7 +222,7 @@ class _NotificationTile extends StatelessWidget {
                   const SizedBox(height: 4),
                   // Body from server — contains names/amounts (user content)
                   Text(
-                    notification.body,
+                    resolveNotificationDisplayBody(notification),
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
