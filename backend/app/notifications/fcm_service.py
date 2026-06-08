@@ -7,8 +7,9 @@ FCM sends run in a background thread so API handlers (e.g. event summary)
 return immediately after persisting in-app notifications.
 """
 import logging
-import threading
 from typing import Optional
+
+from app.common.background import run_in_background
 
 logger = logging.getLogger(__name__)
 
@@ -102,32 +103,12 @@ def _send_to_user_impl(user_id: str, title: str, body: str, data: Optional[dict]
         return 0
 
 
-def _dispatch_async(target, *args, **kwargs) -> None:
-    """Run FCM work off the request thread so HTTP handlers return promptly."""
-    try:
-        from flask import current_app
-        app = current_app._get_current_object()
-    except RuntimeError:
-        # Outside request context (e.g. tests) — run inline
-        target(*args, **kwargs)
-        return
-
-    def _run():
-        with app.app_context():
-            try:
-                target(*args, **kwargs)
-            except Exception as e:
-                logger.error(f'Async FCM dispatch failed: {e}')
-
-    threading.Thread(target=_run, daemon=True).start()
-
-
 def send_to_user(user_id: str, title: str, body: str, data: Optional[dict] = None) -> int:
     """
     Queue push notification to all FCM tokens registered for a user.
     Returns 0 immediately; actual send runs in a background thread.
     """
-    _dispatch_async(_send_to_user_impl, user_id, title, body, data)
+    run_in_background(_send_to_user_impl, user_id, title, body, data)
     return 0
 
 
@@ -142,7 +123,7 @@ def send_to_users(user_ids: list, title: str, body: str, data: Optional[dict] = 
     """Queue the same notification for multiple users (non-blocking)."""
     if not user_ids:
         return 0
-    _dispatch_async(_send_to_users_impl, list(user_ids), title, body, data)
+    run_in_background(_send_to_users_impl, list(user_ids), title, body, data)
     return 0
 
 

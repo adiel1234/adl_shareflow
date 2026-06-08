@@ -167,7 +167,13 @@ def _format_event_summary_body(summary_data: dict) -> str:
 
 def notify_event_summary(group_id: str, summary_data: dict, actor_user_id: str):
     """Send event summary notification to all group members (guests skipped)."""
-    members = GroupMember.query.filter_by(group_id=group_id).all()
+    from sqlalchemy.orm import joinedload
+
+    members = (
+        GroupMember.query.options(joinedload(GroupMember.user))
+        .filter_by(group_id=group_id)
+        .all()
+    )
     title = f'סיכום אירוע - {summary_data["group_name"]}'
     body = _format_event_summary_body(summary_data)
     for member in members:
@@ -189,6 +195,13 @@ def notify_event_summary(group_id: str, summary_data: dict, actor_user_id: str):
         'type': 'event_summary',
         'group_id': group_id,
     })
+
+
+def queue_notify_event_summary(group_id: str, summary_data: dict, actor_user_id: str) -> None:
+    """Queue in-app notifications + FCM so the HTTP handler returns immediately."""
+    from app.common.background import run_in_background
+
+    run_in_background(notify_event_summary, group_id, summary_data, actor_user_id)
 
 
 def notify_payment_reminder(settlement_suggestion: dict, creditor_name: str):

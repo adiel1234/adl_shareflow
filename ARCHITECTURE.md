@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 7 יוני 2026 (תיקון תקיעת סיכום אירוע + צליל push — FCM אסינכרוני, APNs/Android sound)
+> עודכן לאחרונה: 8 יוני 2026 (סיום אירוע — GET לתצוגה מקדימה, שליחת התראות ברקע)
 
 ---
 
@@ -434,7 +434,8 @@ flutter install --release
 - **`POST /currency/rates`** (`currency/routes.py`): מוגן עכשיו בבדיקת `X-ADL-Admin-Key` header — רק אדמין יכול לעדכן שערי מטבע ידניים.
 - **`POST /groups/<id>/expenses`** (`expenses/routes.py`): `paid_by` ומשתתפים — חברים פעילים בלבד; כש-`participants` מכיל רק `user_id` (ללא `share_amount`) — חלוקה שווה כמו בעריכה; ולידציה שסכום החלקים = `converted_amount`.
 - **`PUT /expenses/<id>`** (`expenses/routes.py`): כשהלקוח שולח `participants`, השרת מחליף את רשימת המשתתפים ומחלק שווה את `converted_amount` (כולל אורחים — `GroupMember` פעיל עם `is_guest`); ולידציה על סכום החלקים.
-- **`POST /groups/<id>/summary`** (`balances/routes.py`): שדות `books_balanced` / `books_warning` — מזהה חשבונות לא מאוזנים (חלקים שגויים או שני זכאים בלי חייבים). תגובה כוללת `participants` (שם, טלפון, `is_guest`) לשליחת WhatsApp; `whatsapp_text` בפורמט «X חייב ל-Y» + מיתוג ADL ShareFlow.
+- **`GET /groups/<id>/event-summary`** (`balances/routes.py`): תצוגה מקדימה לוויזארד «סיים אירוע» — ללא התראות / push. אותה תגובה כמו `POST /summary` (סיכום, `whatsapp_text`, `participants`).
+- **`POST /groups/<id>/summary`** (`balances/routes.py`): שליחת סיכום לחברים (`send_app=true`). שדות `books_balanced` / `books_warning` — מזהה חשבונות לא מאוזנים. `queue_notify_event_summary` — שמירת התראות + FCM ברקע (`app/common/background.py`).
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): מניעת כפילויות — אם כבר קיים pending לאותו אורח→נושה, מחזיר אותו במקום ליצור כפילות; תוכנית העברות (`calculate_settlement_plan`) מפחיתה סכומי pending כדי שלא יופיע חוב כפול ב-UI.
 - **`MonetizationService`** (`groups/monetization_service.py`): הוצאת מערכת (`ADL ShareFlow Service`) **תמיד** נוצרת בהפעלה/הארכה/חידוש/שדרוג — גם כש-`PAYMENTS_ENABLED=false` (פיילוט חינמי). `GroupPayment.amount=0` כשאין גבייה אמיתית; `split_among_group=true` מחלק שווה בין **כל** `GroupMember` פעילים בהפעלה; `add_member_to_group_split_expenses` מוסיף חברים/אורחים חדשים להוצאות מערכת (הצטרפות + `POST /groups/<id>/guests`).
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (build 21): כשהמנהל שמסמן תשלום הוא גם הנושה (אורח→חבר) — הסטטוס `confirmed` מיד (ללא שלב pending נוסף); pending קיים מאותו סכום מועלה ל-`confirmed` באותה קריאה.
@@ -471,7 +472,8 @@ flutter install --release
 - **`PUT /settlements/<id>/confirm`**: נושה מאשר; מנהל יכול לאשר בשם אורח-נושה (תרחיש 2).
 - **`GET /groups/<id>/balances/settlements-plan`**: שדה `to_is_guest` נוסף לכל הצעה.
 - **Notification Routing** (`notifications/service.py`): התראות לאורחים מנותבות למנהל הקבוצה; האורח עצמו אינו מקבל push.
-- **FCM Async Dispatch** (build 25 fix): `notifications/fcm_service.py` — `send_to_user` / `send_to_users` רצים ב-thread נפרד; `POST /groups/<id>/summary` עם `send_app=true` לא נחסם על שליחת Firebase.
+- **FCM Async Dispatch** (build 25+): `notifications/fcm_service.py` — `send_to_user` / `send_to_users` רצים ב-thread נפרד (`app/common/background.py`).
+- **Event Summary Non-Blocking** (build 26 fix): `queue_notify_event_summary` — כל `notify_event_summary` (DB + FCM) ברקע; האפליקציה קוראת `GET /event-summary` בפתיחת הוויזארד ו-`POST /summary` רק בשלב 2.
 - **DB Migration** (`480ff4d3679c`): נוסף `is_guest BOOLEAN NOT NULL DEFAULT false` ל-`users`.
 - **Download Page**: גרסה עודכנה ל-v1.0.2; `TESTFLIGHT_URL` + `APK_DOWNLOAD_URL` נקראים ממשתני סביבה.
 

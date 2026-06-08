@@ -68,10 +68,17 @@ class BalanceRepository {
         .toList();
   }
 
-  Future<Map<String, dynamic>> fetchEventSummary(
-      String groupId, {bool sendApp = true}) async {
+  /// Read-only preview for the finish-event wizard (no push / in-app writes).
+  Future<Map<String, dynamic>> fetchEventSummaryPreview(String groupId) async {
+    final response = await _api.get('/groups/$groupId/event-summary');
+    return response.data['data'] as Map<String, dynamic>;
+  }
+
+  /// Send event summary push + in-app notifications to all members.
+  Future<Map<String, dynamic>> sendEventSummaryNotifications(
+      String groupId) async {
     final response = await _api.post('/groups/$groupId/summary',
-        data: {'send_app': sendApp});
+        data: {'send_app': true});
     return response.data['data'] as Map<String, dynamic>;
   }
 

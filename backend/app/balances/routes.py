@@ -84,18 +84,8 @@ def get_settlement_plan(group_id, **kwargs):
     })
 
 
-@balances_bp.post('/groups/<group_id>/summary')
-@jwt_required()
-@require_group_admin
-def send_event_summary(group_id, **kwargs):
-    """Admin sends event summary notification to all members."""
-    group = db.session.get(Group, group_id)
-    if not group:
-        return error_response('Group not found', 404)
-
-    data = request.get_json(silent=True) or {}
-    send_app = data.get('send_app', True)
-
+def _build_event_summary_payload(group_id: str, group: Group) -> dict:
+    """Compute summary + WhatsApp text (no side effects)."""
     expenses = Expense.query.filter_by(group_id=group_id).all()
     currency_totals: dict = {}
     for e in expenses:
@@ -184,15 +174,46 @@ def send_event_summary(group_id, **kwargs):
 
     whatsapp_text = '\n'.join(lines)
 
+    return {
+        'summary': summary_data,
+        'whatsapp_text': whatsapp_text,
+    }
+
+
+@balances_bp.get('/groups/<group_id>/event-summary')
+@jwt_required()
+@require_group_admin
+def get_event_summary_preview(group_id, **kwargs):
+    """Read-only event summary for the finish-event wizard (no notifications)."""
+    group = db.session.get(Group, group_id)
+    if not group:
+        return error_response('Group not found', 404)
+
+    return success_response(data=_build_event_summary_payload(group_id, group))
+
+
+@balances_bp.post('/groups/<group_id>/summary')
+@jwt_required()
+@require_group_admin
+def send_event_summary(group_id, **kwargs):
+    """Admin sends event summary notification to all members."""
+    group = db.session.get(Group, group_id)
+    if not group:
+        return error_response('Group not found', 404)
+
+    data = request.get_json(silent=True) or {}
+    send_app = bool(data.get('send_app', False))
+
+    payload = _build_event_summary_payload(group_id, group)
+
     if send_app:
         from app.notifications import service as notif_svc
-        notif_svc.notify_event_summary(
-            group_id, summary_data, actor_user_id=get_jwt_identity()
+        notif_svc.queue_notify_event_summary(
+            group_id, payload['summary'], actor_user_id=get_jwt_identity()
         )
 
     return success_response(data={
-        'summary': summary_data,
-        'whatsapp_text': whatsapp_text,
+        **payload,
         'sent_app': send_app,
     })
 

@@ -37,32 +37,39 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
     _load();
   }
 
+  static const _summaryTimeout = Duration(seconds: 20);
+
   Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
-      final data = await BalanceRepository().fetchEventSummary(
-        widget.group.id,
-        sendApp: false,
-      );
-      // Backend wraps data in {'summary': {...}, 'whatsapp_text': ..., 'sent_app': ...}
+      final data = await BalanceRepository()
+          .fetchEventSummaryPreview(widget.group.id)
+          .timeout(_summaryTimeout);
+      if (!mounted) return;
+      setState(() {
+        _summary = (data['summary'] as Map<String, dynamic>?) ?? data;
+        _whatsappText = data['whatsapp_text'] as String?;
+      });
+    } catch (_) {
       if (mounted) {
         setState(() {
-          _summary = (data['summary'] as Map<String, dynamic>?) ?? data;
-          _whatsappText = data['whatsapp_text'] as String?;
-          _loading = false;
+          _error = AppLocalizations.of(context)!.errorLoadingSummary;
         });
       }
-    } catch (e) {
-      if (mounted) setState(() { _error = AppLocalizations.of(context)!.errorLoadingSummary; _loading = false; });
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 
   Future<void> _sendAppNotifications() async {
     setState(() => _sending = true);
     try {
-      await BalanceRepository().fetchEventSummary(
-        widget.group.id,
-        sendApp: true,
-      );
+      await BalanceRepository()
+          .sendEventSummaryNotifications(widget.group.id)
+          .timeout(_summaryTimeout);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context)!.notificationSentToAll)),
