@@ -91,6 +91,18 @@ class _BannerConfig {
 }
 
 _BannerConfig? _bannerConfig(Group group, AppLocalizations l) {
+  // Closed group — restore/duplicate action replaces renew/activate (section 14)
+  if (group.isClosed) {
+    return _BannerConfig(
+      emoji: '🔒',
+      title: l.bannerClosedTitle,
+      subtitle: l.bannerClosedSubtitle,
+      actionLabel: group.isAdmin ? l.restoreGroupMenu : null,
+      bgColor: const Color(0xFFF5F3FF),
+      textColor: const Color(0xFF6D28D9),
+    );
+  }
+
   // Tier upgrade takes priority over state banners
   if (group.tierUpgradeRequired && group.upgradePriceDiff != null) {
     return _BannerConfig(

@@ -134,22 +134,9 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, color: Colors.white),
                   onSelected: (value) {
-                    if (value == 'restore') _showRestoreOptions(context, group);
                     if (value == 'delete') _deleteGroup(context, group);
                   },
                   itemBuilder: (ctx) => [
-                    if (group.isClosed)
-                      PopupMenuItem<String>(
-                        value: 'restore',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.replay_rounded,
-                                color: AppColors.primary, size: 20),
-                            const SizedBox(width: 10),
-                            Text(AppLocalizations.of(ctx)!.restoreGroupMenu),
-                          ],
-                        ),
-                      ),
                     PopupMenuItem<String>(
                       value: 'delete',
                       child: Row(
@@ -184,9 +171,15 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
           children: [
             GroupStateBanner(
               group: group,
-              onActionTap: group.isAdmin &&
-                      (!group.isOperational || group.tierUpgradeRequired)
-                  ? () => _openActivation(context, group)
+              onActionTap: group.isAdmin
+                  ? () {
+                      if (group.isClosed) {
+                        _showRestoreOptions(context, group);
+                      } else if (!group.isOperational ||
+                          group.tierUpgradeRequired) {
+                        _openActivation(context, group);
+                      }
+                    }
                   : null,
             ),
             Expanded(

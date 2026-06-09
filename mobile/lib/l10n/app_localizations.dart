@@ -1154,6 +1154,18 @@ abstract class AppLocalizations {
   /// **'חדש'**
   String get bannerRenew;
 
+  /// No description provided for @bannerClosedTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'קבוצה סגורה'**
+  String get bannerClosedTitle;
+
+  /// No description provided for @bannerClosedSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'ניתן לשחזר את הקבוצה עם כל הנתונים, או לשכפל לקבוצה חדשה עם אותם חברים'**
+  String get bannerClosedSubtitle;
+
   /// No description provided for @bannerFreeTitle.
   ///
   /// In he, this message translates to:

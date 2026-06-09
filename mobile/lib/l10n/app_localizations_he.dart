@@ -555,6 +555,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get bannerRenew => 'חדש';
 
   @override
+  String get bannerClosedTitle => 'קבוצה סגורה';
+
+  @override
+  String get bannerClosedSubtitle =>
+      'ניתן לשחזר את הקבוצה עם כל הנתונים, או לשכפל לקבוצה חדשה עם אותם חברים';
+
+  @override
   String get bannerFreeTitle => 'מצב חינמי';
 
   @override

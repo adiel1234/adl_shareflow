@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 9 יוני 2026 (build 33 — תיקוני URL קבלות, צילום/גלריה, דיאלוג שחזור/שכפול)
+> עודכן לאחרונה: 3 יוני 2026 (build 34 — שחזור קבוצה בבאנר, צפיית קבלות מאומתת, מספר build בפרופיל)
 
 ---
 
@@ -124,7 +124,7 @@
 | `balances/` | מנוע חישוב יתרות | GET /groups/{id}/balances |
 | `settlements/` | הסדרי חובות | POST /settlements |
 | `notifications/` | התראות + FCM | GET /notifications, POST /fcm-token |
-| `ocr/` | קבלות — צירוף + OCR | POST /ocr/attach, POST /ocr/scan |
+| `ocr/` | קבלות — צירוף + OCR | POST /ocr/attach, POST /ocr/scan, GET /ocr/receipts/{id}/image |
 | `currency/` | שערי חליפין | GET /currency/rates |
 | `dashboard/` | ADL Admin API | GET /dashboard/stats, /monetization |
 | `download/` | דפי הורדה + join + פיילוט | GET /download, /pilot, /privacy, /join/<code>, /api/deferred-link |
@@ -409,7 +409,8 @@ flutter install --release
 
 ### Backend
 - **`POST /ocr/attach`**: העלאת תמונת קבלה **ללא OCR** — `status=confirmed`; מחזיר `receipt_id` + `image_url`.
-- **`GET /uploads/<path>`**: הגשת קבצי קבלות (`STORAGE_BACKEND=local`).
+- **`GET /uploads/<path>`**: הגשת קבצי קבלות (`STORAGE_BACKEND=local`, ללא JWT).
+- **`GET /ocr/receipts/<id>/image`** (build 34): הגשת קבלה **מאומתת** (JWT + חבר קבוצה); מומלץ לצפייה באפליקציה.
 - **`Expense.to_dict`**: שדות `has_receipt`, `receipt_image_url`, `receipt_id`; `POST/PUT` expenses מקבלים `receipt_id`.
 - **`DELETE /groups/<id>/members/<user_id>`** (סעיף 13): חסימה אם `net > 0` (נושה); הסרה + **חלוקה מחדש** per-expense אם החבר חייב; **הוסר** `forgive_debt`.
 - **`POST /groups/<id>/reopen`** (סעיף 14): שחזור **קבוצה סגורה** (`is_closed=true`, admin בלבד) — `is_closed=false`, `closed_at=null`, סנכרון lifecycle; **אותה** קבוצה עם כל ההוצאות/חברים/היסטוריה; **לא** סופר כקבוצה חדשה במגבלת 3.

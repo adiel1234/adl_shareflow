@@ -184,12 +184,14 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
             children: [
               if (_receiptImageUrl != null && _receiptImageUrl!.isNotEmpty) ...[
                 ReceiptPreviewTile(
+                  receiptId: _receiptId,
                   imageUrl: _receiptImageUrl!,
                   onView: () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => ReceiptViewerScreen(
-                        imageUrl: _receiptImageUrl!,
+                        receiptId: _receiptId,
+                        imageUrl: _receiptImageUrl,
                         title: widget.expense.title,
                       ),
                     ),

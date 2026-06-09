@@ -557,6 +557,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bannerRenew => 'Renew';
 
   @override
+  String get bannerClosedTitle => 'Group closed';
+
+  @override
+  String get bannerClosedSubtitle =>
+      'Restore with all data, or duplicate to a new group with the same members';
+
+  @override
   String get bannerFreeTitle => 'Free mode';
 
   @override

@@ -207,6 +207,8 @@
   "bannerReadOnlySubtitle": "Paid period ended. Renewal: ₪{price}",
   "@bannerReadOnlySubtitle": {"placeholders": {"price": {"type": "int"}}},
   "bannerRenew": "Renew",
+  "bannerClosedTitle": "Group closed",
+  "bannerClosedSubtitle": "Restore with all data, or duplicate to a new group with the same members",
   "bannerFreeTitle": "Free mode",
   "bannerFreeSubtitle": "Up to 7 participants and 7 days free.",
 

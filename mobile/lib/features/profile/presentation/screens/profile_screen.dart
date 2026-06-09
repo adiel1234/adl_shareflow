@@ -34,7 +34,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   Future<void> _loadVersion() async {
     final info = await PackageInfo.fromPlatform();
-    if (mounted) setState(() => _version = info.version);
+    if (mounted) {
+      setState(() => _version = '${info.version} (${info.buildNumber})');
+    }
   }
 
   Future<void> _pickAvatar() async {

@@ -207,6 +207,8 @@
   "bannerReadOnlySubtitle": "פרק הזמן שבתשלום הסתיים. חידוש: {price} ₪",
   "@bannerReadOnlySubtitle": {"placeholders": {"price": {"type": "int"}}},
   "bannerRenew": "חדש",
+  "bannerClosedTitle": "קבוצה סגורה",
+  "bannerClosedSubtitle": "ניתן לשחזר את הקבוצה עם כל הנתונים, או לשכפל לקבוצה חדשה עם אותם חברים",
   "bannerFreeTitle": "מצב חינמי",
   "bannerFreeSubtitle": "עד 7 משתתפים ו-7 ימים ללא עלות.",
 

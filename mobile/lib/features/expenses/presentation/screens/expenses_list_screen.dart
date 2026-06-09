@@ -196,8 +196,8 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) => ReceiptViewerScreen(
-                                        imageUrl: resolveMediaUrl(
-                                            expense.receiptImageUrl),
+                                        receiptId: expense.receiptId,
+                                        imageUrl: expense.receiptImageUrl,
                                         title: expense.title,
                                       ),
                                     ),
