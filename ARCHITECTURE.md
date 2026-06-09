@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 9 יוני 2026 (build 32 prep — קבלות, קטגוריות, הסרת חבר v2, שחזור/שכפול קבוצה סגורה)
+> עודכן לאחרונה: 9 יוני 2026 (build 33 — תיקוני URL קבלות, צילום/גלריה, דיאלוג שחזור/שכפול)
 
 ---
 
@@ -309,7 +309,7 @@ flutter install --release
 | `JWT_SECRET_KEY` | סוד לחתימת tokens | ✅ | — |
 | `FIREBASE_CREDENTIALS_PATH` | נתיב לקובץ Firebase Admin JSON | ✅ Push | — |
 | `GOOGLE_APPLICATION_CREDENTIALS` | נתיב לקובץ Google Vision JSON | ✅ OCR | — |
-| `PUBLIC_BASE_URL` | בסיס URL ציבורי לקבצי `/uploads` (קבלות) | 🟡 | `https://adlshareflow-production.up.railway.app` |
+| `PUBLIC_BASE_URL` | בסיס URL ציבורי לקבצי `/uploads` (קבלות) — **ללא** `/api` | 🟡 | `https://adlshareflow-production.up.railway.app` |
 | `STORAGE_LOCAL_PATH` | תיקיית uploads מקומית בשרת | 🟡 | `./uploads` |
 | `ADL_ADMIN_KEY` | מפתח גישה ל-Dashboard | ✅ Dashboard | — |
 | `RESEND_API_KEY` | מפתח Resend לשליחת מיילים | ✅ | מוגדר ב-Railway |

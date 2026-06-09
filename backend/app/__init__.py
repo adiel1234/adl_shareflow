@@ -66,11 +66,13 @@ def create_app(config=None):
     # Local receipt uploads (STORAGE_BACKEND=local)
     @app.get('/uploads/<path:subpath>')
     def serve_upload(subpath):
+        import mimetypes
         import os
         from flask import send_from_directory
         upload_root = app.config.get('STORAGE_LOCAL_PATH', './uploads')
         directory = upload_root
-        return send_from_directory(directory, subpath)
+        guessed, _ = mimetypes.guess_type(subpath)
+        return send_from_directory(directory, subpath, mimetype=guessed or 'application/octet-stream')
 
     # Deferred deep link - app calls this on first launch to retrieve pending invite code
     @app.get('/api/deferred-link')

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/utils/media_url.dart';
 import '../../../../theme/app_colors.dart';
 
 /// Full-screen receipt image viewer.
@@ -15,6 +16,8 @@ class ReceiptViewerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedUrl = resolveMediaUrl(imageUrl);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -27,8 +30,9 @@ class ReceiptViewerScreen extends StatelessWidget {
           minScale: 0.5,
           maxScale: 4,
           child: CachedNetworkImage(
-            imageUrl: imageUrl,
+            imageUrl: resolvedUrl,
             fit: BoxFit.contain,
+            httpHeaders: const {'Accept': 'image/*'},
             placeholder: (_, __) => const CircularProgressIndicator(
               color: Colors.white54,
             ),
@@ -76,7 +80,7 @@ class ReceiptPreviewTile extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: CachedNetworkImage(
-              imageUrl: imageUrl,
+              imageUrl: resolveMediaUrl(imageUrl),
               width: 56,
               height: 56,
               fit: BoxFit.cover,

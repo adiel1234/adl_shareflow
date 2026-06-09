@@ -84,9 +84,11 @@ def scan_receipt():
     db.session.add(receipt)
     db.session.commit()
 
+    from app.common.media import public_media_url
+
     return success_response(data={
         'receipt_id': receipt.id,
-        'image_url': image_url,
+        'image_url': public_media_url(image_url) or image_url,
         'extracted': {
             'amount': str(result.extracted_amount) if result.extracted_amount else None,
             'merchant': result.extracted_merchant,

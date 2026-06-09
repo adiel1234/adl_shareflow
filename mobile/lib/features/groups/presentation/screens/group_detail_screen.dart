@@ -237,6 +237,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
   Future<void> _showRestoreOptions(BuildContext context, Group group) async {
     final choice = await showDialog<String>(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) {
         final dl = AppLocalizations.of(ctx)!;
         return AlertDialog(
@@ -246,24 +247,30 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
             style: const TextStyle(fontWeight: FontWeight.w700),
             textAlign: TextAlign.right,
           ),
-          actionsAlignment: MainAxisAlignment.center,
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _SplitOptionButton(
+                  icon: Icons.history,
+                  color: AppColors.primary,
+                  title: dl.restoreGroupOptionReopen,
+                  subtitle: dl.restoreGroupOptionReopenSubtitle,
+                  onTap: () => Navigator.pop(ctx, 'reopen'),
+                ),
+                const SizedBox(height: 8),
+                _SplitOptionButton(
+                  icon: Icons.copy_all_outlined,
+                  color: AppColors.secondary,
+                  title: dl.restoreGroupOptionDuplicate,
+                  subtitle: dl.restoreGroupOptionDuplicateSubtitle,
+                  onTap: () => Navigator.pop(ctx, 'duplicate'),
+                ),
+              ],
+            ),
+          ),
           actions: [
-            _SplitOptionButton(
-              icon: Icons.history,
-              color: AppColors.primary,
-              title: dl.restoreGroupOptionReopen,
-              subtitle: dl.restoreGroupOptionReopenSubtitle,
-              onTap: () => Navigator.pop(ctx, 'reopen'),
-            ),
-            const SizedBox(height: 8),
-            _SplitOptionButton(
-              icon: Icons.copy_all_outlined,
-              color: AppColors.secondary,
-              title: dl.restoreGroupOptionDuplicate,
-              subtitle: dl.restoreGroupOptionDuplicateSubtitle,
-              onTap: () => Navigator.pop(ctx, 'duplicate'),
-            ),
-            const SizedBox(height: 4),
             TextButton(
               onPressed: () => Navigator.pop(ctx, null),
               child: Text(dl.cancel,
