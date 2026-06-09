@@ -555,6 +555,15 @@
   "markGuestPaidConfirmGuestToMember": "Mark guest {from} paid {amount} {currency} to {to}? Recipient will confirm receipt.",
   "@markGuestPaidConfirmGuestToMember": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
 
+  "restoreGroupMenu": "Restore / Continue Group",
+  "restoreGroupDialogTitle": "Restore or Continue Group",
+  "restoreGroupOptionReopen": "Restore the original group with all data",
+  "restoreGroupOptionReopenSubtitle": "Reopen the same group — expenses, balances and history are kept",
+  "restoreGroupOptionDuplicate": "Duplicate with existing members only",
+  "restoreGroupOptionDuplicateSubtitle": "A new empty group with the same members",
+  "reopenGroupSuccess": "Group reopened successfully",
+  "errorReopeningGroup": "Error reopening group",
+
   "duplicateGroup": "Duplicate Group",
   "duplicateGroupDialogTitle": "Duplicate Closed Group",
   "duplicateGroupDialogBody": "A new empty group will be created with the same members.\nExpenses, balances and history from the closed group will not be copied.",

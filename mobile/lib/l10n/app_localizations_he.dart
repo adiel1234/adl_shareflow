@@ -1484,6 +1484,33 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
+  String get restoreGroupMenu => 'שחזור / המשך קבוצה';
+
+  @override
+  String get restoreGroupDialogTitle => 'שחזור או המשך קבוצה';
+
+  @override
+  String get restoreGroupOptionReopen => 'שחזור הקבוצה הישנה עם כל הנתונים';
+
+  @override
+  String get restoreGroupOptionReopenSubtitle =>
+      'פתיחה מחדש של אותה קבוצה — הוצאות, יתרות והיסטוריה נשמרים';
+
+  @override
+  String get restoreGroupOptionDuplicate =>
+      'שכפול הקבוצה רק עם המשתמשים הקיימים';
+
+  @override
+  String get restoreGroupOptionDuplicateSubtitle =>
+      'קבוצה חדשה וריקה עם אותם חברים';
+
+  @override
+  String get reopenGroupSuccess => 'הקבוצה נפתחה מחדש בהצלחה';
+
+  @override
+  String get errorReopeningGroup => 'שגיאה בפתיחת הקבוצה מחדש';
+
+  @override
   String get duplicateGroup => 'שכפל קבוצה';
 
   @override

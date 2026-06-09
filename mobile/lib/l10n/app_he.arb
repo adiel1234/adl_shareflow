@@ -555,6 +555,15 @@
   "markGuestPaidConfirmGuestToMember": "סמן שהאורח {from} שילם {amount} {currency} ל-{to}? המקבל יאשר קבלה.",
   "@markGuestPaidConfirmGuestToMember": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
 
+  "restoreGroupMenu": "שחזור / המשך קבוצה",
+  "restoreGroupDialogTitle": "שחזור או המשך קבוצה",
+  "restoreGroupOptionReopen": "שחזור הקבוצה הישנה עם כל הנתונים",
+  "restoreGroupOptionReopenSubtitle": "פתיחה מחדש של אותה קבוצה — הוצאות, יתרות והיסטוריה נשמרים",
+  "restoreGroupOptionDuplicate": "שכפול הקבוצה רק עם המשתמשים הקיימים",
+  "restoreGroupOptionDuplicateSubtitle": "קבוצה חדשה וריקה עם אותם חברים",
+  "reopenGroupSuccess": "הקבוצה נפתחה מחדש בהצלחה",
+  "errorReopeningGroup": "שגיאה בפתיחת הקבוצה מחדש",
+
   "duplicateGroup": "שכפל קבוצה",
   "duplicateGroupDialogTitle": "שכפול קבוצה סגורה",
   "duplicateGroupDialogBody": "תיווצר קבוצה חדשה וריקה עם אותם חברים.\nההוצאות, היתרות וההיסטוריה של הקבוצה הסגורה לא יועתקו.",

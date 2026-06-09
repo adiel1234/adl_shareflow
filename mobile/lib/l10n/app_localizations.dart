@@ -2808,6 +2808,54 @@ abstract class AppLocalizations {
   String markGuestPaidConfirmGuestToMember(
       String from, String to, String amount, String currency);
 
+  /// No description provided for @restoreGroupMenu.
+  ///
+  /// In he, this message translates to:
+  /// **'שחזור / המשך קבוצה'**
+  String get restoreGroupMenu;
+
+  /// No description provided for @restoreGroupDialogTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'שחזור או המשך קבוצה'**
+  String get restoreGroupDialogTitle;
+
+  /// No description provided for @restoreGroupOptionReopen.
+  ///
+  /// In he, this message translates to:
+  /// **'שחזור הקבוצה הישנה עם כל הנתונים'**
+  String get restoreGroupOptionReopen;
+
+  /// No description provided for @restoreGroupOptionReopenSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'פתיחה מחדש של אותה קבוצה — הוצאות, יתרות והיסטוריה נשמרים'**
+  String get restoreGroupOptionReopenSubtitle;
+
+  /// No description provided for @restoreGroupOptionDuplicate.
+  ///
+  /// In he, this message translates to:
+  /// **'שכפול הקבוצה רק עם המשתמשים הקיימים'**
+  String get restoreGroupOptionDuplicate;
+
+  /// No description provided for @restoreGroupOptionDuplicateSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'קבוצה חדשה וריקה עם אותם חברים'**
+  String get restoreGroupOptionDuplicateSubtitle;
+
+  /// No description provided for @reopenGroupSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'הקבוצה נפתחה מחדש בהצלחה'**
+  String get reopenGroupSuccess;
+
+  /// No description provided for @errorReopeningGroup.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בפתיחת הקבוצה מחדש'**
+  String get errorReopeningGroup;
+
   /// No description provided for @duplicateGroup.
   ///
   /// In he, this message translates to:

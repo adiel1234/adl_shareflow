@@ -134,19 +134,19 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, color: Colors.white),
                   onSelected: (value) {
-                    if (value == 'duplicate') _duplicateGroup(context, group);
+                    if (value == 'restore') _showRestoreOptions(context, group);
                     if (value == 'delete') _deleteGroup(context, group);
                   },
                   itemBuilder: (ctx) => [
                     if (group.isClosed)
                       PopupMenuItem<String>(
-                        value: 'duplicate',
+                        value: 'restore',
                         child: Row(
                           children: [
-                            const Icon(Icons.copy_all_outlined,
+                            const Icon(Icons.replay_rounded,
                                 color: AppColors.primary, size: 20),
                             const SizedBox(width: 10),
-                            Text(AppLocalizations.of(ctx)!.duplicateGroup),
+                            Text(AppLocalizations.of(ctx)!.restoreGroupMenu),
                           ],
                         ),
                       ),
@@ -231,6 +231,82 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
       ref.invalidate(expensesProvider(group.id));
       ref.invalidate(balancesProvider(group.id));
       if (context.mounted) Navigator.pop(context);
+    }
+  }
+
+  Future<void> _showRestoreOptions(BuildContext context, Group group) async {
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            dl.restoreGroupDialogTitle,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+            textAlign: TextAlign.right,
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            _SplitOptionButton(
+              icon: Icons.history,
+              color: AppColors.primary,
+              title: dl.restoreGroupOptionReopen,
+              subtitle: dl.restoreGroupOptionReopenSubtitle,
+              onTap: () => Navigator.pop(ctx, 'reopen'),
+            ),
+            const SizedBox(height: 8),
+            _SplitOptionButton(
+              icon: Icons.copy_all_outlined,
+              color: AppColors.secondary,
+              title: dl.restoreGroupOptionDuplicate,
+              subtitle: dl.restoreGroupOptionDuplicateSubtitle,
+              onTap: () => Navigator.pop(ctx, 'duplicate'),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, null),
+              child: Text(dl.cancel,
+                  style: const TextStyle(color: AppColors.textSecondary)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (choice == null || !mounted) return;
+    if (choice == 'reopen') {
+      await _reopenGroup(context, group);
+    } else if (choice == 'duplicate') {
+      await _duplicateGroup(context, group);
+    }
+  }
+
+  Future<void> _reopenGroup(BuildContext context, Group group) async {
+    final l = AppLocalizations.of(context)!;
+    try {
+      final reopened = await ref.read(groupRepositoryProvider).reopenGroup(group.id);
+      if (!mounted) return;
+      ref.invalidate(groupsProvider);
+      ref.invalidate(groupDetailProvider(group.id));
+      ref.invalidate(expensesProvider(group.id));
+      ref.invalidate(balancesProvider(group.id));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => GroupDetailScreen(group: reopened),
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.reopenGroupSuccess)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      String msg = l.errorReopeningGroup;
+      if (e is DioException) {
+        msg = (e.response?.data?['message'] as String?) ?? msg;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
   }
 

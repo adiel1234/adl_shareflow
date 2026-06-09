@@ -511,6 +511,29 @@ def duplicate_group(group_id, **kwargs):
     return success_response(data=response_data, status_code=201)
 
 
+@groups_bp.post('/<group_id>/reopen')
+@jwt_required()
+@require_group_admin
+def reopen_group(group_id, **kwargs):
+    """
+    Reopen a closed group (reverse close operation).
+    Restores the same group with all expenses, members, and history intact.
+    Does not create a new group — does not count toward the 3-group free limit.
+    """
+    group = db.session.get(Group, group_id)
+    if not group or not group.is_active:
+        return error_response('Group not found', 404)
+
+    if not group.is_closed:
+        return error_response('הקבוצה אינה סגורה', 400)
+
+    group.is_closed = False
+    group.closed_at = None
+    GroupLifecycleService.sync_state(group, db.session)
+    db.session.commit()
+    return success_response(data=group.to_dict(), message='הקבוצה נפתחה מחדש בהצלחה')
+
+
 @groups_bp.get('/<group_id>/invite-link')
 @jwt_required()
 @require_group_member

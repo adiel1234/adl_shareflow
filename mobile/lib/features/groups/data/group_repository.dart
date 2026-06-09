@@ -106,6 +106,12 @@ class GroupRepository {
     await _api.delete('/groups/$groupId');
   }
 
+  /// Reopen a closed group — same group with all data restored.
+  Future<Group> reopenGroup(String groupId) async {
+    final response = await _api.post('/groups/$groupId/reopen');
+    return Group.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
+
   /// Duplicate a closed group into a fresh empty group with the same members.
   /// Returns (newGroup, limitReached) — same semantics as [createGroup].
   Future<(Group, bool)> duplicateGroup(

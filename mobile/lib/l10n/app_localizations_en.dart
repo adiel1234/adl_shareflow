@@ -1495,6 +1495,34 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get restoreGroupMenu => 'Restore / Continue Group';
+
+  @override
+  String get restoreGroupDialogTitle => 'Restore or Continue Group';
+
+  @override
+  String get restoreGroupOptionReopen =>
+      'Restore the original group with all data';
+
+  @override
+  String get restoreGroupOptionReopenSubtitle =>
+      'Reopen the same group — expenses, balances and history are kept';
+
+  @override
+  String get restoreGroupOptionDuplicate =>
+      'Duplicate with existing members only';
+
+  @override
+  String get restoreGroupOptionDuplicateSubtitle =>
+      'A new empty group with the same members';
+
+  @override
+  String get reopenGroupSuccess => 'Group reopened successfully';
+
+  @override
+  String get errorReopeningGroup => 'Error reopening group';
+
+  @override
   String get duplicateGroup => 'Duplicate Group';
 
   @override
