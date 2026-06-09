@@ -213,19 +213,16 @@ def get_members(group_id, **kwargs):
 @require_group_admin
 def remove_member(group_id, target_user_id, **kwargs):
     """
-    Remove a member from the group.
+    Remove a member from the group (section 13 design).
 
-    Query param / JSON body:
-      forgive_debt (bool, default false)
-        false → historical splits are kept; the debt remains visible until
-                settled manually ("former member" balance).
-        true  → the removed member's share_amount on every expense in this
-                group is zeroed out, effectively forgiving the outstanding debt.
-
-    Historical expense records are always preserved.
-    The group shrinks by one participant for future expenses.
+    - If others owe the member (net > 0): blocked until debts are settled.
+    - If member owes others (net <= 0): allowed; their share on each expense
+      is redistributed equally among remaining participants on that expense.
     """
-    from app.models import ExpenseParticipant
+    from decimal import Decimal
+    from app.models import Expense, ExpenseParticipant
+    from app.balances.engine import calculate_group_balances
+    from app.expenses.routes import _equal_participant_shares
 
     user_id = get_jwt_identity()
     removing_self = (target_user_id == user_id)
@@ -236,32 +233,35 @@ def remove_member(group_id, target_user_id, **kwargs):
     if not member:
         return error_response('Member not found', 404)
 
-    # Resolve forgive_debt from JSON body or query string
-    data = request.get_json(silent=True) or {}
-    forgive_raw = data.get('forgive_debt', request.args.get('forgive_debt', False))
-    if isinstance(forgive_raw, str):
-        forgive_debt = forgive_raw.lower() in ('true', '1', 'yes')
-    else:
-        forgive_debt = bool(forgive_raw)
-
-    if forgive_debt:
-        # Zero out all expense splits for this member in this group.
-        # The expense rows themselves stay intact; only the share amount
-        # that was assigned to the removed member is wiped.
-        from app.models import Expense
-        expense_ids = db.session.query(Expense.id).filter_by(group_id=group_id).subquery()
-        (
-            ExpenseParticipant.query
-            .filter(
-                ExpenseParticipant.user_id == target_user_id,
-                ExpenseParticipant.expense_id.in_(expense_ids),
-            )
-            .update({'share_amount': 0}, synchronize_session='fetch')
+    balances = calculate_group_balances(group_id)
+    target_balance = next((b for b in balances if b.user_id == target_user_id), None)
+    if target_balance and target_balance.net_amount > Decimal('0.01'):
+        return error_response(
+            f'לא ניתן להסיר את {target_balance.display_name} — יש חוב כלפיו '
+            f'({target_balance.net_amount} ₪). יש לסגור את החוב לפני ההסרה.',
+            400,
         )
+
+    expenses = Expense.query.filter_by(group_id=group_id).all()
+    for expense in expenses:
+        participants = ExpenseParticipant.query.filter_by(expense_id=expense.id).all()
+        removed = next((p for p in participants if p.user_id == target_user_id), None)
+        if not removed:
+            continue
+
+        removed_share = Decimal(str(removed.share_amount))
+        db.session.delete(removed)
+
+        remaining = [p for p in participants if p.user_id != target_user_id]
+        if not remaining or removed_share <= 0:
+            continue
+
+        extras = _equal_participant_shares(removed_share, len(remaining))
+        for p, extra in zip(remaining, extras):
+            p.share_amount = Decimal(str(p.share_amount)) + extra
 
     db.session.delete(member)
 
-    # If admin removed themselves, promote the earliest-joined remaining member
     if removing_self:
         next_member = (
             GroupMember.query
@@ -450,6 +450,67 @@ def close_group(group_id, **kwargs):
     return success_response(data=group.to_dict(), message='הקבוצה נסגרה בהצלחה')
 
 
+@groups_bp.post('/<group_id>/duplicate')
+@jwt_required()
+@require_group_admin
+def duplicate_group(group_id, **kwargs):
+    """
+    Create a brand-new group from a closed group (section 14).
+    Copies member list and metadata only — no expenses, payments, or history.
+    """
+    user_id = get_jwt_identity()
+    source = db.session.get(Group, group_id)
+    if not source or not source.is_active:
+        return error_response('Group not found', 404)
+
+    if not source.is_closed:
+        return error_response('ניתן לשכפל רק קבוצה סגורה', 400)
+
+    data = request.get_json(silent=True) or {}
+    default_name = f'{source.name} (2)'
+    name = (data.get('name') or default_name).strip()
+    if not name:
+        return error_response('name is required')
+
+    total_created = Group.query.filter_by(created_by=user_id).count()
+    limit_reached = total_created >= FREE_GROUP_LIMIT
+    group_state = 'limited' if limit_reached else 'free'
+
+    new_group = Group(
+        name=name,
+        description=source.description,
+        base_currency=source.base_currency,
+        category=source.category,
+        created_by=user_id,
+        invite_code=generate_invite_code(),
+        group_type=source.group_type,
+        group_state=group_state,
+        settlement_type='none',
+        settlement_period=None,
+        current_period_start=None,
+        next_settlement_date=None,
+        is_closed=False,
+    )
+    db.session.add(new_group)
+    db.session.flush()
+
+    source_members = GroupMember.query.filter_by(group_id=group_id).all()
+    for sm in source_members:
+        db.session.add(GroupMember(
+            group_id=new_group.id,
+            user_id=sm.user_id,
+            role=sm.role,
+        ))
+
+    db.session.commit()
+
+    response_data = new_group.to_dict()
+    if limit_reached:
+        response_data['creation_reason'] = 'free_group_limit_reached'
+
+    return success_response(data=response_data, status_code=201)
+
+
 @groups_bp.get('/<group_id>/invite-link')
 @jwt_required()
 @require_group_member
@@ -495,6 +556,7 @@ def invite_by_email(group_id, **kwargs):
 
     # Determine group emoji by category
     emoji_map = {
+        'wedding': '💒', 'party': '🎉', 'birthday': '🎂',
         'apartment': '🏠', 'trip': '✈️', 'vehicle': '🚗',
         'event': '🎉',
     }

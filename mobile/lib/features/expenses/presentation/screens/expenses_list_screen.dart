@@ -7,6 +7,8 @@ import '../../../groups/domain/group_model.dart';
 import '../../domain/expense_model.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/media_url.dart';
+import '../widgets/receipt_viewer.dart';
 import 'edit_expense_screen.dart';
 
 // iOS-style category icon helpers (same palette as GroupCard)
@@ -187,6 +189,21 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
                                 }
                               }
                           : null,
+                          onViewReceipt: expense.hasReceipt &&
+                                  expense.receiptImageUrl != null
+                              ? () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ReceiptViewerScreen(
+                                        imageUrl: resolveMediaUrl(
+                                            expense.receiptImageUrl),
+                                        title: expense.title,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              : null,
                         );
                       },
                     ),
@@ -231,6 +248,7 @@ class _ExpenseItem extends StatelessWidget {
   final String prefCurrency;
   final double conversionRate;
   final VoidCallback? onEdit;
+  final VoidCallback? onViewReceipt;
 
   const _ExpenseItem({
     required this.expense,
@@ -240,6 +258,7 @@ class _ExpenseItem extends StatelessWidget {
     required this.prefCurrency,
     required this.conversionRate,
     this.onEdit,
+    this.onViewReceipt,
   });
 
   @override
@@ -279,7 +298,10 @@ class _ExpenseItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          onTap: isCreator ? onEdit : null,
+          onTap: onEdit ?? onViewReceipt,
+          onLongPress: onEdit != null && onViewReceipt != null
+              ? onViewReceipt
+              : null,
           child: Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
@@ -326,6 +348,14 @@ class _ExpenseItem extends StatelessWidget {
                           if (isCreator)
                             const Icon(Icons.edit_outlined,
                                 size: 14, color: AppColors.textDisabled),
+                          if (expense.hasReceipt) ...[
+                            const SizedBox(width: 4),
+                            Tooltip(
+                              message: 'קבלה מצורפת',
+                              child: Icon(Icons.receipt_long_outlined,
+                                  size: 14, color: AppColors.primary),
+                            ),
+                          ],
                         ],
                       ),
                       const SizedBox(height: 3),

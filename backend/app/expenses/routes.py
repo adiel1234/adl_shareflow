@@ -6,7 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.orm import selectinload, joinedload
 
 from app import db
-from app.models import Expense, ExpenseParticipant, Group, GroupMember
+from app.models import Expense, ExpenseParticipant, Group, GroupMember, Receipt
 from app.common.errors import success_response, error_response
 from app.common.decorators import require_group_member, require_group_operational
 from app.common.utils import to_decimal
@@ -82,6 +82,15 @@ def _set_expense_participants(expense: Expense, participants_data: list) -> str 
     return None
 
 
+def _validate_receipt_id(receipt_id: str | None, user_id: str) -> str | None:
+    if not receipt_id:
+        return None
+    receipt = db.session.get(Receipt, receipt_id)
+    if not receipt or receipt.user_id != user_id:
+        return 'receipt_id is invalid or does not belong to you'
+    return None
+
+
 @expenses_bp.get('/groups/<group_id>/expenses')
 @jwt_required()
 @require_group_member
@@ -101,6 +110,7 @@ def list_expenses(group_id, **kwargs):
         .options(
             selectinload(Expense.participants).joinedload(ExpenseParticipant.user),
             joinedload(Expense.payer),
+            joinedload(Expense.receipt),
         )
         .order_by(Expense.expense_date.desc(), Expense.created_at.desc())
         .offset((page - 1) * per_page)
@@ -166,6 +176,11 @@ def create_expense(group_id, **kwargs):
     except Exception:
         return error_response('expense_date must be YYYY-MM-DD')
 
+    receipt_id = data.get('receipt_id')
+    receipt_err = _validate_receipt_id(receipt_id, user_id)
+    if receipt_err:
+        return error_response(receipt_err, 400)
+
     expense = Expense(
         group_id=group_id,
         paid_by=paid_by,
@@ -176,6 +191,7 @@ def create_expense(group_id, **kwargs):
         converted_amount=converted_amount,
         category=data.get('category'),
         split_type=split_type,
+        receipt_id=receipt_id,
         expense_date=expense_date,
         notes=data.get('notes'),
         created_by=user_id,
@@ -296,6 +312,14 @@ def update_expense(expense_id):
 
     if 'category' in data:
         expense.category = data['category'] or None
+
+    if 'receipt_id' in data:
+        receipt_id = data.get('receipt_id')
+        if receipt_id:
+            receipt_err = _validate_receipt_id(receipt_id, user_id)
+            if receipt_err:
+                return error_response(receipt_err, 400)
+        expense.receipt_id = receipt_id or None
 
     if 'expense_date' in data:
         try:

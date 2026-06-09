@@ -27,6 +27,7 @@ class ExpenseRepository {
     String? notes,
     String? expenseDate,
     List<Map<String, dynamic>>? participants,
+    String? receiptId,
   }) async {
     final response = await _api.post('/groups/$groupId/expenses', data: {
       'title': title,
@@ -39,6 +40,7 @@ class ExpenseRepository {
       if (notes != null) 'notes': notes,
       'expense_date': expenseDate ?? DateTime.now().toIso8601String().split('T')[0],
       if (participants != null) 'participants': participants,
+      if (receiptId != null) 'receipt_id': receiptId,
     });
     return Expense.fromJson(response.data['data'] as Map<String, dynamic>);
   }
@@ -54,6 +56,7 @@ class ExpenseRepository {
     String? expenseDate,
     double exchangeRate = 1.0,
     List<Map<String, dynamic>>? participants,
+    String? receiptId,
   }) async {
     final response = await _api.put('/expenses/$expenseId', data: {
       'title': title,
@@ -66,6 +69,7 @@ class ExpenseRepository {
       'expense_date':
           expenseDate ?? DateTime.now().toIso8601String().split('T')[0],
       if (participants != null) 'participants': participants,
+      if (receiptId != null) 'receipt_id': receiptId,
     });
     return Expense.fromJson(response.data['data'] as Map<String, dynamic>);
   }

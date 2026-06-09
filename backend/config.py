@@ -44,6 +44,7 @@ class Config:
     # Storage
     STORAGE_BACKEND = os.getenv('STORAGE_BACKEND', 'local')
     STORAGE_LOCAL_PATH = os.getenv('STORAGE_LOCAL_PATH', './uploads')
+    PUBLIC_BASE_URL = os.getenv('PUBLIC_BASE_URL', '')
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID', '')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY', '')
     AWS_S3_BUCKET = os.getenv('AWS_S3_BUCKET', '')

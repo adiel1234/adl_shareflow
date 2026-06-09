@@ -25,7 +25,7 @@ class OcrResult {
       amount: extracted['amount'] as String?,
       merchant: extracted['merchant'] as String?,
       date: extracted['date'] as String?,
-      confidence: (json['confidence'] as num).toDouble(),
+      confidence: (json['confidence'] as num?)?.toDouble() ?? 1.0,
       needsReview: json['needs_review'] as bool? ?? false,
     );
   }

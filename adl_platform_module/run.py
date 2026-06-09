@@ -97,8 +97,22 @@ def root():
 # ── Blueprint ─────────────────────────────────────────────────────────
 app.register_blueprint(shareflow_bp, url_prefix='/shareflow')
 
+
+@app.context_processor
+def _inject_api_status():
+    from shareflow.routes import get_api_status
+    return get_api_status()
+
+
 # ── Run ───────────────────────────────────────────────────────────────
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5002))
-    print(f"\n✅  ShareFlow Admin: http://localhost:{port}/shareflow\n")
+    api_url = os.getenv(
+        'SHAREFLOW_API_URL',
+        'https://adlshareflow-production.up.railway.app/api',
+    )
+    key_ok = bool(os.getenv('SHAREFLOW_ADMIN_KEY', ''))
+    print(f"\n✅  ShareFlow Admin: http://localhost:{port}/shareflow")
+    print(f"    API: {api_url}")
+    print(f"    מפתח: {'מוגדר' if key_ok else 'חסר — צור .env מ-.env.example'}\n")
     app.run(host='0.0.0.0', port=port, debug=False)

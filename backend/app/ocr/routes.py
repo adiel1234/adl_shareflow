@@ -11,6 +11,40 @@ from app.common.utils import allowed_image
 ocr_bp = Blueprint('ocr', __name__)
 
 
+@ocr_bp.post('/attach')
+@jwt_required()
+def attach_receipt():
+    """Upload receipt image only — no OCR (pilot: view-only attachment)."""
+    user_id = get_jwt_identity()
+
+    if 'image' not in request.files:
+        return error_response('image file is required')
+
+    file = request.files['image']
+    if not file.filename or not allowed_image(file.filename):
+        return error_response('Invalid image format. Allowed: png, jpg, jpeg, webp, heic')
+
+    group_id = request.form.get('group_id')
+    image_bytes = file.read()
+    image_url = _save_image(image_bytes, file.filename, user_id)
+
+    receipt = Receipt(
+        user_id=user_id,
+        group_id=group_id or None,
+        image_url=image_url,
+        status='confirmed',
+    )
+    db.session.add(receipt)
+    db.session.commit()
+
+    from app.common.media import public_media_url
+
+    return success_response(data={
+        'receipt_id': receipt.id,
+        'image_url': public_media_url(image_url) or image_url,
+    }, status_code=201)
+
+
 @ocr_bp.post('/scan')
 @jwt_required()
 def scan_receipt():

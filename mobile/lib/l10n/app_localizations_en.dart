@@ -162,7 +162,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryApartment => 'Apartment';
 
   @override
-  String get categoryTrip => 'Trip';
+  String get categoryTrip => 'Flight / trip';
 
   @override
   String get categoryVehicle => 'Vehicle';
@@ -171,7 +171,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryEvent => 'Event';
 
   @override
+  String get categoryWedding => 'Wedding';
+
+  @override
+  String get categoryParty => 'Party';
+
+  @override
+  String get categoryBirthday => 'Birthday';
+
+  @override
   String get categoryOther => 'Other';
+
+  @override
+  String get categoryOtherHint => 'Custom category name';
 
   @override
   String get free => 'Free';
@@ -671,6 +683,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String memberRemovedForgiven(String name) {
     return '$name was removed and their debt was forgiven.';
+  }
+
+  @override
+  String removeMemberBlockedCreditor(String name) {
+    return 'Cannot remove — others owe $name. Settle debts first.';
+  }
+
+  @override
+  String get removeMemberRedistributeTitle => 'Remove and redistribute';
+
+  @override
+  String removeMemberRedistributeBody(String name, String amount) {
+    return '$name owes $amount. Their share will be redistributed among remaining participants.';
+  }
+
+  @override
+  String memberRemovedRedistributed(String name) {
+    return '$name removed. Expense shares were redistributed.';
   }
 
   @override
@@ -1463,6 +1493,28 @@ class AppLocalizationsEn extends AppLocalizations {
       String from, String to, String amount, String currency) {
     return 'Mark guest $from paid $amount $currency to $to? Recipient will confirm receipt.';
   }
+
+  @override
+  String get duplicateGroup => 'Duplicate Group';
+
+  @override
+  String get duplicateGroupDialogTitle => 'Duplicate Closed Group';
+
+  @override
+  String get duplicateGroupDialogBody =>
+      'A new empty group will be created with the same members.\nExpenses, balances and history from the closed group will not be copied.';
+
+  @override
+  String get duplicateGroupNameHint => 'New group name';
+
+  @override
+  String get duplicateGroupBtn => 'Create New Group';
+
+  @override
+  String get duplicateGroupSuccess => 'New group created successfully';
+
+  @override
+  String get errorDuplicatingGroup => 'Error duplicating group';
 
   @override
   String get deleteGroup => 'Delete Group';

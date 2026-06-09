@@ -74,20 +74,42 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   static const _kTeal   = Color(0xFF0D9488);
   static const _kPurple = Color(0xFF7C3AED);
 
-  static const _categoryKeys = [
-    ('apartment', Icons.home_rounded,           _kTeal,   _kBlue),
-    ('trip',      Icons.flight_rounded,          _kBlue,   _kTeal),
-    ('vehicle',   Icons.directions_car_rounded,  _kBlue,   _kPurple),
-    ('event',     Icons.celebration_rounded,     _kPurple, _kBlue),
-    ('other',     Icons.group_rounded,           _kTeal,   _kPurple),
+  static const _kEventCategoryKeys = [
+    ('wedding',   Icons.favorite_rounded,        _kPurple, _kBlue),
+    ('party',     Icons.celebration_rounded,     _kPurple, _kTeal),
+    ('birthday',  Icons.cake_rounded,            _kBlue,   _kPurple),
+    ('other',     Icons.more_horiz_rounded,      _kTeal,   _kPurple),
   ];
+
+  static const _kOngoingCategoryKeys = [
+    ('apartment', Icons.home_rounded,            _kTeal,   _kBlue),
+    ('vehicle',   Icons.directions_car_rounded,  _kBlue,   _kPurple),
+    ('trip',      Icons.flight_rounded,          _kBlue,   _kTeal),
+    ('other',     Icons.more_horiz_rounded,      _kTeal,   _kPurple),
+  ];
+
+  List<(String, IconData, Color, Color)> get _categoryKeys =>
+      _groupType == 'event' ? _kEventCategoryKeys : _kOngoingCategoryKeys;
+
+  final _customCategoryCtrl = TextEditingController();
+
+  String? get _resolvedCategory {
+    if (_category == null) return null;
+    if (_category == 'other') {
+      final custom = _customCategoryCtrl.text.trim();
+      return custom.isEmpty ? 'other' : custom;
+    }
+    return _category;
+  }
 
   String _catLabel(AppLocalizations l, String key) {
     switch (key) {
+      case 'wedding':   return l.categoryWedding;
+      case 'party':     return l.categoryParty;
+      case 'birthday':  return l.categoryBirthday;
       case 'apartment': return l.categoryApartment;
       case 'trip':      return l.categoryTrip;
       case 'vehicle':   return l.categoryVehicle;
-      case 'event':     return l.categoryEvent;
       default:          return l.categoryOther;
     }
   }
@@ -96,6 +118,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   void dispose() {
     _nameCtrl.dispose();
     _descCtrl.dispose();
+    _customCategoryCtrl.dispose();
     super.dispose();
   }
 
@@ -111,7 +134,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                     ? null
                     : _descCtrl.text.trim(),
                 baseCurrency: _currency,
-                category: _category,
+                category: _resolvedCategory,
                 groupType: _groupType,
                 settlementType: _settlementType,
                 settlementPeriod: _settlementType == 'periodic' ? _settlementPeriod : null,
@@ -194,7 +217,12 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                     subtitle: l.sevenDays,
                     icon: Icons.celebration_rounded,
                     selected: _groupType == 'event',
-                    onTap: () => setState(() { _groupType = 'event'; _tierIdx = 0; }),
+                    onTap: () => setState(() {
+                      _groupType = 'event';
+                      _tierIdx = 0;
+                      _category = null;
+                      _customCategoryCtrl.clear();
+                    }),
                   ),
                   const SizedBox(width: 10),
                   _TypeCard(
@@ -202,7 +230,12 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                     subtitle: l.monthly,
                     icon: Icons.autorenew_rounded,
                     selected: _groupType == 'ongoing',
-                    onTap: () => setState(() { _groupType = 'ongoing'; _tierIdx = 0; }),
+                    onTap: () => setState(() {
+                      _groupType = 'ongoing';
+                      _tierIdx = 0;
+                      _category = null;
+                      _customCategoryCtrl.clear();
+                    }),
                   ),
                 ],
               ),
@@ -501,6 +534,18 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                   );
                 }).toList(),
               ),
+
+              if (_category == 'other') ...[
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _customCategoryCtrl,
+                  decoration: InputDecoration(
+                    hintText: l.categoryOtherHint,
+                    prefixIcon: const Icon(Icons.edit_outlined),
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+              ],
 
               const SizedBox(height: 24),
 

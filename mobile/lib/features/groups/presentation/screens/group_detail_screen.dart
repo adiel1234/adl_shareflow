@@ -134,9 +134,22 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert, color: Colors.white),
                   onSelected: (value) {
+                    if (value == 'duplicate') _duplicateGroup(context, group);
                     if (value == 'delete') _deleteGroup(context, group);
                   },
                   itemBuilder: (ctx) => [
+                    if (group.isClosed)
+                      PopupMenuItem<String>(
+                        value: 'duplicate',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.copy_all_outlined,
+                                color: AppColors.primary, size: 20),
+                            const SizedBox(width: 10),
+                            Text(AppLocalizations.of(ctx)!.duplicateGroup),
+                          ],
+                        ),
+                      ),
                     PopupMenuItem<String>(
                       value: 'delete',
                       child: Row(
@@ -218,6 +231,125 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
       ref.invalidate(expensesProvider(group.id));
       ref.invalidate(balancesProvider(group.id));
       if (context.mounted) Navigator.pop(context);
+    }
+  }
+
+  Future<void> _duplicateGroup(BuildContext context, Group group) async {
+    final l = AppLocalizations.of(context)!;
+    final nameCtrl = TextEditingController(text: '${group.name} (2)');
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(dl.duplicateGroupDialogTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                dl.duplicateGroupDialogBody,
+                style: const TextStyle(
+                    color: AppColors.textSecondary, height: 1.5),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameCtrl,
+                decoration: InputDecoration(
+                  labelText: dl.duplicateGroupNameHint,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+                textCapitalization: TextCapitalization.sentences,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(dl.cancel)),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(dl.duplicateGroupBtn),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final newName = nameCtrl.text.trim();
+    nameCtrl.dispose();
+    if (newName.isEmpty) return;
+
+    try {
+      final (newGroup, limitReached) = await ref
+          .read(groupRepositoryProvider)
+          .duplicateGroup(group.id, name: newName);
+      if (!mounted) return;
+      ref.invalidate(groupsProvider);
+
+      if (limitReached) {
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            title: Text(l.freeGroupLimitReachedTitle),
+            content: Text(l.freeGroupLimitReachedBody),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => GroupDetailScreen(group: newGroup),
+                    ),
+                  );
+                },
+                child: Text(l.laterBtn),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => GroupDetailScreen(group: newGroup),
+                    ),
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ActivationScreen(group: newGroup),
+                    ),
+                  );
+                },
+                child: Text(l.activateGroupBtn),
+              ),
+            ],
+          ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => GroupDetailScreen(group: newGroup),
+          ),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.duplicateGroupSuccess)),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      String msg = l.errorDuplicatingGroup;
+      if (e is DioException) {
+        msg = (e.response?.data?['message'] as String?) ?? msg;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
   }
 

@@ -407,7 +407,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryTrip.
   ///
   /// In he, this message translates to:
-  /// **'טיול'**
+  /// **'טיסה / נסיעה'**
   String get categoryTrip;
 
   /// No description provided for @categoryVehicle.
@@ -422,11 +422,35 @@ abstract class AppLocalizations {
   /// **'אירוע'**
   String get categoryEvent;
 
+  /// No description provided for @categoryWedding.
+  ///
+  /// In he, this message translates to:
+  /// **'חתונה'**
+  String get categoryWedding;
+
+  /// No description provided for @categoryParty.
+  ///
+  /// In he, this message translates to:
+  /// **'מסיבה'**
+  String get categoryParty;
+
+  /// No description provided for @categoryBirthday.
+  ///
+  /// In he, this message translates to:
+  /// **'יומולדת'**
+  String get categoryBirthday;
+
   /// No description provided for @categoryOther.
   ///
   /// In he, this message translates to:
   /// **'אחר'**
   String get categoryOther;
+
+  /// No description provided for @categoryOtherHint.
+  ///
+  /// In he, this message translates to:
+  /// **'שם קטגוריה חופשי'**
+  String get categoryOtherHint;
 
   /// No description provided for @free.
   ///
@@ -1345,6 +1369,30 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'{name} הוסר והחוב נמחל.'**
   String memberRemovedForgiven(String name);
+
+  /// No description provided for @removeMemberBlockedCreditor.
+  ///
+  /// In he, this message translates to:
+  /// **'לא ניתן להסיר — יש חוב כלפי {name}. יש לסגור את החוב לפני ההסרה.'**
+  String removeMemberBlockedCreditor(String name);
+
+  /// No description provided for @removeMemberRedistributeTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הסרה וחלוקה מחדש'**
+  String get removeMemberRedistributeTitle;
+
+  /// No description provided for @removeMemberRedistributeBody.
+  ///
+  /// In he, this message translates to:
+  /// **'ל{name} יש חוב של {amount}. ההסרה תחלק מחדש את חלקו בהוצאות בין שאר המשתתפים.'**
+  String removeMemberRedistributeBody(String name, String amount);
+
+  /// No description provided for @memberRemovedRedistributed.
+  ///
+  /// In he, this message translates to:
+  /// **'{name} הוסר מהקבוצה. ההוצאות חולקו מחדש.'**
+  String memberRemovedRedistributed(String name);
 
   /// No description provided for @formerMember.
   ///
@@ -2759,6 +2807,48 @@ abstract class AppLocalizations {
   /// **'סמן שהאורח {from} שילם {amount} {currency} ל-{to}? המקבל יאשר קבלה.'**
   String markGuestPaidConfirmGuestToMember(
       String from, String to, String amount, String currency);
+
+  /// No description provided for @duplicateGroup.
+  ///
+  /// In he, this message translates to:
+  /// **'שכפל קבוצה'**
+  String get duplicateGroup;
+
+  /// No description provided for @duplicateGroupDialogTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'שכפול קבוצה סגורה'**
+  String get duplicateGroupDialogTitle;
+
+  /// No description provided for @duplicateGroupDialogBody.
+  ///
+  /// In he, this message translates to:
+  /// **'תיווצר קבוצה חדשה וריקה עם אותם חברים.\nההוצאות, היתרות וההיסטוריה של הקבוצה הסגורה לא יועתקו.'**
+  String get duplicateGroupDialogBody;
+
+  /// No description provided for @duplicateGroupNameHint.
+  ///
+  /// In he, this message translates to:
+  /// **'שם הקבוצה החדשה'**
+  String get duplicateGroupNameHint;
+
+  /// No description provided for @duplicateGroupBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'צור קבוצה חדשה'**
+  String get duplicateGroupBtn;
+
+  /// No description provided for @duplicateGroupSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'הקבוצה החדשה נוצרה בהצלחה'**
+  String get duplicateGroupSuccess;
+
+  /// No description provided for @errorDuplicatingGroup.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בשכפול הקבוצה'**
+  String get errorDuplicatingGroup;
 
   /// No description provided for @deleteGroup.
   ///

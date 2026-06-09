@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../providers/expenses_provider.dart';
 import '../../../../providers/groups_provider.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../groups/domain/group_model.dart';
 import '../../../ocr/presentation/screens/ocr_scan_screen.dart';
 import '../../../ocr/domain/ocr_result_model.dart';
+import '../../../ocr/data/ocr_repository.dart';
+import '../../../../core/utils/media_url.dart';
 import '../../../../ui/widgets/currency_conversion_chip.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/app_button.dart';
@@ -40,6 +43,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   String? _paidBy;
   bool _loading = false;
   String? _scannedReceiptId;
+  String? _receiptImageUrl;
+  final _ocrRepo = OcrRepository();
+  final _picker = ImagePicker();
   double _exchangeRate = 1.0;
   Set<String> _selectedParticipantIds = {};
 
@@ -119,6 +125,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
     setState(() {
       _scannedReceiptId = result.receiptId;
+      _receiptImageUrl = resolveMediaUrl(result.imageUrl);
       if (result.amount != null && result.amountAsDouble != null) {
         _amountCtrl.text = result.amountAsDouble!.toStringAsFixed(2);
       }
@@ -139,6 +146,45 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           duration: const Duration(seconds: 3),
         ),
       );
+    }
+  }
+
+  Future<void> _attachReceipt() async {
+    try {
+      final file = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 1800,
+      );
+      if (file == null || !mounted) return;
+
+      setState(() => _loading = true);
+      final bytes = await file.readAsBytes();
+      final result = await _ocrRepo.attachReceipt(
+        imageBytes: bytes,
+        filename: file.name,
+        groupId: widget.group.id,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _scannedReceiptId = result.receiptId;
+        _receiptImageUrl = resolveMediaUrl(result.imageUrl);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('קבלה צורפה להוצאה'),
+          backgroundColor: AppColors.positive,
+        ),
+      );
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('שגיאה בצירוף הקבלה')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -168,6 +214,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             category: _category,
             notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
             participants: participants,
+            receiptId: _scannedReceiptId,
           );
       await FeedbackService.newExpense();
       if (mounted) Navigator.pop(context, true);
@@ -213,11 +260,16 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             children: [
               // OCR banner — if receipt was scanned
               if (_scannedReceiptId != null) ...[
-                _OcrBanner(onRescan: _scanReceipt),
+                _OcrBanner(
+                  onRescan: _attachReceipt,
+                  onRemove: () => setState(() {
+                    _scannedReceiptId = null;
+                    _receiptImageUrl = null;
+                  }),
+                ),
                 const SizedBox(height: 16),
               ] else ...[
-                // Scan CTA (prominent)
-                _ScanCta(onTap: _scanReceipt),
+                _ScanCta(onTap: _attachReceipt),
                 const SizedBox(height: 20),
               ],
 
@@ -495,7 +547,7 @@ class _ScanCta extends StatelessWidget {
                 gradient: AppColors.brandGradient,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.document_scanner,
+              child: const Icon(Icons.receipt_long_rounded,
                   color: Colors.white, size: 20),
             ),
             const SizedBox(width: 14),
@@ -504,7 +556,7 @@ class _ScanCta extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.scanReceipt,
+                    'צרף קבלה',
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 15,
@@ -512,7 +564,7 @@ class _ScanCta extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    AppLocalizations.of(context)!.scanReceiptDescription,
+                    'צילום או גלריה — לצפייה בלבד, ללא פרסור',
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
@@ -531,7 +583,8 @@ class _ScanCta extends StatelessWidget {
 
 class _OcrBanner extends StatelessWidget {
   final VoidCallback onRescan;
-  const _OcrBanner({required this.onRescan});
+  final VoidCallback? onRemove;
+  const _OcrBanner({required this.onRescan, this.onRemove});
 
   @override
   Widget build(BuildContext context) {
@@ -544,21 +597,27 @@ class _OcrBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.check_circle_outline,
+          Icon(Icons.attach_file_rounded,
               color: AppColors.positive, size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              AppLocalizations.of(context)!.receiptScanned,
+              'קבלה מצורפת',
               style: const TextStyle(
                   color: AppColors.positive,
                   fontSize: 13,
                   fontWeight: FontWeight.w500),
             ),
           ),
+          if (onRemove != null)
+            IconButton(
+              icon: const Icon(Icons.close, size: 18),
+              onPressed: onRemove,
+              tooltip: 'הסר קבלה',
+            ),
           TextButton(
             onPressed: onRescan,
-            child: Text(AppLocalizations.of(context)!.rescan),
+            child: const Text('החלף'),
           ),
         ],
       ),

@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 8 יוני 2026 (מחיר חידוש קבוצה, מדריך פיילוט דינמי, build 30)
+> עודכן לאחרונה: 9 יוני 2026 (build 32 prep — קבלות, קטגוריות, הסרת חבר v2, שכפול קבוצה סגורה)
 
 ---
 
@@ -119,12 +119,12 @@
 |-------|--------|-------------------|
 | `auth/` | JWT + Google + Apple | POST /auth/login, /register, /google, /apple |
 | `users/` | פרופיל משתמש | GET/PUT /users/me |
-| `groups/` | קבוצות + מונטיזציה | CRUD /groups, /activate, /extend, /renew, /upgrade-tier |
+| `groups/` | קבוצות + מונטיזציה | CRUD /groups, /activate, /extend, /renew, /upgrade-tier, /duplicate |
 | `expenses/` | הוצאות | CRUD /expenses |
 | `balances/` | מנוע חישוב יתרות | GET /groups/{id}/balances |
 | `settlements/` | הסדרי חובות | POST /settlements |
 | `notifications/` | התראות + FCM | GET /notifications, POST /fcm-token |
-| `ocr/` | סריקת קבלות | POST /ocr/scan |
+| `ocr/` | קבלות — צירוף + OCR | POST /ocr/attach, POST /ocr/scan |
 | `currency/` | שערי חליפין | GET /currency/rates |
 | `dashboard/` | ADL Admin API | GET /dashboard/stats, /monetization |
 | `download/` | דפי הורדה + join + פיילוט | GET /download, /pilot, /privacy, /join/<code>, /api/deferred-link |
@@ -309,6 +309,8 @@ flutter install --release
 | `JWT_SECRET_KEY` | סוד לחתימת tokens | ✅ | — |
 | `FIREBASE_CREDENTIALS_PATH` | נתיב לקובץ Firebase Admin JSON | ✅ Push | — |
 | `GOOGLE_APPLICATION_CREDENTIALS` | נתיב לקובץ Google Vision JSON | ✅ OCR | — |
+| `PUBLIC_BASE_URL` | בסיס URL ציבורי לקבצי `/uploads` (קבלות) | 🟡 | `https://adlshareflow-production.up.railway.app` |
+| `STORAGE_LOCAL_PATH` | תיקיית uploads מקומית בשרת | 🟡 | `./uploads` |
 | `ADL_ADMIN_KEY` | מפתח גישה ל-Dashboard | ✅ Dashboard | — |
 | `RESEND_API_KEY` | מפתח Resend לשליחת מיילים | ✅ | מוגדר ב-Railway |
 | `RESEND_FROM_EMAIL` | כתובת שולח המיילים | ✅ | `noreply@adl-studio.com` |
@@ -403,18 +405,32 @@ flutter install --release
 
 ---
 
-## שינויים — F1 + F3a (יוני 2026)
+## שינויים — build 32 prep (9 יוני 2026)
 
 ### Backend
-- **`DELETE /groups/<group_id>/members/<user_id>`** (`groups/routes.py`): נוסף פרמטר `forgive_debt: bool` (ברירת מחדל: `false`).
-  - `forgive_debt=false` (ברירת מחדל): מסיר את רשומת ה-`GroupMember`; כל חלקי ההוצאות (`ExpenseParticipant`) נשמרים — החוב ממשיך להופיע בהתחשבנות כ-"חבר לשעבר".
-  - `forgive_debt=true`: מאפס את `share_amount` לכל `ExpenseParticipant` של החבר בקבוצה — החוב נמחל לחלוטין מיתרת המערכת.
+- **`POST /ocr/attach`**: העלאת תמונת קבלה **ללא OCR** — `status=confirmed`; מחזיר `receipt_id` + `image_url`.
+- **`GET /uploads/<path>`**: הגשת קבצי קבלות (`STORAGE_BACKEND=local`).
+- **`Expense.to_dict`**: שדות `has_receipt`, `receipt_image_url`, `receipt_id`; `POST/PUT` expenses מקבלים `receipt_id`.
+- **`DELETE /groups/<id>/members/<user_id>`** (סעיף 13): חסימה אם `net > 0` (נושה); הסרה + **חלוקה מחדש** per-expense אם החבר חייב; **הוסר** `forgive_debt`.
+- **`POST /groups/<id>/duplicate`** (סעיף 14): שכפול **קבוצה סגורה** (`is_closed=true`, admin בלבד) — קבוצה **חדשה וריקה** עם אותם `GroupMember` (כולל אורחים), אותו `group_type`/`category`, `invite_code` חדש, lifecycle `free`/`limited` לפי מגבלת 3 קבוצות; **ללא** העתקת הוצאות/תשלומים/היסטוריה.
 
 ### Flutter (Mobile)
-- **F1 — הסרת חבר עם בחירת טיפול בחוב** (`groups/presentation/screens/members_tab_screen.dart`):
-  - כשיש יתרה פתוחה: Dialog מורחב עם שני כפתורי פעולה — "ישלם את חלקו (סכום)" → `forgiveDebt=false`, "מחל על החוב" → `forgiveDebt=true`.
-  - ללא יתרה: Dialog אישור פשוט.
-  - `GroupRepository.removeMember` עודכן עם פרמטר `forgiveDebt: bool`.
+- **קבלות (9.4)**: «צרף קבלה» בהוספת הוצאה; אינדיקטור ברשימה; צפייה בעריכה/לחיצה (`ReceiptViewerScreen`).
+- **קטגוריות (11)**: פריסטים לפי `event` / `ongoing` + «אחר» עם שם חופשי ביצירת קבוצה.
+- **הסרת חבר (13)**: דיאלוג חדש — חסימת נושה; אישור חלוקה מחדש לחייב.
+- **שכפול קבוצה סגורה (14)**: כפתור «שכפל קבוצה» בתפריט ⋮ בקבוצה סגורה (מנהל) → דיאלוג שם → קבוצה חדשה; אם `limited` — זרימת הפעלה קיימת.
+
+---
+
+## שינויים — F1 + F3a (יוני 2026)
+
+> **הערה:** F1 «מחל על החוב» **בוטל** — ראו סעיף 13 / build 32 למעלה.
+
+### Backend (היסטורי)
+- **`DELETE /groups/<group_id>/members/<user_id>`** (`groups/routes.py`): ~~`forgive_debt`~~ — **הוסר ב-build 32**.
+
+### Flutter (Mobile) — היסטורי
+- ~~**F1 — הסרת חבר עם בחירת טיפול בחוב**~~ — **הוחלף** ב-build 32 (סעיף 13).
 - **F3a — כפתור "שילמתי ישירות"** (`balances/presentation/screens/balances_screen.dart`):
   - בכרטיס "העברות נדרשות": נוסף כפתור outline "שילמתי ישירות" → Dialog "האם {name} אישר?" → `requestSettlement` → snackbar "ממתין לאישור {name}".
   - ב-`_PeriodReportCard._markPaid` (חובות תקופתיים): כפתור "שולם ✓" פותח עכשיו דיאלוג אישור עם שמות הצדדים לפני ביצוע.
@@ -471,7 +487,7 @@ flutter install --release
 - **`GET /groups/<id>/settlements/pending`**: מחזיר `from_is_guest` / `to_is_guest` / `is_creditor_confirm`; מנהל רואה תשלומים עם אורחים **בקבוצה**.
 - **`PUT /settlements/<id>/confirm`**: נושה מאשר; מנהל יכול לאשר בשם אורח-נושה (תרחיש 2).
 - **`GET /groups/<id>/balances/settlements-plan`**: שדה `to_is_guest` נוסף לכל הצעה.
-- **Notification Routing** (`notifications/service.py`): התראות לאורחים מנותבות למנהל הקבוצה; האורח עצמו אינו מקבל push.
+- **Notification Routing** (`notifications/service.py`): התראות לאורחים מנותבות למנהל הקבוצה; האורח עצמו אינו מקבל push. **הוצאה חדשה:** push/in-app רק לחברים שאינם `paid_by` (יוצר ההוצאה לא מקבל). **תזכורת תשלום** (`POST /groups/<id>/remind`, build 31): כותרת `תזכורת תשלום - {שם קבוצה}`; גוף `{נושה} מזכיר לך בקבוצה "{שם}": אתה חייב {סכום} {מטבע}` (גם FCM וגם רשומת DB).
 - **FCM Async Dispatch** (build 25+): `notifications/fcm_service.py` — `send_to_user` / `send_to_users` רצים ב-thread נפרד (`app/common/background.py`).
 - **Event Summary Non-Blocking** (build 26 fix): `queue_notify_event_summary` — כל `notify_event_summary` (DB + FCM) ברקע; האפליקציה קוראת `GET /event-summary` בפתיחת הוויזארד ו-`POST /summary` רק בשלב 2.
 - **DB Migration** (`480ff4d3679c`): נוסף `is_guest BOOLEAN NOT NULL DEFAULT false` ל-`users`.

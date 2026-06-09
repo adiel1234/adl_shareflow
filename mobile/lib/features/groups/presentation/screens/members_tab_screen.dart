@@ -5,6 +5,7 @@ import '../../../../core/network/api_client.dart';
 import '../../../../providers/groups_provider.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/balances_provider.dart';
+import '../../../../providers/expenses_provider.dart';
 import '../../../groups/domain/group_model.dart';
 import '../../../balances/domain/balance_model.dart';
 import '../../../../theme/app_colors.dart';
@@ -525,162 +526,97 @@ class MembersTabScreen extends ConsumerWidget {
     String currency,
   ) async {
     final l = AppLocalizations.of(context)!;
-    final hasDebt = net.abs() > 0.001;
     final amountLabel = '${net.abs().round()} $currency';
 
-    // When there is an open balance, ask the admin what to do with the debt.
-    // Returns: null → cancelled, true → forgive, false → keep debt.
-    bool? forgiveDebt;
-
-    if (hasDebt) {
-      forgiveDebt = await showDialog<bool>(
+    // net > 0: others owe this member — blocked (section 13 mode B)
+    if (net > 0.001) {
+      await showDialog<void>(
         context: context,
-        barrierDismissible: false,
-        builder: (ctx) {
-          final dl = AppLocalizations.of(ctx)!;
-          return AlertDialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: Row(children: [
-              const Icon(Icons.person_remove_outlined,
-                  color: AppColors.negative, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(dl.removeMemberTitle(member.displayLabel),
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-              ),
-            ]),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Balance warning
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF3CD),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFFFD700)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.warning_amber_rounded,
-                          size: 16, color: Color(0xFF856404)),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          dl.memberHasBalance(
-                              member.displayLabel, amountLabel),
-                          style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF856404),
-                              height: 1.4),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  dl.removeMemberDebtQuestion,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-                const SizedBox(height: 10),
-                // Option A: keep debt
-                _OptionBtn(
-                  icon: Icons.account_balance_wallet_outlined,
-                  color: AppColors.primary,
-                  title: dl.removeMemberDebtPay(amountLabel),
-                  subtitle: dl.removeMemberExplain,
-                  onTap: () => Navigator.pop(ctx, false),
-                ),
-                const SizedBox(height: 8),
-                // Option B: forgive debt
-                _OptionBtn(
-                  icon: Icons.handshake_outlined,
-                  color: const Color(0xFF059669),
-                  title: dl.removeMemberDebtForgive,
-                  subtitle: dl.removeMemberExplain,
-                  onTap: () => Navigator.pop(ctx, true),
-                ),
-              ],
+        builder: (ctx) => AlertDialog(
+          title: Text(l.removeMemberTitle(member.displayLabel)),
+          content: Text(l.removeMemberBlockedCreditor(member.displayLabel)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('סגור'),
             ),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(ctx, null),
-                  child: Text(dl.cancel)),
-            ],
-          );
-        },
+          ],
+        ),
       );
-
-      if (forgiveDebt == null) return; // cancelled
-    } else {
-      // No debt — simple confirm dialog
-      final confirmed = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) {
-          final dl = AppLocalizations.of(ctx)!;
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
-            title: Row(children: [
-              const Icon(Icons.person_remove_outlined,
-                  color: AppColors.negative, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(dl.removeMemberTitle(member.displayLabel),
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
-              ),
-            ]),
-            content: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9F9F9),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Text(
-                dl.removeMemberConfirm,
-                style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade700,
-                    height: 1.5),
-              ),
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(dl.cancel)),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(dl.remove,
-                    style: const TextStyle(
-                        color: AppColors.negative,
-                        fontWeight: FontWeight.w700)),
-              ),
-            ],
-          );
-        },
-      );
-      if (confirmed != true) return;
-      forgiveDebt = false;
+      return;
     }
+
+    bool confirmed = false;
+
+    if (net < -0.001) {
+      // Member owes others — redistribute on removal (section 13 mode A)
+      confirmed = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) {
+              final dl = AppLocalizations.of(ctx)!;
+              return AlertDialog(
+                title: Text(dl.removeMemberRedistributeTitle),
+                content: Text(dl.removeMemberRedistributeBody(
+                    member.displayLabel, amountLabel)),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: Text(dl.cancel),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: Text(dl.remove,
+                        style: const TextStyle(
+                            color: AppColors.negative,
+                            fontWeight: FontWeight.w700)),
+                  ),
+                ],
+              );
+            },
+          ) ??
+          false;
+    } else {
+      confirmed = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) {
+              final dl = AppLocalizations.of(ctx)!;
+              return AlertDialog(
+                title: Text(dl.removeMemberTitle(member.displayLabel)),
+                content: Text(dl.removeMemberConfirm),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: Text(dl.cancel),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx, true),
+                    child: Text(dl.remove,
+                        style: const TextStyle(
+                            color: AppColors.negative,
+                            fontWeight: FontWeight.w700)),
+                  ),
+                ],
+              );
+            },
+          ) ??
+          false;
+    }
+
+    if (!confirmed) return;
 
     try {
       await ref.read(groupRepositoryProvider).removeMember(
             group.id,
             member.userId,
-            forgiveDebt: forgiveDebt,
           );
       ref.invalidate(groupMembersProvider(group.id));
       ref.invalidate(balancesProvider(group.id));
+      ref.invalidate(expensesProvider(group.id));
       if (context.mounted) {
-        final msg = forgiveDebt
-            ? l.memberRemovedForgiven(member.displayLabel)
+        final msg = net < -0.001
+            ? l.memberRemovedRedistributed(member.displayLabel)
             : l.memberRemovedSuccess(member.displayLabel);
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(msg)));

@@ -81,12 +81,10 @@ class GroupRepository {
 
   Future<void> removeMember(
     String groupId,
-    String userId, {
-    bool forgiveDebt = false,
-  }) async {
+    String userId,
+  ) async {
     await _api.delete(
       '/groups/$groupId/members/$userId',
-      data: {'forgive_debt': forgiveDebt},
     );
   }
 
@@ -106,6 +104,22 @@ class GroupRepository {
   /// Permanently deletes a group (admin only).
   Future<void> deleteGroup(String groupId) async {
     await _api.delete('/groups/$groupId');
+  }
+
+  /// Duplicate a closed group into a fresh empty group with the same members.
+  /// Returns (newGroup, limitReached) — same semantics as [createGroup].
+  Future<(Group, bool)> duplicateGroup(
+    String groupId, {
+    String? name,
+  }) async {
+    final response = await _api.post(
+      '/groups/$groupId/duplicate',
+      data: {if (name != null) 'name': name},
+    );
+    final data = response.data['data'] as Map<String, dynamic>;
+    final group = Group.fromJson(data);
+    final limitReached = data['creation_reason'] == 'free_group_limit_reached';
+    return (group, limitReached);
   }
 
   /// Closes the group. Returns the updated group on success.

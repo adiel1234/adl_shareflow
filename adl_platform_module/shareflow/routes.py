@@ -19,58 +19,94 @@ Integration with existing ADL Dashboard (garage_system).
 import os
 import urllib.request
 import urllib.parse
+import urllib.error
 import json
 from functools import wraps
 from flask import Blueprint, render_template_string, session, redirect, url_for, request
 
 shareflow_bp = Blueprint('shareflow', __name__)
 
-SHAREFLOW_API = os.getenv('SHAREFLOW_API_URL', 'http://localhost:5050/api')
+SHAREFLOW_API = os.getenv(
+    'SHAREFLOW_API_URL',
+    'https://adlshareflow-production.up.railway.app/api',
+)
 SHAREFLOW_ADMIN_KEY = os.getenv('SHAREFLOW_ADMIN_KEY', '')
+
+_last_api_error = None  # str | None
+
+
+def get_api_status() -> dict:
+    """For Jinja templates — connection status banner."""
+    return {
+        'api_error': _last_api_error,
+        'api_url': SHAREFLOW_API,
+        'api_key_set': bool(SHAREFLOW_ADMIN_KEY),
+    }
+
+
+def _set_api_error(msg) -> None:
+    global _last_api_error
+    _last_api_error = msg
 
 
 def _adl_headers():
     return {'X-ADL-Admin-Key': SHAREFLOW_ADMIN_KEY}
 
 
-def _api_get(path: str, params: dict = None) -> dict:
+def _api_request(method: str, path: str, body: dict | None = None, params: dict | None = None) -> dict:
+    if not SHAREFLOW_ADMIN_KEY:
+        _set_api_error(
+            'SHAREFLOW_ADMIN_KEY חסר — צור קובץ .env (ראה .env.example) עם אותו ערך כמו ADL_ADMIN_KEY ב-Railway'
+        )
+        return {}
+
     url = f'{SHAREFLOW_API}{path}'
     if params:
         url += '?' + urllib.parse.urlencode(params)
-    req = urllib.request.Request(url, headers=_adl_headers())
+
+    data = json.dumps(body or {}).encode() if body is not None else None
+    req = urllib.request.Request(
+        url,
+        data=data,
+        method=method,
+        headers={
+            **_adl_headers(),
+            **({'Content-Type': 'application/json'} if data else {}),
+        },
+    )
     try:
-        with urllib.request.urlopen(req, timeout=5) as resp:
-            return json.loads(resp.read()).get('data', {})
-    except Exception:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            raw = json.loads(resp.read())
+            _set_api_error(None)
+            if method == 'GET':
+                return raw.get('data', {}) if isinstance(raw, dict) else {}
+            return raw if isinstance(raw, dict) else {}
+    except urllib.error.HTTPError as e:
+        body_text = ''
+        try:
+            body_text = e.read().decode('utf-8', errors='replace')[:200]
+        except Exception:
+            pass
+        _set_api_error(f'HTTP {e.code} — {e.reason}. {body_text}')
         return {}
+    except urllib.error.URLError as e:
+        _set_api_error(f'לא ניתן להתחבר ל-{SHAREFLOW_API}: {e.reason}')
+        return {}
+    except Exception as e:
+        _set_api_error(f'שגיאת API: {e}')
+        return {}
+
+
+def _api_get(path: str, params: dict = None) -> dict:
+    return _api_request('GET', path, params=params)
 
 
 def _api_put(path: str, body: dict = None) -> dict:
-    url = f'{SHAREFLOW_API}{path}'
-    data = json.dumps(body or {}).encode()
-    req = urllib.request.Request(
-        url, data=data, method='PUT',
-        headers={**_adl_headers(), 'Content-Type': 'application/json'},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=5) as resp:
-            return json.loads(resp.read())
-    except Exception:
-        return {}
+    return _api_request('PUT', path, body=body)
 
 
 def _api_post(path: str, body: dict = None) -> dict:
-    url = f'{SHAREFLOW_API}{path}'
-    data = json.dumps(body or {}).encode()
-    req = urllib.request.Request(
-        url, data=data, method='POST',
-        headers={**_adl_headers(), 'Content-Type': 'application/json'},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=5) as resp:
-            return json.loads(resp.read())
-    except Exception:
-        return {}
+    return _api_request('POST', path, body=body)
 
 
 def _login_required(f):
@@ -226,6 +262,16 @@ _NAV = """
   <a href="{{ url_for('shareflow.monetization') }}" class="{{ 'active' if request.endpoint=='shareflow.monetization' else '' }}">מונטיזציה</a>
   <a href="{{ url_for('shareflow.feature_flags') }}" class="{{ 'active' if request.endpoint=='shareflow.feature_flags' else '' }}">Feature Flags</a>
 </nav>
+{% if api_error %}
+<div style="background:#fef2f2;border-bottom:2px solid #dc2626;padding:12px 24px;color:#991b1b;font-size:14px">
+  <strong>שגיאת חיבור ל-ShareFlow API</strong><br>{{ api_error }}<br>
+  <span style="font-size:12px;opacity:0.9">כתובת: {{ api_url }} · מפתח: {{ 'מוגדר ✓' if api_key_set else 'חסר ✗' }}</span>
+</div>
+{% elif not api_key_set %}
+<div style="background:#fffbeb;border-bottom:2px solid #f59e0b;padding:12px 24px;color:#92400e;font-size:14px">
+  <strong>מפתח API חסר</strong> — הוסף <code>SHAREFLOW_ADMIN_KEY</code> לקובץ <code>adl_platform_module/.env</code> (אותו ערך כמו <code>ADL_ADMIN_KEY</code> ב-Railway).
+</div>
+{% endif %}
 """
 
 DASHBOARD_TEMPLATE = _NAV + """

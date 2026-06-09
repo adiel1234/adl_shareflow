@@ -99,6 +99,9 @@ class Group {
 
   String get categoryEmoji {
     switch (category) {
+      case 'wedding': return '💒';
+      case 'party': return '🎉';
+      case 'birthday': return '🎂';
       case 'apartment': return '🏠';
       case 'trip': return '✈️';
       case 'vehicle': return '🚗';

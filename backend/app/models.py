@@ -257,6 +257,12 @@ class Expense(db.Model):
     period_report = relationship('PeriodReport', foreign_keys=[period_report_id], back_populates='expenses')
 
     def to_dict(self):
+        from app.common.media import public_media_url
+
+        receipt_url = None
+        if self.receipt_id and self.receipt:
+            receipt_url = public_media_url(self.receipt.image_url)
+
         return {
             'id': self.id,
             'group_id': self.group_id,
@@ -270,6 +276,9 @@ class Expense(db.Model):
             'converted_amount': str(self.converted_amount),
             'category': self.category,
             'split_type': self.split_type,
+            'receipt_id': self.receipt_id,
+            'has_receipt': bool(self.receipt_id),
+            'receipt_image_url': receipt_url,
             'expense_date': self.expense_date.isoformat() if self.expense_date else None,
             'notes': self.notes,
             'is_system_expense': self.is_system_expense,

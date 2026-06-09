@@ -20,6 +20,9 @@ class Expense {
   final bool isCreator;
   final bool isSystemExpense;
   final String? periodReportId;  // null = current period; non-null = archived
+  final bool hasReceipt;
+  final String? receiptImageUrl;
+  final String? receiptId;
 
   const Expense({
     required this.id,
@@ -43,6 +46,9 @@ class Expense {
     this.isCreator = false,
     this.isSystemExpense = false,
     this.periodReportId,
+    this.hasReceipt = false,
+    this.receiptImageUrl,
+    this.receiptId,
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) {
@@ -74,6 +80,9 @@ class Expense {
       isCreator: json['is_creator'] as bool? ?? false,
       isSystemExpense: json['is_system_expense'] as bool? ?? false,
       periodReportId: json['period_report_id'] as String?,
+      hasReceipt: json['has_receipt'] as bool? ?? false,
+      receiptImageUrl: json['receipt_image_url'] as String?,
+      receiptId: json['receipt_id'] as String?,
     );
   }
 

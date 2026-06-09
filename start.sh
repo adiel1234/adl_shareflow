@@ -45,7 +45,7 @@ EOF
 echo "📊  מפעיל ShareFlow Admin..."
 osascript <<EOF
 tell application "Terminal"
-    set win2 to do script "export PATH='/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:\$PATH' && cd '$ROOT/adl_platform_module' && echo '✅ ShareFlow Admin: http://localhost:5002/shareflow' && python3 run.py"
+    set win2 to do script "export PATH='/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:\$PATH' && cd '$ROOT/adl_platform_module' && test -f .env || echo '⚠️  צור .env מ-.env.example (SHAREFLOW_ADMIN_KEY מ-Railway)' && echo '✅ ShareFlow Admin: http://localhost:5002/shareflow' && python3 run.py"
     set custom title of win2 to "ShareFlow Admin — Control"
 end tell
 EOF

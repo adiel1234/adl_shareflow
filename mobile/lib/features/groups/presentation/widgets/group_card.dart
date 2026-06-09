@@ -11,6 +11,9 @@ const _kPurple = Color(0xFF7C3AED);
 
 IconData _categoryIcon(String? category) {
   switch (category) {
+    case 'wedding':   return Icons.favorite_rounded;
+    case 'party':     return Icons.celebration_rounded;
+    case 'birthday':  return Icons.cake_rounded;
     case 'trip':      return Icons.flight_rounded;
     case 'apartment': return Icons.home_rounded;
     case 'vehicle':   return Icons.directions_car_rounded;
@@ -21,16 +24,25 @@ IconData _categoryIcon(String? category) {
 
 Color _gradientPrimaryColor(String? category) {
   switch (category) {
+    case 'wedding':
+    case 'party':
+    case 'birthday':
+    case 'event':     return _kPurple;
     case 'trip':      return _kBlue;
     case 'vehicle':   return _kBlue;
     case 'apartment': return _kTeal;
-    case 'event':     return _kPurple;
     default:          return _kTeal;
   }
 }
 
 LinearGradient _categoryGradient(String? category) {
   switch (category) {
+    case 'wedding':
+      return const LinearGradient(colors: [_kPurple, _kBlue], begin: Alignment.topLeft, end: Alignment.bottomRight);
+    case 'party':
+      return const LinearGradient(colors: [_kPurple, _kTeal], begin: Alignment.topLeft, end: Alignment.bottomRight);
+    case 'birthday':
+      return const LinearGradient(colors: [_kBlue, _kPurple], begin: Alignment.topLeft, end: Alignment.bottomRight);
     case 'trip':
       return const LinearGradient(colors: [_kBlue, _kTeal], begin: Alignment.topLeft, end: Alignment.bottomRight);
     case 'vehicle':

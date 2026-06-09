@@ -10,7 +10,9 @@ import '../../../../ui/widgets/app_button.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../features/currency/data/currency_repository.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/media_url.dart';
 import '../widgets/participants_selector.dart';
+import '../widgets/receipt_viewer.dart';
 
 class EditExpenseScreen extends ConsumerStatefulWidget {
   final Group group;
@@ -39,6 +41,8 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
   bool _loading = false;
   late double _exchangeRate;
   late Set<String> _selectedParticipantIds;
+  String? _receiptId;
+  String? _receiptImageUrl;
 
   double get _currentAmount => double.tryParse(_amountCtrl.text) ?? 0;
   bool get _showConversion =>
@@ -88,6 +92,10 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
     _selectedParticipantIds = e.participants.isNotEmpty
         ? e.participants.map((p) => p.userId).toSet()
         : {};
+    _receiptId = e.receiptId;
+    _receiptImageUrl = e.receiptImageUrl != null
+        ? resolveMediaUrl(e.receiptImageUrl)
+        : null;
     _amountCtrl.addListener(() => setState(() {}));
   }
 
@@ -143,6 +151,7 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
             notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
             expenseDate: _expenseDate,
             participants: participants,
+            receiptId: _receiptId,
           );
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -173,6 +182,22 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (_receiptImageUrl != null && _receiptImageUrl!.isNotEmpty) ...[
+                ReceiptPreviewTile(
+                  imageUrl: _receiptImageUrl!,
+                  onView: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ReceiptViewerScreen(
+                        imageUrl: _receiptImageUrl!,
+                        title: widget.expense.title,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+
               // Category picker
               _SectionLabel(AppLocalizations.of(context)!.category),
               const SizedBox(height: 10),

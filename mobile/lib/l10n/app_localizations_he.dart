@@ -162,7 +162,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get categoryApartment => 'דירה';
 
   @override
-  String get categoryTrip => 'טיול';
+  String get categoryTrip => 'טיסה / נסיעה';
 
   @override
   String get categoryVehicle => 'רכב';
@@ -171,7 +171,19 @@ class AppLocalizationsHe extends AppLocalizations {
   String get categoryEvent => 'אירוע';
 
   @override
+  String get categoryWedding => 'חתונה';
+
+  @override
+  String get categoryParty => 'מסיבה';
+
+  @override
+  String get categoryBirthday => 'יומולדת';
+
+  @override
   String get categoryOther => 'אחר';
+
+  @override
+  String get categoryOtherHint => 'שם קטגוריה חופשי';
 
   @override
   String get free => 'חינמי';
@@ -668,6 +680,24 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String memberRemovedForgiven(String name) {
     return '$name הוסר והחוב נמחל.';
+  }
+
+  @override
+  String removeMemberBlockedCreditor(String name) {
+    return 'לא ניתן להסיר — יש חוב כלפי $name. יש לסגור את החוב לפני ההסרה.';
+  }
+
+  @override
+  String get removeMemberRedistributeTitle => 'הסרה וחלוקה מחדש';
+
+  @override
+  String removeMemberRedistributeBody(String name, String amount) {
+    return 'ל$name יש חוב של $amount. ההסרה תחלק מחדש את חלקו בהוצאות בין שאר המשתתפים.';
+  }
+
+  @override
+  String memberRemovedRedistributed(String name) {
+    return '$name הוסר מהקבוצה. ההוצאות חולקו מחדש.';
   }
 
   @override
@@ -1452,6 +1482,28 @@ class AppLocalizationsHe extends AppLocalizations {
       String from, String to, String amount, String currency) {
     return 'סמן שהאורח $from שילם $amount $currency ל-$to? המקבל יאשר קבלה.';
   }
+
+  @override
+  String get duplicateGroup => 'שכפל קבוצה';
+
+  @override
+  String get duplicateGroupDialogTitle => 'שכפול קבוצה סגורה';
+
+  @override
+  String get duplicateGroupDialogBody =>
+      'תיווצר קבוצה חדשה וריקה עם אותם חברים.\nההוצאות, היתרות וההיסטוריה של הקבוצה הסגורה לא יועתקו.';
+
+  @override
+  String get duplicateGroupNameHint => 'שם הקבוצה החדשה';
+
+  @override
+  String get duplicateGroupBtn => 'צור קבוצה חדשה';
+
+  @override
+  String get duplicateGroupSuccess => 'הקבוצה החדשה נוצרה בהצלחה';
+
+  @override
+  String get errorDuplicatingGroup => 'שגיאה בשכפול הקבוצה';
 
   @override
   String get deleteGroup => 'מחק קבוצה';

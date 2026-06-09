@@ -63,6 +63,15 @@ def create_app(config=None):
     def health():
         return {'status': 'ok', 'service': 'ADL ShareFlow API'}
 
+    # Local receipt uploads (STORAGE_BACKEND=local)
+    @app.get('/uploads/<path:subpath>')
+    def serve_upload(subpath):
+        import os
+        from flask import send_from_directory
+        upload_root = app.config.get('STORAGE_LOCAL_PATH', './uploads')
+        directory = upload_root
+        return send_from_directory(directory, subpath)
+
     # Deferred deep link - app calls this on first launch to retrieve pending invite code
     @app.get('/api/deferred-link')
     def deferred_link():

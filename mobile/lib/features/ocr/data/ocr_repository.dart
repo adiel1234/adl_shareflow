@@ -22,4 +22,22 @@ class OcrRepository {
     final response = await _api.postFormData('/ocr/scan', formData);
     return OcrResult.fromJson(response.data['data'] as Map<String, dynamic>);
   }
+
+  /// Upload receipt image without OCR parsing (pilot: attach-only).
+  Future<OcrResult> attachReceipt({
+    required Uint8List imageBytes,
+    required String filename,
+    String? groupId,
+  }) async {
+    final formData = FormData.fromMap({
+      'image': MultipartFile.fromBytes(
+        imageBytes,
+        filename: filename,
+      ),
+      if (groupId != null) 'group_id': groupId,
+    });
+
+    final response = await _api.postFormData('/ocr/attach', formData);
+    return OcrResult.fromJson(response.data['data'] as Map<String, dynamic>);
+  }
 }

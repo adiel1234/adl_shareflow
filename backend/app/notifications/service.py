@@ -224,19 +224,33 @@ def queue_notify_event_summary(group_id: str, summary_data: dict, actor_user_id:
 
 def notify_payment_reminder(settlement_suggestion: dict, creditor_name: str):
     """Notify a debtor (or admin on their behalf) that a payment is due."""
+    from app.models import Group
+
     debtor_id = settlement_suggestion['from_user_id']
     group_id = settlement_suggestion.get('group_id')
     amount = settlement_suggestion['amount']
     currency = settlement_suggestion['currency']
 
+    group_name = ''
+    if group_id:
+        group = db.session.get(Group, group_id)
+        group_name = group.name if group else ''
+
     recipient_id = _resolve_recipient(debtor_id, group_id) if group_id else debtor_id
     guest_name = _guest_display(debtor_id)
 
-    title = 'תזכורת תשלום'
+    title = f'תזכורת תשלום - {group_name}' if group_name else 'תזכורת תשלום'
+    group_ctx = f' בקבוצה "{group_name}"' if group_name else ''
     if guest_name:
-        body = f'תזכורת: האורח {guest_name} חייב {amount} {currency} ל-{creditor_name}'
+        body = (
+            f'תזכורת{group_ctx}: האורח {guest_name} חייב '
+            f'{amount} {currency} ל-{creditor_name}'
+        )
     else:
-        body = f'{creditor_name} מזכיר לך: אתה חייב {amount} {currency}'
+        body = (
+            f'{creditor_name} מזכיר לך{group_ctx}: '
+            f'אתה חייב {amount} {currency}'
+        )
 
     notif = Notification(
         user_id=recipient_id,
