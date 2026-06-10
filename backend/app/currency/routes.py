@@ -26,13 +26,14 @@ FALLBACK_RATES = {
     ('ILS', 'CHF'): Decimal('0.253'),
     ('CAD', 'ILS'): Decimal('2.55'),
     ('ILS', 'CAD'): Decimal('0.392'),
+    ('AUD', 'ILS'): Decimal('2.38'),
+    ('ILS', 'AUD'): Decimal('0.420'),
     ('USD', 'EUR'): Decimal('0.92'),
     ('EUR', 'USD'): Decimal('1.09'),
 }
 
 SUPPORTED_CURRENCIES = ['ILS', 'USD', 'EUR', 'GBP', 'JPY', 'AED', 'CHF', 'CAD', 'AUD']
 RATE_CACHE_HOURS = 3  # Refresh rates every 3 hours
-REFRESH_BASE_CURRENCIES = ['ILS', 'USD', 'EUR']
 
 
 def _rate_cutoff():
@@ -176,7 +177,7 @@ def refresh_rates():
 def refresh_all_exchange_rates() -> dict:
     """Fetch live rates for primary bases; used by scheduler and admin refresh."""
     results = {}
-    for base in REFRESH_BASE_CURRENCIES:
+    for base in SUPPORTED_CURRENCIES:
         rates = _fetch_live_rates(base)
         if rates:
             _save_rates_to_db(base, rates)

@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 יוני 2026 (תיקון שערי חליפין: live API + scheduler; Android build 37: splash + login)
+> עודכן לאחרונה: 10 יוני 2026 (רענון שערים לכל 9 מטבעות; Android A2 בדיקה 2 עבר)
 
 ---
 
@@ -166,7 +166,7 @@
 | **Firebase** | Push Notifications (FCM) | Backend: `firebase-credentials.json`; Android: `google-services.json` + plugin; iOS: `GoogleService-Info.plist` |
 | **Firebase Auth** | Google Sign-In | Bundle: `com.adl.shareflow` |
 | **Google Vision** | OCR — סריקת קבלות | 1,000 סריקות/חודש חינם |
-| **ExchangeRate-API** | שערי מטבע בזמן אמת | חינמי, ללא מפתח — `api.exchangerate-api.com/v4/latest/{base}`; cache ב-PostgreSQL 3 שעות; scheduler מרענן כל 3 שעות |
+| **ExchangeRate-API** | שערי מטבע בזמן אמת | חינמי, ללא מפתח — `api.exchangerate-api.com/v4/latest/{base}`; cache ב-PostgreSQL 3 שעות; scheduler מרענן **כל 9 המטבעות** (ILS, USD, EUR, GBP, JPY, AED, CHF, CAD, AUD) כל 3 שעות |
 | **Resend** | שליחת מיילי הזמנה + דוחות תקופה | `RESEND_API_KEY` + `RESEND_FROM_EMAIL=noreply@adl-studio.com`; דומיין מאומת ב-eu-west-1 (Ireland) |
 | **Namecheap** | רישום דומיין `adl-studio.com` | DNS מנוהל ב-Advanced DNS; רשומות DKIM + SPF + DMARC + MX הוגדרו |
 | **Apple APNs** | Push Notifications ל-iOS | Key ID: `4BT7S9CS4V`, Team: `9QP3FZTL8C` |
@@ -369,7 +369,7 @@ flutter install --release
 |-------|--------|--------|
 | `send_auto_reminders` | כל שעה | תזכורות תשלום לחייבים |
 | `check_group_expirations` | כל 24 שעות | מעבר קבוצות ל-expired + התראה 3 ימים מראש |
-| `refresh_exchange_rates` | כל 3 שעות | משיכת שערים מ-ExchangeRate-API (ILS, USD, EUR) ל-PostgreSQL |
+| `refresh_exchange_rates` | כל 3 שעות | משיכת שערים מ-ExchangeRate-API לכל 9 מטבעות האפליקציה → PostgreSQL |
 
 ---
 
@@ -384,6 +384,7 @@ flutter install --release
 | אפליקציה Android תקועה ב-splash | `google-services.json` חסר | הורד מ-Firebase Console → שמור ב-`android/app/` |
 | OCR לא עובד | Google Vision credentials חסר | הגדר `GOOGLE_APPLICATION_CREDENTIALS` בשרת |
 | שער דולר/שקל שגוי (למשל 3.72) | `/currency/convert` השתמש רק ב-fallback קבוע כשאין cache ב-DB | **תוקן 10.6.26** — live API + scheduler; פריסת backend בלבד; build חדש אופציונלי (רענון cache במסך הוצאה) |
+| שערי GBP/JPY/AED/CHF/CAD/AUD ישנים | scheduler ריענן רק ILS/USD/EUR; AUD חסר ב-fallback | **תוקן 10.6.26** — scheduler לכל 9 מטבעות + fallback AUD; פריסת backend בלבד |
 | תשלומים לא נגבים | `PAYMENTS_ENABLED=false` | שנה ל-`true` ב-DB כשמוכן |
 | קבוצה לא עוברת ל-limited | Scheduler לא פועל | וודא ש-APScheduler פעיל בשרת |
 | לחיצה על התראה לא מנווטת | route `/group-detail` חסר | תוקן ב-router.dart — נדרש build חדש |
