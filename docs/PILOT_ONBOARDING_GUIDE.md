@@ -1,6 +1,6 @@
 # מדריך אונבורדינג פיילוט — ADL ShareFlow (iOS + Android)
 
-> **גרסת פיילוט:** 1.0.5 build 22 · **ADL Projects**
+> **גרסת פיילוט:** 1.0.5 build 35 · **ADL Projects**
 
 ## קישור לשיתוף (מומלץ)
 
@@ -47,26 +47,57 @@
 ```
 שלום וברוכים הבאים לפיילוט ADL ShareFlow! 🎉
 
-אנחנו שמחים שאתם איתנו. האפליקציה לשיתוף הוצאות — בגרסת בטא.
+אנחנו שמחים שאתם איתנו. האפליקציה לחלוקת הוצאות בין חברים, משפחה ושותפים — בגרסת בטא.
 
-⚠️ חשוב: הפיילוט חינמי לחלוטין. לא יגבו מכם כסף.
+⚠️ חשוב לדעת:
+• הפיילוט חינמי לחלוטין — לא יגבו מכם כסף
+• זו גרסת בטא — ייתכנו באגים קטנים
+• נשמח לכל משוב, גם אם משהו «עובד אבל מוזר»
 
-📱 iPhone — לחצו כאן להורדה:
-https://adlshareflow-production.up.railway.app/download
-(אם אין לכם TestFlight — הורידו קודם: https://apps.apple.com/app/testflight/id899247664)
+📱 iPhone:
+1. התקינו TestFlight (אם אין): https://apps.apple.com/app/testflight/id899247664
+2. לחצו להורדה: https://adlshareflow-production.up.railway.app/download
+3. באפליקציה → פרופיל → ודאו שמופיע 1.0.5 (35) או גרסה עדכנית יותר
 
-🤖 Android — לחצו כאן להורדה:
-https://adlshareflow-production.up.railway.app/download
+🤖 Android:
+לחצו להורדה: https://adlshareflow-production.up.railway.app/download
+(אישור «מקורות לא ידועים» אם נדרש)
 
 💬 הצטרפות לקבוצת הוואטסאפ:
 https://chat.whatsapp.com/CsLnZVcopXJ83gmhadew9I?s=sh&p=i&mlu=3
 
-📖 מדריך מפורט:
+📖 מדריך מלא (התקנה, הצטרפות לקבוצה, שאלות):
 https://adlshareflow-production.up.railway.app/pilot
 
-❓ שאלות? צלמו מסך ושלחו כאן בקבוצה.
+🐛 מצאתם בעיה? שלחו כאן:
+1. מה ניסיתם לעשות
+2. מה קרה בפועל
+3. צילום מסך
+4. גרסה מהפרופיל (למשל 1.0.5 (35))
+
 📧 ADLProjects2025@gmail.com
 📞 052-9459158
+
+תודה שאתם עוזרים לנו לבנות מוצר טוב יותר! 🙏
+```
+
+---
+
+## הודעת «יש עדכון» (להעתקה ל-WhatsApp)
+
+שלחו אחרי הוספת build חדש ל-Pilot Group:
+
+```
+📲 עדכון ADL ShareFlow זמין!
+
+פתחו TestFlight → ShareFlow → לחצו «עדכן»
+
+גרסה: 1.0.5 (35)
+חדש: שחזור קבוצה מהבאנר, צפייה בקבלות, שיפורי ממשק
+
+🤖 Android: https://adlshareflow-production.up.railway.app/download
+
+בעיה? צילום + גרסה מהפרופיל → שלחו כאן.
 ```
 
 ---
@@ -91,5 +122,6 @@ https://adlshareflow-production.up.railway.app/pilot
 ## מסמכים קשורים
 
 - [`DEPLOY_PILOT.md`](../DEPLOY_PILOT.md) — פריסה ובניית TestFlight / APK
+- [`PILOT_LAUNCH_PLAN.md`](../PILOT_LAUNCH_PLAN.md) — תכנית השקה (שלבים 0–9)
 - [`PILOT_TEST_CHECKLIST.md`](../PILOT_TEST_CHECKLIST.md) — רשימת בדיקות
 - [`TESTFLIGHT_IOS_GUIDE.md`](TESTFLIGHT_IOS_GUIDE.md) — הפניה למדריך המאוחד (legacy)
