@@ -1,6 +1,6 @@
 # תכנית השקת פיילוט — ADL ShareFlow
 
-עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5** · builds: **iOS 35** / **Android 39** (יישור ל-build אחד ב-A4)
+עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5** · **`pubspec`:** `1.0.5+41` · **iOS 40 פעיל** / **41 ממתין** · **Android 40/41 חסום (keystore)**
 
 > **מסמכים קשורים:** [`PILOT_TEST_CHECKLIST.md`](PILOT_TEST_CHECKLIST.md) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)
 
@@ -16,13 +16,15 @@
 | build **38** — APK אנדרואיד (תיקון logout) | ✅ **נבנה + נבדק** |
 | build **39** — APK אנדרואיד (תיקון אורח + חלוקה מלאה) | ✅ **נבנה** — ממתין העלאה ל-Drive + אימות A3 |
 | שרת Railway (`adlshareflow-production.up.railway.app`) | ✅ **פרוס** — commit `5e0d113` (תיקון אורח) |
-| `pubspec.yaml` | ✅ `1.0.5+39` |
+| `pubspec.yaml` | ✅ `1.0.5+41` (מקומי; push לפני IPA) |
 | קבוצת WhatsApp | ✅ **קיימת** (קישור במדריך) |
-| build **35** פעיל ב-Pilot Group (iOS) | ✅ **1.0.5 (35) Testing** |
-| יישור build iOS ↔ Android | ☐ **ממתין** — Android **39** מוכן; iOS עדיין **35** (A4) |
+| build **40** פעיל ב-Pilot Group (iOS) | ✅ **1.0.5 (40)** — 5.3a, עריכה; מחיקה ב-41 |
+| build **41** iOS (מחיקת הוצאה) | ⏳ **IPA / TestFlight** — אחרי commit |
+| build **40/41** Android | ⛔ **לא נבנה** — אין keystore ב-`release_keys/` |
+| יישור build iOS ↔ Android | ⏳ **iOS 40–41**; Android ממתין keystore + APK 41 |
 | בדיקות משתמש/מכשיר שני | ☐ **שלב B** (אחרי A4) |
 
-> **הערת builds:** **iOS = build 35**, **Android = build 39** (`1.0.5+39` ב-`pubspec`). **תיקון אורח + חלוקה מלאה דורש build 39 + שרת** (`5e0d113`). iOS — build 39 נדרש גם לדיאלוג `split_mode` (IPA לא נבנה בשלב זה). יישור iOS ל-39 — שלב A4.
+> **הערת builds:** **iOS build 40** פעיל ב-Pilot Group (תיקון `split_mode` / `expenseCount`). **build 41** — מחיקת הוצאה במסך עריכה. **Android:** builds 37–39 נבדקו בעבר; **40/41** דורשים keystore ב-`release_keys/shareflow.keystore` (כרגע חסר).
 
 ---
 

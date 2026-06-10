@@ -799,6 +799,23 @@ class AppLocalizationsHe extends AppLocalizations {
   String get errorUpdatingExpense => 'שגיאה בעדכון ההוצאה';
 
   @override
+  String get deleteExpense => 'מחק הוצאה';
+
+  @override
+  String get deleteExpenseDialogTitle => 'מחיקת הוצאה';
+
+  @override
+  String deleteExpenseConfirm(String title) {
+    return 'האם למחוק את ההוצאה \"$title\"?\n\nהיתרות יתעדכנו בהתאם.';
+  }
+
+  @override
+  String get expenseDeletedSuccess => 'ההוצאה נמחקה בהצלחה';
+
+  @override
+  String get errorDeletingExpense => 'שגיאה במחיקת ההוצאה';
+
+  @override
   String get saveChanges => 'שמור שינויים';
 
   @override

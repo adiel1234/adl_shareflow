@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 יוני 2026 (תיקון דיאלוג `split_mode` בהוספת אורח — רענון `expense_count` מהשרת לפני דיאלוג; build 40)
+> עודכן לאחרונה: 10 יוני 2026 (מחיקת הוצאה — UI במסך עריכה + `DELETE /expenses/<id>`; build 41)
 
 ---
 
@@ -457,6 +457,7 @@ flutter install --release
 - **`POST /currency/rates`** (`currency/routes.py`): מוגן עכשיו בבדיקת `X-ADL-Admin-Key` header — רק אדמין יכול לעדכן שערי מטבע ידניים.
 - **`POST /groups/<id>/expenses`** (`expenses/routes.py`): `paid_by` ומשתתפים — חברים פעילים בלבד; כש-`participants` מכיל רק `user_id` (ללא `share_amount`) — חלוקה שווה כמו בעריכה; ולידציה שסכום החלקים = `converted_amount`.
 - **`PUT /expenses/<id>`** (`expenses/routes.py`): כשהלקוח שולח `participants`, השרת מחליף את רשימת המשתתפים ומחלק שווה את `converted_amount` (כולל אורחים — `GroupMember` פעיל עם `is_guest`); ולידציה על סכום החלקים.
+- **`DELETE /expenses/<id>`** (`expenses/routes.py`): מחיקת הוצאה — יוצר ההוצאה או מנהל קבוצה; חסימה אם הקבוצה אינה פעילה. האפליקציה (build 41): כפתור «מחק הוצאה» במסך עריכה + דיאלוג אישור; רענון `expensesProvider` / `balancesProvider` / `groupsProvider`.
 - **`GET /groups/<id>/event-summary`** (`balances/routes.py`): תצוגה מקדימה לוויזארד «סיים אירוע» — ללא התראות / push. אותה תגובה כמו `POST /summary` (סיכום, `whatsapp_text`, `participants`).
 - **`POST /groups/<id>/summary`** (`balances/routes.py`): שליחת סיכום לחברים (`send_app=true`). שדות `books_balanced` / `books_warning` — מזהה חשבונות לא מאוזנים. `queue_notify_event_summary` — שמירת התראות + FCM ברקע (`app/common/background.py`).
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): מניעת כפילויות — אם כבר קיים pending לאותו אורח→נושה, מחזיר אותו במקום ליצור כפילות; תוכנית העברות (`calculate_settlement_plan`) מפחיתה סכומי pending כדי שלא יופיע חוב כפול ב-UI.

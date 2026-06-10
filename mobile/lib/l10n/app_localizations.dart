@@ -1574,6 +1574,36 @@ abstract class AppLocalizations {
   /// **'שגיאה בעדכון ההוצאה'**
   String get errorUpdatingExpense;
 
+  /// No description provided for @deleteExpense.
+  ///
+  /// In he, this message translates to:
+  /// **'מחק הוצאה'**
+  String get deleteExpense;
+
+  /// No description provided for @deleteExpenseDialogTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'מחיקת הוצאה'**
+  String get deleteExpenseDialogTitle;
+
+  /// No description provided for @deleteExpenseConfirm.
+  ///
+  /// In he, this message translates to:
+  /// **'האם למחוק את ההוצאה \"{title}\"?\n\nהיתרות יתעדכנו בהתאם.'**
+  String deleteExpenseConfirm(String title);
+
+  /// No description provided for @expenseDeletedSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'ההוצאה נמחקה בהצלחה'**
+  String get expenseDeletedSuccess;
+
+  /// No description provided for @errorDeletingExpense.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה במחיקת ההוצאה'**
+  String get errorDeletingExpense;
+
   /// No description provided for @saveChanges.
   ///
   /// In he, this message translates to:

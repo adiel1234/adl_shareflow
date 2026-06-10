@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../providers/balances_provider.dart';
 import '../../../../providers/expenses_provider.dart';
 import '../../../../providers/auth_provider.dart';
+import '../../../../providers/groups_provider.dart';
 import '../../../../providers/currency_provider.dart';
 import '../../../groups/domain/group_model.dart';
 import '../../domain/expense_model.dart';
@@ -186,6 +188,11 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
                                 if (edited == true && context.mounted) {
                                   ref.invalidate(
                                       expensesProvider(widget.group.id));
+                                  ref.invalidate(
+                                      balancesProvider(widget.group.id));
+                                  ref.invalidate(
+                                      groupDetailProvider(widget.group.id));
+                                  ref.invalidate(groupsProvider);
                                 }
                               }
                           : null,

@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../providers/balances_provider.dart';
 import '../../../../providers/expenses_provider.dart';
 import '../../../../providers/groups_provider.dart';
 import '../../../../providers/currency_provider.dart';
@@ -164,6 +166,63 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
           SnackBar(content: Text(AppLocalizations.of(context)!.errorUpdatingExpense)),
         );
       }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _delete() async {
+    final l = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(dl.deleteExpenseDialogTitle,
+              style: const TextStyle(color: Color(0xFFEF4444))),
+          content: Text(dl.deleteExpenseConfirm(widget.expense.title)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(dl.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEF4444),
+                foregroundColor: Colors.white,
+              ),
+              child: Text(dl.deleteGroupPermanently),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _loading = true);
+    try {
+      await ref
+          .read(expenseRepositoryProvider)
+          .deleteExpense(widget.expense.id);
+      if (!mounted) return;
+      ref.invalidate(expensesProvider(widget.group.id));
+      ref.invalidate(balancesProvider(widget.group.id));
+      ref.invalidate(groupDetailProvider(widget.group.id));
+      ref.invalidate(groupsProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.expenseDeletedSuccess)),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      String msg = l.errorDeletingExpense;
+      if (e is DioException) {
+        msg = (e.response?.data?['message'] as String?) ?? msg;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -464,6 +523,21 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
                 onPressed: _loading ? null : _save,
                 isLoading: _loading,
               ),
+
+              if (!widget.expense.isSystemExpense) ...[
+                const SizedBox(height: 16),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: _loading ? null : _delete,
+                    icon: const Icon(Icons.delete_outline,
+                        size: 18, color: Color(0xFFEF4444)),
+                    label: Text(
+                      AppLocalizations.of(context)!.deleteExpense,
+                      style: const TextStyle(color: Color(0xFFEF4444)),
+                    ),
+                  ),
+                ),
+              ],
 
               const SizedBox(height: 16),
             ],

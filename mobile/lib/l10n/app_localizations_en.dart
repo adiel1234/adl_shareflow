@@ -802,6 +802,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorUpdatingExpense => 'Error updating expense';
 
   @override
+  String get deleteExpense => 'Delete Expense';
+
+  @override
+  String get deleteExpenseDialogTitle => 'Delete Expense';
+
+  @override
+  String deleteExpenseConfirm(String title) {
+    return 'Delete expense \"$title\"?\n\nBalances will be updated accordingly.';
+  }
+
+  @override
+  String get expenseDeletedSuccess => 'Expense deleted successfully';
+
+  @override
+  String get errorDeletingExpense => 'Error deleting expense';
+
+  @override
   String get saveChanges => 'Save Changes';
 
   @override
