@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -92,9 +93,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
-    await FcmService.instance.unregisterToken();
-    await AppSecureStorage.deleteAll();
+    // Clear local session first — FCM/network cleanup can hang on Android.
+    try {
+      await AppSecureStorage.deleteAll();
+    } catch (_) {}
     state = const AuthState(isLoggedIn: false, isLoading: false);
+    try {
+      await FcmService.instance
+          .unregisterToken()
+          .timeout(const Duration(seconds: 5));
+    } catch (_) {}
   }
 
   Future<void> refresh() => _init();

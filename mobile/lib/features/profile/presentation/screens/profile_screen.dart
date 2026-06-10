@@ -39,6 +39,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  Future<void> _logout(BuildContext context, WidgetRef ref) async {
+    final nav = Navigator.of(context, rootNavigator: true);
+    final confirm = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(dl.logout),
+          content: Text(dl.confirmLogout),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(dl.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(
+                dl.logout,
+                style: const TextStyle(color: AppColors.error),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirm != true || !mounted) return;
+    try {
+      await ref.read(authProvider.notifier).logout();
+      ref.invalidate(notificationsProvider);
+    } finally {
+      if (nav.mounted) {
+        nav.pushNamedAndRemoveUntil('/login', (_) => false);
+      }
+    }
+  }
+
   Future<void> _pickAvatar() async {
     final hasAvatar = ref.read(authProvider).avatarUrl != null;
     // 'camera', 'gallery', 'delete', or null (dismissed)
@@ -307,35 +344,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             title: l.logout,
             iconColor: AppColors.error,
             titleColor: AppColors.error,
-            onTap: () async {
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (ctx) {
-                  final dl = AppLocalizations.of(ctx)!;
-                  return AlertDialog(
-                    title: Text(dl.logout),
-                    content: Text(dl.confirmLogout),
-                    actions: [
-                      TextButton(
-                          onPressed: () => Navigator.pop(ctx, false),
-                          child: Text(dl.cancel)),
-                      TextButton(
-                          onPressed: () => Navigator.pop(ctx, true),
-                          child: Text(dl.logout,
-                              style: const TextStyle(color: AppColors.error))),
-                    ],
-                  );
-                },
-              );
-              if (confirm == true) {
-                await ref.read(authProvider.notifier).logout();
-                ref.invalidate(notificationsProvider);
-                if (context.mounted) {
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, '/login', (_) => false);
-                }
-              }
-            },
+            onTap: () => _logout(context, ref),
           ),
         ],
       ),

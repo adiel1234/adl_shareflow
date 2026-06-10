@@ -44,7 +44,9 @@ class AppSecureStorage {
     return _serialized(() => _storage.delete(key: key));
   }
 
-  static Future<void> deleteAll() {
-    return _serialized(() => _storage.deleteAll());
+  static Future<void> deleteAll({
+    Duration timeout = const Duration(seconds: 8),
+  }) {
+    return _serialized(() => _storage.deleteAll().timeout(timeout));
   }
 }
