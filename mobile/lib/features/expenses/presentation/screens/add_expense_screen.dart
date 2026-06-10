@@ -257,6 +257,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             receiptId: _scannedReceiptId,
           );
       await FeedbackService.newExpense();
+      ref.invalidate(groupDetailProvider(widget.group.id));
+      ref.invalidate(groupsProvider);
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {

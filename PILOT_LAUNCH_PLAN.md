@@ -1,6 +1,6 @@
 # תכנית השקת פיילוט — ADL ShareFlow
 
-עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5** · builds: **iOS 35** / **Android 38** (יישור ל-build אחד ב-A4)
+עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5** · builds: **iOS 35** / **Android 39** (יישור ל-build אחד ב-A4)
 
 > **מסמכים קשורים:** [`PILOT_TEST_CHECKLIST.md`](PILOT_TEST_CHECKLIST.md) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)
 
@@ -13,15 +13,16 @@
 | build **31** + **35** — Beta App Review | ✅ **אושר** |
 | build **35** — בדיקות solo iOS (9.4, 14.0–14.2, סעיף 1) | ✅ **עבר** |
 | build **37** — APK אנדרואיד (splash + login loop) | ✅ **נבנה + נבדק** — `/pilot` → התחברות → קבוצות |
-| build **38** — APK אנדרואיד (תיקון logout) | ✅ **נבנה** — ממתין העלאה ל-Drive + אימות A1 #1 |
-| שרת Railway (`adlshareflow-production.up.railway.app`) | ✅ **פרוס** |
-| `pubspec.yaml` | ✅ `1.0.5+38` |
+| build **38** — APK אנדרואיד (תיקון logout) | ✅ **נבנה + נבדק** |
+| build **39** — APK אנדרואיד (תיקון אורח + חלוקה מלאה) | ✅ **נבנה** — ממתין העלאה ל-Drive + אימות A3 |
+| שרת Railway (`adlshareflow-production.up.railway.app`) | ✅ **פרוס** — commit `5e0d113` (תיקון אורח) |
+| `pubspec.yaml` | ✅ `1.0.5+39` |
 | קבוצת WhatsApp | ✅ **קיימת** (קישור במדריך) |
 | build **35** פעיל ב-Pilot Group (iOS) | ✅ **1.0.5 (35) Testing** |
-| יישור build iOS ↔ Android | ☐ **ממתין** — Android **38** מוכן; iOS עדיין **35** (A4) |
+| יישור build iOS ↔ Android | ☐ **ממתין** — Android **39** מוכן; iOS עדיין **35** (A4) |
 | בדיקות משתמש/מכשיר שני | ☐ **שלב B** (אחרי A4) |
 
-> **הערת builds:** **iOS = build 35**, **Android = build 38** (`1.0.5+38` ב-`pubspec`). יישור iOS ל-38 — שלב A4.
+> **הערת builds:** **iOS = build 35**, **Android = build 39** (`1.0.5+39` ב-`pubspec`). **תיקון אורח + חלוקה מלאה דורש build 39 + שרת** (`5e0d113`). iOS — build 39 נדרש גם לדיאלוג `split_mode` (IPA לא נבנה בשלב זה). יישור iOS ל-39 — שלב A4.
 
 ---
 
@@ -56,7 +57,7 @@
 ### A3 — תיקונים משותפים
 
 - **שערי חליפין (10.6.26):** דולר הוצג כ-3.72 (fallback ישן) — תיקון **backend** (live API ב-`/convert` + scheduler כל 3 שעות ל**כל 9 המטבעות**). **פריסת שרת בלבד** מספיקה; build חדש אופציונלי (רענון cache במסך הוצאה). **A2 בדיקה 2 (הוספת הוצאה) — ✅ עבר באנדרואיד.**
-- **אורח + חלוקה מלאה (10.6.26):** בחירת «כולל הוצאות עבר» בהוספת אורח לא עדכנה משתתפים — `POST /guests` לא קיבל `split_mode`. תיקון: שרת (`retroactively_add_member_to_expenses`) + אפליקציה (דיאלוג + שליחת `split_mode`). **פריסת שרת + build חדש** (A3).
+- **אורח + חלוקה מלאה (10.6.26):** בחירת «כולל הוצאות עבר» בהוספת אורח לא עדכנה משתתפים — `POST /guests` לא קיבל `split_mode`. תיקון: שרת (`retroactively_add_member_to_expenses`) + אפליקציה (דיאלוג + שליחת `split_mode`). **✅ שרת נדחף (`5e0d113`) + APK build 39 נבנה** — **שניהם נדרשים לאימות**; העלה APK ל-Drive, עדכן `APK_DOWNLOAD_URL`, ובדוק מחדש «כולל הוצאות עבר» (A3).
 - איסוף כל **נכשל** / **חלקי** מ-A1 + A2
 - תיקון בקוד Flutter (קובץ אחד לשתי הפלטפורמות)
 - בדיקת regression מקומית לפני build חדש

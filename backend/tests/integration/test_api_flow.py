@@ -382,6 +382,90 @@ class TestJoinSplitMode:
         assert r.get_json()['data']['already_member'] is True
 
 
+class TestGuestSplitMode:
+    """split_mode when admin adds a guest to a group with existing expenses."""
+
+    @pytest.fixture(scope='class')
+    def guest_split_users(self, client):
+        r = client.post('/api/auth/register', json={
+            'email': 'guestadmin@shareflowtest.com',
+            'password': 'Password1!',
+            'display_name': 'GuestAdmin',
+        })
+        assert r.status_code == 201, r.data
+        d = r.get_json()['data']
+        return {
+            'token': d['access_token'],
+            'user_id': d['user']['id'],
+        }
+
+    @pytest.fixture(scope='class')
+    def guest_split_group(self, client, guest_split_users):
+        tok = guest_split_users['token']
+        uid = guest_split_users['user_id']
+
+        r = client.post('/api/groups', json={
+            'name': 'Guest Split Test',
+            'base_currency': 'ILS',
+        }, headers=_auth(tok))
+        assert r.status_code == 201
+        group_id = r.get_json()['data']['id']
+
+        r = client.post(f'/api/groups/{group_id}/expenses', json={
+            'title': 'Dinner',
+            'original_amount': '100.00',
+            'original_currency': 'ILS',
+            'paid_by': uid,
+        }, headers=_auth(tok))
+        assert r.status_code == 201, r.data
+        expense_id = r.get_json()['data']['id']
+
+        return {'group_id': group_id, 'expense_id': expense_id, 'owner_id': uid}
+
+    def test_add_guest_full_retroactive(self, client, guest_split_users, guest_split_group):
+        tok = guest_split_users['token']
+        gid = guest_split_group['group_id']
+        exp_id = guest_split_group['expense_id']
+
+        r = client.post(
+            f'/api/groups/{gid}/guests',
+            json={'name': 'ישי', 'split_mode': 'full'},
+            headers=_auth(tok),
+        )
+        assert r.status_code in (200, 201), r.get_json()
+        data = r.get_json()['data']
+        assert data['split_mode'] == 'full'
+        assert data['retroactive_expenses'] == 1
+        guest_id = data['user_id']
+
+        r = client.get(f'/api/groups/{gid}/expenses', headers=_auth(tok))
+        assert r.status_code == 200
+        expenses = r.get_json()['data']
+        dinner = next(e for e in expenses if e['id'] == exp_id)
+        participant_ids = [p['user_id'] for p in dinner['participants']]
+        assert guest_id in participant_ids
+
+    def test_add_guest_forward_not_retroactive(self, client, guest_split_users, guest_split_group):
+        tok = guest_split_users['token']
+        gid = guest_split_group['group_id']
+        exp_id = guest_split_group['expense_id']
+
+        r = client.post(
+            f'/api/groups/{gid}/guests',
+            json={'name': 'דני', 'split_mode': 'forward'},
+            headers=_auth(tok),
+        )
+        assert r.status_code in (200, 201), r.get_json()
+        data = r.get_json()['data']
+        assert data['retroactive_expenses'] == 0
+        guest_id = data['user_id']
+
+        r = client.get(f'/api/groups/{gid}/expenses', headers=_auth(tok))
+        dinner = next(e for e in r.get_json()['data'] if e['id'] == exp_id)
+        participant_ids = [p['user_id'] for p in dinner['participants']]
+        assert guest_id not in participant_ids
+
+
 class TestDashboardAPI:
     ADL_KEY = 'shareflow-adl-admin-dev-key'
 

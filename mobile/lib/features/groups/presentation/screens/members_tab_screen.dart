@@ -757,11 +757,18 @@ Future<void> _showAddGuestSheet(
                       if (name.isEmpty) return;
 
                       var splitMode = 'forward';
-                      if (group.expenseCount > 0) {
+                      int expenseCount = group.expenseCount;
+                      try {
+                        expenseCount = await ref
+                            .read(groupRepositoryProvider)
+                            .fetchExpenseCount(group.id);
+                      } catch (_) {}
+
+                      if (expenseCount > 0) {
                         final chosen = await _showGuestSplitModeDialog(
                           ctx,
                           groupName: group.name,
-                          expenseCount: group.expenseCount,
+                          expenseCount: expenseCount,
                         );
                         if (chosen == null) return;
                         splitMode = chosen;
@@ -769,7 +776,7 @@ Future<void> _showAddGuestSheet(
 
                       setSheetState(() => loading = true);
                       try {
-                        await GroupRepository().addGuest(
+                        await ref.read(groupRepositoryProvider).addGuest(
                           group.id,
                           name,
                           splitMode: splitMode,
@@ -777,6 +784,8 @@ Future<void> _showAddGuestSheet(
                         ref.invalidate(groupMembersProvider(group.id));
                         ref.invalidate(balancesProvider(group.id));
                         ref.invalidate(expensesProvider(group.id));
+                        ref.invalidate(groupDetailProvider(group.id));
+                        ref.invalidate(groupsProvider);
                         if (ctx.mounted) Navigator.pop(ctx);
                       } catch (_) {
                         if (ctx.mounted) {

@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 יוני 2026 (חלוקה רטרואקטיבית בהוספת אורח; `split_mode` ב-`POST /groups/<id>/guests`)
+> עודכן לאחרונה: 10 יוני 2026 (תיקון דיאלוג `split_mode` בהוספת אורח — רענון `expense_count` מהשרת לפני דיאלוג; build 40)
 
 ---
 
@@ -462,6 +462,7 @@ flutter install --release
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): מניעת כפילויות — אם כבר קיים pending לאותו אורח→נושה, מחזיר אותו במקום ליצור כפילות; תוכנית העברות (`calculate_settlement_plan`) מפחיתה סכומי pending כדי שלא יופיע חוב כפול ב-UI.
 - **`MonetizationService`** (`groups/monetization_service.py`): הוצאת מערכת (`ADL ShareFlow Service`) **תמיד** נוצרת בהפעלה/הארכה/חידוש/שדרוג — גם כש-`PAYMENTS_ENABLED=false` (פיילוט חינמי). `GroupPayment.amount=0` כשאין גבייה אמיתית; `split_among_group=true` מחלק שווה בין **כל** `GroupMember` פעילים בהפעלה; `add_member_to_group_split_expenses` מוסיף חברים/אורחים חדשים להוצאות מערכת (הצטרפות + `POST /groups/<id>/guests`).
 - **`POST /groups/<id>/guests`** (`groups/routes.py`): body אופציונלי `split_mode` — `'forward'` (ברירת מחדל) או `'full'`. `'full'` קורא ל-`retroactively_add_member_to_expenses` ומחלק מחדש שווה את כל ההוצאות הקיימות (כולל אורח). אותה לוגיקה משותפת עם `POST /groups/join/<code>`.
+- **דיאלוג `split_mode` בהוספת אורח (build 40):** לפני הצגת הדיאלוג, האפליקציה קוראת `GET /groups/<id>` ל-`fetchExpenseCount` — אובייקט `Group` במטמון Riverpod לא התעדכן אחרי הוספת הוצאה (`expenseCount` נשאר 0). נקודות כניסה: טאב חברים (`_showAddGuestSheet`) וגיליון הזמנה (`_InviteSheet._addGuest`).
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (build 21): כשהמנהל שמסמן תשלום הוא גם הנושה (אורח→חבר) — הסטטוס `confirmed` מיד (ללא שלב pending נוסף); pending קיים מאותו סכום מועלה ל-`confirmed` באותה קריאה.
 - **`GET /groups/<id>/settlements/pending`** (build 20): מחזיר `can_confirm` / `is_creditor_confirm`; אורחים מסוננים לפי קבוצה (לא גלובלי). אחרי `mark-guest-paid` — נושה שאינו המנהל מאשר בנפרד; מנהל=נושה נסגר בפעולה אחת (build 21).
 

@@ -208,6 +208,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                 ).then((_) {
                   ref.invalidate(expensesProvider(group.id));
                   ref.invalidate(balancesProvider(group.id));
+                  ref.invalidate(groupDetailProvider(group.id));
+                  ref.invalidate(groupsProvider);
                 });
               },
             ),
@@ -501,8 +503,12 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
 
     // Only ask about split mode if the group already has expenses
     String splitMode = 'forward';
+    int expenseCount = group.expenseCount;
+    try {
+      expenseCount = await repo.fetchExpenseCount(group.id);
+    } catch (_) {}
 
-    if (group.expenseCount > 0) {
+    if (expenseCount > 0) {
       final choice = await showDialog<String>(
         context: context,
         barrierDismissible: false,
@@ -563,8 +569,15 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
           link: link,
           groupId: group.id,
           groupName: group.name,
-          expenseCount: group.expenseCount,
+          expenseCount: expenseCount,
           isAdmin: group.isAdmin,
+          onGuestAdded: () {
+            ref.invalidate(groupMembersProvider(group.id));
+            ref.invalidate(balancesProvider(group.id));
+            ref.invalidate(expensesProvider(group.id));
+            ref.invalidate(groupDetailProvider(group.id));
+            ref.invalidate(groupsProvider);
+          },
         ),
       );
     } catch (_) {
@@ -862,6 +875,7 @@ class _InviteSheet extends StatefulWidget {
   final String groupName;
   final int expenseCount;
   final bool isAdmin;
+  final VoidCallback? onGuestAdded;
   const _InviteSheet({
     required this.code,
     required this.link,
@@ -869,6 +883,7 @@ class _InviteSheet extends StatefulWidget {
     required this.groupName,
     this.expenseCount = 0,
     this.isAdmin = false,
+    this.onGuestAdded,
   });
 
   @override
@@ -893,7 +908,12 @@ class _InviteSheetState extends State<_InviteSheet> {
     if (name.isEmpty) return;
 
     var splitMode = 'forward';
-    if (widget.expenseCount > 0) {
+    int expenseCount = widget.expenseCount;
+    try {
+      expenseCount = await GroupRepository().fetchExpenseCount(widget.groupId);
+    } catch (_) {}
+
+    if (expenseCount > 0) {
       final l = AppLocalizations.of(context)!;
       final chosen = await showDialog<String>(
         context: context,
@@ -939,10 +959,12 @@ class _InviteSheetState extends State<_InviteSheet> {
     setState(() => _addingGuest = true);
     try {
       final api = ApiClient.instance;
-      await api.post('/groups/${widget.groupId}/guests', data: {
-        'name': name,
-        'split_mode': splitMode,
-      });
+      await GroupRepository().addGuest(
+        widget.groupId,
+        name,
+        splitMode: splitMode,
+      );
+      widget.onGuestAdded?.call();
       if (mounted) {
         _guestNameController.clear();
         ScaffoldMessenger.of(context).showSnackBar(

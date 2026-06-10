@@ -16,6 +16,12 @@ class GroupRepository {
     return Group.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 
+  /// Fresh expense count from server — use before split_mode dialogs (cached Group may be stale).
+  Future<int> fetchExpenseCount(String groupId) async {
+    final group = await fetchGroup(groupId);
+    return group.expenseCount;
+  }
+
   /// Returns a record: (group, limitReached).
   /// limitReached is true when the user hit the 3-group free limit
   /// and the new group was created in 'limited' state.
