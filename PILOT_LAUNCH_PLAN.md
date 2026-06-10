@@ -13,11 +13,11 @@
 | build **31** + **35** — Beta App Review | ✅ **אושר** |
 | build **35** — בדיקות solo (9.4, 14.0–14.2) | ✅ **עבר** |
 | שרת Railway (`adlshareflow-production.up.railway.app`) | ✅ **פרוס** |
-| `pubspec.yaml` | ✅ `1.0.5+35` |
+| `pubspec.yaml` | ✅ `1.0.5+36` |
 | סעיף **1** — סשן (התחברות, offline, logout) | ✅ **עבר** |
 | קבוצת WhatsApp | ✅ **קיימת** (קישור במדריך) |
 | build **35** פעיל ב-Pilot Group | ✅ **1.0.5 (35) Testing** |
-| APK אנדרואיד מעודכן | 🔄 **build 36** — תיקון splash; נדרש rebuild + העלאה |
+| APK אנדרואיד מעודכן | ✅ **build 36** נבנה — **▶ העלה ל-Drive והחלף קובץ ישן** |
 | בדיקות משתמש/מכשיר שני | ☐ פתוח |
 
 ---
@@ -60,14 +60,19 @@
 
 ---
 
-### 0.2 בניית APK אנדרואיד — 🔄 **build 36 נדרש**
+### 0.2 בניית APK אנדרואיד — ✅ **build 36 נבנה**
 
 - [x] בניית APK `1.0.5+35` (`flutter build apk --release`) — **10 יוני 2026**
 - [x] בדיקת התקנה על מכשיר אנדרואיד — **נכשל:** תקיעה ב-splash (build 35)
-- [ ] **Rebuild `1.0.5+36`** אחרי תיקון splash (ראו §0.2.1)
-- [ ] עדכון `APK_DOWNLOAD_URL` ב-Railway — **▶ אחרי build 36**
+- [x] **Rebuild `1.0.5+36`** אחרי תיקון splash (ראו §0.2.1) — **10 יוני 2026**
+- [ ] **העלאה ל-Google Drive** — החלף את הקובץ הישן ב-`app-release.apk` החדש (76 MB)
+- [ ] עדכון `APK_DOWNLOAD_URL` ב-Railway — **▶ אחרי העלאה**
+- [ ] **הסרת build 35 מהמכשיר + התקנה מחדש** — חובה לפני בדיקה (לא עדכון מעל גרסה ישנה)
 
-**קובץ build (לא ב-git):** `mobile/build/app/outputs/flutter-apk/app-release.apk`
+**קובץ build (לא ב-git):** `mobile/build/app/outputs/flutter-apk/app-release.apk` (76 MB, 10 יוני 2026)
+
+**קישור Drive (לאחר החלפת הקובץ):**
+`https://drive.google.com/uc?export=download&id=1rdz3aYE0PXv1rWqnqtz4UOOOZHhNx5jz`
 
 #### 0.2.1 באג splash אנדרואיד (build 35) — ✅ **תוקן בקוד**
 
@@ -77,14 +82,15 @@
 | **שורש** | Deadlock ב-Android Keystore: `authProvider._init()` ו-`FcmService`→`ApiClient` קוראים ל-`FlutterSecureStorage` **במקביל** באתחול; `isLoading` נשאר `true` לנצח. בנוסף: `ref.listen` ב-splash עלול לפספס מעבר שכבר הסתיים |
 | **תיקון** | `AppSecureStorage` (תור serialized + `AndroidOptions`), דחיית FCM עד סיום auth, `listenManual(..., fireImmediately: true)` ב-splash, `proguard-rules.pro` |
 | **Google Drive URL** | `/download` ו-`/pilot` מעבירים `APK_DOWNLOAD_URL` as-is (redirect/קישור ישיר). התקנה עבדה — הבעיה לא בקישור; מומלץ בכל זאת `https://drive.google.com/uc?export=download&id=...` להורדה ישירה |
-| **Railway** | אחרי rebuild: העלה APK חדש ל-Drive, עדכן `APK_DOWNLOAD_URL` לקישור direct |
+| **Railway** | APK 36 נבנה — העלה ל-Drive (החלף קובץ), עדכן `APK_DOWNLOAD_URL` לקישור direct למעלה |
 
 ---
 
 ### 0.3 קישורי Railway — **▶ הצעד הנוכחי**
 
 - [ ] וידוא `TESTFLIGHT_URL` ב-Railway (כפתורי iOS ב-`/pilot` ו-`/download`)
-- [ ] וידוא `APK_DOWNLOAD_URL` ב-Railway (אחרי 0.2)
+- [ ] עדכון `APK_DOWNLOAD_URL` ב-Railway ל:
+  `https://drive.google.com/uc?export=download&id=1rdz3aYE0PXv1rWqnqtz4UOOOZHhNx5jz`
 - [ ] בדיקת `https://adlshareflow-production.up.railway.app/health` → ok
 - [ ] בדיקת `/pilot` מהטלפון (iOS + Android)
 - [ ] בדיקת `/download` מהטלפון
