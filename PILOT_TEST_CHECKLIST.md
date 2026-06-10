@@ -14,7 +14,7 @@
 
 ## מפת פערים — סטטוס פיילוט (עודכן 9 יוני 2026)
 
-> **מצב כללי:** build **35** (`1.0.5+35`) — **אושר** ב-Beta App Review + **נבדק** (9.4, 14.0–14.2 עברו). deploy שרת **עבר**. הצעד הבא: וידוא **35** ב-Pilot Group — ראו [`PILOT_LAUNCH_PLAN.md`](PILOT_LAUNCH_PLAN.md) שלב 0.1.
+> **מצב כללי:** build **35** (`1.0.5+35`) — **אושר** ב-Beta App Review + **נבדק** (9.4, 14.0–14.2 עברו). deploy שרת **עבר**. **Pilot Group:** **1.0.5 (35) Testing** ב-External Testing (אושר 10 יוני 2026). **APK:** נבנה 10 יוני 2026 — הצעד הבא: העלאה + `APK_DOWNLOAD_URL` — [`PILOT_LAUNCH_PLAN.md`](PILOT_LAUNCH_PLAN.md) שלב 0.3.
 
 ### א. בדיקות שלא בוצעו / נכשלו / חלקיות
 

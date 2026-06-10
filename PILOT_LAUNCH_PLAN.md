@@ -16,8 +16,8 @@
 | `pubspec.yaml` | ✅ `1.0.5+35` |
 | סעיף **1** — סשן (התחברות, offline, logout) | ✅ **עבר** |
 | קבוצת WhatsApp | ✅ **קיימת** (קישור במדריך) |
-| build **35** פעיל ב-Pilot Group | ⏳ **הצעד הנוכחי** |
-| APK אנדרואיד מעודכן | ☐ פתוח |
+| build **35** פעיל ב-Pilot Group | ✅ **1.0.5 (35) Testing** |
+| APK אנדרואיד מעודכן | ✅ **1.0.5+35 נבנה** — 0.3 הבא |
 | בדיקות משתמש/מכשיר שני | ☐ פתוח |
 
 ---
@@ -44,9 +44,9 @@
 
 > **מטרה:** לוודא שכל בודק מקבל את **build 35** הנכון, עם קישורי הורדה ומדריך מעודכנים.
 
-### 0.1 וידוא Pilot Group (iOS) — **▶ הצעד הנוכחי**
+### 0.1 וידוא Pilot Group (iOS) — ✅ **הושלם**
 
-- [ ] **וידוא ש-build 35 פעיל ב-Pilot Group ב-App Store Connect**
+- [x] **וידוא ש-build 35 פעיל ב-Pilot Group ב-App Store Connect** — **1.0.5 (35) Testing** (אושר 10 יוני 2026)
 
 **הוראות:**
 
@@ -60,15 +60,17 @@
 
 ---
 
-### 0.2 בניית APK אנדרואיד
+### 0.2 בניית APK אנדרואיד — ✅ **הושלם**
 
-- [ ] בניית APK `1.0.5+35` (`flutter build apk --release`)
+- [x] בניית APK `1.0.5+35` (`flutter build apk --release`) — **10 יוני 2026**
 - [ ] בדיקת התקנה על מכשיר אנדרואיד
-- [ ] עדכון `APK_DOWNLOAD_URL` ב-Railway
+- [ ] עדכון `APK_DOWNLOAD_URL` ב-Railway — **▶ הצעד הבא (0.3, ידני)**
+
+**קובץ build (לא ב-git):** `mobile/build/app/outputs/flutter-apk/app-release.apk` (75 MB, חתימת debug — אין keystore ב-`release_keys/`)
 
 ---
 
-### 0.3 קישורי Railway
+### 0.3 קישורי Railway — **▶ הצעד הנוכחי**
 
 - [ ] וידוא `TESTFLIGHT_URL` ב-Railway (כפתורי iOS ב-`/pilot` ו-`/download`)
 - [ ] וידוא `APK_DOWNLOAD_URL` ב-Railway (אחרי 0.2)
