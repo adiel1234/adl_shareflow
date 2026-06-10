@@ -639,6 +639,67 @@ class MembersTabScreen extends ConsumerWidget {
   }
 }
 
+Future<String?> _showGuestSplitModeDialog(
+  BuildContext context, {
+  required String groupName,
+  required int expenseCount,
+}) {
+  final l = AppLocalizations.of(context)!;
+  return showDialog<String>(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Text(
+        l.splitExpenses,
+        style: const TextStyle(fontWeight: FontWeight.w700),
+        textAlign: TextAlign.right,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.groupExpensesCount(groupName, expenseCount),
+            style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
+            textAlign: TextAlign.right,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l.howShouldNewMemberJoin,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+            textAlign: TextAlign.right,
+          ),
+        ],
+      ),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        _GuestSplitOptionButton(
+          icon: Icons.history,
+          color: AppColors.primary,
+          title: l.splitAll,
+          subtitle: l.includePastExpenses,
+          onTap: () => Navigator.pop(ctx, 'full'),
+        ),
+        const SizedBox(height: 8),
+        _GuestSplitOptionButton(
+          icon: Icons.arrow_forward,
+          color: AppColors.secondary,
+          title: l.fromNowOn,
+          subtitle: l.notChargedPast,
+          onTap: () => Navigator.pop(ctx, 'forward'),
+        ),
+        const SizedBox(height: 4),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, null),
+          child: Text(l.cancel,
+              style: const TextStyle(color: AppColors.textSecondary)),
+        ),
+      ],
+    ),
+  );
+}
+
 Future<void> _showAddGuestSheet(
   BuildContext context,
   WidgetRef ref,
@@ -694,11 +755,28 @@ Future<void> _showAddGuestSheet(
                   : () async {
                       final name = nameCtrl.text.trim();
                       if (name.isEmpty) return;
+
+                      var splitMode = 'forward';
+                      if (group.expenseCount > 0) {
+                        final chosen = await _showGuestSplitModeDialog(
+                          ctx,
+                          groupName: group.name,
+                          expenseCount: group.expenseCount,
+                        );
+                        if (chosen == null) return;
+                        splitMode = chosen;
+                      }
+
                       setSheetState(() => loading = true);
                       try {
-                        await GroupRepository().addGuest(group.id, name);
+                        await GroupRepository().addGuest(
+                          group.id,
+                          name,
+                          splitMode: splitMode,
+                        );
                         ref.invalidate(groupMembersProvider(group.id));
                         ref.invalidate(balancesProvider(group.id));
+                        ref.invalidate(expensesProvider(group.id));
                         if (ctx.mounted) Navigator.pop(ctx);
                       } catch (_) {
                         if (ctx.mounted) {
@@ -724,6 +802,66 @@ Future<void> _showAddGuestSheet(
     ),
   );
   nameCtrl.dispose();
+}
+
+class _GuestSplitOptionButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _GuestSplitOptionButton({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 14)),
+                  Text(subtitle,
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textSecondary)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 // ── Add guest quick action (admin) ────────────────────────────────────────────

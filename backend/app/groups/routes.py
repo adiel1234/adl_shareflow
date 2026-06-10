@@ -874,9 +874,6 @@ def join_group(invite_code):
       'forward' (default) - new member participates only in future expenses
       'full'              - retroactively add member to all existing expenses
     """
-    from decimal import Decimal, ROUND_HALF_UP
-    from app.models import Expense, ExpenseParticipant
-
     user_id = get_jwt_identity()
     group = Group.query.filter_by(invite_code=invite_code.upper(), is_active=True).first()
     if not group:
@@ -896,44 +893,14 @@ def join_group(invite_code):
     db.session.add(member)
     db.session.flush()
 
-    from app.groups.internal_expense_service import add_member_to_group_split_expenses
+    from app.groups.internal_expense_service import (
+        add_member_to_group_split_expenses,
+        retroactively_add_member_to_expenses,
+    )
     add_member_to_group_split_expenses(group.id, user_id)
 
     if split_mode == 'full':
-        # Retroactively add the new member to all existing expenses
-        expenses = Expense.query.filter_by(group_id=group.id).all()
-        for expense in expenses:
-            participants = ExpenseParticipant.query.filter_by(
-                expense_id=expense.id
-            ).all()
-
-            # Skip if already a participant (safety check)
-            participant_ids = {p.user_id for p in participants}
-            if user_id in participant_ids:
-                continue
-
-            all_member_ids = list(participant_ids) + [user_id]
-            n = len(all_member_ids)
-
-            # Recalculate equal shares with rounding correction
-            base_share = (expense.converted_amount / n).quantize(
-                Decimal('0.01'), rounding=ROUND_HALF_UP
-            )
-            total_distributed = base_share * (n - 1)
-            last_share = (expense.converted_amount - total_distributed).quantize(
-                Decimal('0.01'), rounding=ROUND_HALF_UP
-            )
-
-            # Update existing participants
-            for i, p in enumerate(participants):
-                p.share_amount = base_share if i < len(participants) - 1 else last_share
-
-            # Add new participant with last share (corrected for rounding)
-            db.session.add(ExpenseParticipant(
-                expense_id=expense.id,
-                user_id=user_id,
-                share_amount=base_share,
-            ))
+        retroactively_add_member_to_expenses(group.id, user_id)
 
     db.session.commit()
 
@@ -1038,8 +1005,14 @@ def delete_scheduled_reminder(group_id: str, reminder_id: str):
 @jwt_required()
 @require_group_admin
 def add_guest_member(group_id, **kwargs):
-    """Admin adds a guest member by name only (no app required)."""
+    """Admin adds a guest member by name only (no app required).
+
+    split_mode:
+      'forward' (default) - guest participates only in future expenses
+      'full'              - retroactively add guest to all existing expenses
+    """
     import uuid as _uuid_mod
+    from app.models import Expense
     user_id = get_jwt_identity()
     group = db.session.get(Group, group_id)
     if not group or not group.is_active:
@@ -1049,6 +1022,10 @@ def add_guest_member(group_id, **kwargs):
     name = (data.get('name') or '').strip()
     if not name:
         return error_response('שם האורח נדרש')
+
+    split_mode = data.get('split_mode', 'forward')
+    if split_mode not in ('forward', 'full'):
+        split_mode = 'forward'
 
     # Create a ghost User record — fake email, no auth identity
     ghost_id = str(_uuid_mod.uuid4())
@@ -1069,8 +1046,16 @@ def add_guest_member(group_id, **kwargs):
     db.session.add(member)
     db.session.flush()
 
-    from app.groups.internal_expense_service import add_member_to_group_split_expenses
+    from app.groups.internal_expense_service import (
+        add_member_to_group_split_expenses,
+        retroactively_add_member_to_expenses,
+    )
     add_member_to_group_split_expenses(group_id, ghost_id)
+
+    retroactive_expenses = 0
+    if split_mode == 'full':
+        retroactively_add_member_to_expenses(group_id, ghost_id)
+        retroactive_expenses = Expense.query.filter_by(group_id=group_id).count()
 
     db.session.commit()
 
@@ -1079,6 +1064,8 @@ def add_guest_member(group_id, **kwargs):
         'display_name': name,
         'is_guest': True,
         'member_id': member.id,
+        'split_mode': split_mode,
+        'retroactive_expenses': retroactive_expenses,
     })
 
 

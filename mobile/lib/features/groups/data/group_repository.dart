@@ -75,8 +75,15 @@ class GroupRepository {
     return response.data['data'] as Map<String, dynamic>;
   }
 
-  Future<void> addGuest(String groupId, String name) async {
-    await _api.post('/groups/$groupId/guests', data: {'name': name.trim()});
+  Future<void> addGuest(
+    String groupId,
+    String name, {
+    String splitMode = 'forward',
+  }) async {
+    await _api.post('/groups/$groupId/guests', data: {
+      'name': name.trim(),
+      'split_mode': splitMode,
+    });
   }
 
   Future<void> removeMember(

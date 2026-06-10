@@ -100,6 +100,21 @@ def create_payment_expense(
     return expense
 
 
+def retroactively_add_member_to_expenses(group_id: str, user_id: str) -> None:
+    """
+    Add user_id as an equal participant on every existing group expense
+    (split_mode='full' when joining or adding a guest).
+    """
+    expenses = Expense.query.filter_by(group_id=group_id).all()
+    for expense in expenses:
+        participant_ids = {p.user_id for p in expense.participants}
+        if user_id in participant_ids:
+            continue
+        participant_ids.add(user_id)
+        _rebalance_equal_participants(expense, sorted(participant_ids))
+        db.session.flush()
+
+
 def add_member_to_group_split_expenses(group_id: str, user_id: str) -> None:
     """
     When a new member joins, add them to system expenses that were marked

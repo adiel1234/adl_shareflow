@@ -563,6 +563,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
           link: link,
           groupId: group.id,
           groupName: group.name,
+          expenseCount: group.expenseCount,
           isAdmin: group.isAdmin,
         ),
       );
@@ -859,8 +860,16 @@ class _InviteSheet extends StatefulWidget {
   final String link;
   final String groupId;
   final String groupName;
+  final int expenseCount;
   final bool isAdmin;
-  const _InviteSheet({required this.code, required this.link, required this.groupId, required this.groupName, this.isAdmin = false});
+  const _InviteSheet({
+    required this.code,
+    required this.link,
+    required this.groupId,
+    required this.groupName,
+    this.expenseCount = 0,
+    this.isAdmin = false,
+  });
 
   @override
   State<_InviteSheet> createState() => _InviteSheetState();
@@ -882,10 +891,58 @@ class _InviteSheetState extends State<_InviteSheet> {
   Future<void> _addGuest() async {
     final name = _guestNameController.text.trim();
     if (name.isEmpty) return;
+
+    var splitMode = 'forward';
+    if (widget.expenseCount > 0) {
+      final l = AppLocalizations.of(context)!;
+      final chosen = await showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(l.splitExpenses,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+              textAlign: TextAlign.right),
+          content: Text(l.howShouldNewMemberJoin,
+              style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
+              textAlign: TextAlign.right),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            _SplitOptionButton(
+              icon: Icons.history,
+              color: AppColors.primary,
+              title: l.splitAll,
+              subtitle: l.includePastExpenses,
+              onTap: () => Navigator.pop(ctx, 'full'),
+            ),
+            const SizedBox(height: 8),
+            _SplitOptionButton(
+              icon: Icons.arrow_forward,
+              color: AppColors.secondary,
+              title: l.fromNowOn,
+              subtitle: l.notChargedPast,
+              onTap: () => Navigator.pop(ctx, 'forward'),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, null),
+              child: Text(l.cancel,
+                  style: const TextStyle(color: AppColors.textSecondary)),
+            ),
+          ],
+        ),
+      );
+      if (chosen == null || !mounted) return;
+      splitMode = chosen;
+    }
+
     setState(() => _addingGuest = true);
     try {
       final api = ApiClient.instance;
-      await api.post('/groups/${widget.groupId}/guests', data: {'name': name});
+      await api.post('/groups/${widget.groupId}/guests', data: {
+        'name': name,
+        'split_mode': splitMode,
+      });
       if (mounted) {
         _guestNameController.clear();
         ScaffoldMessenger.of(context).showSnackBar(

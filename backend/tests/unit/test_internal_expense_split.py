@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 from app.groups.internal_expense_service import (
     create_payment_expense,
     add_member_to_group_split_expenses,
+    retroactively_add_member_to_expenses,
     _rebalance_equal_participants,
 )
 
@@ -78,6 +79,48 @@ class TestAddMemberToSplitExpenses:
         mock_rebalance.assert_called_once()
         participant_ids = set(mock_rebalance.call_args[0][1])
         assert participant_ids == {'admin-1', 'member-2'}
+
+
+class TestRetroactivelyAddMemberToExpenses:
+    def test_adds_guest_to_each_existing_expense(self):
+        expense_a = MagicMock()
+        expense_a.participants = [MagicMock(user_id='admin-1')]
+        expense_b = MagicMock()
+        expense_b.participants = [
+            MagicMock(user_id='admin-1'),
+            MagicMock(user_id='member-2'),
+        ]
+
+        with patch('app.groups.internal_expense_service.db') as mock_db, \
+             patch('app.groups.internal_expense_service.Expense') as mock_expense, \
+             patch('app.groups.internal_expense_service._rebalance_equal_participants') as mock_rebalance:
+            mock_expense.query.filter_by.return_value.all.return_value = [
+                expense_a, expense_b,
+            ]
+
+            retroactively_add_member_to_expenses('group-1', 'guest-1')
+
+        assert mock_rebalance.call_count == 2
+        assert mock_rebalance.call_args_list[0][0][1] == ['admin-1', 'guest-1']
+        assert set(mock_rebalance.call_args_list[1][0][1]) == {
+            'admin-1', 'guest-1', 'member-2',
+        }
+
+    def test_skips_expense_when_guest_already_participant(self):
+        expense = MagicMock()
+        expense.participants = [
+            MagicMock(user_id='admin-1'),
+            MagicMock(user_id='guest-1'),
+        ]
+
+        with patch('app.groups.internal_expense_service.db'), \
+             patch('app.groups.internal_expense_service.Expense') as mock_expense, \
+             patch('app.groups.internal_expense_service._rebalance_equal_participants') as mock_rebalance:
+            mock_expense.query.filter_by.return_value.all.return_value = [expense]
+
+            retroactively_add_member_to_expenses('group-1', 'guest-1')
+
+        mock_rebalance.assert_not_called()
 
 
 class TestRebalanceEqualParticipants:
