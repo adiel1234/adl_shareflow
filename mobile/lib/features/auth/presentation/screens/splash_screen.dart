@@ -16,6 +16,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   late final AnimationController _ctrl;
   late final Animation<double> _scaleAnim;
   late final Animation<double> _fadeAnim;
+  bool _navigated = false;
 
   @override
   void initState() {
@@ -31,6 +32,30 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       CurvedAnimation(parent: _ctrl, curve: const Interval(0.0, 0.6)),
     );
     _ctrl.forward();
+
+    // fireImmediately catches auth that finished before this screen mounted
+    // (ref.listen in build() alone can miss the transition).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.listenManual<AuthState>(authProvider, (_, next) {
+        _navigateWhenReady(next);
+      }, fireImmediately: true);
+    });
+  }
+
+  Future<void> _navigateWhenReady(AuthState state) async {
+    if (_navigated || state.isLoading || !mounted) return;
+    _navigated = true;
+
+    if (state.isLoggedIn) {
+      final done = await hasCompletedOnboarding();
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(
+        context,
+        done ? '/home' : '/onboarding',
+      );
+    } else {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
   }
 
   @override
@@ -41,24 +66,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Watch auth state — navigate once loading completes
-    ref.listen<AuthState>(authProvider, (prev, next) async {
-      if (!next.isLoading && mounted) {
-        if (next.isLoggedIn) {
-          // If onboarding wasn't completed yet, show it
-          final done = await hasCompletedOnboarding();
-          if (mounted) {
-            Navigator.pushReplacementNamed(
-              context,
-              done ? '/home' : '/onboarding',
-            );
-          }
-        } else {
-          Navigator.pushReplacementNamed(context, '/login');
-        }
-      }
-    });
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: AppColors.brandGradient),

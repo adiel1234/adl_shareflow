@@ -1,9 +1,8 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/network/api_client.dart';
 import '../core/constants/app_constants.dart';
+import '../core/storage/secure_storage.dart';
 
 class AuthService {
-  final _storage = const FlutterSecureStorage();
   final _api = ApiClient.instance;
 
   Future<Map<String, dynamic>> register({
@@ -51,26 +50,26 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    final refreshToken = await _storage.read(key: AppConstants.refreshTokenKey);
+    final refreshToken = await AppSecureStorage.read(AppConstants.refreshTokenKey);
     try {
       await _api.post('/auth/logout', data: {'refresh_token': refreshToken});
     } catch (_) {}
-    await _storage.deleteAll();
+    await AppSecureStorage.deleteAll();
   }
 
   Future<bool> isLoggedIn() async {
-    final token = await _storage.read(key: AppConstants.accessTokenKey);
+    final token = await AppSecureStorage.read(AppConstants.accessTokenKey);
     return token != null;
   }
 
   Future<void> _saveTokens(Map<String, dynamic> data) async {
-    await _storage.write(
-      key: AppConstants.accessTokenKey,
-      value: data['access_token'],
+    await AppSecureStorage.write(
+      AppConstants.accessTokenKey,
+      data['access_token'] as String,
     );
-    await _storage.write(
-      key: AppConstants.refreshTokenKey,
-      value: data['refresh_token'],
+    await AppSecureStorage.write(
+      AppConstants.refreshTokenKey,
+      data['refresh_token'] as String,
     );
   }
 }

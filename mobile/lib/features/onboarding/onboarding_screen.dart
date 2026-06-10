@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/network/api_client.dart';
+import '../../core/storage/secure_storage.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_colors.dart';
 
@@ -14,14 +14,12 @@ const _kOnboardingDone = 'onboarding_done_v1';
 
 /// Returns true if the user has already completed/skipped onboarding.
 Future<bool> hasCompletedOnboarding() async {
-  const s = FlutterSecureStorage();
-  return await s.read(key: _kOnboardingDone) == 'true';
+  return await AppSecureStorage.read(_kOnboardingDone) == 'true';
 }
 
 /// Mark onboarding as done so it is never shown again.
 Future<void> markOnboardingDone() async {
-  const s = FlutterSecureStorage();
-  await s.write(key: _kOnboardingDone, value: 'true');
+  await AppSecureStorage.write(_kOnboardingDone, 'true');
 }
 
 class OnboardingScreen extends ConsumerStatefulWidget {

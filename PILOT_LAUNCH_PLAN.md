@@ -1,6 +1,6 @@
 # תכנית השקת פיילוט — ADL ShareFlow
 
-עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5 build 35**
+עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5 build 36** (Android fix)
 
 > **מסמכים קשורים:** [`PILOT_TEST_CHECKLIST.md`](PILOT_TEST_CHECKLIST.md) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)
 
@@ -17,7 +17,7 @@
 | סעיף **1** — סשן (התחברות, offline, logout) | ✅ **עבר** |
 | קבוצת WhatsApp | ✅ **קיימת** (קישור במדריך) |
 | build **35** פעיל ב-Pilot Group | ✅ **1.0.5 (35) Testing** |
-| APK אנדרואיד מעודכן | ✅ **1.0.5+35 נבנה** — 0.3 הבא |
+| APK אנדרואיד מעודכן | 🔄 **build 36** — תיקון splash; נדרש rebuild + העלאה |
 | בדיקות משתמש/מכשיר שני | ☐ פתוח |
 
 ---
@@ -60,13 +60,24 @@
 
 ---
 
-### 0.2 בניית APK אנדרואיד — ✅ **הושלם**
+### 0.2 בניית APK אנדרואיד — 🔄 **build 36 נדרש**
 
 - [x] בניית APK `1.0.5+35` (`flutter build apk --release`) — **10 יוני 2026**
-- [ ] בדיקת התקנה על מכשיר אנדרואיד
-- [ ] עדכון `APK_DOWNLOAD_URL` ב-Railway — **▶ הצעד הבא (0.3, ידני)**
+- [x] בדיקת התקנה על מכשיר אנדרואיד — **נכשל:** תקיעה ב-splash (build 35)
+- [ ] **Rebuild `1.0.5+36`** אחרי תיקון splash (ראו §0.2.1)
+- [ ] עדכון `APK_DOWNLOAD_URL` ב-Railway — **▶ אחרי build 36**
 
-**קובץ build (לא ב-git):** `mobile/build/app/outputs/flutter-apk/app-release.apk` (75 MB, חתימת debug — אין keystore ב-`release_keys/`)
+**קובץ build (לא ב-git):** `mobile/build/app/outputs/flutter-apk/app-release.apk`
+
+#### 0.2.1 באג splash אנדרואיד (build 35) — ✅ **תוקן בקוד**
+
+| | |
+|---|---|
+| **תסמין** | APK מתקין בהצלחה, נתקע במסך splash — לא עובר ל-login |
+| **שורש** | Deadlock ב-Android Keystore: `authProvider._init()` ו-`FcmService`→`ApiClient` קוראים ל-`FlutterSecureStorage` **במקביל** באתחול; `isLoading` נשאר `true` לנצח. בנוסף: `ref.listen` ב-splash עלול לפספס מעבר שכבר הסתיים |
+| **תיקון** | `AppSecureStorage` (תור serialized + `AndroidOptions`), דחיית FCM עד סיום auth, `listenManual(..., fireImmediately: true)` ב-splash, `proguard-rules.pro` |
+| **Google Drive URL** | `/download` ו-`/pilot` מעבירים `APK_DOWNLOAD_URL` as-is (redirect/קישור ישיר). התקנה עבדה — הבעיה לא בקישור; מומלץ בכל זאת `https://drive.google.com/uc?export=download&id=...` להורדה ישירה |
+| **Railway** | אחרי rebuild: העלה APK חדש ל-Drive, עדכן `APK_DOWNLOAD_URL` לקישור direct |
 
 ---
 

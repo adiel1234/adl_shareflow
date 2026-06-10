@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config/app_config.dart';
 import '../constants/app_constants.dart';
+import '../storage/secure_storage.dart';
 
 /// Callbacks registered by the app layer to react to auth/error events.
 typedef VoidCallback = void Function();
@@ -10,7 +10,6 @@ typedef MessageCallback = void Function(String message);
 class ApiClient {
   static ApiClient? _instance;
   late final Dio _dio;
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   /// Called when a 401 occurs and token refresh has failed (session expired).
   static VoidCallback? onSessionExpired;
@@ -26,7 +25,7 @@ class ApiClient {
       headers: {'Content-Type': 'application/json'},
     ));
 
-    _dio.interceptors.add(_AuthInterceptor(_storage, _dio));
+    _dio.interceptors.add(_AuthInterceptor(_dio));
     _dio.interceptors.add(LogInterceptor(
       request: AppConfig.isDev,
       responseBody: AppConfig.isDev,
@@ -58,17 +57,16 @@ class ApiClient {
 }
 
 class _AuthInterceptor extends Interceptor {
-  final FlutterSecureStorage _storage;
   final Dio _dio;
 
-  _AuthInterceptor(this._storage, this._dio);
+  _AuthInterceptor(this._dio);
 
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _storage.read(key: AppConstants.accessTokenKey);
+    final token = await AppSecureStorage.read(AppConstants.accessTokenKey);
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }
@@ -87,7 +85,7 @@ class _AuthInterceptor extends Interceptor {
     if (statusCode == 401 && !isRefreshCall) {
       final refreshed = await _tryRefresh();
       if (refreshed) {
-        final token = await _storage.read(key: AppConstants.accessTokenKey);
+        final token = await AppSecureStorage.read(AppConstants.accessTokenKey);
         err.requestOptions.headers['Authorization'] = 'Bearer $token';
         try {
           final response = await _dio.fetch(err.requestOptions);
@@ -107,7 +105,7 @@ class _AuthInterceptor extends Interceptor {
   }
 
   Future<bool> _tryRefresh() async {
-    final refreshToken = await _storage.read(key: AppConstants.refreshTokenKey);
+    final refreshToken = await AppSecureStorage.read(AppConstants.refreshTokenKey);
     if (refreshToken == null) return false;
 
     try {
@@ -122,12 +120,12 @@ class _AuthInterceptor extends Interceptor {
         'refresh_token': refreshToken,
       });
       final newToken = response.data['data']['access_token'];
-      await _storage.write(key: AppConstants.accessTokenKey, value: newToken);
+      await AppSecureStorage.write(AppConstants.accessTokenKey, newToken);
       return true;
     } on DioException catch (e) {
       final status = e.response?.statusCode ?? 0;
       if (status == 401 || status == 403) {
-        await _storage.deleteAll();
+        await AppSecureStorage.deleteAll();
       }
       return false;
     } catch (_) {

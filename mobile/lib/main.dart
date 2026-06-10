@@ -117,6 +117,7 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _messengerKey = GlobalKey<ScaffoldMessengerState>();
   bool _isOffline = false;
+  bool _fcmStarted = false;
 
   @override
   void initState() {
@@ -156,10 +157,20 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
         _invalidateForGroup(groupId, type);
       });
 
-      FcmService.instance.initialize().then((_) {
-        FcmService.instance.setupOpenedAppHandler();
-      });
+      WidgetsBinding.instance.addPostFrameCallback((_) => _startFcmIfReady());
     }
+  }
+
+  /// Start FCM only after auth init finishes — avoids concurrent secure-storage
+  /// reads on Android (auth + API interceptor) that can deadlock at startup.
+  void _startFcmIfReady() {
+    if (_fcmStarted || kIsWeb) return;
+    if (ref.read(authProvider).isLoading) return;
+    _fcmStarted = true;
+
+    FcmService.instance.initialize().then((_) {
+      FcmService.instance.setupOpenedAppHandler();
+    });
   }
 
   /// Invalidate relevant Riverpod providers when a push notification signals
@@ -233,6 +244,10 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AuthState>(authProvider, (_, next) {
+      if (!next.isLoading) _startFcmIfReady();
+    });
+
     final locale = ref.watch(localeProvider);
     final isHe = locale.languageCode == 'he';
     return MaterialApp(

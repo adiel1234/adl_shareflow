@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/constants/app_constants.dart';
+import '../core/storage/secure_storage.dart';
 import '../core/network/api_client.dart';
 import '../services/fcm_service.dart';
 
@@ -45,16 +45,14 @@ class AuthState {
 }
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  final _storage = const FlutterSecureStorage();
-
   AuthNotifier() : super(const AuthState()) {
     _init();
   }
 
   Future<void> _init() async {
-    final token = await _storage.read(key: AppConstants.accessTokenKey);
+    final token = await AppSecureStorage.read(AppConstants.accessTokenKey);
     final currency =
-        await _storage.read(key: _kPreferredCurrency) ?? 'ILS';
+        await AppSecureStorage.read(_kPreferredCurrency) ?? 'ILS';
 
     if (token == null) {
       state = AuthState(
@@ -72,7 +70,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } on DioException catch (e) {
       final status = e.response?.statusCode ?? 0;
       if (status == 401 || status == 403) {
-        await _storage.deleteAll();
+        await AppSecureStorage.deleteAll();
         state = AuthState(isLoggedIn: false, isLoading: false, preferredCurrency: currency);
       } else {
         // שגיאת רשת — נשאר מחובר
@@ -89,13 +87,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> setPreferredCurrency(String currency) async {
-    await _storage.write(key: _kPreferredCurrency, value: currency);
+    await AppSecureStorage.write(_kPreferredCurrency, currency);
     state = state.copyWith(preferredCurrency: currency);
   }
 
   Future<void> logout() async {
     await FcmService.instance.unregisterToken();
-    await _storage.deleteAll();
+    await AppSecureStorage.deleteAll();
     state = const AuthState(isLoggedIn: false, isLoading: false);
   }
 
