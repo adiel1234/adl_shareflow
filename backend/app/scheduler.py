@@ -218,3 +218,14 @@ def check_group_expirations():
 
         if limited:
             db.session.commit()
+
+
+@scheduler.task('interval', id='refresh_exchange_rates', hours=3, misfire_grace_time=600)
+def refresh_exchange_rates():
+    """Every 3 hours: pull live rates from ExchangeRate-API into PostgreSQL."""
+    with scheduler.app.app_context():
+        from app.currency.routes import refresh_all_exchange_rates
+        try:
+            refresh_all_exchange_rates()
+        except Exception as e:
+            scheduler.app.logger.error(f'Exchange rate refresh failed: {e}')

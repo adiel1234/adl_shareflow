@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
 from flask import Blueprint, request, current_app
@@ -10,28 +10,33 @@ from app.common.errors import success_response, error_response
 
 currency_bp = Blueprint('currency', __name__)
 
-# Fallback rates (updated periodically — used if live fetch fails)
+# Last-resort rates when DB cache and live API both fail (pilot safety net)
 FALLBACK_RATES = {
-    ('USD', 'ILS'): Decimal('3.72'),
-    ('ILS', 'USD'): Decimal('0.269'),
-    ('EUR', 'ILS'): Decimal('3.98'),
-    ('ILS', 'EUR'): Decimal('0.251'),
-    ('GBP', 'ILS'): Decimal('4.65'),
-    ('ILS', 'GBP'): Decimal('0.215'),
-    ('JPY', 'ILS'): Decimal('0.025'),
-    ('ILS', 'JPY'): Decimal('40.0'),
-    ('AED', 'ILS'): Decimal('1.01'),
-    ('ILS', 'AED'): Decimal('0.99'),
-    ('CHF', 'ILS'): Decimal('4.10'),
-    ('ILS', 'CHF'): Decimal('0.244'),
-    ('CAD', 'ILS'): Decimal('2.67'),
-    ('ILS', 'CAD'): Decimal('0.374'),
-    ('USD', 'EUR'): Decimal('0.93'),
-    ('EUR', 'USD'): Decimal('1.08'),
+    ('USD', 'ILS'): Decimal('3.55'),
+    ('ILS', 'USD'): Decimal('0.282'),
+    ('EUR', 'ILS'): Decimal('3.85'),
+    ('ILS', 'EUR'): Decimal('0.260'),
+    ('GBP', 'ILS'): Decimal('4.45'),
+    ('ILS', 'GBP'): Decimal('0.225'),
+    ('JPY', 'ILS'): Decimal('0.024'),
+    ('ILS', 'JPY'): Decimal('41.7'),
+    ('AED', 'ILS'): Decimal('0.97'),
+    ('ILS', 'AED'): Decimal('1.03'),
+    ('CHF', 'ILS'): Decimal('3.95'),
+    ('ILS', 'CHF'): Decimal('0.253'),
+    ('CAD', 'ILS'): Decimal('2.55'),
+    ('ILS', 'CAD'): Decimal('0.392'),
+    ('USD', 'EUR'): Decimal('0.92'),
+    ('EUR', 'USD'): Decimal('1.09'),
 }
 
 SUPPORTED_CURRENCIES = ['ILS', 'USD', 'EUR', 'GBP', 'JPY', 'AED', 'CHF', 'CAD', 'AUD']
 RATE_CACHE_HOURS = 3  # Refresh rates every 3 hours
+REFRESH_BASE_CURRENCIES = ['ILS', 'USD', 'EUR']
+
+
+def _rate_cutoff():
+    return datetime.now(timezone.utc) - timedelta(hours=RATE_CACHE_HOURS)
 
 
 @currency_bp.get('/rates')
@@ -41,7 +46,7 @@ def get_rates():
     to_currency = (request.args.get('to') or '').upper()
 
     # Check DB for fresh rates (less than RATE_CACHE_HOURS old)
-    cutoff = datetime.utcnow() - timedelta(hours=RATE_CACHE_HOURS)
+    cutoff = _rate_cutoff()
     q = ExchangeRate.query.filter(
         ExchangeRate.from_currency == from_currency,
         ExchangeRate.fetched_at >= cutoff,
@@ -154,19 +159,33 @@ def set_rate():
 @currency_bp.post('/refresh')
 @jwt_required()
 def refresh_rates():
-    """Force-refresh all rates from live API."""
-    results = {}
-    for base in ['ILS', 'USD', 'EUR']:
-        rates = _fetch_live_rates(base)
-        if rates:
-            _save_rates_to_db(base, rates)
-            results[base] = list(rates.keys())
+    """Force-refresh all rates from live API (admin only)."""
+    admin_key = request.headers.get('X-ADL-Admin-Key') or ''
+    expected_key = current_app.config.get('ADL_ADMIN_KEY', '')
+    if not expected_key or admin_key != expected_key:
+        return error_response('Admin access required', 403)
+
+    results = refresh_all_exchange_rates()
     return success_response(data={'refreshed': results})
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def refresh_all_exchange_rates() -> dict:
+    """Fetch live rates for primary bases; used by scheduler and admin refresh."""
+    results = {}
+    for base in REFRESH_BASE_CURRENCIES:
+        rates = _fetch_live_rates(base)
+        if rates:
+            _save_rates_to_db(base, rates)
+            results[base] = list(rates.keys())
+        else:
+            results[base] = []
+            current_app.logger.warning(f'Scheduled rate refresh failed for {base}')
+    return results
+
 
 def _fetch_live_rates(base_currency: str) -> dict:
     """Fetch live rates from ExchangeRate-API (free, no key needed)."""
@@ -203,7 +222,10 @@ def _save_rates_to_db(base_currency: str, rates: dict):
 
 
 def _get_best_rate(from_currency: str, to_currency: str) -> Decimal | None:
-    cutoff = datetime.utcnow() - timedelta(hours=RATE_CACHE_HOURS)
+    if from_currency == to_currency:
+        return Decimal('1')
+
+    cutoff = _rate_cutoff()
     er = ExchangeRate.query.filter(
         ExchangeRate.from_currency == from_currency,
         ExchangeRate.to_currency == to_currency,
@@ -211,4 +233,18 @@ def _get_best_rate(from_currency: str, to_currency: str) -> Decimal | None:
     ).order_by(ExchangeRate.fetched_at.desc()).first()
     if er:
         return er.rate
+
+    # Same live-fetch path as GET /rates — convert must not skip the API
+    live_rates = _fetch_live_rates(from_currency)
+    if live_rates and to_currency in live_rates:
+        _save_rates_to_db(from_currency, live_rates)
+        return live_rates[to_currency]
+
+    inverse_rates = _fetch_live_rates(to_currency)
+    if inverse_rates and from_currency in inverse_rates:
+        _save_rates_to_db(to_currency, inverse_rates)
+        inv = inverse_rates[from_currency]
+        if inv > 0:
+            return (Decimal('1') / inv).quantize(Decimal('0.000001'))
+
     return FALLBACK_RATES.get((from_currency, to_currency))

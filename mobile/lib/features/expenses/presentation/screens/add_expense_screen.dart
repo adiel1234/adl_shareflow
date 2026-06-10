@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../providers/expenses_provider.dart';
 import '../../../../providers/groups_provider.dart';
 import '../../../../providers/auth_provider.dart';
+import '../../../../providers/currency_provider.dart';
 import '../../../groups/domain/group_model.dart';
 import '../../../ocr/presentation/screens/ocr_scan_screen.dart';
 import '../../../ocr/domain/ocr_result_model.dart';
@@ -86,6 +87,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     final uid = ref.read(authProvider).userId;
     _paidBy = uid.isNotEmpty ? uid : null;
     _amountCtrl.addListener(() => setState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(conversionProvider);
+    });
   }
 
   Future<void> _onCurrencyChanged(String newCurrency) async {

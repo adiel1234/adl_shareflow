@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/expenses_provider.dart';
 import '../../../../providers/groups_provider.dart';
+import '../../../../providers/currency_provider.dart';
 import '../../../groups/domain/group_model.dart';
 import '../../domain/expense_model.dart';
 import '../../../../ui/widgets/currency_conversion_chip.dart';
@@ -97,6 +98,9 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
         ? resolveMediaUrl(e.receiptImageUrl)
         : null;
     _amountCtrl.addListener(() => setState(() {}));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(conversionProvider);
+    });
   }
 
   Future<void> _onCurrencyChanged(String newCurrency) async {
