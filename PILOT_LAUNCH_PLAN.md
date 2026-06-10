@@ -13,14 +13,15 @@
 | build **31** + **35** — Beta App Review | ✅ **אושר** |
 | build **35** — בדיקות solo iOS (9.4, 14.0–14.2, סעיף 1) | ✅ **עבר** |
 | build **37** — APK אנדרואיד (splash + login loop) | ✅ **נבנה + נבדק** — `/pilot` → התחברות → קבוצות |
+| build **38** — APK אנדרואיד (תיקון logout) | ✅ **נבנה** — ממתין העלאה ל-Drive + אימות A1 #1 |
 | שרת Railway (`adlshareflow-production.up.railway.app`) | ✅ **פרוס** |
-| `pubspec.yaml` | ✅ `1.0.5+37` |
+| `pubspec.yaml` | ✅ `1.0.5+38` |
 | קבוצת WhatsApp | ✅ **קיימת** (קישור במדריך) |
 | build **35** פעיל ב-Pilot Group (iOS) | ✅ **1.0.5 (35) Testing** |
-| יישור build iOS ↔ Android | ☐ **ממתין** — שלב A4 (build **38** מומלץ) |
+| יישור build iOS ↔ Android | ☐ **ממתין** — Android **38** מוכן; iOS עדיין **35** (A4) |
 | בדיקות משתמש/מכשיר שני | ☐ **שלב B** (אחרי A4) |
 
-> **הערת builds:** עד יישור ב-A4 — **iOS = build 35**, **Android = build 37**. אותו קוד (`1.0.5+37` ב-`pubspec`), מספר build שונה בפלטפורמות.
+> **הערת builds:** **iOS = build 35**, **Android = build 38** (`1.0.5+38` ב-`pubspec`). יישור iOS ל-38 — שלב A4.
 
 ---
 
@@ -31,7 +32,7 @@
 | שלב | תיאור | סטטוס |
 |------|--------|--------|
 | **A1** | בדיקות iOS (build **35**) — רשימה ממוקדת (ראו מטריצה) | ▶ **בתהליך** |
-| **A2** | בדיקות Android (build **37**) — **אותה רשימה** | ▶ **בתהליך** |
+| **A2** | בדיקות Android (build **38**) — **אותה רשימה** | ▶ **בתהליך** — logout לאימות |
 | **A3** | תיקונים משותפים (קוד אחד — Flutter) | ☐ אחרי A1+A2 |
 | **A4** | יישור קו: build **38** (או 37) — IPA + APK מאותו commit → TestFlight + Drive | ☐ אחרי A3 |
 | **A5** | דיוקי פיילוט: 0.4, 0.5, בדיקות משתמש שני, WA | ☐ אחרי A4 |
@@ -42,13 +43,15 @@
 
 הרץ את **מטריצת הבדיקות** (§ למטה) — עמודת **iOS**. דווח **עבר** / **נכשל** / **חלקי** לכל שורה. רוב הסעיפים כבר עברו ב-build 35 — השלם את הפתוחים (עריכה/מחיקת הוצאה, קבוצה שוטפת, יציאה מקבוצה).
 
-### A2 — בדיקות Android (build 37)
+### A2 — בדיקות Android (build 38)
 
-**מכשיר:** אנדרואיד · APK מ-`/pilot` · **1.0.5+37**.
+**מכשיר:** אנדרואיד · APK מ-`/pilot` · **1.0.5+38**.
 
 אותה מטריצה — עמודת **Android**. התקנה: הסר גרסה ישנה → `https://adlshareflow-production.up.railway.app/pilot` → «הורד לאנדרואיד».
 
-**כבר אושר (10 יוני 2026):** splash → login (פעם אחת) → התחברות → מסך קבוצות.
+**כבר אושר (build 37):** splash → login (פעם אחת) → התחברות → מסך קבוצות.
+
+**לאימות (build 38):** סעיף **1** — logout (יציאה → מסך login, ללא לולאה).
 
 ### A3 — תיקונים משותפים
 
@@ -87,7 +90,7 @@
 
 | ☐ | בדיקה | סעיף | iOS 35 | Android 37 |
 |---|--------|------|--------|------------|
-| [ ] | התחברות, סשן, offline, logout | **1** | ✅ עבר | 🔧 תוקן ב-38 — לאימות |
+| [ ] | התחברות, סשן, offline, logout | **1** | ✅ עבר | 🔧 תוקן ב-38 — **לאימות** (העלאה ל-Drive → התקנה מחדש) |
 | [ ] | הוספת הוצאה + משתתפים | **3.1–3.3** | ✅ עבר | ☐ |
 | [ ] | עריכת הוצאה (משתתפים) | **3.5** | ☐ לוודא | ☐ |
 | [ ] | מחיקת הוצאה | **3** | ☐ לוודא | ☐ |
@@ -122,16 +125,19 @@
 
 ---
 
-### 0.2 בניית APK אנדרואיד — ✅ **הושלם (build 37)**
+### 0.2 בניית APK אנדרואיד — ▶ **build 38 מוכן**
 
 - [x] בניית APK `1.0.5+35` — **10 יוני 2026**
 - [x] בדיקת התקנה — **נכשל:** splash (build 35)
 - [x] Rebuild `1.0.5+36` — תיקון splash
 - [x] Rebuild `1.0.5+37` — תיקון לולאת login
-- [x] **העלאה ל-Google Drive** + `APK_DOWNLOAD_URL` ב-Railway
+- [x] **העלאה ל-Google Drive** + `APK_DOWNLOAD_URL` ב-Railway (build 37)
 - [x] **התקנה מאפס** דרך `/pilot` — splash → login → קבוצות ✅
+- [x] Rebuild `1.0.5+38` — תיקון logout (מחיקת טוקנים לפני FCM) — **10 יוני 2026**
+- [ ] **העלאה ל-Google Drive** + עדכון `APK_DOWNLOAD_URL` ב-Railway (build 38)
+- [ ] **אימות logout** — סעיף 1, מטריצת A2
 
-**קובץ build (לא ב-git):** `mobile/build/app/outputs/flutter-apk/app-release.apk`
+**קובץ build (לא ב-git):** `mobile/build/app/outputs/flutter-apk/app-release.apk` (**76 MB**)
 
 **קישור Drive:**
 `https://drive.google.com/uc?export=download&id=1rdz3aYE0PXv1rWqnqtz4UOOOZHhNx5jz`
@@ -151,6 +157,14 @@
 | **תסמין** | מסך login חוזר (slide) |
 | **שורש** | FCM לפני login → 401 → `onSessionExpired` |
 | **תיקון** | FCM אחרי login; debounce ניווט |
+
+#### 0.2.3 logout תקוע — ✅ **תוקן ב-build 38**
+
+| | |
+|---|---|
+| **תסמין** | יציאה מהאפליקציה לא מחזירה למסך login |
+| **שורש** | `unregisterToken` (FCM/רשת) נתקע לפני ניקוי session |
+| **תיקון** | `AppSecureStorage.deleteAll` + עדכון state לפני FCM; timeout 5s |
 
 ---
 
