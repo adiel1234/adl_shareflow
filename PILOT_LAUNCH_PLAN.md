@@ -1,6 +1,6 @@
 # תכנית השקת פיילוט — ADL ShareFlow
 
-עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5** · **`pubspec`:** `1.0.5+41` · **iOS 40 פעיל** / **41 ממתין** · **Android 40/41 חסום (keystore)**
+עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5** · **`pubspec`:** `1.0.5+42` (מקומי) · **iOS 41 פעיל** ב-Pilot Group · **Android 41** ב-Drive
 
 > **מסמכים קשורים:** [`PILOT_TEST_CHECKLIST.md`](PILOT_TEST_CHECKLIST.md) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)
 
@@ -16,15 +16,31 @@
 | build **38** — APK אנדרואיד (תיקון logout) | ✅ **נבנה + נבדק** |
 | build **39** — APK אנדרואיד (תיקון אורח + חלוקה מלאה) | ✅ **נבנה** — ממתין העלאה ל-Drive + אימות A3 |
 | שרת Railway (`adlshareflow-production.up.railway.app`) | ✅ **פרוס** — commit `5e0d113` (תיקון אורח) |
-| `pubspec.yaml` | ✅ `1.0.5+41` (מקומי; push לפני IPA) |
+| `pubspec.yaml` | ✅ `1.0.5+42` (מקומי; push לפני IPA) |
 | קבוצת WhatsApp | ✅ **קיימת** (קישור במדריך) |
-| build **40** פעיל ב-Pilot Group (iOS) | ✅ **1.0.5 (40)** — 5.3a, עריכה; מחיקה ב-41 |
-| build **41** iOS (מחיקת הוצאה) | ⏳ **IPA / TestFlight** — אחרי commit |
-| build **40/41** Android | ⛔ **לא נבנה** — אין keystore ב-`release_keys/` |
-| יישור build iOS ↔ Android | ⏳ **iOS 40–41**; Android ממתין keystore + APK 41 |
+| build **41** פעיל ב-Pilot Group (iOS) | ✅ **1.0.5 (41)** — **3.8 ✅**, **5.3a ✅** (iOS + Android) |
+| build **41** iOS (מחיקת הוצאה) | ✅ **פעיל ב-Pilot Group** |
+| build **41** Android APK | ✅ **ב-Drive** — `app-arm64-v8a-release.apk` (זהה לבנייה מקומית; חתימה Debug — עדכון מ-37–39 דורש הסרה) |
+| build **42** — דיאלוג `split_mode` כפול | 🔧 **ממתין בנייה** — קוד + `pubspec` מוכנים; **לא לבנות עדיין** |
+| יישור build iOS ↔ Android | ✅ **41 / 41** — עדכן `APK_DOWNLOAD_URL` ואמת `/pilot` |
 | בדיקות משתמש/מכשיר שני | ☐ **שלב B** (אחרי A4) |
 
-> **הערת builds:** **iOS build 40** פעיל ב-Pilot Group (תיקון `split_mode` / `expenseCount`). **build 41** — מחיקת הוצאה במסך עריכה. **Android:** builds 37–39 נבדקו בעבר; **40/41** דורשים keystore ב-`release_keys/shareflow.keystore` (כרגע חסר).
+> **הערת builds:** **iOS build 41** פעיל ב-Pilot Group (מחיקת הוצאה + תיקוני 40). **Android build 41** — APK ב-Google Drive (`FILE_ID` `1bH7iZgYAqEnpU5x8WY_AroWS_FUR9aoF`); קובץ זהה ל-`mobile/build/.../app-arm64-v8a-release.apk` (SHA256 `f9cf27e4…`). חתימה **Android Debug** — מעבר מ-APK חתום release (37–39) **דורש הסרת אפליקציה** לפני התקנה.
+
+---
+
+## תור משימות build פתוח — **לא לבנות עדיין**
+
+> **מדיניות:** בנייה **אחת** לכל התיקונים שנצברו. אל תבנה IPA/APK עד אישור מפורש.
+
+| Build | סטטוס | תיקון | פלטפורמות | `pubspec` | בדיקה אחרי build |
+|-------|--------|--------|-----------|-----------|-------------------|
+| **42** | 🔧 **ממתין בנייה** | דיאלוג `split_mode` **כפול** בהוספת אורח — מופיע פעמיים בזרימת הזמנה | iOS + Android | ✅ `1.0.5+42` | **5.3a** (UX) — דיאלוג **פעם אחת** בתחילת הזרימה בלבד |
+| **42** | 🔧 **ממתין deploy שרת** | שכפול קבוצה סגורה (14.3) — הפעלה אוטומטית בפיילוט (`PAYMENTS_ENABLED=false`) כשמגבלת 3 קבוצות; ללא מסך תשלום | שרת בלבד + Flutter (הגנתי) | — | **14.3** — הוספת הוצאות בקבוצה משוכפלת; **14.4** — מסך הפעלה רק כש-`PAYMENTS_ENABLED=true` |
+
+**הערות:**
+- build 41: **3.8 ✅**, **5.3a ✅**, **4.1 ✅** — פונקציונלי; **14.3 ❌** (נתקע במסך הפעלה — תוקן בשרת).
+- build 42: צבור תיקוני UX (**5.3a**) + deploy שרת שכפול — **אל תבנה ביניים**.
 
 ---
 
@@ -120,7 +136,7 @@
 
 ### 0.1 וידוא Pilot Group (iOS) — ✅ **הושלם**
 
-- [x] **build 35 פעיל ב-Pilot Group** — **1.0.5 (35) Testing** (אושר 10 יוני 2026)
+- [x] **build 41 פעיל ב-Pilot Group** — **1.0.5 (41) Testing** (10 יוני 2026; קודם 35/40)
 
 **הוראות (לעדכון עתידי ב-A4):**
 
@@ -141,6 +157,13 @@
 - [x] Rebuild `1.0.5+38` — תיקון logout (מחיקת טוקנים לפני FCM) — **10 יוני 2026**
 - [ ] **העלאה ל-Google Drive** + עדכון `APK_DOWNLOAD_URL` ב-Railway (build 38)
 - [ ] **אימות logout** — סעיף 1, מטריצת A2
+- [x] **build 41** — APK `1.0.5+41` (`app-arm64-v8a-release.apk`) — **10 יוני 2026**
+- [x] **העלאה ל-Google Drive** (build 41) — ממתין עדכון `APK_DOWNLOAD_URL` ב-Railway
+- [x] **אימות 3.8 + 5.3a** — iOS 41 + Android 41 — **עבר** (10 יוני 2026)
+- [ ] **בדיקה הבאה על build 41:** **14.3** — שכפול: הוצאות בקבוצה החדשה; ישנה נשארת סגורה (iOS + Android)
+
+**קישור Drive (build 41 — `APK_DOWNLOAD_URL`):**
+`https://drive.google.com/uc?export=download&id=1bH7iZgYAqEnpU5x8WY_AroWS_FUR9aoF`
 
 **קובץ build (לא ב-git):** `mobile/build/app/outputs/flutter-apk/app-release.apk` (**76 MB**)
 

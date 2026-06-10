@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 יוני 2026 (מחיקת הוצאה — UI במסך עריכה + `DELETE /expenses/<id>`; build 41)
+> עודכן לאחרונה: 10 יוני 2026 (שכפול קבוצה — הפעלה אוטומטית בפיילוט; תיקון דיאלוג `split_mode` build 42)
 
 ---
 
@@ -462,8 +462,9 @@ flutter install --release
 - **`POST /groups/<id>/summary`** (`balances/routes.py`): שליחת סיכום לחברים (`send_app=true`). שדות `books_balanced` / `books_warning` — מזהה חשבונות לא מאוזנים. `queue_notify_event_summary` — שמירת התראות + FCM ברקע (`app/common/background.py`).
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): מניעת כפילויות — אם כבר קיים pending לאותו אורח→נושה, מחזיר אותו במקום ליצור כפילות; תוכנית העברות (`calculate_settlement_plan`) מפחיתה סכומי pending כדי שלא יופיע חוב כפול ב-UI.
 - **`MonetizationService`** (`groups/monetization_service.py`): הוצאת מערכת (`ADL ShareFlow Service`) **תמיד** נוצרת בהפעלה/הארכה/חידוש/שדרוג — גם כש-`PAYMENTS_ENABLED=false` (פיילוט חינמי). `GroupPayment.amount=0` כשאין גבייה אמיתית; `split_among_group=true` מחלק שווה בין **כל** `GroupMember` פעילים בהפעלה; `add_member_to_group_split_expenses` מוסיף חברים/אורחים חדשים להוצאות מערכת (הצטרפות + `POST /groups/<id>/guests`).
+- **`POST /groups/<id>/duplicate`** (`groups/routes.py`): שכפול קבוצה סגורה — קבוצה חדשה ללא הוצאות. כשמגבלת 3 קבוצות (`limited`) ו-`PAYMENTS_ENABLED=false` — **הפעלה אוטומטית** בשרת (ללא מסך תשלום באפליקציה); `creation_reason` לא נשלח. כש-`PAYMENTS_ENABLED=true` — נשאר `limited` + דיאלוג הפעלה בלקוח.
 - **`POST /groups/<id>/guests`** (`groups/routes.py`): body אופציונלי `split_mode` — `'forward'` (ברירת מחדל) או `'full'`. `'full'` קורא ל-`retroactively_add_member_to_expenses` ומחלק מחדש שווה את כל ההוצאות הקיימות (כולל אורח). אותה לוגיקה משותפת עם `POST /groups/join/<code>`.
-- **דיאלוג `split_mode` בהוספת אורח (build 40):** לפני הצגת הדיאלוג, האפליקציה קוראת `GET /groups/<id>` ל-`fetchExpenseCount` — אובייקט `Group` במטמון Riverpod לא התעדכן אחרי הוספת הוצאה (`expenseCount` נשאר 0). נקודות כניסה: טאב חברים (`_showAddGuestSheet`) וגיליון הזמנה (`_InviteSheet._addGuest`).
+- **דיאלוג `split_mode` בהוספת אורח (build 40, UX build 42):** לפני הצגת הדיאלוג, האפליקציה קוראת `GET /groups/<id>` ל-`fetchExpenseCount` — אובייקט `Group` במטמון Riverpod לא התעדכן אחרי הוספת הוצאה (`expenseCount` נשאר 0). נקודות כניסה: טאב חברים (`_showAddGuestSheet` — דיאלוג לפני פתיחת הגיליון) וגיליון הזמנה (`_showInvite` — דיאלוג לפני פתיחת הגיליון; `splitMode` מועבר ל-`_InviteSheet` ול-`POST /groups/<id>/guests`). build 41: דיאלוג הופיע פעמיים (בפתיחת הזמנה + בסיום `_addGuest`) — תוקן ב-build 42.
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (build 21): כשהמנהל שמסמן תשלום הוא גם הנושה (אורח→חבר) — הסטטוס `confirmed` מיד (ללא שלב pending נוסף); pending קיים מאותו סכום מועלה ל-`confirmed` באותה קריאה.
 - **`GET /groups/<id>/settlements/pending`** (build 20): מחזיר `can_confirm` / `is_creditor_confirm`; אורחים מסוננים לפי קבוצה (לא גלובלי). אחרי `mark-guest-paid` — נושה שאינו המנהל מאשר בנפרד; מנהל=נושה נסגר בפעולה אחת (build 21).
 

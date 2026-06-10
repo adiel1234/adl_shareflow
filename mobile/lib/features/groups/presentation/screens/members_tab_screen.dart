@@ -706,6 +706,25 @@ Future<void> _showAddGuestSheet(
   Group group,
 ) async {
   final l = AppLocalizations.of(context)!;
+
+  var splitMode = 'forward';
+  int expenseCount = group.expenseCount;
+  try {
+    expenseCount = await ref
+        .read(groupRepositoryProvider)
+        .fetchExpenseCount(group.id);
+  } catch (_) {}
+
+  if (expenseCount > 0) {
+    final chosen = await _showGuestSplitModeDialog(
+      context,
+      groupName: group.name,
+      expenseCount: expenseCount,
+    );
+    if (chosen == null) return;
+    splitMode = chosen;
+  }
+
   final nameCtrl = TextEditingController();
   var loading = false;
 
@@ -755,24 +774,6 @@ Future<void> _showAddGuestSheet(
                   : () async {
                       final name = nameCtrl.text.trim();
                       if (name.isEmpty) return;
-
-                      var splitMode = 'forward';
-                      int expenseCount = group.expenseCount;
-                      try {
-                        expenseCount = await ref
-                            .read(groupRepositoryProvider)
-                            .fetchExpenseCount(group.id);
-                      } catch (_) {}
-
-                      if (expenseCount > 0) {
-                        final chosen = await _showGuestSplitModeDialog(
-                          ctx,
-                          groupName: group.name,
-                          expenseCount: expenseCount,
-                        );
-                        if (chosen == null) return;
-                        splitMode = chosen;
-                      }
 
                       setSheetState(() => loading = true);
                       try {

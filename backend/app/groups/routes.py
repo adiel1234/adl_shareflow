@@ -504,8 +504,18 @@ def duplicate_group(group_id, **kwargs):
 
     db.session.commit()
 
+    # Pilot (PAYMENTS_ENABLED=false): auto-activate duplicated groups so the
+    # client never blocks on the activation/payment screen after duplicate.
+    from app.groups.monetization_service import MonetizationService, _payments_enabled
+
+    if limit_reached and not _payments_enabled():
+        try:
+            MonetizationService.activate_group(new_group, user_id, split_among_group=True)
+        except ValueError as e:
+            return error_response(str(e), 400)
+
     response_data = new_group.to_dict()
-    if limit_reached:
+    if limit_reached and new_group.group_state != 'active':
         response_data['creation_reason'] = 'free_group_limit_reached'
 
     return success_response(data=response_data, status_code=201)

@@ -369,7 +369,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
       if (!mounted) return;
       ref.invalidate(groupsProvider);
 
-      if (limitReached) {
+      if (limitReached && !newGroup.isOperational) {
         await showDialog<void>(
           context: context,
           barrierDismissible: false,
@@ -569,6 +569,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
           link: link,
           groupId: group.id,
           groupName: group.name,
+          splitMode: splitMode,
           expenseCount: expenseCount,
           isAdmin: group.isAdmin,
           onGuestAdded: () {
@@ -873,6 +874,7 @@ class _InviteSheet extends StatefulWidget {
   final String link;
   final String groupId;
   final String groupName;
+  final String splitMode;
   final int expenseCount;
   final bool isAdmin;
   final VoidCallback? onGuestAdded;
@@ -881,6 +883,7 @@ class _InviteSheet extends StatefulWidget {
     required this.link,
     required this.groupId,
     required this.groupName,
+    this.splitMode = 'forward',
     this.expenseCount = 0,
     this.isAdmin = false,
     this.onGuestAdded,
@@ -907,62 +910,12 @@ class _InviteSheetState extends State<_InviteSheet> {
     final name = _guestNameController.text.trim();
     if (name.isEmpty) return;
 
-    var splitMode = 'forward';
-    int expenseCount = widget.expenseCount;
-    try {
-      expenseCount = await GroupRepository().fetchExpenseCount(widget.groupId);
-    } catch (_) {}
-
-    if (expenseCount > 0) {
-      final l = AppLocalizations.of(context)!;
-      final chosen = await showDialog<String>(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(l.splitExpenses,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-              textAlign: TextAlign.right),
-          content: Text(l.howShouldNewMemberJoin,
-              style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
-              textAlign: TextAlign.right),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            _SplitOptionButton(
-              icon: Icons.history,
-              color: AppColors.primary,
-              title: l.splitAll,
-              subtitle: l.includePastExpenses,
-              onTap: () => Navigator.pop(ctx, 'full'),
-            ),
-            const SizedBox(height: 8),
-            _SplitOptionButton(
-              icon: Icons.arrow_forward,
-              color: AppColors.secondary,
-              title: l.fromNowOn,
-              subtitle: l.notChargedPast,
-              onTap: () => Navigator.pop(ctx, 'forward'),
-            ),
-            const SizedBox(height: 4),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, null),
-              child: Text(l.cancel,
-                  style: const TextStyle(color: AppColors.textSecondary)),
-            ),
-          ],
-        ),
-      );
-      if (chosen == null || !mounted) return;
-      splitMode = chosen;
-    }
-
     setState(() => _addingGuest = true);
     try {
-      final api = ApiClient.instance;
       await GroupRepository().addGuest(
         widget.groupId,
         name,
-        splitMode: splitMode,
+        splitMode: widget.splitMode,
       );
       widget.onGuestAdded?.call();
       if (mounted) {
