@@ -1,6 +1,6 @@
 # תכנית השקת פיילוט — ADL ShareFlow
 
-עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5 build 36** (Android fix)
+עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5 build 37** (Android splash + login loop)
 
 > **מסמכים קשורים:** [`PILOT_TEST_CHECKLIST.md`](PILOT_TEST_CHECKLIST.md) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)
 
@@ -13,11 +13,11 @@
 | build **31** + **35** — Beta App Review | ✅ **אושר** |
 | build **35** — בדיקות solo (9.4, 14.0–14.2) | ✅ **עבר** |
 | שרת Railway (`adlshareflow-production.up.railway.app`) | ✅ **פרוס** |
-| `pubspec.yaml` | ✅ `1.0.5+36` |
+| `pubspec.yaml` | ✅ `1.0.5+37` |
 | סעיף **1** — סשן (התחברות, offline, logout) | ✅ **עבר** |
 | קבוצת WhatsApp | ✅ **קיימת** (קישור במדריך) |
 | build **35** פעיל ב-Pilot Group | ✅ **1.0.5 (35) Testing** |
-| APK אנדרואיד מעודכן | ✅ **build 36** נבנה — **▶ העלה ל-Drive והחלף קובץ ישן** |
+| APK אנדרואיד מעודכן | ▶ **build 37** — נבנה אחרי תיקון לולאת login (ראו §0.2.2) |
 | בדיקות משתמש/מכשיר שני | ☐ פתוח |
 
 ---
@@ -60,16 +60,17 @@
 
 ---
 
-### 0.2 בניית APK אנדרואיד — ✅ **build 36 נבנה**
+### 0.2 בניית APK אנדרואיד — ▶ **build 37**
 
 - [x] בניית APK `1.0.5+35` (`flutter build apk --release`) — **10 יוני 2026**
 - [x] בדיקת התקנה על מכשיר אנדרואיד — **נכשל:** תקיעה ב-splash (build 35)
 - [x] **Rebuild `1.0.5+36`** אחרי תיקון splash (ראו §0.2.1) — **10 יוני 2026**
-- [ ] **העלאה ל-Google Drive** — החלף את הקובץ הישן ב-`app-release.apk` החדש (76 MB)
+- [x] **Rebuild `1.0.5+37`** אחרי תיקון לולאת login (ראו §0.2.2)
+- [ ] **העלאה ל-Google Drive** — החלף את הקובץ הישן ב-`app-release.apk` החדש
 - [ ] עדכון `APK_DOWNLOAD_URL` ב-Railway — **▶ אחרי העלאה**
-- [ ] **הסרת build 35 מהמכשיר + התקנה מחדש** — חובה לפני בדיקה (לא עדכון מעל גרסה ישנה)
+- [ ] **הסרת build 35/36 מהמכשיר + התקנה מחדש** — חובה לפני בדיקה (לא עדכון מעל גרסה ישנה)
 
-**קובץ build (לא ב-git):** `mobile/build/app/outputs/flutter-apk/app-release.apk` (76 MB, 10 יוני 2026)
+**קובץ build (לא ב-git):** `mobile/build/app/outputs/flutter-apk/app-release.apk`
 
 **קישור Drive (לאחר החלפת הקובץ):**
 `https://drive.google.com/uc?export=download&id=1rdz3aYE0PXv1rWqnqtz4UOOOZHhNx5jz`
@@ -82,18 +83,40 @@
 | **שורש** | Deadlock ב-Android Keystore: `authProvider._init()` ו-`FcmService`→`ApiClient` קוראים ל-`FlutterSecureStorage` **במקביל** באתחול; `isLoading` נשאר `true` לנצח. בנוסף: `ref.listen` ב-splash עלול לפספס מעבר שכבר הסתיים |
 | **תיקון** | `AppSecureStorage` (תור serialized + `AndroidOptions`), דחיית FCM עד סיום auth, `listenManual(..., fireImmediately: true)` ב-splash, `proguard-rules.pro` |
 | **Google Drive URL** | `/download` ו-`/pilot` מעבירים `APK_DOWNLOAD_URL` as-is (redirect/קישור ישיר). התקנה עבדה — הבעיה לא בקישור; מומלץ בכל זאת `https://drive.google.com/uc?export=download&id=...` להורדה ישירה |
-| **Railway** | APK 36 נבנה — העלה ל-Drive (החלף קובץ), עדכן `APK_DOWNLOAD_URL` לקישור direct למעלה |
+| **Railway** | APK 37 — העלה ל-Drive (החלף קובץ), עדכן `APK_DOWNLOAD_URL` לקישור direct למעלה |
+
+#### 0.2.2 לולאת מסך login אנדרואיד (build 35–36) — ✅ **תוקן ב-build 37**
+
+| | |
+|---|---|
+| **תסמין** | האפליקציה מגיעה ל-login, אבל מסך ההתחברות נפתח שוב ושוב (אנימציית slide חוזרת) |
+| **שורש** | FCM מנסה לרשום token לשרת **לפני** התחברות → 401 → `onSessionExpired` מנווט שוב ל-login. build 36 תיקן splash אבל לא את הלולאה הזו |
+| **תיקון** | רישום FCM רק אחרי login / סשן קיים; `onSessionExpired` רק כשיש סשן; debounce לניווט |
 
 ---
 
-### 0.3 קישורי Railway — **▶ הצעד הנוכחי**
+### 0.3 קישורי Railway + בדיקה — **▶ הצעד הנוכחי (שלב 3 למשתמש)**
 
-- [ ] וידוא `TESTFLIGHT_URL` ב-Railway (כפתורי iOS ב-`/pilot` ו-`/download`)
-- [ ] עדכון `APK_DOWNLOAD_URL` ב-Railway ל:
+> **למשתמש הפיילוט — 4 צעדים פשוטים (מדריך בלבד):**
+
+1. **העלה APK build 37** ל-Google Drive (החלף את הקובץ הישן)
+2. **Railway** — ודא ש-`APK_DOWNLOAD_URL` מצביע לקישור הישיר של Drive (כבר עשית בשלב 2)
+3. **בטלפון אנדרואיד:** הסר את האפליקציה הישנה → פתח **רק** את המדריך:
+   `https://adlshareflow-production.up.railway.app/pilot`
+   → לחץ «הורד לאנדרואיד» → התקן → התחבר
+4. **בדיקה:** האפליקציה עוברת מ-splash ל-login **פעם אחת**, ואחרי התחברות נכנסת לקבוצות
+
+> **חשוב לפיילוט:** שתף ב-WhatsApp **רק** את `/pilot` — לא את `/download`.  
+> `/download` הוא דף הורדה קצר (redirect אוטומטי) בלי הוראות; `/pilot` הוא המדריך המלא בעברית.  
+> `APK_DOWNLOAD_URL` ב-Railway משמש את כפתור ההורדה **בתוך** `/pilot` — אין צורך בקישור נפרד לבודקים.
+
+**צ'קליסט מנהל:**
+
+- [ ] וידוא `TESTFLIGHT_URL` ב-Railway (כפתור iOS במדריך `/pilot`)
+- [ ] וידוא `APK_DOWNLOAD_URL` ב-Railway:
   `https://drive.google.com/uc?export=download&id=1rdz3aYE0PXv1rWqnqtz4UOOOZHhNx5jz`
 - [ ] בדיקת `https://adlshareflow-production.up.railway.app/health` → ok
-- [ ] בדיקת `/pilot` מהטלפון (iOS + Android)
-- [ ] בדיקת `/download` מהטלפון
+- [ ] בדיקת `/pilot` מהטלפון (iOS + Android) — **זה הקישור היחיד לבודקים**
 - [ ] בדיקת `/privacy` (נדרש ל-TestFlight External)
 
 ---

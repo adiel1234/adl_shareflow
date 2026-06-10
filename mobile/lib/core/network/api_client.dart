@@ -82,19 +82,27 @@ class _AuthInterceptor extends Interceptor {
     final isRefreshCall = path.contains('/auth/refresh');
     final statusCode = err.response?.statusCode ?? 0;
 
-    if (statusCode == 401 && !isRefreshCall) {
-      final refreshed = await _tryRefresh();
-      if (refreshed) {
-        final token = await AppSecureStorage.read(AppConstants.accessTokenKey);
-        err.requestOptions.headers['Authorization'] = 'Bearer $token';
-        try {
-          final response = await _dio.fetch(err.requestOptions);
-          handler.resolve(response);
-          return;
-        } catch (_) {}
+    final isAuthCall = path.contains('/auth/');
+    if (statusCode == 401 && !isRefreshCall && !isAuthCall) {
+      final hadAuth = err.requestOptions.headers['Authorization'] != null;
+      final refreshToken =
+          await AppSecureStorage.read(AppConstants.refreshTokenKey);
+      final hadSession = hadAuth || refreshToken != null;
+
+      if (hadSession) {
+        final refreshed = await _tryRefresh();
+        if (refreshed) {
+          final token = await AppSecureStorage.read(AppConstants.accessTokenKey);
+          err.requestOptions.headers['Authorization'] = 'Bearer $token';
+          try {
+            final response = await _dio.fetch(err.requestOptions);
+            handler.resolve(response);
+            return;
+          } catch (_) {}
+        }
+        // Refresh failed — session expired
+        ApiClient.onSessionExpired?.call();
       }
-      // Refresh failed — session expired
-      ApiClient.onSessionExpired?.call();
     } else if (statusCode >= 500) {
       final msg = (err.response?.data?['message'] as String?)
           ?? 'אירעה שגיאת שרת. נסה שוב מאוחר יותר.';

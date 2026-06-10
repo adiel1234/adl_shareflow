@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 יוני 2026 (build 35 מאושר לפיילוט; `PILOT_LAUNCH_PLAN.md` — תכנית השקה שלבים 0–9)
+> עודכן לאחרונה: 10 יוני 2026 (Android build 37: תיקון splash + לולאת login; פיילוט — קישור יחיד `/pilot`)
 
 ---
 
@@ -285,9 +285,9 @@ flutter build apk --release
 flutter install --release
 ```
 
-**APK נוכחי (גרסה 1.0.3+6):**
-- קישור: מוגדר ב-`APK_DOWNLOAD_URL` ב-Railway
-- זמין להורדה דרך: `https://adlshareflow-production.up.railway.app/download`
+**APK נוכחי (גרסה 1.0.5+37):**
+- קישור: מוגדר ב-`APK_DOWNLOAD_URL` ב-Railway (Google Drive direct)
+- **למשתמשי פיילוט:** הורדה דרך המדריך בלבד — `https://adlshareflow-production.up.railway.app/pilot` (לא `/download`)
 
 ### iOS (TestFlight)
 ```
@@ -297,7 +297,7 @@ flutter install --release
 4. App Store Connect → TestFlight → Build חדש מופיע אוטומטית
 ```
 
-**מדריך למשתמשי פיילוט:** https://adlshareflow-production.up.railway.app/pilot — iOS (TestFlight) + Android (APK), RTL, מיתוג ADL. מקור: `docs/PILOT_ONBOARDING_GUIDE.html` → `backend/app/static/pilot_onboarding.html`. דף `/pilot` מחליף placeholders (`__IOS_DOWNLOAD_URL__`, `__APK_DOWNLOAD_URL__`) בזמן הגשה מ-`TESTFLIGHT_URL` / `APK_DOWNLOAD_URL` ב-Railway.
+**מדריך למשתמשי פיילוט:** https://adlshareflow-production.up.railway.app/pilot — iOS (TestFlight) + Android (APK), RTL, מיתוג ADL. מקור: `docs/PILOT_ONBOARDING_GUIDE.html` → `backend/app/static/pilot_onboarding.html`. דף `/pilot` מחליף placeholders (`__IOS_DOWNLOAD_URL__`, `__APK_DOWNLOAD_URL__`) בזמן הגשה מ-`TESTFLIGHT_URL` / `APK_DOWNLOAD_URL` ב-Railway. בפיילוט — שתפו ב-WA **רק** `/pilot`; `/download` הוא redirect קצר ללא הוראות.
 
 ---
 
@@ -378,6 +378,8 @@ flutter install --release
 |------|------|--------|
 | אפליקציה לא מתחברת לשרת | URL הייצור לא מוגדר | עדכן `app_config.dart` → בנה מחדש |
 | Push לא מגיע ל-iOS | APNs לא מוגדר | הוגדר ב-Firebase (Key: `4BT7S9CS4V`) |
+| אפליקציה Android תקועה ב-splash | Deadlock ב-Keystore באתחול (build ≤35) | build **36+**: `AppSecureStorage` + דחיית FCM |
+| מסך login נפתח שוב ושוב (Android) | FCM מנסה לרשום token לפני login → 401 → `onSessionExpired` | build **37+**: רישום FCM רק אחרי login; `onSessionExpired` רק עם סשן |
 | אפליקציה Android תקועה ב-splash | `google-services.json` חסר | הורד מ-Firebase Console → שמור ב-`android/app/` |
 | OCR לא עובד | Google Vision credentials חסר | הגדר `GOOGLE_APPLICATION_CREDENTIALS` בשרת |
 | תשלומים לא נגבים | `PAYMENTS_ENABLED=false` | שנה ל-`true` ב-DB כשמוכן |

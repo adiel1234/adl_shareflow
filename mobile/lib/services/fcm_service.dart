@@ -5,7 +5,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../core/constants/app_constants.dart';
 import '../core/network/api_client.dart';
+import '../core/storage/secure_storage.dart';
 import 'feedback_service.dart';
 
 /// Background message handler — must be top-level function.
@@ -58,11 +60,13 @@ class FcmService {
     // Request permission (iOS / macOS)
     await _requestPermission();
 
-    // Get token and send to backend
-    await _registerToken();
-
-    // Listen for token refresh
-    _messaging.onTokenRefresh.listen(_sendTokenToBackend);
+    // Token registration is deferred until after login (registerToken) or
+    // when restoring an existing session — avoids 401 loops on the login screen.
+    _messaging.onTokenRefresh.listen((token) async {
+      final access =
+          await AppSecureStorage.read(AppConstants.accessTokenKey);
+      if (access != null) await _sendTokenToBackend(token);
+    });
 
     // Foreground message display
     FirebaseMessaging.onMessage.listen(_handleForeground);
@@ -89,8 +93,6 @@ class FcmService {
       debugPrint('[FCM] Failed to get token: $e');
     }
   }
-
-  Future<void> _registerToken() => registerToken();
 
   Future<void> _sendTokenToBackend(String token) async {
     try {

@@ -118,6 +118,7 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
   final _messengerKey = GlobalKey<ScaffoldMessengerState>();
   bool _isOffline = false;
   bool _fcmStarted = false;
+  bool _handlingSessionExpired = false;
 
   @override
   void initState() {
@@ -170,6 +171,9 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
 
     FcmService.instance.initialize().then((_) {
       FcmService.instance.setupOpenedAppHandler();
+      if (ref.read(authProvider).isLoggedIn) {
+        FcmService.instance.registerToken();
+      }
     });
   }
 
@@ -198,6 +202,9 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
   }
 
   void _handleSessionExpired() {
+    if (_handlingSessionExpired) return;
+    _handlingSessionExpired = true;
+
     ref.read(authProvider.notifier).logout();
     _navigatorKey.currentState?.pushNamedAndRemoveUntil(
       '/login',
@@ -209,6 +216,10 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
         duration: Duration(seconds: 4),
       ),
     );
+
+    Future.delayed(const Duration(seconds: 3), () {
+      _handlingSessionExpired = false;
+    });
   }
 
   Future<void> _showNotificationDialog(NotificationTapInfo info) async {
