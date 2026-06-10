@@ -1,6 +1,6 @@
 # תכנית השקת פיילוט — ADL ShareFlow
 
-עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5** · **`pubspec`:** `1.0.5+42` (מקומי) · **iOS 41 פעיל** ב-Pilot Group · **Android 41** ב-Drive
+עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5** · **`pubspec`:** `1.0.5+42` · **build 42 נבנה מקומית** (IPA + APK) — **ממתין העלאה ידנית** · **iOS/Android 41** עדיין פעילים עד החלפה
 
 > **מסמכים קשורים:** [`PILOT_TEST_CHECKLIST.md`](PILOT_TEST_CHECKLIST.md) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)
 
@@ -15,32 +15,36 @@
 | build **37** — APK אנדרואיד (splash + login loop) | ✅ **נבנה + נבדק** — `/pilot` → התחברות → קבוצות |
 | build **38** — APK אנדרואיד (תיקון logout) | ✅ **נבנה + נבדק** |
 | build **39** — APK אנדרואיד (תיקון אורח + חלוקה מלאה) | ✅ **נבנה** — ממתין העלאה ל-Drive + אימות A3 |
-| שרת Railway (`adlshareflow-production.up.railway.app`) | ✅ **פרוס** — commit `5e0d113` (תיקון אורח) |
+| שרת Railway (`adlshareflow-production.up.railway.app`) | ✅ **פרוס** — commit `c3000c4` (14.3 שכפול + build 42) |
 | `pubspec.yaml` | ✅ `1.0.5+42` (מקומי; push לפני IPA) |
 | קבוצת WhatsApp | ✅ **קיימת** (קישור במדריך) |
 | build **41** פעיל ב-Pilot Group (iOS) | ✅ **1.0.5 (41)** — **3.8 ✅**, **5.3a ✅** (iOS + Android) |
 | build **41** iOS (מחיקת הוצאה) | ✅ **פעיל ב-Pilot Group** |
 | build **41** Android APK | ✅ **ב-Drive** — `app-arm64-v8a-release.apk` (זהה לבנייה מקומית; חתימה Debug — עדכון מ-37–39 דורש הסרה) |
-| build **42** — דיאלוג `split_mode` כפול | 🔧 **ממתין בנייה** — קוד + `pubspec` מוכנים; **לא לבנות עדיין** |
-| יישור build iOS ↔ Android | ✅ **41 / 41** — עדכן `APK_DOWNLOAD_URL` ואמת `/pilot` |
+| build **42** — 5.3a UX + 14.3 שרת | ✅ **נבנה מקומית** (10 יוני 2026) — IPA + APK arm64; **ממתין Transporter + Drive** |
+| יישור build iOS ↔ Android | ⏳ **42 / 42** (מקומי) — אחרי העלאה: Pilot Group + `APK_DOWNLOAD_URL` + `/pilot` |
 | בדיקות משתמש/מכשיר שני | ☐ **שלב B** (אחרי A4) |
 
 > **הערת builds:** **iOS build 41** פעיל ב-Pilot Group (מחיקת הוצאה + תיקוני 40). **Android build 41** — APK ב-Google Drive (`FILE_ID` `1bH7iZgYAqEnpU5x8WY_AroWS_FUR9aoF`); קובץ זהה ל-`mobile/build/.../app-arm64-v8a-release.apk` (SHA256 `f9cf27e4…`). חתימה **Android Debug** — מעבר מ-APK חתום release (37–39) **דורש הסרת אפליקציה** לפני התקנה.
 
 ---
 
-## תור משימות build פתוח — **לא לבנות עדיין**
+## תור משימות build — **ריק (build 42 נבנה)**
 
-> **מדיניות:** בנייה **אחת** לכל התיקונים שנצברו. אל תבנה IPA/APK עד אישור מפורש.
+> **מדיניות:** אין build פתוח בקוד. **build 42** (`c3000c4`, `1.0.5+42`) — IPA + APK arm64 **מוכנים מקומית**; העלאה ל-TestFlight/Drive **ידנית**.
 
-| Build | סטטוס | תיקון | פלטפורמות | `pubspec` | בדיקה אחרי build |
+| Build | סטטוס | תיקון | פלטפורמות | `pubspec` | בדיקה אחרי התקנה |
 |-------|--------|--------|-----------|-----------|-------------------|
-| **42** | 🔧 **ממתין בנייה** | דיאלוג `split_mode` **כפול** בהוספת אורח — מופיע פעמיים בזרימת הזמנה | iOS + Android | ✅ `1.0.5+42` | **5.3a** (UX) — דיאלוג **פעם אחת** בתחילת הזרימה בלבד |
-| **42** | 🔧 **ממתין deploy שרת** | שכפול קבוצה סגורה (14.3) — הפעלה אוטומטית בפיילוט (`PAYMENTS_ENABLED=false`) כשמגבלת 3 קבוצות; ללא מסך תשלום | שרת בלבד + Flutter (הגנתי) | — | **14.3** — הוספת הוצאות בקבוצה משוכפלת; **14.4** — מסך הפעלה רק כש-`PAYMENTS_ENABLED=true` |
+| **42** | ✅ **נבנה** | דיאלוג `split_mode` **יחיד** בהוספת אורח | iOS + Android | `1.0.5+42` | **5.3a** (UX) — דיאלוג **פעם אחת** בלבד |
+| **42** | ✅ **שרת פרוס** | שכפול (14.3) — הפעלה אוטומטית בפיילוט; הגנת כפילות בלקוח | שרת + Flutter | — | **14.3** (+ **14.4** אם רלוונטי) |
+
+**קבצים (מקומי, לא ב-git):**
+- IPA (Transporter): `/Users/adl/Projects/ADL ShareFlow/mobile/build/ios/ipa/ADL ShareFlow.ipa`
+- APK arm64 (Drive): `/Users/adl/Projects/ADL ShareFlow/mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` · SHA256 `f271c120f318…`
 
 **הערות:**
-- build 41: **3.8 ✅**, **5.3a ✅**, **4.1 ✅** — פונקציונלי; **14.3 ❌** (נתקע במסך הפעלה — תוקן בשרת).
-- build 42: צבור תיקוני UX (**5.3a**) + deploy שרת שכפול — **אל תבנה ביניים**.
+- build 41: **3.8 ✅**, **5.3a ✅**, **4.1 ✅**; **14.3 ❌** — לאימות מחדש על build 42.
+- חתימת Android **Debug** (ללא keystore) — כמו build 41; מ-APK release ישן — **הסרה לפני התקנה**.
 
 ---
 
@@ -161,6 +165,9 @@
 - [x] **העלאה ל-Google Drive** (build 41) — ממתין עדכון `APK_DOWNLOAD_URL` ב-Railway
 - [x] **אימות 3.8 + 5.3a** — iOS 41 + Android 41 — **עבר** (10 יוני 2026)
 - [ ] **בדיקה הבאה על build 41:** **14.3** — שכפול: הוצאות בקבוצה החדשה; ישנה נשארת סגורה (iOS + Android)
+- [x] **build 42** — IPA + APK `1.0.5+42` — **10 יוני 2026** (commit `c3000c4`)
+- [ ] **העלאה ידנית** — Transporter (iOS) + Drive (APK arm64) + עדכון `APK_DOWNLOAD_URL`
+- [ ] **בדיקה על build 42:** **5.3a** (UX) + **14.3** (iOS + Android)
 
 **קישור Drive (build 41 — `APK_DOWNLOAD_URL`):**
 `https://drive.google.com/uc?export=download&id=1bH7iZgYAqEnpU5x8WY_AroWS_FUR9aoF`
