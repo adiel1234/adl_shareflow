@@ -71,6 +71,34 @@ def register_fcm_token():
     return success_response(message='FCM token registered')
 
 
+@notifications_bp.post('/test-push')
+@jwt_required()
+def test_push():
+    """Debug: send a test push to the calling user. Remove before production."""
+    user_id = get_jwt_identity()
+    from app.notifications import fcm_service
+    import os
+
+    creds_json = os.getenv('FIREBASE_CREDENTIALS_JSON', '')
+    creds_path = os.getenv('FIREBASE_CREDENTIALS_PATH', '')
+    tokens = FCMToken.query.filter_by(user_id=user_id).all()
+
+    app = fcm_service._get_app()
+    firebase_ok = app is not None
+
+    sent = fcm_service._send_to_user_impl(
+        user_id, 'בדיקה מ-Railway', 'Firebase עובד על השרת ✅', {'type': 'test'}
+    ) if firebase_ok else 0
+
+    return success_response(data={
+        'firebase_initialized': firebase_ok,
+        'has_credentials_json': bool(creds_json),
+        'has_credentials_path': bool(creds_path),
+        'token_count': len(tokens),
+        'sent': sent,
+    })
+
+
 @notifications_bp.delete('/fcm-token')
 @jwt_required()
 def unregister_fcm_token():
