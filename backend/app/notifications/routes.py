@@ -71,18 +71,49 @@ def register_fcm_token():
     return success_response(message='FCM token registered')
 
 
+@notifications_bp.get('/firebase-status')
+def firebase_status():
+    """Public debug endpoint — check Firebase init status on Railway."""
+    from app.notifications import fcm_service
+    import os, json
+
+    # Force reset so we can retry init fresh
+    fcm_service._firebase_initialized = False
+    fcm_service._firebase_app = None
+
+    creds_json_raw = os.getenv('FIREBASE_CREDENTIALS_JSON', '')
+    creds_path = os.getenv('FIREBASE_CREDENTIALS_PATH', '')
+
+    json_valid = False
+    json_error = ''
+    if creds_json_raw:
+        try:
+            parsed = json.loads(creds_json_raw)
+            json_valid = parsed.get('type') == 'service_account'
+        except Exception as e:
+            json_error = str(e)
+
+    app = fcm_service._get_app()
+    firebase_ok = app is not None
+
+    return success_response(data={
+        'firebase_initialized': firebase_ok,
+        'has_credentials_json': bool(creds_json_raw),
+        'credentials_json_length': len(creds_json_raw),
+        'json_valid': json_valid,
+        'json_error': json_error,
+        'has_credentials_path': bool(creds_path),
+    })
+
+
 @notifications_bp.post('/test-push')
 @jwt_required()
 def test_push():
-    """Debug: send a test push to the calling user. Remove before production."""
+    """Debug: send a test push to the calling user."""
     user_id = get_jwt_identity()
     from app.notifications import fcm_service
-    import os
 
-    creds_json = os.getenv('FIREBASE_CREDENTIALS_JSON', '')
-    creds_path = os.getenv('FIREBASE_CREDENTIALS_PATH', '')
     tokens = FCMToken.query.filter_by(user_id=user_id).all()
-
     app = fcm_service._get_app()
     firebase_ok = app is not None
 
@@ -92,8 +123,6 @@ def test_push():
 
     return success_response(data={
         'firebase_initialized': firebase_ok,
-        'has_credentials_json': bool(creds_json),
-        'has_credentials_path': bool(creds_path),
         'token_count': len(tokens),
         'sent': sent,
     })
