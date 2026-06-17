@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 יוני 2026 (שכפול קבוצה — הפעלה אוטומטית בפיילוט; תיקון דיאלוג `split_mode` build 42)
+> עודכן לאחרונה: 17 יוני 2026 (שכפול קבוצה — הפעלה אוטומטית בפיילוט; תיקון דיאלוג `split_mode` build 42)
 
 ---
 
@@ -286,7 +286,7 @@ flutter install --release
 ```
 
 **APK נוכחי (גרסה 1.0.5+37):**
-- קישור: מוגדר ב-`APK_DOWNLOAD_URL` ב-Railway (Google Drive direct)
+- קישור: `APK_DOWNLOAD_URL` ב-Railway (מזהה Google Drive); משתמשים מקבלים `GET /download/apk` (proxy) כדי לעקוף דף אזהרת virus-scan של Drive
 - **למשתמשי פיילוט:** הורדה דרך המדריך בלבד — `https://adlshareflow-production.up.railway.app/pilot` (לא `/download`)
 
 ### iOS (TestFlight)
@@ -317,7 +317,7 @@ flutter install --release
 | `SMTP_SENDER_NAME` | שם השולח בכותרת המייל | 🟡 | `ADL ShareFlow` (ברירת מחדל) |
 | _(DB: `feature_flags`)_ | `PAYMENTS_ENABLED` — גביית תשלום אמיתי (לא משתנה סביבה) | 🔴 כבוי בפיילוט | `false` ב-PostgreSQL; ניהול: Control → `/shareflow` |
 | `TESTFLIGHT_URL` | קישור TestFlight Public Link ל-iOS — `/pilot`, `/download` (redirect iPhone) | ✅ **חובה לפיילוט** | Public Link מ-App Store Connect; לא `placeholder` |
-| `APK_DOWNLOAD_URL` | קישור הורדת APK ל-Android — `/pilot`, `/download` | ✅ | Google Drive / GitHub Releases |
+| `APK_DOWNLOAD_URL` | מקור APK (Drive file URL / id) — בדפים מוגש `/download/apk` | ✅ | Google Drive / GitHub Releases (ישיר) |
 
 ---
 

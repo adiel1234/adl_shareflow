@@ -4,8 +4,11 @@ Handles smart OS detection for app download, web-based invite links,
 and the deferred-link fallback used by the Flutter app on first launch.
 """
 import os
+import re
+
+import requests
 from pathlib import Path
-from flask import Blueprint, request, redirect, render_template_string, Response
+from flask import Blueprint, request, redirect, render_template_string, Response, stream_with_context
 
 download_bp = Blueprint('download', __name__)
 
@@ -18,6 +21,63 @@ APK_URL = os.environ.get(
     'APK_DOWNLOAD_URL',
     ''
 )
+
+_DRIVE_FILE_ID_RE = re.compile(r'(?:[/?&]id=|/d/)([a-zA-Z0-9_-]+)')
+
+
+def _drive_file_id_from_apk_url(url: str) -> str | None:
+    if not url:
+        return None
+    m = _DRIVE_FILE_ID_RE.search(url.strip())
+    return m.group(1) if m else None
+
+
+def _apk_public_url() -> str | None:
+    """URL shown to users — proxy Drive large-file downloads through our backend."""
+    raw = APK_URL.strip()
+    if not raw:
+        return None
+    if _drive_file_id_from_apk_url(raw):
+        return f"{request.url_root.rstrip('/')}/download/apk"
+    return raw
+
+
+def _stream_google_drive_apk(file_id: str):
+    """Two-step Drive download (virus-scan interstitial bypass on server)."""
+    session = requests.Session()
+    session.headers.update({'User-Agent': 'ADL-ShareFlow-APK-Proxy/1.0'})
+    warn = session.get(
+        'https://drive.google.com/uc',
+        params={'export': 'download', 'id': file_id},
+        timeout=120,
+    )
+    warn.raise_for_status()
+    uuid_m = re.search(r'name="uuid" value="([^"]+)"', warn.text)
+    uuid = uuid_m.group(1) if uuid_m else 't'
+    confirm_m = re.search(r'name="confirm" value="([^"]+)"', warn.text)
+    confirm = confirm_m.group(1) if confirm_m else 't'
+    resp = session.get(
+        'https://drive.usercontent.google.com/download',
+        params={
+            'id': file_id,
+            'export': 'download',
+            'confirm': confirm,
+            'uuid': uuid,
+        },
+        stream=True,
+        timeout=600,
+    )
+    resp.raise_for_status()
+    ct = resp.headers.get('Content-Type', '')
+    if 'text/html' in ct or int(resp.headers.get('Content-Length', '999999999')) < 100_000:
+        raise RuntimeError('Drive returned HTML instead of APK (check file sharing / file id)')
+    filename = 'app-arm64-v8a-release.apk'
+    cd = resp.headers.get('Content-Disposition', '')
+    fn_m = re.search(r'filename="?([^";]+)"?', cd)
+    if fn_m:
+        filename = fn_m.group(1)
+    return resp, filename
+
 
 _PAGE_HTML = """<!DOCTYPE html>
 <html lang="he" dir="rtl">
@@ -99,13 +159,14 @@ def download_page():
         if TESTFLIGHT_URL and 'placeholder' not in TESTFLIGHT_URL:
             return redirect(TESTFLIGHT_URL)
     elif 'android' in ua:
-        if APK_URL:
-            return redirect(APK_URL)
+        apk_target = _apk_public_url()
+        if apk_target:
+            return redirect(apk_target)
 
     return render_template_string(
         _PAGE_HTML,
         ios_url=TESTFLIGHT_URL if 'placeholder' not in TESTFLIGHT_URL else None,
-        apk_url=APK_URL or None,
+        apk_url=_apk_public_url(),
     )
 
 
@@ -136,12 +197,46 @@ def _pilot_download_urls() -> dict[str, str]:
     base = request.url_root.rstrip('/')
     download_page = f'{base}/download'
     ios = _valid_testflight_url() or download_page
-    apk = APK_URL.strip() or download_page
+    apk = _apk_public_url() or download_page
     return {
         'ios': ios,
         'download_page': download_page,
         'apk': apk,
     }
+
+
+@download_bp.get('/download/apk')
+def download_apk_proxy():
+    """Stream Android APK — avoids Drive virus-scan HTML page on direct links."""
+    file_id = _drive_file_id_from_apk_url(APK_URL)
+    if not file_id:
+        return Response('APK download not configured', status=503)
+    try:
+        drive_resp, filename = _stream_google_drive_apk(file_id)
+    except Exception as exc:
+        return Response(f'APK download failed: {exc}', status=502)
+
+    @stream_with_context
+    def generate():
+        try:
+            for chunk in drive_resp.iter_content(chunk_size=1024 * 256):
+                if chunk:
+                    yield chunk
+        finally:
+            drive_resp.close()
+
+    headers = {
+        'Content-Disposition': f'attachment; filename="{filename}"',
+        'Cache-Control': 'no-store',
+    }
+    cl = drive_resp.headers.get('Content-Length')
+    if cl:
+        headers['Content-Length'] = cl
+    return Response(
+        generate(),
+        mimetype='application/vnd.android.package-archive',
+        headers=headers,
+    )
 
 
 @download_bp.get('/pilot')

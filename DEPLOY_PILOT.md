@@ -43,7 +43,7 @@ flask db upgrade
 | `JWT_REFRESH_TOKEN_EXPIRES_DAYS` | אופציונלי — ברירת מחדל בקוד: 3650 |
 | `ADL_ADMIN_KEY` | לעדכון שערי מטבע בלבד |
 | `TESTFLIGHT_URL` | **חובה** — Public Link מ-App Store Connect → TestFlight → ShareFlow → Public Link. בלי זה כפתורי iPhone ב-`/pilot` ו-`/download` לא עובדים. |
-| `APK_DOWNLOAD_URL` | קישור ישיר ל-APK (Google Drive / GitHub Releases) |
+| `APK_DOWNLOAD_URL` | URL של קובץ ב-Google Drive (עם `id=...`) או קישור ישיר (GitHub Releases). קבצים גדולים ב-Drive: השרת מגיש `/download/apk` — אל תסמכו על `uc?export=download&confirm=t` ישירות מהטלפון |
 
 ---
 
@@ -109,4 +109,5 @@ flutter build ios --release
 | 401 אחרי זמן רב | וודא build חדש עם תיקון refresh; נסה login מחדש פעם אחת |
 | קישור הזמנה לא עובד | וודא Universal Link / `shareflow://` מוגדר ב-iOS/Android |
 | יתרות לא מתעדכנות אחרי תשלום | וודא deploy אחרון של backend (מנוע יתרות) |
+| APK בטלפון נתקע על דף עם "APK" | Drive מחזיר HTML (~2KB) במקום APK — deploy אחרון + `APK_DOWNLOAD_URL` עם id Drive; בדוק `https://…/download/apk` |
 | PayBox לא פותח סכום | צפוי — רק העתק סכום + קישור אישי |
