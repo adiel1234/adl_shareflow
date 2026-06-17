@@ -1370,7 +1370,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String confirmDirectPayment(String name) {
-    return 'לאשר שהעברת את הכסף ל-$name?\n$name יתבקש לאשר קבלה.';
+    return 'האם $name אישר שקיבל את הכסף?';
   }
 
   @override
@@ -1668,4 +1668,30 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get atLeastOneParticipant => 'יש לבחור לפחות משתתף אחד';
+
+  @override
+  String inviteSubject(String groupName) {
+    return 'הזמנה לקבוצה $groupName';
+  }
+
+  @override
+  String get errorAddingGuest => 'שגיאה בהוספת האורח';
+
+  @override
+  String invitedCount(int count) {
+    return 'הוזמנו $count';
+  }
+
+  @override
+  String get sendToAnotherWhatsApp => 'שלח לאדם נוסף ב-WhatsApp';
+
+  @override
+  String get whatsappOpenHint =>
+      'יפתח WhatsApp — בחר איש קשר ולחץ שלח, ואז חזור לכאן';
+
+  @override
+  String get shareOtherWay => 'שתף בדרך אחרת';
+
+  @override
+  String get gotIt => 'הבנתי';
 }

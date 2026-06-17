@@ -74,6 +74,26 @@ def create_app(config=None):
         guessed, _ = mimetypes.guess_type(subpath)
         return send_from_directory(directory, subpath, mimetype=guessed or 'application/octet-stream')
 
+    # Android App Links — assetlinks.json (Digital Asset Links)
+    # SHA-256 fingerprint is set via ANDROID_SHA256_CERT env var.
+    # Get it from Google Play Console → Setup → App signing → App signing key certificate
+    # after uploading the first release.
+    @app.get('/.well-known/assetlinks.json')
+    def android_asset_links():
+        import os as _os
+        from flask import Response as _Resp
+        import json as _json
+        sha256 = _os.environ.get('ANDROID_SHA256_CERT', 'PLACEHOLDER_SHA256')
+        data = [{
+            "relation": ["delegate_permission/common.handle_all_urls"],
+            "target": {
+                "namespace": "android_app",
+                "package_name": "com.adl.shareflow",
+                "sha256_cert_fingerprints": [sha256]
+            }
+        }]
+        return _Resp(_json.dumps(data), mimetype='application/json')
+
     # Apple App Site Association — Universal Links verification
     @app.get('/.well-known/apple-app-site-association')
     def apple_app_site_association():

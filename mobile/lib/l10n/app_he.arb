@@ -622,5 +622,15 @@
     }
   },
   "notParticipating": "לא שותף",
-  "atLeastOneParticipant": "יש לבחור לפחות משתתף אחד"
+  "atLeastOneParticipant": "יש לבחור לפחות משתתף אחד",
+
+  "inviteSubject": "הזמנה לקבוצה {groupName}",
+  "@inviteSubject": {"placeholders": {"groupName": {"type": "String"}}},
+  "errorAddingGuest": "שגיאה בהוספת האורח",
+  "invitedCount": "הוזמנו {count}",
+  "@invitedCount": {"placeholders": {"count": {"type": "int"}}},
+  "sendToAnotherWhatsApp": "שלח לאדם נוסף ב-WhatsApp",
+  "whatsappOpenHint": "יפתח WhatsApp — בחר איש קשר ולחץ שלח, ואז חזור לכאן",
+  "shareOtherWay": "שתף בדרך אחרת",
+  "gotIt": "הבנתי"
 }

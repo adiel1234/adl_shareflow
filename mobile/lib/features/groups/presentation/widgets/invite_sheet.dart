@@ -47,7 +47,7 @@ Future<void> showInviteSheet(
     );
   } catch (e) {
     if (context.mounted) {
-      String msg = 'שגיאה בקבלת קישור ההזמנה';
+      String msg = AppLocalizations.of(context)!.errorLoadingInvite;
       if (e is DioException) {
         msg = (e.response?.data?['message'] as String?) ?? msg;
       }
@@ -112,7 +112,7 @@ class _InviteSheetState extends State<InviteSheet> {
 
   Future<void> _shareGeneric() async {
     await Share.share(_inviteText,
-        subject: 'הזמנה לקבוצה ${widget.groupName}');
+        subject: AppLocalizations.of(context)!.inviteSubject(widget.groupName));
   }
 
   Future<void> _addGuest() async {
@@ -137,7 +137,7 @@ class _InviteSheetState extends State<InviteSheet> {
       }
     } catch (e) {
       if (mounted) {
-        String msg = 'שגיאה בהוספת האורח';
+        String msg = AppLocalizations.of(context)!.errorAddingGuest;
         if (e is DioException) {
           msg = (e.response?.data?['message'] as String?) ?? msg;
         }
@@ -240,7 +240,7 @@ class _InviteSheetState extends State<InviteSheet> {
                           size: 14, color: Colors.green.shade700),
                       const SizedBox(width: 4),
                       Text(
-                        'הוזמנו $_invitedCount',
+                        l.invitedCount(_invitedCount),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -253,7 +253,7 @@ class _InviteSheetState extends State<InviteSheet> {
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.of(context).pop(),
-                tooltip: 'סגור',
+                tooltip: l.notifClose,
               ),
             ],
           ),
@@ -332,7 +332,7 @@ class _InviteSheetState extends State<InviteSheet> {
               icon: const Icon(Icons.chat_outlined, size: 18),
               label: Text(_invitedCount == 0
                   ? l.sendViaWhatsApp
-                  : 'שלח לאדם נוסף ב-WhatsApp'),
+                  : l.sendToAnotherWhatsApp),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF25D366),
                 foregroundColor: Colors.white,
@@ -344,10 +344,10 @@ class _InviteSheetState extends State<InviteSheet> {
           ),
           if (_invitedCount > 0) ...[
             const SizedBox(height: 6),
-            const Text(
-              'יפתח WhatsApp — בחר איש קשר ולחץ שלח, ואז חזור לכאן',
+            Text(
+              l.whatsappOpenHint,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: 11, color: AppColors.textSecondary),
             ),
           ],
@@ -359,7 +359,7 @@ class _InviteSheetState extends State<InviteSheet> {
             child: OutlinedButton.icon(
               onPressed: _shareGeneric,
               icon: const Icon(Icons.share_outlined, size: 18),
-              label: const Text('שתף בדרך אחרת'),
+              label: Text(l.shareOtherWay),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 44),
                 shape: RoundedRectangleBorder(
@@ -460,7 +460,7 @@ class _InviteSheetState extends State<InviteSheet> {
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx),
-                            child: const Text('הבנתי'),
+                            child: Text(AppLocalizations.of(ctx)!.gotIt),
                           ),
                         ],
                       );

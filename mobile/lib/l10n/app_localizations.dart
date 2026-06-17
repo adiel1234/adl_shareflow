@@ -3125,6 +3125,48 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'יש לבחור לפחות משתתף אחד'**
   String get atLeastOneParticipant;
+
+  /// No description provided for @inviteSubject.
+  ///
+  /// In he, this message translates to:
+  /// **'הזמנה לקבוצה {groupName}'**
+  String inviteSubject(String groupName);
+
+  /// No description provided for @errorAddingGuest.
+  ///
+  /// In he, this message translates to:
+  /// **'שגיאה בהוספת האורח'**
+  String get errorAddingGuest;
+
+  /// No description provided for @invitedCount.
+  ///
+  /// In he, this message translates to:
+  /// **'הוזמנו {count}'**
+  String invitedCount(int count);
+
+  /// No description provided for @sendToAnotherWhatsApp.
+  ///
+  /// In he, this message translates to:
+  /// **'שלח לאדם נוסף ב-WhatsApp'**
+  String get sendToAnotherWhatsApp;
+
+  /// No description provided for @whatsappOpenHint.
+  ///
+  /// In he, this message translates to:
+  /// **'יפתח WhatsApp — בחר איש קשר ולחץ שלח, ואז חזור לכאן'**
+  String get whatsappOpenHint;
+
+  /// No description provided for @shareOtherWay.
+  ///
+  /// In he, this message translates to:
+  /// **'שתף בדרך אחרת'**
+  String get shareOtherWay;
+
+  /// No description provided for @gotIt.
+  ///
+  /// In he, this message translates to:
+  /// **'הבנתי'**
+  String get gotIt;
 }
 
 class _AppLocalizationsDelegate

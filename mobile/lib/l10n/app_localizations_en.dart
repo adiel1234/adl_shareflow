@@ -1680,4 +1680,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get atLeastOneParticipant => 'At least one participant required';
+
+  @override
+  String inviteSubject(String groupName) {
+    return 'Invitation to $groupName';
+  }
+
+  @override
+  String get errorAddingGuest => 'Error adding guest';
+
+  @override
+  String invitedCount(int count) {
+    return 'Invited $count';
+  }
+
+  @override
+  String get sendToAnotherWhatsApp => 'Send to another via WhatsApp';
+
+  @override
+  String get whatsappOpenHint =>
+      'Opens WhatsApp — select a contact and tap Send, then return here';
+
+  @override
+  String get shareOtherWay => 'Share another way';
+
+  @override
+  String get gotIt => 'Got it';
 }

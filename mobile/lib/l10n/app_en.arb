@@ -622,5 +622,15 @@
     }
   },
   "notParticipating": "Not participating",
-  "atLeastOneParticipant": "At least one participant required"
+  "atLeastOneParticipant": "At least one participant required",
+
+  "inviteSubject": "Invitation to {groupName}",
+  "@inviteSubject": {"placeholders": {"groupName": {"type": "String"}}},
+  "errorAddingGuest": "Error adding guest",
+  "invitedCount": "Invited {count}",
+  "@invitedCount": {"placeholders": {"count": {"type": "int"}}},
+  "sendToAnotherWhatsApp": "Send to another via WhatsApp",
+  "whatsappOpenHint": "Opens WhatsApp — select a contact and tap Send, then return here",
+  "shareOtherWay": "Share another way",
+  "gotIt": "Got it"
 }
