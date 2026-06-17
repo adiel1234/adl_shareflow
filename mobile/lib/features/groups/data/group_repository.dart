@@ -1,4 +1,5 @@
 import '../../../core/network/api_client.dart';
+import '../../../services/iap_service.dart';
 import '../domain/group_model.dart';
 import '../domain/period_report_model.dart';
 
@@ -151,14 +152,27 @@ class GroupRepository {
     return Group.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 
-  /// Activate a free/limited group (beta: manual, no real payment).
+  Map<String, dynamic> _iapPayload(
+      bool splitAmongGroup, IapPurchaseResult? iap) {
+    final body = <String, dynamic>{'split_among_group': splitAmongGroup};
+    if (iap != null) {
+      body['receipt_data'] = iap.serverVerificationData;
+      body['platform'] = iap.platform;
+      body['product_id'] = iap.productId;
+    }
+    return body;
+  }
+
+  /// Activate a free/limited group.
+  /// When payments are enabled, [iapResult] must be provided.
   Future<Map<String, dynamic>> activateGroup(
     String groupId, {
     bool splitAmongGroup = true,
+    IapPurchaseResult? iapResult,
   }) async {
     final response = await _api.post(
       '/groups/$groupId/activate',
-      data: {'split_among_group': splitAmongGroup},
+      data: _iapPayload(splitAmongGroup, iapResult),
     );
     return response.data['data'] as Map<String, dynamic>;
   }
@@ -167,10 +181,11 @@ class GroupRepository {
   Future<Map<String, dynamic>> extendGroup(
     String groupId, {
     bool splitAmongGroup = true,
+    IapPurchaseResult? iapResult,
   }) async {
     final response = await _api.post(
       '/groups/$groupId/extend',
-      data: {'split_among_group': splitAmongGroup},
+      data: _iapPayload(splitAmongGroup, iapResult),
     );
     return response.data['data'] as Map<String, dynamic>;
   }
@@ -179,10 +194,11 @@ class GroupRepository {
   Future<Map<String, dynamic>> renewGroup(
     String groupId, {
     bool splitAmongGroup = true,
+    IapPurchaseResult? iapResult,
   }) async {
     final response = await _api.post(
       '/groups/$groupId/renew',
-      data: {'split_among_group': splitAmongGroup},
+      data: _iapPayload(splitAmongGroup, iapResult),
     );
     return response.data['data'] as Map<String, dynamic>;
   }
@@ -191,10 +207,11 @@ class GroupRepository {
   Future<Map<String, dynamic>> upgradeTier(
     String groupId, {
     bool splitAmongGroup = true,
+    IapPurchaseResult? iapResult,
   }) async {
     final response = await _api.post(
       '/groups/$groupId/upgrade-tier',
-      data: {'split_among_group': splitAmongGroup},
+      data: _iapPayload(splitAmongGroup, iapResult),
     );
     return response.data['data'] as Map<String, dynamic>;
   }

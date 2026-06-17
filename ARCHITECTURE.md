@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 17 יוני 2026 (build 44: תיקון `Expense` import חסר ב-`join_group`; UX — דיאלוג `split_mode` הועבר למזמין בלבד)
+> עודכן לאחרונה: 17 יוני 2026 (תשתית תשלום: IAP iOS + Google Play Billing, אימות receipt בשרת, `PAYMENTS_ENABLED` flag)
 
 ---
 
@@ -254,6 +254,41 @@ free (5 ימים) → limited → [תשלום] → active → expired / read_onl
                                                ↑
                               [הארכה/חידוש/שדרוג tier]
 ```
+
+### תשתית IAP (In-App Purchase)
+
+| מצב | התנהגות |
+|-----|---------|
+| `PAYMENTS_ENABLED=false` | הפעלה חינמית (מצב פיילוט) |
+| `PAYMENTS_ENABLED=true` | חיוב דרך Apple/Google לפני הפעלה |
+
+**זרימת תשלום:**
+1. Flutter: `IapService.purchase(priceIls)` — פותח גיליון תשלום של Apple/Google
+2. Apple/Google מחזירים `receipt` / `purchaseToken`
+3. Flutter שולח ל-`POST /api/groups/:id/activate` עם `receipt_data + platform + product_id`
+4. Backend → `validate_iap_receipt()` → מאמת מול שרתי Apple (`/verifyReceipt`) / Google Play API
+5. אם תקין — מפעיל את הקבוצה
+
+**Product IDs (נדרש יצירה ידנית בחנויות):**
+
+| מחיר | Product ID |
+|------|-----------|
+| 15 ₪ | `com.adl.shareflow.tier_15` |
+| 20 ₪ | `com.adl.shareflow.tier_20` |
+| 30 ₪ | `com.adl.shareflow.tier_30` |
+| 35 ₪ | `com.adl.shareflow.tier_35` |
+| 45 ₪ | `com.adl.shareflow.tier_45` |
+| 49 ₪ | `com.adl.shareflow.tier_49` |
+| 69 ₪ | `com.adl.shareflow.tier_69` |
+| 79 ₪ | `com.adl.shareflow.tier_79` |
+| 89 ₪ | `com.adl.shareflow.tier_89` |
+
+**משתני סביבה נדרשים (Railway):**
+
+| משתנה | מקור |
+|-------|------|
+| `APPLE_SHARED_SECRET` | App Store Connect → App → In-App Purchases → App-Specific Shared Secret |
+| `GOOGLE_PLAY_CREDENTIALS_JSON` | Google Play Console → Setup → API access → Service account (JSON) |
 
 ---
 

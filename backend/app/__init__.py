@@ -93,6 +93,15 @@ def create_app(config=None):
         import json
         return Response(json.dumps(data), mimetype='application/json')
 
+    # Public config — app reads this to decide whether to trigger IAP
+    @app.get('/api/config/public')
+    def public_config():
+        from flask import jsonify
+        from app.models import FeatureFlag
+        flag = FeatureFlag.query.filter_by(key='PAYMENTS_ENABLED').first()
+        payments_enabled = bool(flag and str(flag.value).lower() in ('true', '1', 'yes'))
+        return jsonify({'payments_enabled': payments_enabled})
+
     # Deferred deep link - app calls this on first launch to retrieve pending invite code
     @app.get('/api/deferred-link')
     def deferred_link():
@@ -320,6 +329,7 @@ def _register_blueprints(app):
     from app.currency.routes import currency_bp
     from app.dashboard.routes import dashboard_bp
     from app.download.routes import download_bp
+    from app.iap.routes import iap_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
@@ -332,6 +342,7 @@ def _register_blueprints(app):
     app.register_blueprint(currency_bp, url_prefix='/api/currency')
     app.register_blueprint(dashboard_bp, url_prefix='/api/adl')
     app.register_blueprint(download_bp)
+    app.register_blueprint(iap_bp)
 
 
 def _seed_feature_flags():

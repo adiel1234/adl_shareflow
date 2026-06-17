@@ -15,6 +15,22 @@ from app.notifications import service as notif_service
 groups_bp = Blueprint('groups', __name__)
 
 
+def _validate_iap(data: dict):
+    """
+    Validates the IAP receipt in the request body when PAYMENTS_ENABLED=true.
+    Returns (ok: bool, error_response | None).
+    When payments are disabled, always returns (True, None).
+    """
+    from app.iap.routes import validate_iap_receipt
+    receipt = data.get('receipt_data', '')
+    platform = data.get('platform', '')
+    product_id = data.get('product_id', '')
+    result = validate_iap_receipt(receipt, platform, product_id)
+    if not result['valid']:
+        return False, error_response(result.get('error') or 'תשלום לא אומת', 402)
+    return True, None
+
+
 @groups_bp.get('')
 @jwt_required()
 def list_groups():
@@ -297,6 +313,9 @@ def activate_group(group_id, **kwargs):
         return error_response('הקבוצה כבר פעילה', 400)
 
     data = request.get_json(silent=True) or {}
+    ok, err = _validate_iap(data)
+    if not ok:
+        return err
     split_among_group = bool(data.get('split_among_group', True))
     payer_id = get_jwt_identity()
 
@@ -327,6 +346,9 @@ def upgrade_tier(group_id, **kwargs):
         return error_response('ניתן לשדרג רק קבוצה פעילה', 400)
 
     data = request.get_json(silent=True) or {}
+    ok, err = _validate_iap(data)
+    if not ok:
+        return err
     split_among_group = bool(data.get('split_among_group', True))
     payer_id = get_jwt_identity()
 
@@ -359,6 +381,9 @@ def extend_group(group_id, **kwargs):
         return error_response('הארכה זמינה רק לקבוצות אירוע', 400)
 
     data = request.get_json(silent=True) or {}
+    ok, err = _validate_iap(data)
+    if not ok:
+        return err
     split_among_group = bool(data.get('split_among_group', True))
     payer_id = get_jwt_identity()
 
@@ -384,6 +409,9 @@ def renew_group(group_id, **kwargs):
         return error_response('חידוש זמין רק לקבוצות שוטפות', 400)
 
     data = request.get_json(silent=True) or {}
+    ok, err = _validate_iap(data)
+    if not ok:
+        return err
     split_among_group = bool(data.get('split_among_group', True))
     payer_id = get_jwt_identity()
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/groups_provider.dart';
+import '../../../../providers/payments_config_provider.dart';
+import '../../../../services/iap_service.dart';
 import '../../../../theme/app_colors.dart';
 import '../../domain/group_model.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -58,22 +60,34 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
   Future<void> _submit() async {
     setState(() => _loading = true);
     try {
+      // Check if real payments are enabled on the backend
+      final paymentsEnabled =
+          await ref.read(paymentsConfigProvider.future);
+
+      IapPurchaseResult? iapResult;
+      if (paymentsEnabled) {
+        // Trigger in-app purchase before calling backend
+        iapResult = await IapService.instance.purchase(priceIls: _price);
+        if (iapResult == null) {
+          // User cancelled or IAP unavailable
+          if (mounted) setState(() => _loading = false);
+          return;
+        }
+      }
+
       final repo = ref.read(groupRepositoryProvider);
       if (_isUpgrade) {
         await repo.upgradeTier(widget.group.id,
-            splitAmongGroup: _splitAmongGroup);
+            splitAmongGroup: _splitAmongGroup, iapResult: iapResult);
       } else if (_isExtend) {
         await repo.extendGroup(widget.group.id,
-            splitAmongGroup: _splitAmongGroup);
+            splitAmongGroup: _splitAmongGroup, iapResult: iapResult);
       } else if (_isRenew) {
         await repo.renewGroup(widget.group.id,
-            splitAmongGroup: _splitAmongGroup);
-      } else if (_isReactivate) {
-        await repo.activateGroup(widget.group.id,
-            splitAmongGroup: _splitAmongGroup);
+            splitAmongGroup: _splitAmongGroup, iapResult: iapResult);
       } else {
         await repo.activateGroup(widget.group.id,
-            splitAmongGroup: _splitAmongGroup);
+            splitAmongGroup: _splitAmongGroup, iapResult: iapResult);
       }
       ref.invalidate(groupsProvider);
       if (mounted) {
@@ -141,7 +155,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                   Text(
                     widget.group.name,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 14,
                     ),
                   ),
@@ -201,7 +215,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                   Expanded(
                     child: Text(
                       _isUpgrade ? l.upgradeTierDesc : l.betaNoteActivation,
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 12,
                           height: 1.4),
@@ -283,7 +297,7 @@ class _SplitOption extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: selected
-                ? AppColors.primary.withOpacity(0.07)
+                ? AppColors.primary.withValues(alpha: 0.07)
                 : AppColors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
