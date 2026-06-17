@@ -1370,7 +1370,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String confirmDirectPayment(String name) {
-    return 'האם $name אישר שקיבל את הכסף?';
+    return 'לאשר שהעברת את הכסף ל-$name?\n$name יתבקש לאשר קבלה.';
   }
 
   @override

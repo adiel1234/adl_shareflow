@@ -83,6 +83,7 @@ class PaymentScenarioLabels {
   }
 
   static bool canCreditorApprove(SettlementRecord r, String currentUserId) =>
+      r.canConfirm ||
       r.isCreditorConfirm ||
       (r.toUserId == currentUserId && !r.toIsGuest);
 

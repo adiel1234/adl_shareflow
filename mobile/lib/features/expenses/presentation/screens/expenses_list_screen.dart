@@ -395,6 +395,26 @@ class _ExpenseItem extends StatelessWidget {
                                 ),
                               ),
                             ),
+                          ] else if (isPartialParticipation) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                    color: AppColors.primary.withOpacity(0.3)),
+                              ),
+                              child: Text(
+                                'לא כולם שותפים',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.primary.withOpacity(0.8),
+                                ),
+                              ),
+                            ),
                           ],
                         ],
                       ),
