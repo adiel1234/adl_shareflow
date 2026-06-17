@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 17 יוני 2026 (שכפול קבוצה — הפעלה אוטומטית בפיילוט; תיקון דיאלוג `split_mode` build 42)
+> עודכן לאחרונה: 17 יוני 2026 (build 44: תיקון `Expense` import חסר ב-`join_group`; UX — דיאלוג `split_mode` הועבר למזמין בלבד)
 
 ---
 
@@ -465,6 +465,7 @@ flutter install --release
 - **`POST /groups/<id>/duplicate`** (`groups/routes.py`): שכפול קבוצה סגורה — קבוצה חדשה ללא הוצאות. כשמגבלת 3 קבוצות (`limited`) ו-`PAYMENTS_ENABLED=false` — **הפעלה אוטומטית** בשרת (ללא מסך תשלום באפליקציה); `creation_reason` לא נשלח. כש-`PAYMENTS_ENABLED=true` — נשאר `limited` + דיאלוג הפעלה בלקוח.
 - **`POST /groups/<id>/guests`** (`groups/routes.py`): body אופציונלי `split_mode` — `'forward'` (ברירת מחדל) או `'full'`. `'full'` קורא ל-`retroactively_add_member_to_expenses` ומחלק מחדש שווה את כל ההוצאות הקיימות (כולל אורח). אותה לוגיקה משותפת עם `POST /groups/join/<code>`.
 - **דיאלוג `split_mode` בהוספת אורח (build 40, UX build 42):** לפני הצגת הדיאלוג, האפליקציה קוראת `GET /groups/<id>` ל-`fetchExpenseCount` — אובייקט `Group` במטמון Riverpod לא התעדכן אחרי הוספת הוצאה (`expenseCount` נשאר 0). נקודות כניסה: טאב חברים (`_showAddGuestSheet` — דיאלוג לפני פתיחת הגיליון) וגיליון הזמנה (`_showInvite` — דיאלוג לפני פתיחת הגיליון; `splitMode` מועבר ל-`_InviteSheet` ול-`POST /groups/<id>/guests`). build 41: דיאלוג הופיע פעמיים (בפתיחת הזמנה + בסיום `_addGuest`) — תוקן ב-build 42.
+- **`split_mode` — מי מחליט? (build 44):** **המזמין** (admin/manager) מגדיר `split_mode` בעת יצירת קישור הזמנה (`_showInvite` ב-`group_detail_screen.dart`) — נשמר כ-`invite_split_mode` על הקבוצה. **הג'וינר** לא רואה דיאלוג — `_join()` בגיליון ההצטרפות קורא את `invite_split_mode` מתגובת `checkInvite` ומשתמש בו ישירות.
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (build 21): כשהמנהל שמסמן תשלום הוא גם הנושה (אורח→חבר) — הסטטוס `confirmed` מיד (ללא שלב pending נוסף); pending קיים מאותו סכום מועלה ל-`confirmed` באותה קריאה.
 - **`GET /groups/<id>/settlements/pending`** (build 20): מחזיר `can_confirm` / `is_creditor_confirm`; אורחים מסוננים לפי קבוצה (לא גלובלי). אחרי `mark-guest-paid` — נושה שאינו המנהל מאשר בנפרד; מנהל=נושה נסגר בפעולה אחת (build 21).
 

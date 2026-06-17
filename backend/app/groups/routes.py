@@ -880,10 +880,14 @@ def _notify_period_settled(group: Group, report):
 def join_group(invite_code):
     """
     Join a group via invite code.
-    split_mode:
+    split_mode is determined by the group's invite_split_mode (set by the inviter).
+    The client may override it by sending split_mode in the request body,
+    but the inviter's choice stored on the group is used as the default.
       'forward' (default) - new member participates only in future expenses
       'full'              - retroactively add member to all existing expenses
     """
+    from app.models import Expense  # needed for expense_count after commit
+
     user_id = get_jwt_identity()
     group = Group.query.filter_by(invite_code=invite_code.upper(), is_active=True).first()
     if not group:

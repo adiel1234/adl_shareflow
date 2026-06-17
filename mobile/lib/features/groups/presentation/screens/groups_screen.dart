@@ -220,7 +220,7 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
     setState(() { _loading = true; _error = null; });
 
     try {
-      // Step 1 — check invite & get expense count
+      // Step 1 — בדיקת קוד ההזמנה + קבלת split_mode שנבחר ע"י המזמין
       final info = await _repo.checkInvite(code);
 
       if (info['already_member'] == true) {
@@ -228,27 +228,12 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
         return;
       }
 
-      final expenseCount = info['expense_count'] as int? ?? 0;
-      final groupName = (info['group'] as Map?)?.containsKey('name') == true
-          ? info['group']['name'] as String
-          : 'הקבוצה';
+      // השתמש ב-split_mode שהמנהל הגדיר בעת יצירת קישור ההזמנה.
+      // הג'וינר לא רואה דיאלוג — ההחלטה שייכת למזמין בלבד.
+      final groupData = info['group'] as Map<String, dynamic>?;
+      final splitMode = (groupData?['invite_split_mode'] as String?) ?? 'forward';
 
-      // Step 2 — בחירת split mode כשיש הוצאות קיימות
-      String splitMode = 'forward';
-      if (expenseCount > 0 && mounted) {
-        final chosen = await _showSplitModeDialog(
-          context,
-          groupName: groupName,
-          expenseCount: expenseCount,
-        );
-        if (chosen == null) {
-          setState(() => _loading = false);
-          return;
-        }
-        splitMode = chosen;
-      }
-
-      // Step 3 — join
+      // Step 2 — הצטרפות עם ה-split_mode שנקבע ע"י המזמין
       await _repo.joinGroup(code, splitMode: splitMode);
       widget.onJoined();
       if (mounted) Navigator.pop(context);
@@ -259,69 +244,6 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
         _loading = false;
       });
     }
-  }
-
-  Future<String?> _showSplitModeDialog(
-    BuildContext context, {
-    required String groupName,
-    required int expenseCount,
-  }) {
-    return showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        final l = AppLocalizations.of(ctx)!;
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(
-            l.splitExpenses,
-            style: const TextStyle(fontWeight: FontWeight.w700),
-            textAlign: TextAlign.right,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l.groupExpensesCount(groupName, expenseCount),
-                style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
-                textAlign: TextAlign.right,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                l.howToJoin,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-                textAlign: TextAlign.right,
-              ),
-            ],
-          ),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            _SplitOptionButton(
-              icon: Icons.history,
-              color: AppColors.primary,
-              title: l.splitAll,
-              subtitle: '${l.members}: $expenseCount',
-              onTap: () => Navigator.pop(ctx, 'full'),
-            ),
-            const SizedBox(height: 8),
-            _SplitOptionButton(
-              icon: Icons.arrow_forward,
-              color: AppColors.secondary,
-              title: l.fromNowOn,
-              subtitle: l.notChargedPast,
-              onTap: () => Navigator.pop(ctx, 'forward'),
-            ),
-            const SizedBox(height: 4),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, null),
-              child: Text(l.cancel,
-                  style: const TextStyle(color: AppColors.textSecondary)),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -405,69 +327,6 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SplitOptionButton extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _SplitOptionButton({
-    required this.icon,
-    required this.color,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.06),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.25)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 18),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: color,
-                          fontSize: 14)),
-                  Text(subtitle,
-                      style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12)),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_left, color: color, size: 18),
-          ],
-        ),
       ),
     );
   }
