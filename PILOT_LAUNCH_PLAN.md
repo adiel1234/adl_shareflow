@@ -1,6 +1,6 @@
 # תכנית השקת פיילוט — ADL ShareFlow
 
-עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5** · **`pubspec`:** `1.0.5+42` (build 43 בתור) · **build 42 נבדק** — **5.3a/14.3/14.4/3.8 ✅** · **Android פרופיל `2042` → תיקון build 43**
+עודכן: 17 יוני 2026 · גרסת פיילוט: **1.0.5** · **`pubspec`:** `1.0.5+43` · **build 43 נבנה** (commit `c4cd974`) — תיקון תצוגת build Android · ממתין Drive + Transporter
 
 > **מסמכים קשורים:** [`PILOT_TEST_CHECKLIST.md`](PILOT_TEST_CHECKLIST.md) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)
 
@@ -16,39 +16,38 @@
 | build **38** — APK אנדרואיד (תיקון logout) | ✅ **נבנה + נבדק** |
 | build **39** — APK אנדרואיד (תיקון אורח + חלוקה מלאה) | ✅ **נבנה** — ממתין העלאה ל-Drive + אימות A3 |
 | שרת Railway (`adlshareflow-production.up.railway.app`) | ✅ **פרוס** — commit `c3000c4` (14.3 שכפול + build 42) |
-| `pubspec.yaml` | ✅ `1.0.5+42` (מקומי; push לפני IPA) |
+| `pubspec.yaml` | ✅ `1.0.5+43` — ב-`main` |
 | קבוצת WhatsApp | ✅ **קיימת** (קישור במדריך) |
 | build **41** פעיל ב-Pilot Group (iOS) | ✅ **1.0.5 (41)** — **3.8 ✅**, **5.3a ✅** (iOS + Android) |
 | build **41** iOS (מחיקת הוצאה) | ✅ **פעיל ב-Pilot Group** |
 | build **41** Android APK | ✅ **ב-Drive** — `app-arm64-v8a-release.apk` (זהה לבנייה מקומית; חתימה Debug — עדכון מ-37–39 דורש הסרה) |
 | build **42** — 5.3a UX + 14.3 שרת | ✅ **נבדק** (10 יוני 2026) — **5.3a ✅**, **14.3 ✅**, **14.4 ✅**, **3.8 ✅**, **14.5 ℹ️**; Step 0 iOS ✅; Android פרופיל **`2042`** ❌ |
-| build **43** — תצוגת build בפרופיל Android | 🔧 **בתור** — `displayBuildNumber` (strip ABI prefix מ-split-per-abi) |
-| יישור build iOS ↔ Android | ⏳ **42 / 42** (מקומי) — אחרי העלאה: Pilot Group + `APK_DOWNLOAD_URL` + `/pilot` |
+| build **43** — תצוגת build בפרופיל Android | ✅ **נבנה מקומית** — `displayBuildNumber`; Step 0 **`1.0.5 (43)`** — ממתין העלאה + אימות |
+| יישור build iOS ↔ Android | ⏳ **43 / 43** (מקומי) — אחרי העלאה: Pilot Group + `APK_DOWNLOAD_URL` + `/pilot` |
 | בדיקות משתמש/מכשיר שני | ☐ **שלב B** (אחרי A4) |
 
 > **הערת builds:** **iOS build 41** פעיל ב-Pilot Group (מחיקת הוצאה + תיקוני 40). **Android build 41** — APK ב-Google Drive (`FILE_ID` `1bH7iZgYAqEnpU5x8WY_AroWS_FUR9aoF`); קובץ זהה ל-`mobile/build/.../app-arm64-v8a-release.apk` (SHA256 `f9cf27e4…`). חתימה **Android Debug** — מעבר מ-APK חתום release (37–39) **דורש הסרת אפליקציה** לפני התקנה.
 
 ---
 
-## תור משימות build — **build 43 (תיקון תצוגת build באנדרואיד)**
+## תור משימות build
 
-> **מדיניות:** build **42** נבדק. **לא לבנות** עד batch הבא — רק תיקון קוד מוכן ב-git.
+> **מדיניות:** build **43** נבנה (17 יוני 2026). **אין build בתור** — אחרי העלאה ו-Step 0, המשך מטריצת בדיקות / שלב B.
 
 | Build | סטטוס | תיקון | פלטפורמות | `pubspec` | בדיקה אחרי התקנה |
 |-------|--------|--------|-----------|-----------|-------------------|
-| **42** | ✅ **נבדק** | דיאלוג `split_mode` **יחיד** + שרת 14.3 | iOS + Android | `1.0.5+42` | **5.3a ✅**, **14.3 ✅**, **14.4 ✅**, **3.8 ✅** |
-| **43** | 🔧 **בתור** | פרופיל — תצוגת build מ-`pubspec` (+N), לא `versionCode` ABI (`2042`→`42`) | iOS + Android | `1.0.5+43` | Step 0 — **`1.0.5 (43)`** בשתי הפלטפורמות |
+| **42** | ✅ **נבדק** | דיאלוג `split_mode` **יחיד** + שרת 14.3 | iOS + Android | `1.0.5+42` | **5.3a ✅**, **14.3 ✅**, **14.4 ✅**, **3.8 ✅**; Android Step 0 ❌ (`2042`) |
+| **43** | ✅ **נבנה** | `AppConfig.displayBuildNumber` — פרופיל Android מציג +N מ-`pubspec` | iOS + Android | `1.0.5+43` | Step 0 — **`1.0.5 (43)`** (ממתין אימות) |
 
-**סיבת הבאג (build 42 Android):** `flutter build apk --split-per-abi` מקודד `versionCode = ABI×1000+N` (arm64 → `2×1000+42=2042`). iOS מציג `42` נכון; `PackageInfo.buildNumber` באנדרואיד קורא את `versionCode` הגולמי.
+**סיבת הבאג (build 42 Android):** `flutter build apk --split-per-abi` מקודד `versionCode = ABI×1000+N` (arm64 → `2×1000+42=2042`). תוקן ב-build 43 ב-`displayBuildNumber`.
 
-**קבצים (build 42, מקומי):**
-- IPA (Transporter): `/Users/adl/Projects/ADL ShareFlow/mobile/build/ios/ipa/ADL ShareFlow.ipa`
-- APK arm64 (Drive): `/Users/adl/Projects/ADL ShareFlow/mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` · SHA256 `f271c120f318…`
+**קבצים (build 43, מקומי):**
+- IPA (Transporter): `/Users/adl/Projects/ADL ShareFlow/mobile/build/ios/ipa/ADL ShareFlow.ipa` · SHA256 `4de2f441ff93…`
+- APK arm64 (Drive): `/Users/adl/Projects/ADL ShareFlow/mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` · SHA256 `7c9a8596a291…`
 
 **הערות:**
-- build 42: **5.3a ✅**, **14.3 ✅**, **14.4 ✅**, **3.8 ✅**, **14.5 ℹ️**; **4.1** + **4.5** — דחוי לשלב B.
-- build 42 Android — פרופיל **`1.0.5 (2042)`** → build **43** בתור.
-- חתימת Android **Debug** (ללא keystore) — כמו build 41; מ-APK release ישן — **הסרה לפני התקנה**.
+- build 42 Android — פרופיל **`1.0.5 (2042)`** — לא להפיץ; החלף ב-build 43.
+- חתימת Android **Debug** (ללא keystore) — כמו build 41–42; מ-APK release ישן — **הסרה לפני התקנה**.
 
 ---
 
