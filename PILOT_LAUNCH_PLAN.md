@@ -1,6 +1,6 @@
 # תכנית השקת פיילוט — ADL ShareFlow
 
-עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5** · **`pubspec`:** `1.0.5+42` · **build 42 נבנה מקומית** (IPA + APK) — **ממתין העלאה ידנית** · **iOS/Android 41** עדיין פעילים עד החלפה
+עודכן: 10 יוני 2026 · גרסת פיילוט: **1.0.5** · **`pubspec`:** `1.0.5+42` (build 43 בתור) · **build 42 נבדק** — **5.3a/14.3/14.4/3.8 ✅** · **Android פרופיל `2042` → תיקון build 43**
 
 > **מסמכים קשורים:** [`PILOT_TEST_CHECKLIST.md`](PILOT_TEST_CHECKLIST.md) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)
 
@@ -21,7 +21,8 @@
 | build **41** פעיל ב-Pilot Group (iOS) | ✅ **1.0.5 (41)** — **3.8 ✅**, **5.3a ✅** (iOS + Android) |
 | build **41** iOS (מחיקת הוצאה) | ✅ **פעיל ב-Pilot Group** |
 | build **41** Android APK | ✅ **ב-Drive** — `app-arm64-v8a-release.apk` (זהה לבנייה מקומית; חתימה Debug — עדכון מ-37–39 דורש הסרה) |
-| build **42** — 5.3a UX + 14.3 שרת | ✅ **נבנה מקומית** (10 יוני 2026) — IPA + APK arm64; **ממתין Transporter + Drive** |
+| build **42** — 5.3a UX + 14.3 שרת | ✅ **נבדק** (10 יוני 2026) — **5.3a ✅**, **14.3 ✅**, **14.4 ✅**, **3.8 ✅**, **14.5 ℹ️**; Step 0 iOS ✅; Android פרופיל **`2042`** ❌ |
+| build **43** — תצוגת build בפרופיל Android | 🔧 **בתור** — `displayBuildNumber` (strip ABI prefix מ-split-per-abi) |
 | יישור build iOS ↔ Android | ⏳ **42 / 42** (מקומי) — אחרי העלאה: Pilot Group + `APK_DOWNLOAD_URL` + `/pilot` |
 | בדיקות משתמש/מכשיר שני | ☐ **שלב B** (אחרי A4) |
 
@@ -29,21 +30,24 @@
 
 ---
 
-## תור משימות build — **ריק (build 42 נבנה)**
+## תור משימות build — **build 43 (תיקון תצוגת build באנדרואיד)**
 
-> **מדיניות:** אין build פתוח בקוד. **build 42** (`c3000c4`, `1.0.5+42`) — IPA + APK arm64 **מוכנים מקומית**; העלאה ל-TestFlight/Drive **ידנית**.
+> **מדיניות:** build **42** נבדק. **לא לבנות** עד batch הבא — רק תיקון קוד מוכן ב-git.
 
 | Build | סטטוס | תיקון | פלטפורמות | `pubspec` | בדיקה אחרי התקנה |
 |-------|--------|--------|-----------|-----------|-------------------|
-| **42** | ✅ **נבנה** | דיאלוג `split_mode` **יחיד** בהוספת אורח | iOS + Android | `1.0.5+42` | **5.3a** (UX) — דיאלוג **פעם אחת** בלבד |
-| **42** | ✅ **שרת פרוס** | שכפול (14.3) — הפעלה אוטומטית בפיילוט; הגנת כפילות בלקוח | שרת + Flutter | — | **14.3** (+ **14.4** אם רלוונטי) |
+| **42** | ✅ **נבדק** | דיאלוג `split_mode` **יחיד** + שרת 14.3 | iOS + Android | `1.0.5+42` | **5.3a ✅**, **14.3 ✅**, **14.4 ✅**, **3.8 ✅** |
+| **43** | 🔧 **בתור** | פרופיל — תצוגת build מ-`pubspec` (+N), לא `versionCode` ABI (`2042`→`42`) | iOS + Android | `1.0.5+43` | Step 0 — **`1.0.5 (43)`** בשתי הפלטפורמות |
 
-**קבצים (מקומי, לא ב-git):**
+**סיבת הבאג (build 42 Android):** `flutter build apk --split-per-abi` מקודד `versionCode = ABI×1000+N` (arm64 → `2×1000+42=2042`). iOS מציג `42` נכון; `PackageInfo.buildNumber` באנדרואיד קורא את `versionCode` הגולמי.
+
+**קבצים (build 42, מקומי):**
 - IPA (Transporter): `/Users/adl/Projects/ADL ShareFlow/mobile/build/ios/ipa/ADL ShareFlow.ipa`
 - APK arm64 (Drive): `/Users/adl/Projects/ADL ShareFlow/mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` · SHA256 `f271c120f318…`
 
 **הערות:**
-- build 41: **3.8 ✅**, **5.3a ✅**, **4.1 ✅**; **14.3 ❌** — לאימות מחדש על build 42.
+- build 42: **5.3a ✅**, **14.3 ✅**, **14.4 ✅**, **3.8 ✅**, **14.5 ℹ️**; **4.1** + **4.5** — דחוי לשלב B.
+- build 42 Android — פרופיל **`1.0.5 (2042)`** → build **43** בתור.
 - חתימת Android **Debug** (ללא keystore) — כמו build 41; מ-APK release ישן — **הסרה לפני התקנה**.
 
 ---
@@ -167,7 +171,8 @@
 - [ ] **בדיקה הבאה על build 41:** **14.3** — שכפול: הוצאות בקבוצה החדשה; ישנה נשארת סגורה (iOS + Android)
 - [x] **build 42** — IPA + APK `1.0.5+42` — **10 יוני 2026** (commit `c3000c4`)
 - [ ] **העלאה ידנית** — Transporter (iOS) + Drive (APK arm64) + עדכון `APK_DOWNLOAD_URL`
-- [ ] **בדיקה על build 42:** **5.3a** (UX) + **14.3** (iOS + Android)
+- [ ] **בדיקה build 42:** **5.3a ✅**, **14.3 ✅**, **14.4 ✅**, **3.8 ✅** (iOS + Android)
+- [ ] **build 43** — תיקון תצוגת build בפרופיל Android (`2042`→`42`) — **בתור, לא נבנה**
 
 **קישור Drive (build 41 — `APK_DOWNLOAD_URL`):**
 `https://drive.google.com/uc?export=download&id=1bH7iZgYAqEnpU5x8WY_AroWS_FUR9aoF`

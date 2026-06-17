@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/config/app_config.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/locale_provider.dart';
 import '../../../../providers/notifications_provider.dart';
@@ -35,7 +36,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _loadVersion() async {
     final info = await PackageInfo.fromPlatform();
     if (mounted) {
-      setState(() => _version = '${info.version} (${info.buildNumber})');
+      final build = AppConfig.displayBuildNumber(info.buildNumber);
+      setState(() => _version = '${info.version} ($build)');
     }
   }
 

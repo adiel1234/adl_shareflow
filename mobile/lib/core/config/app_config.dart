@@ -37,6 +37,17 @@ class AppConfig {
   static String get appName => 'ADL ShareFlow';
   static String get appVersion => '1.0.1';
 
+  /// מספר build לתצוגה — תואם `pubspec` (+N), לא `versionCode` גולמי של Android.
+  /// APK split-per-abi: Flutter מקודד ABI ב-prefix (arm64 → 2×1000+N).
+  static String displayBuildNumber(String raw) {
+    final n = int.tryParse(raw);
+    if (n == null || n < 1000) return raw;
+    final abiPrefix = n ~/ 1000;
+    final base = n % 1000;
+    if (base > 0 && {1, 2, 4}.contains(abiPrefix)) return '$base';
+    return raw;
+  }
+
   static bool get isDev => flavor == AppFlavor.dev;
   static bool get isStaging => flavor == AppFlavor.staging;
   static bool get isProd => flavor == AppFlavor.prod;
