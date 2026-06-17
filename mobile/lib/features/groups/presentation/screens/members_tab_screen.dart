@@ -11,6 +11,7 @@ import '../../../balances/domain/balance_model.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../services/share_service.dart';
+import '../widgets/invite_sheet.dart';
 import '../../data/group_repository.dart';
 
 class MembersTabScreen extends ConsumerWidget {
@@ -371,28 +372,13 @@ class MembersTabScreen extends ConsumerWidget {
                     ),
                     onPressed: () async {
                       Navigator.pop(ctx, false);
-                      try {
-                        final api = ApiClient.instance;
-                        final resp = await api.get(
-                            '/groups/${group.id}/invite-link');
-                        final data = resp.data['data'] as Map<String, dynamic>;
-                        final code = data['invite_code'] as String;
-                        final link = data['invite_link'] as String;
-                        await ShareService.shareGroupInvite(
+                      if (context.mounted) {
+                        await showInviteSheet(
+                          context,
+                          groupId: group.id,
                           groupName: group.name,
-                          inviteCode: code,
-                          inviteUrl: link,
+                          isAdmin: group.isAdmin,
                         );
-                      } catch (e) {
-                        if (context.mounted) {
-                          String msg = 'שגיאה בקבלת קישור ההזמנה';
-                          if (e is DioException) {
-                            msg = (e.response?.data?['message'] as String?) ?? msg;
-                          }
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(msg)),
-                          );
-                        }
                       }
                     },
                   ),

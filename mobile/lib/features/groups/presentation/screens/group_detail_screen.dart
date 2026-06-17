@@ -17,6 +17,7 @@ import '../../../expenses/presentation/screens/expenses_list_screen.dart';
 import '../../../expenses/presentation/screens/add_expense_screen.dart';
 import '../../../balances/presentation/screens/balances_screen.dart';
 import '../widgets/group_state_banner.dart';
+import '../widgets/invite_sheet.dart';
 import 'members_tab_screen.dart';
 import 'activation_screen.dart';
 
@@ -564,7 +565,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        builder: (_) => _InviteSheet(
+        builder: (_) => InviteSheet(
           code: code,
           link: link,
           groupId: group.id,
