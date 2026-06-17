@@ -74,6 +74,25 @@ def create_app(config=None):
         guessed, _ = mimetypes.guess_type(subpath)
         return send_from_directory(directory, subpath, mimetype=guessed or 'application/octet-stream')
 
+    # Apple App Site Association — Universal Links verification
+    @app.get('/.well-known/apple-app-site-association')
+    def apple_app_site_association():
+        from flask import jsonify
+        data = {
+            "applinks": {
+                "apps": [],
+                "details": [
+                    {
+                        "appID": "9QP3FZTL8C.com.adl.shareflow",
+                        "paths": ["/join/*"]
+                    }
+                ]
+            }
+        }
+        from flask import Response
+        import json
+        return Response(json.dumps(data), mimetype='application/json')
+
     # Deferred deep link - app calls this on first launch to retrieve pending invite code
     @app.get('/api/deferred-link')
     def deferred_link():

@@ -22,15 +22,27 @@ $inviteUrl
   }
 
   /// שיתוף WhatsApp ספציפי (ללא נמען — בוחרים ידנית באפליקציה).
+  /// מנסה deep-link ישיר (whatsapp://) לפני web fallback (wa.me).
+  /// Deep-link אמין יותר כי אינו עובר דרך דפדפן שיכול לאבד את הטקסט.
   static Future<void> shareViaWhatsApp(String text) async {
     final encoded = Uri.encodeComponent(text);
-    final waUrl = Uri.parse('https://wa.me/?text=$encoded');
 
-    if (await canLaunchUrl(waUrl)) {
-      await launchUrl(waUrl, mode: LaunchMode.externalApplication);
-    } else {
-      await Share.share(text);
+    // Deep-link ישיר — אמין יותר, נפתח ישירות ב-WhatsApp
+    final waAppUrl = Uri.parse('whatsapp://send?text=$encoded');
+    if (await canLaunchUrl(waAppUrl)) {
+      await launchUrl(waAppUrl, mode: LaunchMode.externalApplication);
+      return;
     }
+
+    // Web fallback — wa.me מפנה לאפליקציה אך יכול לעבור דפדפן
+    final waWebUrl = Uri.parse('https://wa.me/?text=$encoded');
+    if (await canLaunchUrl(waWebUrl)) {
+      await launchUrl(waWebUrl, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    // Last resort — פאנל שיתוף מערכת
+    await Share.share(text);
   }
 
   /// מנרמל מספר טלפון לפורמט בינלאומי ל-wa.me (ללא +).

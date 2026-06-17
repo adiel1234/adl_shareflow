@@ -72,6 +72,7 @@
 	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>whatsapp</string>
 		<string>bit</string>
 		<string>paybox</string>
 	</array>
