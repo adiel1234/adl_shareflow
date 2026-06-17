@@ -1,3 +1,6 @@
+# Temp files
+.tmp/
+
 # Python
 __pycache__/
 *.pyc
