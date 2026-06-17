@@ -741,6 +741,51 @@
     }
 
     .sticky-cta.hidden { transform: translateY(110%); }
+
+    .in-app-banner {
+      background: #FEF3C7;
+      border: 2px solid #F59E0B;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .in-app-banner.hidden { display: none; }
+
+    .in-app-banner strong {
+      display: block;
+      font-size: 1.0625rem;
+      color: #92400E;
+      margin-bottom: 6px;
+    }
+
+    .in-app-banner p {
+      font-size: 0.9375rem;
+      color: #78350F;
+      margin-bottom: 12px;
+    }
+
+    .btn-open-browser {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 20px;
+      background: #1E40AF;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+    }
+
+    .js-apk-download.is-loading {
+      opacity: 0.75;
+      pointer-events: none;
+    }
     .sticky-cta-inner {
       display: flex;
       flex-direction: column;
@@ -788,12 +833,18 @@
       <div class="badge-row">
         <span class="badge">🍎 iPhone</span>
         <span class="badge">🤖 Android</span>
-        <span class="badge">1.0.5 · build 22</span>
+        <span class="badge">1.0.5 · build 43</span>
       </div>
     </div>
   </header>
 
   <main class="container">
+
+    <div class="in-app-banner hidden" id="in-app-banner" role="alert">
+      <strong>📱 פתחו בדפדפן Chrome (לא מתוך WhatsApp)</strong>
+      <p>דפדפן מוטמע לא תומך בהורדת APK. לחצו <strong>⋮</strong> למעלה → <strong>«פתח ב-Chrome»</strong> — ואז לחצו שוב על «הורדת האפליקציה».</p>
+      <button type="button" class="btn-open-browser" id="btn-open-external">פתח בדפדפן Chrome</button>
+    </div>
 
     <section class="welcome-card" id="cta-section">
       <h2>ברוך הבא לפיילוט!</h2>
@@ -823,10 +874,11 @@
       <div class="platform-panel" id="panel-android" role="tabpanel">
         <div class="tap-box">👆 מה ללחוץ — משתמשי Android: כפתור «הורדת האפליקציה» למטה</div>
         <div class="action-stack">
-          <a class="btn-android" id="apk-link" href="__APK_DOWNLOAD_URL__">
+          <a class="btn-android js-apk-download" id="apk-link" href="__APK_DOWNLOAD_URL__" download="ADL-ShareFlow.apk">
             <span aria-hidden="true">📥</span>
-            הורדת האפליקציה ל-Android
+            <span class="btn-label">הורדת האפליקציה ל-Android</span>
           </a>
+          <p style="font-size:0.875rem;color:var(--text-light);text-align:center;margin-top:4px">ההורדה (~30MB) עשויה לקחת כמה שניות — המתינו לסמל ההורדה</p>
           <a class="btn-wa" href="https://chat.whatsapp.com/CsLnZVcopXJ83gmhadew9I?s=sh&amp;p=i&amp;mlu=3">
             <span aria-hidden="true">💬</span>
             הצטרפות לקבוצת הוואטסאפ
@@ -964,12 +1016,12 @@
           <div class="step-body">
             <h3>הורידו את האפליקציה</h3>
             <div class="tap-box">👆 מה ללחוץ — כפתור «הורדת האפליקציה»</div>
-            <a class="btn-android" href="__APK_DOWNLOAD_URL__">
+            <a class="btn-android js-apk-download" href="__APK_DOWNLOAD_URL__" download="ADL-ShareFlow.apk">
               <span aria-hidden="true">📥</span>
-              הורדת האפליקציה ל-Android
+              <span class="btn-label">הורדת האפליקציה ל-Android</span>
             </a>
             <ol class="substeps">
-              <li data-step="א">לחצו על הכפתור למעלה</li>
+              <li data-step="א">לחצו על הכפתור למעלה — ההורדה (~30MB) תתחיל תוך כמה שניות</li>
               <li data-step="ב">אם מופיעה שאלה «להוריד?» — לחצו <strong>הורדה</strong></li>
               <li data-step="ג">המתינו לסיום — תראו סמל הורדה למעלה במסך</li>
             </ol>
@@ -1056,9 +1108,9 @@
           <div class="step-body">
             <h3>עדכונים עתידיים</h3>
             <p>כשתשוחרר גרסה חדשה — נודיע בקבוצת הוואטסאפ. הורידו שוב מהכפתור:</p>
-            <a class="btn-android" href="__APK_DOWNLOAD_URL__">
+            <a class="btn-android js-apk-download" href="__APK_DOWNLOAD_URL__" download="ADL-ShareFlow.apk">
               <span aria-hidden="true">📥</span>
-              הורדת גרסה חדשה
+              <span class="btn-label">הורדת גרסה חדשה</span>
             </a>
           </div>
         </div>
@@ -1115,7 +1167,7 @@
 
       <details class="faq-item">
         <summary>גרסה ישנה מותקנת — איך מעדכנים?</summary>
-        <p>iPhone: פתחו TestFlight → לחצו «עדכן». Android: הורידו שוב מדף ההורדה. גרסה נוכחית: <strong>1.0.5 build 22</strong>.</p>
+        <p>iPhone: פתחו TestFlight → לחצו «עדכן». Android: הורידו שוב מדף ההורדה. גרסה נוכחית: <strong>1.0.5 build 43</strong>.</p>
       </details>
 
       <details class="faq-item">
@@ -1152,7 +1204,7 @@
 
   <footer>
     <p class="brand">ADL Projects</p>
-    <p>גרסת פיילוט · ADL ShareFlow 1.0.5 (build 22)</p>
+    <p>גרסת פיילוט · ADL ShareFlow 1.0.5 (build 43)</p>
     <p><a href="https://adlshareflow-production.up.railway.app/privacy">מדיניות פרטיות</a></p>
   </footer>
 
@@ -1180,8 +1232,19 @@
       var stickyLink = document.getElementById('sticky-cta-link');
       var sticky = document.getElementById('sticky-cta');
       var ctaSection = document.getElementById('cta-section');
+      var inAppBanner = document.getElementById('in-app-banner');
+      var btnOpenExternal = document.getElementById('btn-open-external');
       var iosDownloadUrl = '__IOS_DOWNLOAD_URL__';
       var apkDownloadUrl = '__APK_DOWNLOAD_URL__';
+
+      // ── זיהוי פלטפורמה ──────────────────────────────────────────────────
+      var ua = navigator.userAgent || '';
+      var isAndroid = /android/i.test(ua);
+      var isIOS = /iphone|ipad|ipod/i.test(ua);
+
+      // דפדפן מוטמע — WhatsApp / Telegram / Facebook / Instagram
+      var isInAppBrowser = /FBAN|FBAV|Instagram|LinkedInApp|Snapchat|Twitter|MicroMessenger/.test(ua)
+        || (/android/i.test(ua) && /wv\b/.test(ua));
 
       function setPlatform(p) {
         tabs.forEach(function (t) {
@@ -1195,20 +1258,76 @@
         if (stickyLink) {
           if (p === 'android') {
             stickyLink.href = apkDownloadUrl;
+            stickyLink.setAttribute('download', 'ADL-ShareFlow.apk');
             stickyLink.innerHTML = '<span aria-hidden="true">📥</span> הורדת האפליקציה ל-Android';
           } else {
             stickyLink.href = iosDownloadUrl;
+            stickyLink.removeAttribute('download');
             stickyLink.innerHTML = '<span aria-hidden="true">🍎</span> הורדת האפליקציה ל-iPhone';
           }
         }
       }
 
+      // ── עדכון APK_DOWNLOAD_URL לנתיב proxy ב-/download/apk ─────────────
+      // אם ה-URL הוא Drive / כל URL חיצוני — החלף ל-proxy מהשרת
+      // proxy מוגדר תמיד בשרת; מניעת Drive virus-scan HTML
+      (function fixApkUrl() {
+        var base = window.location.origin;
+        var proxyUrl = base + '/download/apk';
+        // החלף בכל הכפתורים שמצביעים ל-__APK_DOWNLOAD_URL__
+        document.querySelectorAll('.js-apk-download').forEach(function (el) {
+          el.href = proxyUrl;
+        });
+        if (stickyLink && /android/i.test(navigator.userAgent)) {
+          stickyLink.href = proxyUrl;
+        }
+        apkDownloadUrl = proxyUrl;
+      })();
+
+      // ── אירועי לחיצה — משוב ויזואלי ────────────────────────────────────
+      document.querySelectorAll('.js-apk-download').forEach(function (el) {
+        el.addEventListener('click', function () {
+          var label = el.querySelector('.btn-label');
+          if (label) label.textContent = '⏳ מתחיל הורדה...';
+          el.classList.add('is-loading');
+          setTimeout(function () {
+            if (label) label.textContent = el.classList.contains('update-btn') ? 'הורדת גרסה חדשה' : 'הורדת האפליקציה ל-Android';
+            el.classList.remove('is-loading');
+          }, 8000);
+        });
+      });
+
+      // ── זיהוי אוטומטי לפי OS ─────────────────────────────────────────────
+      if (isAndroid) {
+        setPlatform('android');
+        // הצג באנר אם דפדפן מוטמע
+        if (isInAppBrowser && inAppBanner) {
+          inAppBanner.classList.remove('hidden');
+        }
+      } else if (isIOS) {
+        setPlatform('ios');
+      }
+
+      // ── כפתור «פתח ב-Chrome» ─────────────────────────────────────────────
+      if (btnOpenExternal) {
+        btnOpenExternal.addEventListener('click', function () {
+          var url = window.location.href;
+          // intent ל-Android Chrome
+          window.location.href = 'intent://' + url.replace(/^https?:\/\//, '')
+            + '#Intent;scheme=https;package=com.android.chrome;end';
+          // fallback
+          setTimeout(function () { window.open(url, '_blank'); }, 1500);
+        });
+      }
+
+      // ── טאבים ─────────────────────────────────────────────────────────────
       tabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
           setPlatform(tab.getAttribute('data-platform'));
         });
       });
 
+      // ── sticky CTA ────────────────────────────────────────────────────────
       if (sticky && ctaSection && 'IntersectionObserver' in window) {
         var observer = new IntersectionObserver(function (entries) {
           entries.forEach(function (entry) {
