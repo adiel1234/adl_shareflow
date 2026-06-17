@@ -21,22 +21,44 @@ _ANDROID_CHANNEL_ID = 'shareflow_default'
 
 
 def _get_app():
-    """Initialize Firebase app once, return None if not configured."""
+    """Initialize Firebase app once, return None if not configured.
+
+    Supports two methods (checked in order):
+    1. FIREBASE_CREDENTIALS_JSON — full service-account JSON as an env-var string
+       (preferred for Railway / containerised deployments).
+    2. FIREBASE_CREDENTIALS_PATH — path to a service-account JSON file
+       (convenient for local development).
+    """
     global _firebase_app, _firebase_initialized
     if _firebase_initialized:
         return _firebase_app
     _firebase_initialized = True
     try:
+        import json
         import os
         import firebase_admin
         from firebase_admin import credentials
 
-        creds_path = os.getenv('FIREBASE_CREDENTIALS_PATH')
-        if not creds_path or not os.path.exists(creds_path):
-            logger.info('Firebase credentials not found — push notifications disabled')
+        cred = None
+
+        # Method 1: JSON string in env var
+        creds_json = os.getenv('FIREBASE_CREDENTIALS_JSON')
+        if creds_json:
+            try:
+                cred = credentials.Certificate(json.loads(creds_json))
+            except Exception as e:
+                logger.warning(f'Failed to parse FIREBASE_CREDENTIALS_JSON: {e}')
+
+        # Method 2: Path to JSON file
+        if cred is None:
+            creds_path = os.getenv('FIREBASE_CREDENTIALS_PATH')
+            if creds_path and os.path.exists(creds_path):
+                cred = credentials.Certificate(creds_path)
+
+        if cred is None:
+            logger.info('Firebase credentials not configured — push notifications disabled')
             return None
 
-        cred = credentials.Certificate(creds_path)
         _firebase_app = firebase_admin.initialize_app(cred)
         logger.info('Firebase initialized successfully')
     except Exception as e:
