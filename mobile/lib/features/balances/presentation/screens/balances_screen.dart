@@ -1338,7 +1338,39 @@ class _PendingSettlementsCard extends ConsumerWidget {
                         fontSize: 12, color: Color(0xFFB45309)),
                   ),
                   const SizedBox(height: 8),
-                  if (canCreditorApprove)
+                  if (canAdminGuest)
+                    // Admin confirms that guest creditor received payment.
+                    // Checked first so admin+debtor always sees this button.
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _approve(
+                              context,
+                              ref,
+                              r,
+                              currentUserId: currentUserId,
+                              isAdmin: isAdmin,
+                            ),
+                            icon: const Icon(Icons.check, size: 16),
+                            label: Text(l.confirmGuestReceived),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.purple,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              textStyle: const TextStyle(fontSize: 13),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton(
+                          onPressed: () => _cancel(context, ref, r),
+                          child: Text(l.cancel,
+                              style: const TextStyle(fontSize: 13)),
+                        ),
+                      ],
+                    )
+                  else if (canCreditorApprove)
                     Row(
                       children: [
                         Expanded(
@@ -1375,36 +1407,6 @@ class _PendingSettlementsCard extends ConsumerWidget {
                                 vertical: 8, horizontal: 12),
                           ),
                           child: Text(l.rejectPayment,
-                              style: const TextStyle(fontSize: 13)),
-                        ),
-                      ],
-                    )
-                  else if (canAdminGuest)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => _approve(
-                              context,
-                              ref,
-                              r,
-                              currentUserId: currentUserId,
-                              isAdmin: isAdmin,
-                            ),
-                            icon: const Icon(Icons.check, size: 16),
-                            label: Text(l.confirmGuestReceived),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.purple,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              textStyle: const TextStyle(fontSize: 13),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        OutlinedButton(
-                          onPressed: () => _cancel(context, ref, r),
-                          child: Text(l.cancel,
                               style: const TextStyle(fontSize: 13)),
                         ),
                       ],

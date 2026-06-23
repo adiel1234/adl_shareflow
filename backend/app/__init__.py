@@ -273,8 +273,8 @@ def create_app(config=None):
     }}
 
     function dlApp(e, url) {{
-      e.preventDefault();
-      writeClip(function() {{ window.location = url; }});
+      // Clipboard copy is best-effort; navigation proceeds regardless.
+      writeClip(function() {{}});
     }}
 
     window.onload = function() {{
@@ -312,8 +312,8 @@ def create_app(config=None):
         האפליקציה לא מותקנת במכשיר זה. הורד אותה למטה
       </div>
       <div class="divider">- אין לך את האפליקציה עדיין? -</div>
-      <a class="btn btn-android" href="#" onclick="dlApp(event,'{ANDROID_APK}')">🤖 הורד לאנדרואיד</a>
-      <a class="btn btn-ios" href="#" onclick="dlApp(event,'{TESTFLIGHT}')">🍎 הורד ל-iPhone</a>
+      <a class="btn btn-android" href="{ANDROID_APK}" onclick="writeClip(function(){{}})">🤖 הורד לאנדרואיד</a>
+      <a class="btn btn-ios" href="{TESTFLIGHT}" onclick="writeClip(function(){{}})">🍎 הורד ל-iPhone (TestFlight)</a>
     </div>
   </div>
 </body>
