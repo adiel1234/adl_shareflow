@@ -642,7 +642,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String memberHasBalance(String name, String amount) {
-    return '$name has an open balance of $amount — it will remain visible until manually settled.';
+    return '$name has an open balance of $amount - it will remain visible until manually settled.';
   }
 
   @override
@@ -663,7 +663,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get removeMemberExplain =>
-      'Existing expenses remain.\nIf there is an open debt — it will continue to appear in settlements until manually resolved.\nThis action cannot be undone.';
+      'Existing expenses remain.\nIf there is an open debt - it will continue to appear in settlements until manually resolved.\nThis action cannot be undone.';
 
   @override
   String get remove => 'Remove';
@@ -694,7 +694,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String removeMemberBlockedCreditor(String name) {
-    return 'Cannot remove — others owe $name. Settle debts first.';
+    return 'Cannot remove - others owe $name. Settle debts first.';
   }
 
   @override
@@ -901,7 +901,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get booksImbalancedWarning =>
-      'Books are not balanced — expense splits may be incorrect. Re-save affected expenses or contact the group admin.';
+      'Books are not balanced - expense splits may be incorrect. Re-save affected expenses or contact the group admin.';
 
   @override
   String get sendSummary => 'Send summary';
@@ -917,7 +917,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shareWhatsAppSubtitle =>
-      'Opens WhatsApp per participant — tap Send in each chat';
+      'Opens WhatsApp per participant - tap Send in each chat';
 
   @override
   String reminderSent(String name) {
@@ -1086,7 +1086,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copyAmount => 'Copy amount';
 
   @override
-  String get amountCopied => 'Amount copied — paste in the payment app';
+  String get amountCopied => 'Amount copied - paste in the payment app';
 
   @override
   String get finishEventWizard => 'Finish event';
@@ -1459,40 +1459,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transferHintMemberToMember =>
-      'Debtor marks paid — creditor confirms';
+      'Debtor marks paid - creditor confirms';
 
   @override
   String get transferHintMemberToGuest =>
-      'Member pays — admin confirms guest received';
+      'Member pays - admin confirms guest received';
 
   @override
   String get transferHintGuestToMember =>
-      'Admin confirms guest paid — member confirms receipt';
+      'Admin confirms guest paid - member confirms receipt';
 
   @override
   String get transferHintGuestToGuest =>
       'Admin confirms transfer and receipt in one step';
 
   @override
-  String get transferPendingBadge => 'Awaiting approval — no further action';
+  String get transferPendingBadge => 'Awaiting approval - no further action';
 
   @override
   String pendingHintMemberPaid(String debtor, String creditor) {
-    return '$debtor paid $creditor — awaiting approval';
+    return '$debtor paid $creditor - awaiting approval';
   }
 
   @override
   String get pendingHintMemberToGuestDebtor =>
-      'You paid — waiting for admin to confirm guest received';
+      'You paid - waiting for admin to confirm guest received';
 
   @override
   String pendingHintMemberToGuestAdmin(String guest) {
-    return 'Member paid — confirm guest $guest received';
+    return 'Member paid - confirm guest $guest received';
   }
 
   @override
   String get pendingHintGuestToMemberCreditor =>
-      'Guest paid — confirm you received the money';
+      'Guest paid - confirm you received the money';
 
   @override
   String pendingHintGuestToMemberWaiting(String member) {
@@ -1538,7 +1538,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreGroupOptionReopenSubtitle =>
-      'Reopen the same group — expenses, balances and history are kept';
+      'Reopen the same group - expenses, balances and history are kept';
 
   @override
   String get restoreGroupOptionDuplicate =>
@@ -1622,7 +1622,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guestExplainBody =>
-      'A guest is a member who doesn\'t have the app yet.\n• They are included in expense calculations like any other member\n• The admin manages their payments until they download the app\n• Once they download it — the admin links them to their account and they become fully independent';
+      'A guest is a member who doesn\'t have the app yet.\n• They are included in expense calculations like any other member\n• The admin manages their payments until they download the app\n• Once they download it - the admin links them to their account and they become fully independent';
 
   @override
   String get guestReminderTitle => 'Guests without an account';
@@ -1664,7 +1664,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String removeGuestConfirm(String name) {
-    return 'Guest $name will be removed from the active members list.\nExisting expenses remain.\nIf there is an open debt — it will continue to appear in settlements until manually resolved.\nThis action cannot be undone.';
+    return 'Guest $name will be removed from the active members list.\nExisting expenses remain.\nIf there is an open debt - it will continue to appear in settlements until manually resolved.\nThis action cannot be undone.';
   }
 
   @override
@@ -1707,7 +1707,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get whatsappOpenHint =>
-      'Opens WhatsApp — select a contact and tap Send, then return here';
+      'Opens WhatsApp - select a contact and tap Send, then return here';
 
   @override
   String get shareOtherWay => 'Share another way';

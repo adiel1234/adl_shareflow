@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,15 +42,24 @@ class BalancesScreen extends ConsumerStatefulWidget {
 class _BalancesScreenState extends ConsumerState<BalancesScreen>
     with WidgetsBindingObserver {
   bool _settling = false;
+  Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // Poll pending settlements every 30 s so creditors see new requests
+    // even when the app stays in the foreground.
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (mounted) {
+        ref.invalidate(pendingSettlementsProvider(widget.group.id));
+      }
+    });
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

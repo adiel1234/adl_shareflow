@@ -1301,7 +1301,7 @@ abstract class AppLocalizations {
   /// No description provided for @memberHasBalance.
   ///
   /// In he, this message translates to:
-  /// **'ל{name} יש יתרה פתוחה של {amount} — תישאר מוצגת עד להסדרה ידנית.'**
+  /// **'ל{name} יש יתרה פתוחה של {amount} - תישאר מוצגת עד להסדרה ידנית.'**
   String memberHasBalance(String name, String amount);
 
   /// No description provided for @settleDebt.
@@ -1337,7 +1337,7 @@ abstract class AppLocalizations {
   /// No description provided for @removeMemberExplain.
   ///
   /// In he, this message translates to:
-  /// **'ההוצאות הקיימות נשארות.\nאם יש חוב פתוח — ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.'**
+  /// **'ההוצאות הקיימות נשארות.\nאם יש חוב פתוח - ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.'**
   String get removeMemberExplain;
 
   /// No description provided for @remove.
@@ -1385,7 +1385,7 @@ abstract class AppLocalizations {
   /// No description provided for @removeMemberBlockedCreditor.
   ///
   /// In he, this message translates to:
-  /// **'לא ניתן להסיר — יש חוב כלפי {name}. יש לסגור את החוב לפני ההסרה.'**
+  /// **'לא ניתן להסיר - יש חוב כלפי {name}. יש לסגור את החוב לפני ההסרה.'**
   String removeMemberBlockedCreditor(String name);
 
   /// No description provided for @removeMemberRedistributeTitle.
@@ -1769,7 +1769,7 @@ abstract class AppLocalizations {
   /// No description provided for @booksImbalancedWarning.
   ///
   /// In he, this message translates to:
-  /// **'החשבונות לא מאוזנים — ייתכן שחלוקת הוצאות ישנה שגויה. ערכו הוצאות ושמרו מחדש, או פנו למנהל.'**
+  /// **'החשבונות לא מאוזנים - ייתכן שחלוקת הוצאות ישנה שגויה. ערכו הוצאות ושמרו מחדש, או פנו למנהל.'**
   String get booksImbalancedWarning;
 
   /// No description provided for @sendSummary.
@@ -1799,7 +1799,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareWhatsAppSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'יפתח WhatsApp לכל משתתף — יש ללחוץ «שלח» בכל שיחה'**
+  /// **'יפתח WhatsApp לכל משתתף - יש ללחוץ «שלח» בכל שיחה'**
   String get shareWhatsAppSubtitle;
 
   /// No description provided for @reminderSent.
@@ -2111,7 +2111,7 @@ abstract class AppLocalizations {
   /// No description provided for @amountCopied.
   ///
   /// In he, this message translates to:
-  /// **'הסכום הועתק — הדבק באפליקציית התשלום'**
+  /// **'הסכום הועתק - הדבק באפליקציית התשלום'**
   String get amountCopied;
 
   /// No description provided for @finishEventWizard.
@@ -2761,19 +2761,19 @@ abstract class AppLocalizations {
   /// No description provided for @transferHintMemberToMember.
   ///
   /// In he, this message translates to:
-  /// **'החייב מסמן «שילמתי» — המקבל מאשר'**
+  /// **'החייב מסמן «שילמתי» - המקבל מאשר'**
   String get transferHintMemberToMember;
 
   /// No description provided for @transferHintMemberToGuest.
   ///
   /// In he, this message translates to:
-  /// **'החבר משלם — המנהל מאשר שהאורח קיבל'**
+  /// **'החבר משלם - המנהל מאשר שהאורח קיבל'**
   String get transferHintMemberToGuest;
 
   /// No description provided for @transferHintGuestToMember.
   ///
   /// In he, this message translates to:
-  /// **'המנהל מאשר שהאורח שילם — החבר מאשר קבלה'**
+  /// **'המנהל מאשר שהאורח שילם - החבר מאשר קבלה'**
   String get transferHintGuestToMember;
 
   /// No description provided for @transferHintGuestToGuest.
@@ -2785,31 +2785,31 @@ abstract class AppLocalizations {
   /// No description provided for @transferPendingBadge.
   ///
   /// In he, this message translates to:
-  /// **'ממתין לאישור — אין פעולה נוספת'**
+  /// **'ממתין לאישור - אין פעולה נוספת'**
   String get transferPendingBadge;
 
   /// No description provided for @pendingHintMemberPaid.
   ///
   /// In he, this message translates to:
-  /// **'{debtor} שילם ל-{creditor} — ממתין לאישור'**
+  /// **'{debtor} שילם ל-{creditor} - ממתין לאישור'**
   String pendingHintMemberPaid(String debtor, String creditor);
 
   /// No description provided for @pendingHintMemberToGuestDebtor.
   ///
   /// In he, this message translates to:
-  /// **'שילמת — ממתין לאישור מנהל שהאורח קיבל'**
+  /// **'שילמת - ממתין לאישור מנהל שהאורח קיבל'**
   String get pendingHintMemberToGuestDebtor;
 
   /// No description provided for @pendingHintMemberToGuestAdmin.
   ///
   /// In he, this message translates to:
-  /// **'החבר שילם — אשר שהאורח {guest} קיבל'**
+  /// **'החבר שילם - אשר שהאורח {guest} קיבל'**
   String pendingHintMemberToGuestAdmin(String guest);
 
   /// No description provided for @pendingHintGuestToMemberCreditor.
   ///
   /// In he, this message translates to:
-  /// **'האורח שילם — אשר שקיבלת את הכסף'**
+  /// **'האורח שילם - אשר שקיבלת את הכסף'**
   String get pendingHintGuestToMemberCreditor;
 
   /// No description provided for @pendingHintGuestToMemberWaiting.
@@ -2883,7 +2883,7 @@ abstract class AppLocalizations {
   /// No description provided for @restoreGroupOptionReopenSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'פתיחה מחדש של אותה קבוצה — הוצאות, יתרות והיסטוריה נשמרים'**
+  /// **'פתיחה מחדש של אותה קבוצה - הוצאות, יתרות והיסטוריה נשמרים'**
   String get restoreGroupOptionReopenSubtitle;
 
   /// No description provided for @restoreGroupOptionDuplicate.
@@ -3039,7 +3039,7 @@ abstract class AppLocalizations {
   /// No description provided for @guestExplainBody.
   ///
   /// In he, this message translates to:
-  /// **'אורח הוא חבר שעדיין אין לו את האפליקציה.\n• הוא נכלל בחישוב ההוצאות כמו כל חבר אחר\n• המנהל מנהל את תשלומיו עד שיוריד את האפליקציה\n• ברגע שיוריד — המנהל מקשר אותו לחשבון שלו ומשם הוא פועל עצמאית'**
+  /// **'אורח הוא חבר שעדיין אין לו את האפליקציה.\n• הוא נכלל בחישוב ההוצאות כמו כל חבר אחר\n• המנהל מנהל את תשלומיו עד שיוריד את האפליקציה\n• ברגע שיוריד - המנהל מקשר אותו לחשבון שלו ומשם הוא פועל עצמאית'**
   String get guestExplainBody;
 
   /// No description provided for @guestReminderTitle.
@@ -3099,7 +3099,7 @@ abstract class AppLocalizations {
   /// No description provided for @removeGuestConfirm.
   ///
   /// In he, this message translates to:
-  /// **'האורח {name} יוסר מרשימת החברים הפעילים.\nההוצאות הקיימות נשארות.\nאם יש חוב פתוח — ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.'**
+  /// **'האורח {name} יוסר מרשימת החברים הפעילים.\nההוצאות הקיימות נשארות.\nאם יש חוב פתוח - ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.'**
   String removeGuestConfirm(String name);
 
   /// No description provided for @guestRemovedSuccess.
@@ -3165,7 +3165,7 @@ abstract class AppLocalizations {
   /// No description provided for @whatsappOpenHint.
   ///
   /// In he, this message translates to:
-  /// **'יפתח WhatsApp — בחר איש קשר ולחץ שלח, ואז חזור לכאן'**
+  /// **'יפתח WhatsApp - בחר איש קשר ולחץ שלח, ואז חזור לכאן'**
   String get whatsappOpenHint;
 
   /// No description provided for @shareOtherWay.

@@ -19,7 +19,7 @@ class GroupQuota {
       );
 }
 
-final groupQuotaProvider = FutureProvider<GroupQuota>((ref) async {
+final groupQuotaProvider = FutureProvider.autoDispose<GroupQuota>((ref) async {
   try {
     final resp = await ApiClient.instance.get('/groups/quota');
     return GroupQuota.fromJson(resp.data['data'] as Map<String, dynamic>);

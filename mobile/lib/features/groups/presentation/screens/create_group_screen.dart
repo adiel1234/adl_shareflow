@@ -51,8 +51,6 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   List<(int, int, int)> get _tiers =>
       _groupType == 'event' ? _kEventTiers : _kOngoingTiers;
 
-  int get _selectedPrice => _tiers[_tierIdx].$2;
-  bool get _isFree => _selectedPrice == 0;
 
   static const _kPeriodKeys = [
     'weekly', 'biweekly', 'monthly', 'bimonthly', 'quarterly', 'semiannual', 'annual',
@@ -195,12 +193,13 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
       orElse: () => false,
     );
 
-    // If the free tier is selected but quota is exhausted, shift to first paid tier
-    if (limitReached && _groupType == 'event' && _tierIdx == 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _tierIdx = 1);
-      });
-    }
+    // Compute the effective tier index synchronously:
+    // if the free tier (idx 0) is selected but quota is exhausted, act as if idx=1
+    final effectiveTierIdx = (limitReached && _groupType == 'event' && _tierIdx == 0)
+        ? 1
+        : _tierIdx;
+    final (_, effectivePrice, effectiveDays) = _tiers[effectiveTierIdx];
+    final isFreeEffective = effectivePrice == 0;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -284,7 +283,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                 runSpacing: 8,
                 children: List.generate(_tiers.length, (i) {
                   final (maxP, price, days) = _tiers[i];
-                  final selected = _tierIdx == i;
+                  final selected = effectiveTierIdx == i;
                   final isFree = price == 0;
                   // Hide the free tier when the quota is exhausted
                   if (isFree && limitReached) return const SizedBox.shrink();
@@ -349,21 +348,21 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  color: _isFree
+                  color: isFreeEffective
                       ? const Color(0xFFF0FDF4)
-                      : AppColors.primary.withOpacity(0.07),
+                      : AppColors.primary.withValues(alpha: 0.07),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: _isFree
+                    color: isFreeEffective
                         ? const Color(0xFF86EFAC)
-                        : AppColors.primary.withOpacity(0.3),
+                        : AppColors.primary.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      _isFree ? Icons.card_giftcard_rounded : Icons.receipt_long_rounded,
-                      color: _isFree
+                      isFreeEffective ? Icons.card_giftcard_rounded : Icons.receipt_long_rounded,
+                      color: isFreeEffective
                           ? const Color(0xFF16A34A)
                           : AppColors.primary,
                       size: 22,
@@ -374,26 +373,25 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _isFree
+                            isFreeEffective
                                 ? l.freeIncluded
                                 : l.estimatedCost,
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
-                              color: _isFree
+                              color: isFreeEffective
                                   ? const Color(0xFF16A34A)
                                   : AppColors.primary,
                             ),
                           ),
-                          if (!_isFree) ...[
+                          if (!isFreeEffective) ...[
                             const SizedBox(height: 2),
                             Text(
                               () {
-                                final (_, price, days) = _tiers[_tierIdx];
                                 final dur = _groupType == 'ongoing'
                                     ? l.durationMonth
-                                    : l.durationDays(days);
-                                return '$price ₪ / $dur';
+                                    : l.durationDays(effectiveDays);
+                                return '$effectivePrice ₪ / $dur';
                               }(),
                               style: const TextStyle(
                                   fontSize: 12,
@@ -605,11 +603,9 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
               const SizedBox(height: 32),
 
               GradientButton(
-                label: (_isFree && !limitReached)
+                label: isFreeEffective
                     ? l.createGroupFree
-                    : _isFree
-                        ? l.createGroupBtn
-                        : l.createGroupPaid(_selectedPrice),
+                    : l.createGroupPaid(effectivePrice),
                 onPressed: _loading ? null : () => _create(l),
                 isLoading: _loading,
               ),

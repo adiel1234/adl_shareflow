@@ -144,11 +144,11 @@ class PaymentScenarioLabels {
     SettlementRecord r, {
     required String currentUserId,
     required bool isAdmin,
-  }) =>
-      approveButtonLabel(
-        l,
-        r,
-        currentUserId: currentUserId,
-        isAdmin: isAdmin,
-      );
+  }) {
+    if (canAdminConfirmGuestReceipt(r, currentUserId, isAdmin)) {
+      return l.confirmGuestReceived;
+    }
+    // Creditor: ask "did you receive payment from {payer}?"
+    return l.confirmPaymentReceived(r.fromDisplayName);
+  }
 }

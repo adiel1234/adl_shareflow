@@ -640,7 +640,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String memberHasBalance(String name, String amount) {
-    return 'ל$name יש יתרה פתוחה של $amount — תישאר מוצגת עד להסדרה ידנית.';
+    return 'ל$name יש יתרה פתוחה של $amount - תישאר מוצגת עד להסדרה ידנית.';
   }
 
   @override
@@ -660,7 +660,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get removeMemberExplain =>
-      'ההוצאות הקיימות נשארות.\nאם יש חוב פתוח — ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.';
+      'ההוצאות הקיימות נשארות.\nאם יש חוב פתוח - ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.';
 
   @override
   String get remove => 'הסר';
@@ -691,7 +691,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String removeMemberBlockedCreditor(String name) {
-    return 'לא ניתן להסיר — יש חוב כלפי $name. יש לסגור את החוב לפני ההסרה.';
+    return 'לא ניתן להסיר - יש חוב כלפי $name. יש לסגור את החוב לפני ההסרה.';
   }
 
   @override
@@ -898,7 +898,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get booksImbalancedWarning =>
-      'החשבונות לא מאוזנים — ייתכן שחלוקת הוצאות ישנה שגויה. ערכו הוצאות ושמרו מחדש, או פנו למנהל.';
+      'החשבונות לא מאוזנים - ייתכן שחלוקת הוצאות ישנה שגויה. ערכו הוצאות ושמרו מחדש, או פנו למנהל.';
 
   @override
   String get sendSummary => '📤 שלח סיכום';
@@ -914,7 +914,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get shareWhatsAppSubtitle =>
-      'יפתח WhatsApp לכל משתתף — יש ללחוץ «שלח» בכל שיחה';
+      'יפתח WhatsApp לכל משתתף - יש ללחוץ «שלח» בכל שיחה';
 
   @override
   String reminderSent(String name) {
@@ -1080,7 +1080,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get copyAmount => 'העתק סכום';
 
   @override
-  String get amountCopied => 'הסכום הועתק — הדבק באפליקציית התשלום';
+  String get amountCopied => 'הסכום הועתק - הדבק באפליקציית התשלום';
 
   @override
   String get finishEventWizard => 'סיים אירוע';
@@ -1450,38 +1450,38 @@ class AppLocalizationsHe extends AppLocalizations {
   String get pendingCardTitleMixed => 'תשלומים בהמתנה';
 
   @override
-  String get transferHintMemberToMember => 'החייב מסמן «שילמתי» — המקבל מאשר';
+  String get transferHintMemberToMember => 'החייב מסמן «שילמתי» - המקבל מאשר';
 
   @override
-  String get transferHintMemberToGuest => 'החבר משלם — המנהל מאשר שהאורח קיבל';
+  String get transferHintMemberToGuest => 'החבר משלם - המנהל מאשר שהאורח קיבל';
 
   @override
   String get transferHintGuestToMember =>
-      'המנהל מאשר שהאורח שילם — החבר מאשר קבלה';
+      'המנהל מאשר שהאורח שילם - החבר מאשר קבלה';
 
   @override
   String get transferHintGuestToGuest => 'המנהל מאשר העברה וקבלה בפעולה אחת';
 
   @override
-  String get transferPendingBadge => 'ממתין לאישור — אין פעולה נוספת';
+  String get transferPendingBadge => 'ממתין לאישור - אין פעולה נוספת';
 
   @override
   String pendingHintMemberPaid(String debtor, String creditor) {
-    return '$debtor שילם ל-$creditor — ממתין לאישור';
+    return '$debtor שילם ל-$creditor - ממתין לאישור';
   }
 
   @override
   String get pendingHintMemberToGuestDebtor =>
-      'שילמת — ממתין לאישור מנהל שהאורח קיבל';
+      'שילמת - ממתין לאישור מנהל שהאורח קיבל';
 
   @override
   String pendingHintMemberToGuestAdmin(String guest) {
-    return 'החבר שילם — אשר שהאורח $guest קיבל';
+    return 'החבר שילם - אשר שהאורח $guest קיבל';
   }
 
   @override
   String get pendingHintGuestToMemberCreditor =>
-      'האורח שילם — אשר שקיבלת את הכסף';
+      'האורח שילם - אשר שקיבלת את הכסף';
 
   @override
   String pendingHintGuestToMemberWaiting(String member) {
@@ -1526,7 +1526,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get restoreGroupOptionReopenSubtitle =>
-      'פתיחה מחדש של אותה קבוצה — הוצאות, יתרות והיסטוריה נשמרים';
+      'פתיחה מחדש של אותה קבוצה - הוצאות, יתרות והיסטוריה נשמרים';
 
   @override
   String get restoreGroupOptionDuplicate =>
@@ -1610,7 +1610,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get guestExplainBody =>
-      'אורח הוא חבר שעדיין אין לו את האפליקציה.\n• הוא נכלל בחישוב ההוצאות כמו כל חבר אחר\n• המנהל מנהל את תשלומיו עד שיוריד את האפליקציה\n• ברגע שיוריד — המנהל מקשר אותו לחשבון שלו ומשם הוא פועל עצמאית';
+      'אורח הוא חבר שעדיין אין לו את האפליקציה.\n• הוא נכלל בחישוב ההוצאות כמו כל חבר אחר\n• המנהל מנהל את תשלומיו עד שיוריד את האפליקציה\n• ברגע שיוריד - המנהל מקשר אותו לחשבון שלו ומשם הוא פועל עצמאית';
 
   @override
   String get guestReminderTitle => 'אורחים ללא חשבון';
@@ -1652,7 +1652,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String removeGuestConfirm(String name) {
-    return 'האורח $name יוסר מרשימת החברים הפעילים.\nההוצאות הקיימות נשארות.\nאם יש חוב פתוח — ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.';
+    return 'האורח $name יוסר מרשימת החברים הפעילים.\nההוצאות הקיימות נשארות.\nאם יש חוב פתוח - ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.';
   }
 
   @override
@@ -1695,7 +1695,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get whatsappOpenHint =>
-      'יפתח WhatsApp — בחר איש קשר ולחץ שלח, ואז חזור לכאן';
+      'יפתח WhatsApp - בחר איש קשר ולחץ שלח, ואז חזור לכאן';
 
   @override
   String get shareOtherWay => 'שתף בדרך אחרת';
