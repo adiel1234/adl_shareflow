@@ -514,8 +514,10 @@
   "noDebtsBalanced": "All balanced - no debts",
   "markAsPaid": "Paid ✓",
   "paidDirectly": "I paid directly",
-  "confirmDirectPayment": "Did {name} confirm receiving the money?",
+  "confirmDirectPayment": "Are you confirming you paid {name} directly?",
   "@confirmDirectPayment": {"placeholders": {"name": {"type": "String"}}},
+  "confirmPaymentReceived": "Are you confirming you received payment from {name}?",
+  "@confirmPaymentReceived": {"placeholders": {"name": {"type": "String"}}},
   "waitingForConfirmation": "Waiting for {name}'s confirmation",
   "@waitingForConfirmation": {"placeholders": {"name": {"type": "String"}}},
   "confirmMarkDebtPaid": "Mark this debt as paid?",
@@ -559,6 +561,7 @@
   "rejectPayment": "Reject",
   "confirmGuestReceived": "Confirm guest received",
   "confirmGuestTransfer": "Confirm guest transfer",
+  "closeDebt": "Close debt",
   "markGuestPaidConfirmGuestToGuest": "Mark guest {from} paid {amount} {currency} to guest {to}?",
   "@markGuestPaidConfirmGuestToGuest": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
   "markGuestPaidConfirmGuestToMember": "Mark guest {from} paid {amount} {currency} to {to}? Recipient will confirm receipt.",
@@ -633,5 +636,6 @@
   "sendToAnotherWhatsApp": "Send to another via WhatsApp",
   "whatsappOpenHint": "Opens WhatsApp — select a contact and tap Send, then return here",
   "shareOtherWay": "Share another way",
-  "gotIt": "Got it"
+  "gotIt": "Got it",
+  "doneBtn": "Done adding guests"
 }

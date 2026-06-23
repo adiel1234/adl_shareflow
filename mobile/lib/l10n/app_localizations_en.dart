@@ -1377,7 +1377,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String confirmDirectPayment(String name) {
-    return 'Did $name confirm receiving the money?';
+    return 'Are you confirming you paid $name directly?';
+  }
+
+  @override
+  String confirmPaymentReceived(String name) {
+    return 'Are you confirming you received payment from $name?';
   }
 
   @override
@@ -1505,6 +1510,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmGuestTransfer => 'Confirm guest transfer';
+
+  @override
+  String get closeDebt => 'Close debt';
 
   @override
   String markGuestPaidConfirmGuestToGuest(
@@ -1706,4 +1714,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gotIt => 'Got it';
+
+  @override
+  String get doneBtn => 'Done adding guests';
 }

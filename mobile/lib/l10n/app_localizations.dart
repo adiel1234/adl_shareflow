@@ -2633,8 +2633,14 @@ abstract class AppLocalizations {
   /// No description provided for @confirmDirectPayment.
   ///
   /// In he, this message translates to:
-  /// **'האם {name} אישר שקיבל את הכסף?'**
+  /// **'האם אתה מאשר ששלמת ל{name} ישירות?'**
   String confirmDirectPayment(String name);
+
+  /// No description provided for @confirmPaymentReceived.
+  ///
+  /// In he, this message translates to:
+  /// **'האם אתה מאשר שקיבלת את התשלום מ{name}?'**
+  String confirmPaymentReceived(String name);
 
   /// No description provided for @waitingForConfirmation.
   ///
@@ -2835,6 +2841,12 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'אשר העברת אורח'**
   String get confirmGuestTransfer;
+
+  /// No description provided for @closeDebt.
+  ///
+  /// In he, this message translates to:
+  /// **'סגור חוב'**
+  String get closeDebt;
 
   /// No description provided for @markGuestPaidConfirmGuestToGuest.
   ///
@@ -3167,6 +3179,12 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'הבנתי'**
   String get gotIt;
+
+  /// No description provided for @doneBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'סיים הוספת אורחים'**
+  String get doneBtn;
 }
 
 class _AppLocalizationsDelegate

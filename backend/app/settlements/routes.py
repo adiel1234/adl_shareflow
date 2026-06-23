@@ -7,7 +7,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models import Settlement, GroupMember, Group
 from app.common.errors import success_response, error_response
-from app.common.decorators import require_group_member, require_group_admin, require_group_operational
+from app.common.decorators import require_group_member, require_group_admin
 from app.common.utils import to_decimal
 
 settlements_bp = Blueprint('settlements', __name__)
@@ -16,7 +16,6 @@ settlements_bp = Blueprint('settlements', __name__)
 @settlements_bp.post('/groups/<group_id>/settlements')
 @jwt_required()
 @require_group_member
-@require_group_operational
 def create_settlement(group_id, **kwargs):
     user_id = get_jwt_identity()
     data = request.get_json(silent=True) or {}

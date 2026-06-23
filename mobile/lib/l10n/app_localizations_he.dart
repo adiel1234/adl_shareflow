@@ -1370,7 +1370,12 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String confirmDirectPayment(String name) {
-    return 'האם $name אישר שקיבל את הכסף?';
+    return 'האם אתה מאשר ששלמת ל$name ישירות?';
+  }
+
+  @override
+  String confirmPaymentReceived(String name) {
+    return 'האם אתה מאשר שקיבלת את התשלום מ$name?';
   }
 
   @override
@@ -1494,6 +1499,9 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get confirmGuestTransfer => 'אשר העברת אורח';
+
+  @override
+  String get closeDebt => 'סגור חוב';
 
   @override
   String markGuestPaidConfirmGuestToGuest(
@@ -1694,4 +1702,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get gotIt => 'הבנתי';
+
+  @override
+  String get doneBtn => 'סיים הוספת אורחים';
 }

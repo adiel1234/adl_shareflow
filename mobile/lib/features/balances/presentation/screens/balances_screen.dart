@@ -37,8 +37,30 @@ class BalancesScreen extends ConsumerStatefulWidget {
   ConsumerState<BalancesScreen> createState() => _BalancesScreenState();
 }
 
-class _BalancesScreenState extends ConsumerState<BalancesScreen> {
+class _BalancesScreenState extends ConsumerState<BalancesScreen>
+    with WidgetsBindingObserver {
   bool _settling = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Auto-refresh pending settlements when app returns to foreground.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      ref.invalidate(pendingSettlementsProvider(widget.group.id));
+      ref.invalidate(settlementPlanProvider(widget.group.id));
+    }
+  }
 
   Future<void> _settlePeriod() async {
     final l = AppLocalizations.of(context)!;
@@ -1056,25 +1078,31 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          GestureDetector(
-                            onTap: () => _markGuestPaid(context, s),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.purple,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                AppLocalizations.of(context)!.confirmGuestTransfer,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 12,
+                          Builder(builder: (ctx) {
+                            final dl = AppLocalizations.of(ctx)!;
+                            final label = scenario == PaymentScenario.guestToGuest
+                                ? dl.closeDebt
+                                : dl.confirmGuestTransfer;
+                            return GestureDetector(
+                              onTap: () => _markGuestPaid(context, s),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.purple,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  label,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
+                            );
+                          }),
                         ],
                         if (!showDebtorActions &&
                             !showAdminGuestAction &&

@@ -514,8 +514,10 @@
   "noDebtsBalanced": "כל החשבונות מאוזנים - אין חובות",
   "markAsPaid": "שולם ✓",
   "paidDirectly": "שילמתי ישירות",
-  "confirmDirectPayment": "האם {name} אישר שקיבל את הכסף?",
+  "confirmDirectPayment": "האם אתה מאשר ששלמת ל{name} ישירות?",
   "@confirmDirectPayment": {"placeholders": {"name": {"type": "String"}}},
+  "confirmPaymentReceived": "האם אתה מאשר שקיבלת את התשלום מ{name}?",
+  "@confirmPaymentReceived": {"placeholders": {"name": {"type": "String"}}},
   "waitingForConfirmation": "ממתין לאישור {name}",
   "@waitingForConfirmation": {"placeholders": {"name": {"type": "String"}}},
   "confirmMarkDebtPaid": "לסמן שחוב זה שולם?",
@@ -559,6 +561,7 @@
   "rejectPayment": "דחה",
   "confirmGuestReceived": "אשר קבלה לאורח",
   "confirmGuestTransfer": "אשר העברת אורח",
+  "closeDebt": "סגור חוב",
   "markGuestPaidConfirmGuestToGuest": "סמן שהאורח {from} שילם {amount} {currency} לאורח {to}?",
   "@markGuestPaidConfirmGuestToGuest": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
   "markGuestPaidConfirmGuestToMember": "סמן שהאורח {from} שילם {amount} {currency} ל-{to}? המקבל יאשר קבלה.",
@@ -633,5 +636,6 @@
   "sendToAnotherWhatsApp": "שלח לאדם נוסף ב-WhatsApp",
   "whatsappOpenHint": "יפתח WhatsApp — בחר איש קשר ולחץ שלח, ואז חזור לכאן",
   "shareOtherWay": "שתף בדרך אחרת",
-  "gotIt": "הבנתי"
+  "gotIt": "הבנתי",
+  "doneBtn": "סיים הוספת אורחים"
 }
