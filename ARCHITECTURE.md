@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 23 יוני 2026 — הוספת `GET /api/groups/quota` (מכסת קבוצות חינמיות), תמיכה בהוספת מספר אורחים בבת אחת, תיקון גלילה בחלון הוספת אורח
+> עודכן לאחרונה: 24 יוני 2026 — גרסה 1.0.9+49: תיקון תהליכי סגירת חוב (4 תרחישים: חבר-חבר, חבר-אורח, אורח-חבר, אורח-אורח); תיקון כפתור אישור מנהל בתרחיש memberToGuest; שיפור קישורי הזמנה (fallback דף הורדה גם בדפדפן WhatsApp); APK v1.0.9 ב-GitHub Releases
 
 ---
 
@@ -320,7 +320,7 @@ flutter build apk --release
 flutter install --release
 ```
 
-**APK נוכחי (גרסה 1.0.5+37):**
+**APK נוכחי (גרסה 1.0.9+49):**
 - קישור: `APK_DOWNLOAD_URL` ב-Railway (מזהה Google Drive); משתמשים מקבלים `GET /download/apk` (proxy) כדי לעקוף דף אזהרת virus-scan של Drive
 - **למשתמשי פיילוט:** הורדה דרך המדריך בלבד — `https://adlshareflow-production.up.railway.app/pilot` (לא `/download`)
 
