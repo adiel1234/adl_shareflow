@@ -18,8 +18,9 @@ import os
 import requests
 from flask import Blueprint, jsonify, request
 
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 from app import db
-from app.auth.middleware import token_required
 from app.models import FeatureFlag
 
 logger = logging.getLogger(__name__)
@@ -158,8 +159,8 @@ def validate_iap_receipt(receipt_data: str, platform: str, product_id: str) -> d
 # ---------------------------------------------------------------------------
 
 @iap_bp.get('/status')
-@token_required
-def iap_status(current_user):
+@jwt_required()
+def iap_status():
     """Returns IAP configuration status for debugging."""
     has_apple = bool(os.environ.get('APPLE_SHARED_SECRET'))
     has_google = bool(os.environ.get('GOOGLE_PLAY_CREDENTIALS_JSON'))
