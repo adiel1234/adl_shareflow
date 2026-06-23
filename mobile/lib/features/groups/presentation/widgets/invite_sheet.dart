@@ -87,14 +87,37 @@ class InviteSheet extends StatefulWidget {
 class _InviteSheetState extends State<InviteSheet> {
   final _emailController = TextEditingController();
   final _guestNameController = TextEditingController();
+  final _guestFocus = FocusNode();
+  final _scrollCtrl = ScrollController();
   bool _sendingEmail = false;
   bool _addingGuest = false;
   int _invitedCount = 0;
+  final _addedGuests = <String>[];
+
+  @override
+  void initState() {
+    super.initState();
+    _guestFocus.addListener(() {
+      if (_guestFocus.hasFocus) {
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (_scrollCtrl.hasClients) {
+            _scrollCtrl.animateTo(
+              _scrollCtrl.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _guestNameController.dispose();
+    _guestFocus.dispose();
+    _scrollCtrl.dispose();
     super.dispose();
   }
 
@@ -127,13 +150,11 @@ class _InviteSheetState extends State<InviteSheet> {
       );
       widget.onGuestAdded?.call();
       if (mounted) {
-        _guestNameController.clear();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  AppLocalizations.of(context)!.guestAddedSuccess)),
-        );
-        Navigator.of(context).pop();
+        setState(() {
+          _addedGuests.add(name);
+          _guestNameController.clear();
+        });
+        _guestFocus.requestFocus();
       }
     } catch (e) {
       if (mounted) {
@@ -191,6 +212,7 @@ class _InviteSheetState extends State<InviteSheet> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     return SingleChildScrollView(
+      controller: _scrollCtrl,
       padding: EdgeInsets.only(
         left: 24,
         right: 24,
@@ -503,12 +525,31 @@ class _InviteSheetState extends State<InviteSheet> {
                 ],
               ),
             ),
+            // Added guests list
+            if (_addedGuests.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              ..._addedGuests.map((name) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 3),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle_outline,
+                            size: 16, color: Colors.green),
+                        const SizedBox(width: 8),
+                        Text(name,
+                            style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary)),
+                      ],
+                    ),
+                  )),
+            ],
             const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _guestNameController,
+                    focusNode: _guestFocus,
                     textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
                       hintText: l.addGuestHint,

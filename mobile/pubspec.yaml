@@ -1,7 +1,7 @@
 name: adl_shareflow
 description: ADL ShareFlow — Split expenses with your group
 publish_to: 'none'
-version: 1.0.7+46
+version: 1.0.8+47
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
