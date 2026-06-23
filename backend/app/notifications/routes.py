@@ -77,10 +77,6 @@ def firebase_status():
     from app.notifications import fcm_service
     import os, json
 
-    # Force reset so we can retry init fresh
-    fcm_service._firebase_initialized = False
-    fcm_service._firebase_app = None
-
     creds_json_raw = os.getenv('FIREBASE_CREDENTIALS_JSON', '')
     creds_path = os.getenv('FIREBASE_CREDENTIALS_PATH', '')
 

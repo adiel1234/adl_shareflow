@@ -59,8 +59,16 @@ def _get_app():
             logger.info('Firebase credentials not configured — push notifications disabled')
             return None
 
-        _firebase_app = firebase_admin.initialize_app(cred)
-        logger.info('Firebase initialized successfully')
+        try:
+            _firebase_app = firebase_admin.initialize_app(cred)
+            logger.info('Firebase initialized successfully')
+        except ValueError as e:
+            if 'already exists' in str(e):
+                # App was already initialized (e.g. by another call); reuse it.
+                _firebase_app = firebase_admin.get_app()
+                logger.info('Firebase app reused (already initialized)')
+            else:
+                raise
     except Exception as e:
         logger.warning(f'Firebase initialization failed: {e}')
     return _firebase_app

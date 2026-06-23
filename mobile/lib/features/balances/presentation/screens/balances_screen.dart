@@ -1379,8 +1379,7 @@ class _PendingSettlementsCard extends ConsumerWidget {
                         ),
                       ],
                     )
-                  else if (canCreditorApprove &&
-                      scenario != PaymentScenario.memberToGuest)
+                  else if (canCreditorApprove)
                     Row(
                       children: [
                         Expanded(
