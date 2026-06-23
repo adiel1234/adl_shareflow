@@ -459,8 +459,19 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
     );
     if (confirmed != true || !mounted) return;
 
+    await _doDeleteGroup(context, group, force: false);
+  }
+
+  Future<void> _doDeleteGroup(
+    BuildContext context,
+    Group group, {
+    required bool force,
+  }) async {
+    final l = AppLocalizations.of(context)!;
     try {
-      await ref.read(groupRepositoryProvider).deleteGroup(group.id);
+      await ref
+          .read(groupRepositoryProvider)
+          .deleteGroup(group.id, force: force);
       if (!mounted) return;
       ref.invalidate(groupsProvider);
       Navigator.pop(context);
@@ -470,14 +481,44 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
     } catch (e) {
       if (!mounted) return;
       String msg = l.errorDeletingGroup;
+      int? statusCode;
       if (e is DioException) {
+        statusCode = e.response?.statusCode;
         msg = (e.response?.data?['message'] as String?) ?? msg;
+      }
+      if (statusCode == 409) {
+        // Open debts exist — ask admin to force-confirm
+        final forceConfirmed = await showDialog<bool>(
+          context: context,
+          builder: (ctx) {
+            return AlertDialog(
+              title: const Text('קיימים חובות פתוחים',
+                  style: TextStyle(color: Color(0xFFEF4444))),
+              content: Text(msg),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(ctx, false),
+                    child: Text(AppLocalizations.of(ctx)!.cancel)),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEF4444),
+                      foregroundColor: Colors.white),
+                  child: const Text('מחק בכל זאת'),
+                ),
+              ],
+            );
+          },
+        );
+        if (forceConfirmed == true && mounted) {
+          await _doDeleteGroup(context, group, force: true);
+        }
+        return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(msg),
           duration: const Duration(seconds: 5),
-          backgroundColor: msg.contains('חייב') ? const Color(0xFFEF4444) : null,
         ),
       );
     }

@@ -1249,7 +1249,7 @@ class _PendingSettlementsCard extends ConsumerWidget {
     );
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFBEB),
         borderRadius: BorderRadius.circular(16),
@@ -1338,9 +1338,11 @@ class _PendingSettlementsCard extends ConsumerWidget {
                         fontSize: 12, color: Color(0xFFB45309)),
                   ),
                   const SizedBox(height: 8),
-                  if (canAdminGuest)
-                    // Admin confirms that guest creditor received payment.
-                    // Checked first so admin+debtor always sees this button.
+                  if (isAdmin &&
+                      scenario == PaymentScenario.memberToGuest)
+                    // Admin confirms on behalf of guest creditor.
+                    // Condition uses the already-detected scenario so it always
+                    // matches when the "תשלום לאורח" label is visible.
                     Row(
                       children: [
                         Expanded(
@@ -1355,22 +1357,30 @@ class _PendingSettlementsCard extends ConsumerWidget {
                             icon: const Icon(Icons.check, size: 16),
                             label: Text(l.confirmGuestReceived),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.purple,
+                              backgroundColor: const Color(0xFF7C3AED),
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              minimumSize: const Size(0, 40),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6, horizontal: 12),
                               textStyle: const TextStyle(fontSize: 13),
                             ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(0, 40),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 6, horizontal: 12),
+                          ),
                           onPressed: () => _cancel(context, ref, r),
                           child: Text(l.cancel,
                               style: const TextStyle(fontSize: 13)),
                         ),
                       ],
                     )
-                  else if (canCreditorApprove)
+                  else if (canCreditorApprove &&
+                      scenario != PaymentScenario.memberToGuest)
                     Row(
                       children: [
                         Expanded(

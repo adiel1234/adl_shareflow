@@ -9,7 +9,17 @@ class GroupRepository {
   Future<List<Group>> fetchGroups() async {
     final response = await _api.get('/groups');
     final list = response.data['data'] as List<dynamic>;
-    return list.map((j) => Group.fromJson(j as Map<String, dynamic>)).toList();
+    final groups = list.map((j) => Group.fromJson(j as Map<String, dynamic>)).toList();
+    // Sort: newest groups first
+    groups.sort((a, b) {
+      final aDate = a.createdAt;
+      final bDate = b.createdAt;
+      if (aDate == null && bDate == null) return 0;
+      if (aDate == null) return 1;
+      if (bDate == null) return -1;
+      return bDate.compareTo(aDate);
+    });
+    return groups;
   }
 
   Future<Group> fetchGroup(String groupId) async {
@@ -116,8 +126,10 @@ class GroupRepository {
   }
 
   /// Permanently deletes a group (admin only).
-  Future<void> deleteGroup(String groupId) async {
-    await _api.delete('/groups/$groupId');
+  /// Pass [force] = true to delete even when open debts exist.
+  Future<void> deleteGroup(String groupId, {bool force = false}) async {
+    await _api.delete('/groups/$groupId',
+        data: force ? {'force': true} : null);
   }
 
   /// Reopen a closed group — same group with all data restored.

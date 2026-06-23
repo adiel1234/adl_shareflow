@@ -182,21 +182,29 @@ def get_group(group_id, **kwargs):
 @jwt_required()
 @require_group_admin
 def delete_group(group_id, **kwargs):
-    """Delete a group permanently (admin only). All data is cascade-deleted."""
+    """Delete a group permanently (admin only). All data is cascade-deleted.
+
+    If there are open debts and force=true is not provided, returns a 409 with
+    debt details so the client can show a force-confirm dialog.
+    With force=true the admin acknowledges and the group is deleted regardless.
+    """
     group = db.session.get(Group, group_id)
     if not group or not group.is_active:
         return error_response('Group not found', 404)
 
-    # Block deletion if any member has an outstanding balance
+    data = request.get_json(silent=True) or {}
+    force = data.get('force', False) or request.args.get('force') == 'true'
+
     from app.balances.engine import calculate_group_balances
     balances = calculate_group_balances(group_id)
     debtors = [b for b in balances if b.net_amount < -Decimal('0.01')]
-    if debtors:
+    if debtors and not force:
         names = ', '.join(b.display_name for b in debtors)
         return error_response(
-            f'לא ניתן למחוק קבוצה כאשר קיימים חובות פתוחים. '
-            f'החברים הבאים עדיין חייבים כסף: {names}',
-            400,
+            f'קיימים חובות פתוחים בקבוצה. '
+            f'החברים הבאים עדיין חייבים כסף: {names}. '
+            f'האם למחוק בכל זאת?',
+            409,
         )
 
     db.session.delete(group)
