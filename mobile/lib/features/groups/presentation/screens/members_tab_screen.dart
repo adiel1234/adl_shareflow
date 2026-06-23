@@ -712,7 +712,25 @@ Future<void> _showAddGuestSheet(
   }
 
   final nameCtrl = TextEditingController();
+  final nameFocus = FocusNode();
+  final scrollCtrl = ScrollController();
   var loading = false;
+  final addedGuests = <String>[];
+
+  // Scroll to bottom when keyboard appears so the field stays visible
+  nameFocus.addListener(() {
+    if (nameFocus.hasFocus) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (scrollCtrl.hasClients) {
+          scrollCtrl.animateTo(
+            scrollCtrl.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  });
 
   await showModalBottomSheet<void>(
     context: context,
@@ -721,7 +739,8 @@ Future<void> _showAddGuestSheet(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     builder: (ctx) => StatefulBuilder(
-      builder: (ctx, setSheetState) => Padding(
+      builder: (ctx, setSheetState) => SingleChildScrollView(
+        controller: scrollCtrl,
         padding: EdgeInsets.only(
           left: 20,
           right: 20,
@@ -739,9 +758,29 @@ Future<void> _showAddGuestSheet(
             Text(l.guestNoApp,
                 style: const TextStyle(
                     fontSize: 13, color: AppColors.textSecondary, height: 1.4)),
+            // Added guests list
+            if (addedGuests.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              ...addedGuests.map((name) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 3),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle_outline,
+                            size: 16, color: Colors.green),
+                        const SizedBox(width: 8),
+                        Text(name,
+                            style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.textSecondary)),
+                      ],
+                    ),
+                  )),
+            ],
             const SizedBox(height: 14),
             TextField(
               controller: nameCtrl,
+              focusNode: nameFocus,
+              autofocus: true,
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
                 hintText: l.addGuestHint,
@@ -773,11 +812,22 @@ Future<void> _showAddGuestSheet(
                         ref.invalidate(expensesProvider(group.id));
                         ref.invalidate(groupDetailProvider(group.id));
                         ref.invalidate(groupsProvider);
-                        if (ctx.mounted) Navigator.pop(ctx);
-                      } catch (_) {
                         if (ctx.mounted) {
+                          setSheetState(() {
+                            addedGuests.add(name);
+                            nameCtrl.clear();
+                          });
+                          // Keep focus on the field for quick multi-add
+                          nameFocus.requestFocus();
+                        }
+                      } catch (e) {
+                        if (ctx.mounted) {
+                          final msg = e is DioException
+                              ? (e.response?.data?['message'] as String?) ??
+                                  l.errorAddingGuest
+                              : l.errorAddingGuest;
                           ScaffoldMessenger.of(ctx).showSnackBar(
-                            const SnackBar(content: Text('שגיאה בהוספת אורח')),
+                            SnackBar(content: Text(msg)),
                           );
                         }
                       } finally {
@@ -792,12 +842,19 @@ Future<void> _showAddGuestSheet(
                     )
                   : Text(l.addGuestTitle),
             ),
+            const SizedBox(height: 10),
+            OutlinedButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l.notifClose),
+            ),
           ],
         ),
       ),
     ),
   );
   nameCtrl.dispose();
+  nameFocus.dispose();
+  scrollCtrl.dispose();
 }
 
 class _GuestSplitOptionButton extends StatelessWidget {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/groups_provider.dart';
+import '../../../../providers/quota_provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/app_button.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -188,6 +189,19 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
+    final quotaAsync = ref.watch(groupQuotaProvider);
+    final limitReached = quotaAsync.maybeWhen(
+      data: (q) => q.limitReached,
+      orElse: () => false,
+    );
+
+    // If the free tier is selected but quota is exhausted, shift to first paid tier
+    if (limitReached && _groupType == 'event' && _tierIdx == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _tierIdx = 1);
+      });
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -272,6 +286,8 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                   final (maxP, price, days) = _tiers[i];
                   final selected = _tierIdx == i;
                   final isFree = price == 0;
+                  // Hide the free tier when the quota is exhausted
+                  if (isFree && limitReached) return const SizedBox.shrink();
                   final label = isFree
                       ? l.freeTierLabel
                       : maxP == 999
@@ -589,9 +605,11 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
               const SizedBox(height: 32),
 
               GradientButton(
-                label: _isFree
+                label: (_isFree && !limitReached)
                     ? l.createGroupFree
-                    : l.createGroupPaid(_selectedPrice),
+                    : _isFree
+                        ? l.createGroupBtn
+                        : l.createGroupPaid(_selectedPrice),
                 onPressed: _loading ? null : () => _create(l),
                 isLoading: _loading,
               ),

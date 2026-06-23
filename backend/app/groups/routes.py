@@ -71,6 +71,19 @@ def list_groups():
 FREE_GROUP_LIMIT = 3
 
 
+@groups_bp.get('/quota')
+@jwt_required()
+def get_quota():
+    """Return how many groups the user has created vs the free limit."""
+    user_id = get_jwt_identity()
+    total_created = Group.query.filter_by(created_by=user_id).count()
+    return success_response(data={
+        'groups_created': total_created,
+        'free_limit': FREE_GROUP_LIMIT,
+        'limit_reached': total_created >= FREE_GROUP_LIMIT,
+    })
+
+
 @groups_bp.post('')
 @jwt_required()
 def create_group():

@@ -464,6 +464,7 @@
   "freeTierLabel": "חינם - עד 7 חברים",
   "freeIncluded": "חינמי: עד 7 חברים ו-7 ימים",
   "createGroupFree": "צור קבוצה - חינם",
+  "createGroupBtn": "צור קבוצה",
   "createGroupPaid": "צור קבוצה - {price} ₪",
   "@createGroupPaid": {"placeholders": {"price": {"type": "int"}}},
   "durationDays": "{days} ימים",

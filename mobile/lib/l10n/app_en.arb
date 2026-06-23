@@ -464,6 +464,7 @@
   "freeTierLabel": "Free - up to 7 members",
   "freeIncluded": "Free: up to 7 members & 7 days",
   "createGroupFree": "Create Group - Free",
+  "createGroupBtn": "Create Group",
   "createGroupPaid": "Create Group - ₪{price}",
   "@createGroupPaid": {"placeholders": {"price": {"type": "int"}}},
   "durationDays": "{days} days",
