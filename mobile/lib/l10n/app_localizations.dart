@@ -1664,6 +1664,60 @@ abstract class AppLocalizations {
   /// **'או'**
   String get orDivider;
 
+  /// No description provided for @rememberMe.
+  ///
+  /// In he, this message translates to:
+  /// **'זכור את פרטי ההתחברות'**
+  String get rememberMe;
+
+  /// No description provided for @rememberMeSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'בפעם הבאה נציע למלא את האימייל והסיסמה שלך'**
+  String get rememberMeSubtitle;
+
+  /// No description provided for @useSavedCredentialsTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'להשלים התחברות?'**
+  String get useSavedCredentialsTitle;
+
+  /// No description provided for @useSavedCredentialsBody.
+  ///
+  /// In he, this message translates to:
+  /// **'נמצאו פרטי התחברות שמורים עבור {email}. למלא אותם?'**
+  String useSavedCredentialsBody(String email);
+
+  /// No description provided for @useSavedCredentialsYes.
+  ///
+  /// In he, this message translates to:
+  /// **'כן, מלא פרטים'**
+  String get useSavedCredentialsYes;
+
+  /// No description provided for @useSavedCredentialsNo.
+  ///
+  /// In he, this message translates to:
+  /// **'לא תודה'**
+  String get useSavedCredentialsNo;
+
+  /// No description provided for @sessionExpiredSnack.
+  ///
+  /// In he, this message translates to:
+  /// **'החיבור הסתיים. ניתן להשלים התחברות עם הפרטים השמורים.'**
+  String get sessionExpiredSnack;
+
+  /// No description provided for @whatsappRemindersComingSoon.
+  ///
+  /// In he, this message translates to:
+  /// **'שליחה אוטומטית ב-WhatsApp תתווסף בגרסה הבאה'**
+  String get whatsappRemindersComingSoon;
+
+  /// No description provided for @whatsappDeviceReminders.
+  ///
+  /// In he, this message translates to:
+  /// **'תזכורות ידניות ייפתחו ב-WhatsApp במכשיר שלך (ממסך היתרות / סיכום)'**
+  String get whatsappDeviceReminders;
+
   /// No description provided for @fullName.
   ///
   /// In he, this message translates to:

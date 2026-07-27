@@ -56,11 +56,9 @@ $inviteUrl
     return digits;
   }
 
-  /// פותח שיחת WhatsApp לנמען ספציפי עם טקסט מוכן.
+  /// פותח שיחת WhatsApp לנמען ספציפי עם טקסט מוכן (במכשיר המשתמש).
   ///
-  /// מגבלה: WhatsApp לא מאפשר שליחת הודעות פרטיות בשקט מרובות משתמשי אפליקציה
-  /// רגילה. ללא WhatsApp Business API, כל נמען דורש פתיחת wa.me והקשה על «שלח»
-  /// בתוך WhatsApp.
+  /// מגבלה: כל נמען דורש פתיחת WhatsApp ולחיצה על «שלח».
   static Future<bool> openWhatsAppToPhone({
     required String phone,
     required String text,
@@ -68,11 +66,30 @@ $inviteUrl
     final normalized = normalizePhoneForWaMe(phone);
     if (normalized == null) return false;
     final encoded = Uri.encodeComponent(text);
-    final waUrl = Uri.parse('https://wa.me/$normalized?text=$encoded');
-    if (await canLaunchUrl(waUrl)) {
-      return launchUrl(waUrl, mode: LaunchMode.externalApplication);
+
+    final waAppUrl =
+        Uri.parse('whatsapp://send?phone=$normalized&text=$encoded');
+    if (await canLaunchUrl(waAppUrl)) {
+      return launchUrl(waAppUrl, mode: LaunchMode.externalApplication);
+    }
+
+    final waWebUrl = Uri.parse('https://wa.me/$normalized?text=$encoded');
+    if (await canLaunchUrl(waWebUrl)) {
+      return launchUrl(waWebUrl, mode: LaunchMode.externalApplication);
     }
     return false;
+  }
+
+  /// תזכורת חוב: אם יש טלפון — פותח שיחה ישירה; אחרת בוחרים איש קשר.
+  static Future<void> shareDebtReminder({
+    required String text,
+    String? phone,
+  }) async {
+    if (phone != null && phone.trim().isNotEmpty) {
+      final opened = await openWhatsAppToPhone(phone: phone, text: text);
+      if (opened) return;
+    }
+    await shareViaWhatsApp(text);
   }
 
   /// שיתוף סיכום יתרות קבוצה

@@ -314,6 +314,20 @@
   "wrongCredentials": "Incorrect email or password",
   "loginError": "Login error, please try again",
   "orDivider": "or",
+  "rememberMe": "Remember my login details",
+  "rememberMeSubtitle": "Next time we will offer to fill in your email and password",
+  "useSavedCredentialsTitle": "Continue with saved login?",
+  "useSavedCredentialsBody": "Saved credentials were found for {email}. Fill them in?",
+  "@useSavedCredentialsBody": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "useSavedCredentialsYes": "Yes, fill in",
+  "useSavedCredentialsNo": "No thanks",
+  "sessionExpiredSnack": "Session ended. You can continue with your saved login details.",
+  "whatsappRemindersComingSoon": "Automatic WhatsApp sending will be added in a later version",
+  "whatsappDeviceReminders": "Manual reminders open WhatsApp on your device (from balances / summary)",
 
   "fullName": "Full Name",
   "createAccount": "Create a new account",

@@ -7,6 +7,8 @@ import '../storage/secure_storage.dart';
 typedef VoidCallback = void Function();
 typedef MessageCallback = void Function(String message);
 
+enum RefreshResult { success, invalid, networkError }
+
 class ApiClient {
   static ApiClient? _instance;
   late final Dio _dio;
@@ -54,10 +56,43 @@ class ApiClient {
 
   Future<Response> postFormData(String path, FormData formData) =>
       _dio.post(path, data: formData);
+
+  /// Attempts to refresh the access token. Used by auth init and interceptor.
+  static Future<RefreshResult> tryRefreshToken() async {
+    final refreshToken =
+        await AppSecureStorage.read(AppConstants.refreshTokenKey);
+    if (refreshToken == null) return RefreshResult.invalid;
+
+    try {
+      final plainDio = Dio(BaseOptions(
+        baseUrl: AppConfig.apiBaseUrl,
+        connectTimeout: AppConstants.connectionTimeout,
+        receiveTimeout: AppConstants.receiveTimeout,
+        headers: {'Content-Type': 'application/json'},
+      ));
+      final response = await plainDio.post('/auth/refresh', data: {
+        'refresh_token': refreshToken,
+      });
+      final newToken = response.data['data']['access_token'] as String?;
+      if (newToken == null || newToken.isEmpty) return RefreshResult.invalid;
+      await AppSecureStorage.write(AppConstants.accessTokenKey, newToken);
+      return RefreshResult.success;
+    } on DioException catch (e) {
+      final status = e.response?.statusCode ?? 0;
+      if (status == 401 || status == 403) {
+        await AppSecureStorage.clearSessionTokens();
+        return RefreshResult.invalid;
+      }
+      return RefreshResult.networkError;
+    } catch (_) {
+      return RefreshResult.networkError;
+    }
+  }
 }
 
 class _AuthInterceptor extends Interceptor {
   final Dio _dio;
+  bool _refreshing = false;
 
   _AuthInterceptor(this._dio);
 
@@ -89,18 +124,26 @@ class _AuthInterceptor extends Interceptor {
           await AppSecureStorage.read(AppConstants.refreshTokenKey);
       final hadSession = hadAuth || refreshToken != null;
 
-      if (hadSession) {
-        final refreshed = await _tryRefresh();
-        if (refreshed) {
-          final token = await AppSecureStorage.read(AppConstants.accessTokenKey);
+      if (hadSession && !_refreshing) {
+        _refreshing = true;
+        final result = await ApiClient.tryRefreshToken();
+        _refreshing = false;
+
+        if (result == RefreshResult.success) {
+          final token =
+              await AppSecureStorage.read(AppConstants.accessTokenKey);
           err.requestOptions.headers['Authorization'] = 'Bearer $token';
           try {
             final response = await _dio.fetch(err.requestOptions);
             handler.resolve(response);
             return;
           } catch (_) {}
+        } else if (result == RefreshResult.invalid) {
+          // Only hard-logout when the refresh token itself is rejected.
+          ApiClient.onSessionExpired?.call();
         }
-        // Refresh failed — session expired
+        // networkError → do not logout; let the original error bubble up.
+      } else if (hadSession && refreshToken == null) {
         ApiClient.onSessionExpired?.call();
       }
     } else if (statusCode >= 500) {
@@ -110,34 +153,5 @@ class _AuthInterceptor extends Interceptor {
     }
 
     handler.next(err);
-  }
-
-  Future<bool> _tryRefresh() async {
-    final refreshToken = await AppSecureStorage.read(AppConstants.refreshTokenKey);
-    if (refreshToken == null) return false;
-
-    try {
-      // Use a plain Dio without interceptors to avoid infinite retry loop
-      final plainDio = Dio(BaseOptions(
-        baseUrl: _dio.options.baseUrl,
-        connectTimeout: _dio.options.connectTimeout,
-        receiveTimeout: _dio.options.receiveTimeout,
-        headers: {'Content-Type': 'application/json'},
-      ));
-      final response = await plainDio.post('/auth/refresh', data: {
-        'refresh_token': refreshToken,
-      });
-      final newToken = response.data['data']['access_token'];
-      await AppSecureStorage.write(AppConstants.accessTokenKey, newToken);
-      return true;
-    } on DioException catch (e) {
-      final status = e.response?.statusCode ?? 0;
-      if (status == 401 || status == 403) {
-        await AppSecureStorage.deleteAll();
-      }
-      return false;
-    } catch (_) {
-      return false;
-    }
   }
 }

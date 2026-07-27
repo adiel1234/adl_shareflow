@@ -849,6 +849,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orDivider => 'or';
 
   @override
+  String get rememberMe => 'Remember my login details';
+
+  @override
+  String get rememberMeSubtitle =>
+      'Next time we will offer to fill in your email and password';
+
+  @override
+  String get useSavedCredentialsTitle => 'Continue with saved login?';
+
+  @override
+  String useSavedCredentialsBody(String email) {
+    return 'Saved credentials were found for $email. Fill them in?';
+  }
+
+  @override
+  String get useSavedCredentialsYes => 'Yes, fill in';
+
+  @override
+  String get useSavedCredentialsNo => 'No thanks';
+
+  @override
+  String get sessionExpiredSnack =>
+      'Session ended. You can continue with your saved login details.';
+
+  @override
+  String get whatsappRemindersComingSoon =>
+      'Automatic WhatsApp sending will be added in a later version';
+
+  @override
+  String get whatsappDeviceReminders =>
+      'Manual reminders open WhatsApp on your device (from balances / summary)';
+
+  @override
   String get fullName => 'Full Name';
 
   @override

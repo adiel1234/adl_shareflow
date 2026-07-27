@@ -12,6 +12,7 @@ import '../../domain/balance_model.dart';
 import '../../data/balance_repository.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../services/share_service.dart';
 
 class EventSummaryScreen extends ConsumerStatefulWidget {
   final Group group;
@@ -27,6 +28,8 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
   bool _closing = false;
   int _wizardStep = 0;
   Map<String, dynamic>? _summary;
+  String? _whatsappText;
+  bool _sharingWa = false;
   String? _error;
 
   @override
@@ -60,6 +63,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
       if (!mounted) return;
       setState(() {
         _summary = (data['summary'] as Map<String, dynamic>?) ?? data;
+        _whatsappText = data['whatsapp_text'] as String?;
       });
     } on DioException catch (e) {
       if (mounted) {
@@ -103,6 +107,118 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
       }
     } finally {
       if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  Future<void> _shareWhatsApp() async {
+    final l = AppLocalizations.of(context)!;
+    final text = _whatsappText;
+    if (text == null || text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.errorSendingNotification)),
+      );
+      return;
+    }
+
+    final participants = (_summary?['participants'] as List?)
+            ?.cast<Map<String, dynamic>>() ??
+        [];
+    final withPhone = participants
+        .where((p) =>
+            (p['phone'] as String?)?.trim().isNotEmpty == true &&
+            p['is_guest'] != true)
+        .toList();
+
+    final proceed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.shareViaWhatsApp),
+        content: Text(
+          withPhone.isEmpty
+              ? l.shareWhatsAppSubtitle
+              : '${l.shareWhatsAppSubtitle}\n\n'
+                  '${withPhone.length} משתתפים עם מספר טלפון — '
+                  'ייפתח WhatsApp אחד אחרי השני.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.confirm),
+          ),
+        ],
+      ),
+    );
+    if (proceed != true || !mounted) return;
+
+    setState(() => _sharingWa = true);
+    try {
+      if (withPhone.isEmpty) {
+        await ShareService.shareViaWhatsApp(text);
+        return;
+      }
+
+      for (var i = 0; i < withPhone.length; i++) {
+        if (!mounted) return;
+        final p = withPhone[i];
+        final name = p['display_name'] as String? ?? '';
+        final phone = p['phone'] as String;
+
+        final cont = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            title: Text('${i + 1} / ${withPhone.length}'),
+            content: Text(
+              'נפתח WhatsApp עבור $name.\n'
+              'לחץ «שלח» בתוך WhatsApp, ואז חזור לכאן להמשך.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(l.cancel),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(l.confirm),
+              ),
+            ],
+          ),
+        );
+        if (cont != true || !mounted) return;
+
+        final opened =
+            await ShareService.openWhatsAppToPhone(phone: phone, text: text);
+        if (!opened) {
+          await ShareService.shareViaWhatsApp(text);
+        }
+
+        if (i < withPhone.length - 1 && mounted) {
+          final next = await showDialog<bool>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: Text(l.gotIt),
+              content: Text('המשך לנמען הבא?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: Text(l.cancel),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx, true),
+                  child: Text(l.wizardNext),
+                ),
+              ],
+            ),
+          );
+          if (next != true) return;
+        }
+      }
+    } finally {
+      if (mounted) setState(() => _sharingWa = false);
     }
   }
 
@@ -514,6 +630,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                   amount: _formatAmount(t['amount']),
                   currency: t['currency'] as String,
                   onRemind: () => _sendReminder(t),
+                  onWhatsApp: () => _remindViaWhatsApp(t),
                 )),
 
           const SizedBox(height: 32),
@@ -535,6 +652,15 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
             color: AppColors.primary,
             loading: _sending,
             onTap: _sendAppNotifications,
+          ),
+          const SizedBox(height: 10),
+          _ActionButton(
+            icon: Icons.chat_outlined,
+            label: l.shareViaWhatsApp,
+            subtitle: l.shareWhatsAppSubtitle,
+            color: const Color(0xFF25D366),
+            loading: _sharingWa,
+            onTap: _shareWhatsApp,
           ),
           ],
 
@@ -608,6 +734,18 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
       }
     }
   }
+
+  Future<void> _remindViaWhatsApp(Map t) async {
+    final fromName = t['from_name'] as String? ?? '';
+    final toName = t['to_name'] as String? ?? '';
+    final amount = _formatAmount(t['amount']);
+    final currency = t['currency'] as String? ?? '';
+    final phone = t['from_phone'] as String?;
+    final text =
+        'היי $fromName, יש לשלם $amount $currency ל-$toName '
+        '(קבוצה: ${widget.group.name} ב-ADL ShareFlow)';
+    await ShareService.shareDebtReminder(text: text, phone: phone);
+  }
 }
 
 class _StatChip extends StatelessWidget {
@@ -641,6 +779,7 @@ class _TransferCard extends StatelessWidget {
   final String amount;
   final String currency;
   final VoidCallback onRemind;
+  final VoidCallback onWhatsApp;
 
   const _TransferCard({
     required this.fromName,
@@ -648,6 +787,7 @@ class _TransferCard extends StatelessWidget {
     required this.amount,
     required this.currency,
     required this.onRemind,
+    required this.onWhatsApp,
   });
 
   @override
@@ -730,21 +870,46 @@ class _TransferCard extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          // Remind button
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: onRemind,
-              icon: const Icon(Icons.notifications_outlined, size: 16),
-              label: Text(AppLocalizations.of(context)!.sendReminderTo(fromName)),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primary,
-                side: BorderSide(
-                    color: AppColors.primary.withOpacity(0.4)),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                textStyle: const TextStyle(fontSize: 13),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onRemind,
+                  icon: const Icon(Icons.notifications_outlined, size: 16),
+                  label: Text(
+                    AppLocalizations.of(context)!.inAppNotification,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: BorderSide(
+                        color: AppColors.primary.withOpacity(0.4)),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    textStyle: const TextStyle(fontSize: 12),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onWhatsApp,
+                  icon: const Icon(Icons.chat_outlined, size: 16),
+                  label: const Text(
+                    'WhatsApp',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF25D366),
+                    side: BorderSide(
+                        color: const Color(0xFF25D366).withOpacity(0.5)),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    textStyle: const TextStyle(fontSize: 12),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

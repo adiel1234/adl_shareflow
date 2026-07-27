@@ -757,7 +757,16 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
     final text =
         'היי ${s.fromDisplayName}, יש לשלם ${amount} ${s.currency} ל-${s.toDisplayName} '
         '(קבוצה: ${widget.group.name} ב-ADL ShareFlow)';
-    ShareService.shareViaWhatsApp(text);
+    ShareService.shareDebtReminder(text: text, phone: s.fromPhone);
+  }
+
+  Future<void> _remindViaWhatsApp(
+      BuildContext context, SettlementSuggestion s) async {
+    final amount = s.amountDouble.round();
+    final text =
+        'היי ${s.fromDisplayName}, יש לשלם $amount ${s.currency} ל-${s.toDisplayName} '
+        '(קבוצה: ${widget.group.name} ב-ADL ShareFlow)';
+    await ShareService.shareDebtReminder(text: text, phone: s.fromPhone);
   }
 
   Future<void> _markGuestPaid(BuildContext context, SettlementSuggestion s) async {
@@ -1119,15 +1128,33 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                             !showAdminGuestAction &&
                             !hasPending &&
                             s.toUserId == currentUserId &&
-                            scenario == PaymentScenario.memberToMember)
+                            scenario == PaymentScenario.memberToMember) ...[
+                          GestureDetector(
+                            onTap: () => _remindViaWhatsApp(context, s),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF25D366).withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                    color: const Color(0xFF25D366)
+                                        .withOpacity(0.4)),
+                              ),
+                              child: const Icon(Icons.chat_outlined,
+                                  size: 16, color: Color(0xFF25D366)),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
                           IconButton(
                             icon: Icon(Icons.alarm_add_outlined,
                                 size: 20, color: headerColor),
                             onPressed: () => _scheduleReminder(context, s),
-                            tooltip: 'קבע תזכורת',
+                            tooltip: 'קבע תזכורת באפליקציה',
                             constraints: const BoxConstraints(),
                             padding: const EdgeInsets.all(4),
                           ),
+                        ],
                       ],
                     ),
                   ],

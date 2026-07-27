@@ -1,10 +1,6 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart'
-    if (dart.library.html) 'package:adl_shareflow/core/stubs/apple_stub.dart';
 
 import '../../../../theme/app_colors.dart';
 import '../../../../services/auth_service.dart';
@@ -27,7 +23,54 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   bool _loading = false;
   bool _obscurePassword = true;
+  bool _rememberMe = false;
+  bool _offerShown = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadRemembered());
+  }
+
+  Future<void> _loadRemembered() async {
+    final saved = await _authService.loadRememberedCredentials();
+    if (!mounted || !saved.rememberMe || saved.email == null) return;
+
+    setState(() => _rememberMe = true);
+
+    if (_offerShown) return;
+    _offerShown = true;
+
+    final l = AppLocalizations.of(context)!;
+    final use = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.useSavedCredentialsTitle),
+        content: Text(l.useSavedCredentialsBody(saved.email!)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.useSavedCredentialsNo),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.useSavedCredentialsYes),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+    if (use == true) {
+      setState(() {
+        _emailCtrl.text = saved.email!;
+        if (saved.password != null) {
+          _passwordCtrl.text = saved.password!;
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -39,59 +82,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _loginEmail() async {
     if (!_formKey.currentState!.validate()) return;
     HapticFeedback.mediumImpact();
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     final l = AppLocalizations.of(context)!;
     try {
       final user = await _authService.login(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
+        rememberMe: _rememberMe,
       );
       ref.read(authProvider.notifier).setUser(user);
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
-      setState(() { _error = _parseError(e, l); });
+      setState(() {
+        _error = _parseError(e, l);
+      });
     } finally {
-      if (mounted) setState(() { _loading = false; });
-    }
-  }
-
-  Future<void> _loginGoogle() async {
-    setState(() { _loading = true; _error = null; });
-    final l = AppLocalizations.of(context)!;
-    try {
-      final googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) { setState(() { _loading = false; }); return; }
-      final auth = await googleUser.authentication;
-      final user = await _authService.loginWithGoogle(auth.idToken!);
-      ref.read(authProvider.notifier).setUser(user);
-      if (mounted) Navigator.pushReplacementNamed(context, '/home');
-    } catch (e) {
-      setState(() { _error = _parseError(e, l); });
-    } finally {
-      if (mounted) setState(() { _loading = false; });
-    }
-  }
-
-  Future<void> _loginApple() async {
-    setState(() { _loading = true; _error = null; });
-    final l = AppLocalizations.of(context)!;
-    try {
-      final cred = await SignInWithApple.getAppleIDCredential(
-        scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
-      );
-      final displayName = [cred.givenName, cred.familyName]
-          .where((s) => s != null && s.isNotEmpty)
-          .join(' ');
-      final user = await _authService.loginWithApple(
-        identityToken: cred.identityToken!,
-        displayName: displayName.isNotEmpty ? displayName : null,
-      );
-      ref.read(authProvider.notifier).setUser(user);
-      if (mounted) Navigator.pushReplacementNamed(context, '/home');
-    } catch (e) {
-      setState(() { _error = _parseError(e, l); });
-    } finally {
-      if (mounted) setState(() { _loading = false; });
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     }
   }
 
@@ -205,6 +218,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         return null;
                       },
                     ),
+                    const SizedBox(height: 8),
+                    CheckboxListTile(
+                      value: _rememberMe,
+                      onChanged: (v) =>
+                          setState(() => _rememberMe = v ?? false),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                      activeColor: AppColors.primary,
+                      title: Text(
+                        l.rememberMe,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      subtitle: Text(
+                        l.rememberMeSubtitle,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -212,8 +248,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               // Forgot password
               Align(
                 alignment: Alignment.centerLeft,
-                    child: TextButton(
-                  onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
+                child: TextButton(
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/forgot-password'),
                   child: Text(l.forgotPassword),
                 ),
               ),
@@ -242,44 +279,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 isLoading: _loading,
               ),
 
-              const SizedBox(height: 20),
-
-              // Divider
-              Row(
-                children: [
-                  const Expanded(child: Divider()),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Text(
-                      l.orDivider,
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                    ),
-                  ),
-                  const Expanded(child: Divider()),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // Social login — temporarily hidden until OAuth is configured
-              // TODO: re-enable after Firebase Google Sign-In + Apple Sign-In setup
-              // _SocialButton(
-              //   label: l.continueWithGoogle,
-              //   icon: 'assets/icons/google_icon.png',
-              //   fallbackIcon: Icons.g_mobiledata,
-              //   onPressed: _loading ? null : _loginGoogle,
-              // ),
-              // if (!kIsWeb) ...[
-              //   _SocialButton(
-              //     label: l.continueWithApple,
-              //     icon: 'assets/icons/apple_icon.png',
-              //     fallbackIcon: Icons.apple,
-              //     onPressed: _loading ? null : _loginApple,
-              //     isDark: true,
-              //   ),
-              //   const SizedBox(height: 12),
-              // ],
-
               const SizedBox(height: 24),
 
               // Register link
@@ -291,7 +290,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     style: const TextStyle(color: AppColors.textSecondary),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/register'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/register'),
                     child: Text(l.register),
                   ),
                 ],
@@ -300,54 +300,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SocialButton extends StatelessWidget {
-  final String label;
-  final String icon;
-  final IconData fallbackIcon;
-  final VoidCallback? onPressed;
-  final bool isDark;
-
-  const _SocialButton({
-    required this.label,
-    required this.icon,
-    required this.fallbackIcon,
-    this.onPressed,
-    this.isDark = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        backgroundColor: isDark ? AppColors.textPrimary : AppColors.surface,
-        foregroundColor: isDark ? Colors.white : AppColors.textPrimary,
-        side: BorderSide(
-          color: isDark ? AppColors.textPrimary : AppColors.border,
-          width: 1,
-        ),
-        minimumSize: const Size(double.infinity, 52),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(fallbackIcon, size: 22),
-          const SizedBox(width: 10),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: isDark ? Colors.white : AppColors.textPrimary,
-            ),
-          ),
-        ],
       ),
     );
   }

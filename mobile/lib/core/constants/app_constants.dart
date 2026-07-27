@@ -5,6 +5,12 @@ class AppConstants {
   static const String refreshTokenKey = 'refresh_token';
   static const String userKey = 'current_user';
 
+  /// Survives logout / session expiry (userfill login with user consent).
+  static const String rememberedEmailKey = 'remembered_email';
+  static const String rememberedPasswordKey = 'remembered_password';
+  static const String rememberMeKey = 'remember_me';
+  static const String preferredCurrencyKey = 'preferred_currency';
+
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 60);
 

@@ -212,7 +212,8 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
     );
     _messengerKey.currentState?.showSnackBar(
       const SnackBar(
-        content: Text('פג תוקף החיבור, נא להתחבר מחדש'),
+        content: Text(
+            'החיבור הסתיים. ניתן להשלים התחברות עם הפרטים השמורים.'),
         duration: Duration(seconds: 4),
       ),
     );

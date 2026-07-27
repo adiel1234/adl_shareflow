@@ -8,8 +8,6 @@ import '../core/storage/secure_storage.dart';
 import '../core/network/api_client.dart';
 import '../services/fcm_service.dart';
 
-const _kPreferredCurrency = 'preferred_currency';
-
 // Current user state
 class AuthState {
   final bool isLoggedIn;
@@ -51,15 +49,45 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> _init() async {
-    final token = await AppSecureStorage.read(AppConstants.accessTokenKey);
     final currency =
-        await AppSecureStorage.read(_kPreferredCurrency) ?? 'ILS';
+        await AppSecureStorage.read(AppConstants.preferredCurrencyKey) ??
+            'ILS';
+    var token = await AppSecureStorage.read(AppConstants.accessTokenKey);
+    final refresh =
+        await AppSecureStorage.read(AppConstants.refreshTokenKey);
+
+    // Access missing but refresh still present — try silent refresh first.
+    if (token == null && refresh != null) {
+      final result = await ApiClient.tryRefreshToken();
+      if (result == RefreshResult.success) {
+        token = await AppSecureStorage.read(AppConstants.accessTokenKey);
+      } else if (result == RefreshResult.networkError) {
+        // Stay "logged in" optimistically so UI can retry later.
+        state = AuthState(
+          isLoggedIn: true,
+          isLoading: false,
+          preferredCurrency: currency,
+        );
+        return;
+      } else {
+        state = AuthState(
+          isLoggedIn: false,
+          isLoading: false,
+          preferredCurrency: currency,
+        );
+        return;
+      }
+    }
 
     if (token == null) {
       state = AuthState(
-          isLoggedIn: false, isLoading: false, preferredCurrency: currency);
+        isLoggedIn: false,
+        isLoading: false,
+        preferredCurrency: currency,
+      );
       return;
     }
+
     try {
       final response = await ApiClient.instance.get('/users/me');
       state = AuthState(
@@ -68,17 +96,30 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isLoading: false,
         preferredCurrency: currency,
       );
+      FcmService.instance.registerToken();
     } on DioException catch (e) {
       final status = e.response?.statusCode ?? 0;
       if (status == 401 || status == 403) {
-        await AppSecureStorage.deleteAll();
-        state = AuthState(isLoggedIn: false, isLoading: false, preferredCurrency: currency);
+        await AppSecureStorage.clearSessionTokens();
+        state = AuthState(
+          isLoggedIn: false,
+          isLoading: false,
+          preferredCurrency: currency,
+        );
       } else {
-        // שגיאת רשת — נשאר מחובר
-        state = AuthState(isLoggedIn: true, isLoading: false, preferredCurrency: currency);
+        // Network error — keep session; user data may load later.
+        state = AuthState(
+          isLoggedIn: true,
+          isLoading: false,
+          preferredCurrency: currency,
+        );
       }
     } catch (_) {
-      state = AuthState(isLoggedIn: true, isLoading: false, preferredCurrency: currency);
+      state = AuthState(
+        isLoggedIn: true,
+        isLoading: false,
+        preferredCurrency: currency,
+      );
     }
   }
 
@@ -88,16 +129,23 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> setPreferredCurrency(String currency) async {
-    await AppSecureStorage.write(_kPreferredCurrency, currency);
+    await AppSecureStorage.write(AppConstants.preferredCurrencyKey, currency);
     state = state.copyWith(preferredCurrency: currency);
   }
 
   Future<void> logout() async {
-    // Clear local session first — FCM/network cleanup can hang on Android.
+    // Clear session only — keep remembered login credentials if user opted in.
     try {
-      await AppSecureStorage.deleteAll();
+      await AppSecureStorage.clearSessionTokens();
     } catch (_) {}
-    state = const AuthState(isLoggedIn: false, isLoading: false);
+    final currency =
+        await AppSecureStorage.read(AppConstants.preferredCurrencyKey) ??
+            'ILS';
+    state = AuthState(
+      isLoggedIn: false,
+      isLoading: false,
+      preferredCurrency: currency,
+    );
     try {
       await FcmService.instance
           .unregisterToken()

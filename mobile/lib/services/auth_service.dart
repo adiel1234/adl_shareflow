@@ -22,13 +22,52 @@ class AuthService {
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
+    bool rememberMe = false,
   }) async {
     final response = await _api.post('/auth/login', data: {
       'email': email,
       'password': password,
     });
     await _saveTokens(response.data['data']);
+    await saveRememberedCredentials(
+      email: email,
+      password: password,
+      rememberMe: rememberMe,
+    );
     return response.data['data']['user'];
+  }
+
+  /// Persist login hints that survive logout (userfill with user consent).
+  Future<void> saveRememberedCredentials({
+    required String email,
+    required String password,
+    required bool rememberMe,
+  }) async {
+    if (rememberMe) {
+      await AppSecureStorage.write(AppConstants.rememberMeKey, 'true');
+      await AppSecureStorage.write(
+          AppConstants.rememberedEmailKey, email.trim());
+      await AppSecureStorage.write(
+          AppConstants.rememberedPasswordKey, password);
+    } else {
+      await AppSecureStorage.delete(AppConstants.rememberMeKey);
+      await AppSecureStorage.delete(AppConstants.rememberedEmailKey);
+      await AppSecureStorage.delete(AppConstants.rememberedPasswordKey);
+    }
+  }
+
+  Future<({String? email, String? password, bool rememberMe})>
+      loadRememberedCredentials() async {
+    final remember =
+        await AppSecureStorage.read(AppConstants.rememberMeKey) == 'true';
+    if (!remember) {
+      return (email: null, password: null, rememberMe: false);
+    }
+    final email =
+        await AppSecureStorage.read(AppConstants.rememberedEmailKey);
+    final password =
+        await AppSecureStorage.read(AppConstants.rememberedPasswordKey);
+    return (email: email, password: password, rememberMe: true);
   }
 
   Future<Map<String, dynamic>> loginWithGoogle(String idToken) async {
@@ -50,11 +89,12 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    final refreshToken = await AppSecureStorage.read(AppConstants.refreshTokenKey);
+    final refreshToken =
+        await AppSecureStorage.read(AppConstants.refreshTokenKey);
     try {
       await _api.post('/auth/logout', data: {'refresh_token': refreshToken});
     } catch (_) {}
-    await AppSecureStorage.deleteAll();
+    await AppSecureStorage.clearSessionTokens();
   }
 
   Future<bool> isLoggedIn() async {

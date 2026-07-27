@@ -77,6 +77,11 @@ def get_settlement_plan(group_id, **kwargs):
                 'to_bank_name': creditors[s.to_user_id].bank_name if s.to_user_id in creditors else None,
                 'to_bank_branch': creditors[s.to_user_id].bank_branch if s.to_user_id in creditors else None,
                 'to_bank_account_number': creditors[s.to_user_id].bank_account_number if s.to_user_id in creditors else None,
+                # Debtor contact for device-side WhatsApp reminders (phone or payment_phone).
+                'from_phone': (
+                    (all_users[s.from_user_id].phone or all_users[s.from_user_id].payment_phone)
+                    if s.from_user_id in all_users else None
+                ),
             }
             for s in suggestions
         ],
@@ -105,7 +110,8 @@ def _build_event_summary_payload(group_id: str, group: Group) -> dict:
             participants.append({
                 'user_id': user.id,
                 'display_name': user.display_name,
-                'phone': user.phone,
+                # Prefer contact phone; fall back to payment phone for device WhatsApp.
+                'phone': user.phone or user.payment_phone,
                 'is_guest': user.is_guest,
             })
     suggestions = calculate_settlement_plan(group_id, group.base_currency)
@@ -148,6 +154,11 @@ def _build_event_summary_payload(group_id: str, group: Group) -> dict:
                 'to_name': s.to_display_name,
                 'amount': str(s.amount),
                 'currency': s.currency,
+                'from_phone': next(
+                    (p['phone'] for p in participants
+                     if p['user_id'] == s.from_user_id),
+                    None,
+                ),
             }
             for s in suggestions
         ],

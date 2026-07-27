@@ -314,6 +314,20 @@
   "wrongCredentials": "אימייל או סיסמה שגויים",
   "loginError": "שגיאה בהתחברות, נסה שוב",
   "orDivider": "או",
+  "rememberMe": "זכור את פרטי ההתחברות",
+  "rememberMeSubtitle": "בפעם הבאה נציע למלא את האימייל והסיסמה שלך",
+  "useSavedCredentialsTitle": "להשלים התחברות?",
+  "useSavedCredentialsBody": "נמצאו פרטי התחברות שמורים עבור {email}. למלא אותם?",
+  "@useSavedCredentialsBody": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "useSavedCredentialsYes": "כן, מלא פרטים",
+  "useSavedCredentialsNo": "לא תודה",
+  "sessionExpiredSnack": "החיבור הסתיים. ניתן להשלים התחברות עם הפרטים השמורים.",
+  "whatsappRemindersComingSoon": "שליחה אוטומטית ב-WhatsApp תתווסף בגרסה הבאה",
+  "whatsappDeviceReminders": "תזכורות ידניות ייפתחו ב-WhatsApp במכשיר שלך (ממסך היתרות / סיכום)",
 
   "fullName": "שם מלא",
   "createAccount": "צור חשבון חדש",

@@ -95,6 +95,8 @@ class SettlementSuggestion {
   final String? toBankName;
   final String? toBankBranch;
   final String? toBankAccountNumber;
+  /// Debtor phone for device-side WhatsApp reminders.
+  final String? fromPhone;
 
   const SettlementSuggestion({
     required this.fromUserId,
@@ -111,6 +113,7 @@ class SettlementSuggestion {
     this.toBankName,
     this.toBankBranch,
     this.toBankAccountNumber,
+    this.fromPhone,
   });
 
   factory SettlementSuggestion.fromJson(Map<String, dynamic> json) =>
@@ -129,6 +132,7 @@ class SettlementSuggestion {
         toBankName: json['to_bank_name'] as String?,
         toBankBranch: json['to_bank_branch'] as String?,
         toBankAccountNumber: json['to_bank_account_number'] as String?,
+        fromPhone: json['from_phone'] as String?,
       );
 
   double get amountDouble => double.tryParse(amount) ?? 0;

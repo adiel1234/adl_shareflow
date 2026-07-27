@@ -43,7 +43,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
         final platforms = (data['platforms'] as List?)?.cast<String>() ?? ['app'];
         setState(() {
           _frequency = data['frequency'] as String? ?? 'manual';
-          _platformApp = platforms.contains('app');
+          _platformApp = platforms.contains('app') || platforms.isEmpty;
           _platformWhatsApp = platforms.contains('whatsapp');
           _enabled = data['enabled'] as bool? ?? true;
           _preferredHour = data['preferred_hour'] as int?;
@@ -264,10 +264,13 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                                 () => _platformWhatsApp = v ?? false)
                             : null,
                         title: const Text('WhatsApp'),
-                        subtitle: Text(l.whatsappMessage,
-                            style: const TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textSecondary)),
+                        subtitle: Text(
+                          l.whatsappDeviceReminders,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
                         secondary: const Text('💬',
                             style: TextStyle(fontSize: 22)),
                         activeColor: AppColors.primary,

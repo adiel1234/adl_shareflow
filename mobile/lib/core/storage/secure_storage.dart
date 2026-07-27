@@ -49,4 +49,11 @@ class AppSecureStorage {
   }) {
     return _serialized(() => _storage.deleteAll().timeout(timeout));
   }
+
+  /// Clears session tokens only — keeps remembered login + preferences.
+  static Future<void> clearSessionTokens() async {
+    await delete('access_token');
+    await delete('refresh_token');
+    await delete('current_user');
+  }
 }

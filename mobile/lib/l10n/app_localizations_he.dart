@@ -846,6 +846,38 @@ class AppLocalizationsHe extends AppLocalizations {
   String get orDivider => 'או';
 
   @override
+  String get rememberMe => 'זכור את פרטי ההתחברות';
+
+  @override
+  String get rememberMeSubtitle => 'בפעם הבאה נציע למלא את האימייל והסיסמה שלך';
+
+  @override
+  String get useSavedCredentialsTitle => 'להשלים התחברות?';
+
+  @override
+  String useSavedCredentialsBody(String email) {
+    return 'נמצאו פרטי התחברות שמורים עבור $email. למלא אותם?';
+  }
+
+  @override
+  String get useSavedCredentialsYes => 'כן, מלא פרטים';
+
+  @override
+  String get useSavedCredentialsNo => 'לא תודה';
+
+  @override
+  String get sessionExpiredSnack =>
+      'החיבור הסתיים. ניתן להשלים התחברות עם הפרטים השמורים.';
+
+  @override
+  String get whatsappRemindersComingSoon =>
+      'שליחה אוטומטית ב-WhatsApp תתווסף בגרסה הבאה';
+
+  @override
+  String get whatsappDeviceReminders =>
+      'תזכורות ידניות ייפתחו ב-WhatsApp במכשיר שלך (ממסך היתרות / סיכום)';
+
+  @override
   String get fullName => 'שם מלא';
 
   @override
