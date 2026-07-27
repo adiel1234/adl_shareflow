@@ -22,12 +22,14 @@ class NotificationTapInfo {
   final String title;
   final String body;
   final String? groupId;
+  final String? settlementId;
   final String type;
 
   const NotificationTapInfo({
     required this.title,
     required this.body,
     this.groupId,
+    this.settlementId,
     this.type = '',
   });
 }
@@ -196,6 +198,11 @@ class FcmService {
     if (info.groupId != null && info.groupId!.isNotEmpty) {
       _onDataChanged?.call(info.groupId!, info.type);
     }
+
+    // Creditor must act immediately — open in-app dialog with confirm action.
+    if (info.type == 'settlement_requested') {
+      _onNotificationOpened?.call(info);
+    }
   }
 
   void _onNotificationTap(NotificationResponse response) {
@@ -244,6 +251,7 @@ class FcmService {
       title: data['title'] as String? ?? notification?.title ?? '',
       body: data['body'] as String? ?? notification?.body ?? '',
       groupId: data['group_id'] as String?,
+      settlementId: data['settlement_id'] as String?,
       type: data['type'] as String? ?? '',
     );
   }
@@ -253,6 +261,7 @@ class FcmService {
       'title': info.title,
       'body': info.body,
       if (info.groupId != null) 'group_id': info.groupId,
+      if (info.settlementId != null) 'settlement_id': info.settlementId,
       'type': info.type,
     });
   }
@@ -264,6 +273,7 @@ class FcmService {
         title: map['title'] as String? ?? '',
         body: map['body'] as String? ?? '',
         groupId: map['group_id'] as String?,
+        settlementId: map['settlement_id'] as String?,
         type: map['type'] as String? ?? '',
       );
     } catch (_) {

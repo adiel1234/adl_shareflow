@@ -1,6 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../providers/balances_provider.dart';
+import '../../../../providers/expenses_provider.dart';
 import '../../../../providers/notifications_provider.dart';
+import '../../../balances/data/balance_repository.dart';
 import '../../domain/notification_model.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -115,7 +119,47 @@ class NotificationsScreen extends ConsumerWidget {
               if (!notif.isRead) {
                 ref.read(notificationsProvider.notifier).markRead(notif.id);
               }
-              await showAppNotificationDialog(context, notif);
+              await showAppNotificationDialog(
+                context,
+                notif,
+                onConfirmSettlement: (settlementId) async {
+                  try {
+                    await BalanceRepository().approveSettlement(settlementId);
+                    final groupId = notif.data['group_id'] as String?;
+                    if (groupId != null && groupId.isNotEmpty) {
+                      ref.invalidate(balancesProvider(groupId));
+                      ref.invalidate(pendingSettlementsProvider(groupId));
+                      ref.invalidate(settlementPlanProvider(groupId));
+                      ref.invalidate(expensesProvider(groupId));
+                    }
+                    ref.read(notificationsProvider.notifier).load();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('תשלום אושר בהצלחה ✓')),
+                      );
+                    }
+                    return true;
+                  } catch (e) {
+                    String msg = 'שגיאה באישור התשלום';
+                    if (e is DioException) {
+                      msg = (e.response?.data?['message'] as String?) ?? msg;
+                    }
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(msg)),
+                      );
+                    }
+                    return false;
+                  }
+                },
+                onGoToGroup: (groupId) {
+                  Navigator.of(context).pushNamed(
+                    '/group-detail',
+                    arguments: {'groupId': groupId, 'initialTab': 1},
+                  );
+                },
+              );
             },
           );
         },

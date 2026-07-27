@@ -16,6 +16,7 @@ import 'providers/balances_provider.dart';
 import 'providers/deep_link_provider.dart';
 import 'providers/expenses_provider.dart';
 import 'providers/notifications_provider.dart';
+import 'features/balances/data/balance_repository.dart';
 import 'features/notifications/presentation/widgets/notification_detail_dialog.dart';
 import 'services/feedback_service.dart';
 import 'services/fcm_service.dart';
@@ -184,11 +185,13 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
       case 'new_expense':
         ref.invalidate(expensesProvider(groupId));
         ref.invalidate(balancesProvider(groupId));
+        break;
       case 'settlement_requested':
       case 'settlement_confirmed':
         ref.invalidate(balancesProvider(groupId));
         ref.invalidate(pendingSettlementsProvider(groupId));
         ref.invalidate(settlementPlanProvider(groupId));
+        break;
       case 'group_activated':
       case 'group_expiring_soon':
       case 'tier_upgrade_required':
@@ -236,11 +239,59 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
     );
 
     if (!ctx.mounted) return;
+
+    final settlementId = info.settlementId;
+    final groupId = info.groupId;
+
     showNotificationDetailDialog(
       ctx,
       title: info.title,
       body: body,
       type: info.type.isNotEmpty ? info.type : null,
+      groupId: groupId,
+      settlementId: settlementId,
+      onConfirmSettlement: settlementId != null && settlementId.isNotEmpty
+          ? () => _confirmSettlementFromNotification(settlementId, groupId)
+          : null,
+      onGoToGroup: groupId != null && groupId.isNotEmpty
+          ? () => _openGroupBalances(groupId)
+          : null,
+    );
+  }
+
+  Future<bool> _confirmSettlementFromNotification(
+    String settlementId,
+    String? groupId,
+  ) async {
+    try {
+      await BalanceRepository().approveSettlement(settlementId);
+      if (groupId != null && groupId.isNotEmpty) {
+        ref.invalidate(balancesProvider(groupId));
+        ref.invalidate(pendingSettlementsProvider(groupId));
+        ref.invalidate(settlementPlanProvider(groupId));
+        ref.invalidate(expensesProvider(groupId));
+      }
+      ref.read(notificationsProvider.notifier).load();
+      _messengerKey.currentState?.showSnackBar(
+        const SnackBar(content: Text('תשלום אושר בהצלחה ✓')),
+      );
+      return true;
+    } catch (e) {
+      String msg = 'שגיאה באישור התשלום';
+      if (e is DioException) {
+        msg = (e.response?.data?['message'] as String?) ?? msg;
+      }
+      _messengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text(msg), backgroundColor: Colors.red.shade700),
+      );
+      return false;
+    }
+  }
+
+  void _openGroupBalances(String groupId) {
+    _navigatorKey.currentState?.pushNamed(
+      '/group-detail',
+      arguments: {'groupId': groupId, 'initialTab': 1},
     );
   }
 

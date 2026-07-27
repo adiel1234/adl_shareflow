@@ -50,7 +50,7 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen>
     WidgetsBinding.instance.addObserver(this);
     // Poll pending settlements every 30 s so creditors see new requests
     // even when the app stays in the foreground.
-    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       if (mounted) {
         ref.invalidate(pendingSettlementsProvider(widget.group.id));
       }
@@ -1376,11 +1376,9 @@ class _PendingSettlementsCard extends ConsumerWidget {
                         fontSize: 12, color: Color(0xFFB45309)),
                   ),
                   const SizedBox(height: 8),
-                  if (isAdmin &&
-                      scenario == PaymentScenario.memberToGuest)
-                    // Admin confirms on behalf of guest creditor.
-                    // Condition uses the already-detected scenario so it always
-                    // matches when the "תשלום לאורח" label is visible.
+                  // Approve MUST win over "debtor waiting" — admin who also paid
+                  // a guest still needs the confirm button.
+                  if (canAdminGuest || canCreditorApprove)
                     Row(
                       children: [
                         Expanded(
@@ -1392,44 +1390,7 @@ class _PendingSettlementsCard extends ConsumerWidget {
                               currentUserId: currentUserId,
                               isAdmin: isAdmin,
                             ),
-                            icon: const Icon(Icons.check, size: 16),
-                            label: Text(l.confirmGuestReceived),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF7C3AED),
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size(0, 40),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 6, horizontal: 12),
-                              textStyle: const TextStyle(fontSize: 13),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size(0, 40),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 12),
-                          ),
-                          onPressed: () => _cancel(context, ref, r),
-                          child: Text(l.cancel,
-                              style: const TextStyle(fontSize: 13)),
-                        ),
-                      ],
-                    )
-                  else if (canCreditorApprove)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => _approve(
-                              context,
-                              ref,
-                              r,
-                              currentUserId: currentUserId,
-                              isAdmin: isAdmin,
-                            ),
-                            icon: const Icon(Icons.check, size: 16),
+                            icon: const Icon(Icons.check, size: 18),
                             label: Text(
                               PaymentScenarioLabels.approveButtonLabel(
                                 l,
@@ -1439,10 +1400,17 @@ class _PendingSettlementsCard extends ConsumerWidget {
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF059669),
+                              backgroundColor: canAdminGuest
+                                  ? const Color(0xFF7C3AED)
+                                  : const Color(0xFF059669),
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              textStyle: const TextStyle(fontSize: 13),
+                              minimumSize: const Size(0, 44),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 12),
+                              textStyle: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),
@@ -1450,11 +1418,16 @@ class _PendingSettlementsCard extends ConsumerWidget {
                         OutlinedButton(
                           onPressed: () => _cancel(context, ref, r),
                           style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(0, 44),
                             padding: const EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 12),
+                                vertical: 10, horizontal: 12),
                           ),
-                          child: Text(l.rejectPayment,
-                              style: const TextStyle(fontSize: 13)),
+                          child: Text(
+                            canCreditorApprove && !canAdminGuest
+                                ? l.rejectPayment
+                                : l.cancel,
+                            style: const TextStyle(fontSize: 13),
+                          ),
                         ),
                       ],
                     )

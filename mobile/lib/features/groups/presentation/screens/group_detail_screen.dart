@@ -23,7 +23,12 @@ import 'activation_screen.dart';
 
 class GroupDetailScreen extends ConsumerStatefulWidget {
   final Group group;
-  const GroupDetailScreen({super.key, required this.group});
+  final int initialTabIndex;
+  const GroupDetailScreen({
+    super.key,
+    required this.group,
+    this.initialTabIndex = 0,
+  });
 
   @override
   ConsumerState<GroupDetailScreen> createState() => _GroupDetailScreenState();
@@ -36,7 +41,12 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    final initialIndex = widget.initialTabIndex.clamp(0, 2);
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: initialIndex,
+    );
   }
 
   @override

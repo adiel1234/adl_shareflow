@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 27 יולי 2026 - גרסה 1.0.9+53: שחזור סיסמה במייל (קוד 6 ספרות דרך Resend); תיקון התנתקות; זכירת פרטי התחברות; WhatsApp דרך המכשיר
+> עודכן לאחרונה: 27 יולי 2026 - גרסה 1.0.9+55: אישור תשלום מדיאלוג התראה (כפתור «אשר קבלה» לנושה); הבהרת מגבלות חינם ביצירת קבוצה
 
 ---
 
@@ -510,6 +510,7 @@ flutter install --release
 
 ### Flutter (Mobile)
 - **FCM Real-Time Refresh**: `FcmService.setDataChangeCallback` + `_invalidateForGroup` ב-`main.dart` — כשמגיעה התראה FCM ב-foreground, מתבצע `ref.invalidate` על `expensesProvider` / `balancesProvider` / `pendingSettlementsProvider` / `settlementPlanProvider` / `notificationsProvider` לפי סוג ההתראה.
+- **אישור תשלום מהתראה (build 55)**: ב-`settlement_requested` נפתח דיאלוג עם כפתור ירוק «אשר קבלה» (לפי `settlement_id` ב-payload) + «עבור לאישור התשלום» ללשונית יתרות; גם מרשימת ההתראות באפליקציה. קלף ההמתנה ביתרות מציג כפתור אישור לפני מצב «ממתין» של חייב.
 - **FCM Tap → Dialog** (build 24): `FcmService.setNotificationTapCallback` + `notification_detail_dialog.dart` — לחיצה על push פותחת דיאלוג עם טקסט מלא וכפתור «סגור»; payload FCM כולל `title`/`body` ב-`data`.
 - **Notification Sound** (build 24+): `FeedbackService.notification()` + `assets/sounds/notification.wav` — צליל ב-foreground; `fcm_service.dart` מציג local notification תמיד (גם כש-iOS מסיר `message.notification`); `FeedbackService` משתמש ב-`playback` ב-iOS.
 - **FCM Sound Payload** (build 25 fix): `fcm_service.py` — `apns.Aps(sound='default')` + `AndroidNotification(sound='default', channel_id='shareflow_default')` לצליל ב-background.

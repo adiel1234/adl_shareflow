@@ -63,7 +63,7 @@ def create_settlement(group_id, **kwargs):
 
 def _can_confirm_settlement(settlement, user_id) -> bool:
     """Creditor confirms receipt; admin confirms on behalf of guest creditor."""
-    if settlement.to_user_id == user_id:
+    if str(settlement.to_user_id) == str(user_id):
         return True
     from app.models import User
     to_user = db.session.get(User, settlement.to_user_id)
@@ -173,7 +173,8 @@ def list_pending_settlements(group_id, **kwargs):
         d['to_is_guest'] = guest_map.get(s.to_user_id, False)
         d['can_confirm'] = _can_confirm_settlement(s, user_id)
         d['is_creditor_confirm'] = (
-            s.to_user_id == user_id and not guest_map.get(s.to_user_id, False)
+            str(s.to_user_id) == str(user_id)
+            and not guest_map.get(s.to_user_id, False)
         )
         result.append(d)
 

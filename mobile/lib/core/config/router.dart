@@ -27,7 +27,11 @@ class AppRouter {
       case '/group-detail':
         final args = settings.arguments as Map<String, dynamic>?;
         final groupId = args?['groupId'] as String? ?? '';
-        return _fade(_GroupDetailLoader(groupId: groupId));
+        final initialTab = args?['initialTab'] as int? ?? 0;
+        return _fade(_GroupDetailLoader(
+          groupId: groupId,
+          initialTabIndex: initialTab,
+        ));
       default:
         return _fade(const _NotFoundScreen());
     }
@@ -56,7 +60,11 @@ class AppRouter {
 /// Loads a group by ID from the API and shows GroupDetailScreen.
 class _GroupDetailLoader extends ConsumerWidget {
   final String groupId;
-  const _GroupDetailLoader({required this.groupId});
+  final int initialTabIndex;
+  const _GroupDetailLoader({
+    required this.groupId,
+    this.initialTabIndex = 0,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -68,7 +76,10 @@ class _GroupDetailLoader extends ConsumerWidget {
       error: (_, __) => const Scaffold(
         body: Center(child: Text('Could not load group')),
       ),
-      data: (group) => GroupDetailScreen(group: group),
+      data: (group) => GroupDetailScreen(
+        group: group,
+        initialTabIndex: initialTabIndex,
+      ),
     );
   }
 }

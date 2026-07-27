@@ -1297,7 +1297,12 @@ class AppLocalizationsHe extends AppLocalizations {
   String get freeTierLabel => 'חינם - עד 7 חברים';
 
   @override
-  String get freeIncluded => 'חינמי: עד 7 חברים ו-7 ימים';
+  String get freeIncluded =>
+      'חינמי: עד 7 חברים, ל-7 ימים, ועד 3 קבוצות חינמיות למשתמש';
+
+  @override
+  String get freeTierDetails =>
+      'המסלול החינמי מוגבל ל-7 ימים, עד 7 חברים בקבוצה, ועד 3 קבוצות חינמיות למשתמש.';
 
   @override
   String get createGroupFree => 'צור קבוצה - חינם';
@@ -1559,6 +1564,9 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get confirmReceipt => 'אשר קבלה';
+
+  @override
+  String get goToConfirmPayment => 'עבור לאישור התשלום';
 
   @override
   String get rejectPayment => 'דחה';

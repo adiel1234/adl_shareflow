@@ -6,17 +6,31 @@ import '../../data/notifications_repository.dart';
 import '../../domain/notification_model.dart';
 
 /// Shows a dialog with the full notification title and body.
+/// For settlement requests, optional approve / navigate actions are shown.
 Future<void> showNotificationDetailDialog(
   BuildContext context, {
   required String title,
   required String body,
   String? type,
+  String? groupId,
+  String? settlementId,
+  Future<bool> Function()? onConfirmSettlement,
+  VoidCallback? onGoToGroup,
 }) {
   return showDialog<void>(
     context: context,
     builder: (ctx) {
       final l = AppLocalizations.of(ctx)!;
       final displayTitle = _localizedTitle(l, type) ?? title;
+      final isSettlementRequest = type == 'settlement_requested';
+      final canConfirm = isSettlementRequest &&
+          settlementId != null &&
+          settlementId.isNotEmpty &&
+          onConfirmSettlement != null;
+      final canGoToGroup = isSettlementRequest &&
+          groupId != null &&
+          groupId.isNotEmpty &&
+          onGoToGroup != null;
 
       return AlertDialog(
         title: Text(
@@ -41,6 +55,28 @@ Future<void> showNotificationDetailDialog(
             onPressed: () => Navigator.of(ctx).pop(),
             child: Text(l.notifClose),
           ),
+          if (canGoToGroup)
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                onGoToGroup();
+              },
+              child: Text(l.goToConfirmPayment),
+            ),
+          if (canConfirm)
+            ElevatedButton.icon(
+              onPressed: () async {
+                await onConfirmSettlement();
+                if (!ctx.mounted) return;
+                Navigator.of(ctx).pop();
+              },
+              icon: const Icon(Icons.check, size: 18),
+              label: Text(l.confirmReceipt),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF059669),
+                foregroundColor: Colors.white,
+              ),
+            ),
         ],
       );
     },
@@ -50,13 +86,26 @@ Future<void> showNotificationDetailDialog(
 /// Opens the detail dialog for an in-app notification list item.
 Future<void> showAppNotificationDialog(
   BuildContext context,
-  AppNotification notification,
-) {
+  AppNotification notification, {
+  Future<bool> Function(String settlementId)? onConfirmSettlement,
+  void Function(String groupId)? onGoToGroup,
+}) {
+  final settlementId = notification.data['settlement_id'] as String?;
+  final groupId = notification.data['group_id'] as String?;
   return showNotificationDetailDialog(
     context,
     title: notification.title,
     body: resolveNotificationDisplayBody(notification),
     type: notification.type,
+    groupId: groupId,
+    settlementId: settlementId,
+    onConfirmSettlement:
+        settlementId != null && onConfirmSettlement != null
+            ? () => onConfirmSettlement(settlementId)
+            : null,
+    onGoToGroup: groupId != null && onGoToGroup != null
+        ? () => onGoToGroup(groupId)
+        : null,
   );
 }
 

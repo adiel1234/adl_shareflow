@@ -82,10 +82,15 @@ class PaymentScenarioLabels {
     }
   }
 
-  static bool canCreditorApprove(SettlementRecord r, String currentUserId) =>
-      r.canConfirm ||
-      r.isCreditorConfirm ||
-      (r.toUserId == currentUserId && !r.toIsGuest);
+  static bool canCreditorApprove(SettlementRecord r, String currentUserId) {
+    final me = currentUserId.trim();
+    if (me.isEmpty) {
+      // Fall back to server flags when local user id is not ready yet.
+      return r.canConfirm || r.isCreditorConfirm;
+    }
+    final isCreditor = r.toUserId.trim() == me && !r.toIsGuest;
+    return r.canConfirm || r.isCreditorConfirm || isCreditor;
+  }
 
   static bool canAdminConfirmGuestReceipt(
           SettlementRecord r, String currentUserId, bool isAdmin) =>

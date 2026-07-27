@@ -2513,8 +2513,14 @@ abstract class AppLocalizations {
   /// No description provided for @freeIncluded.
   ///
   /// In he, this message translates to:
-  /// **'חינמי: עד 7 חברים ו-7 ימים'**
+  /// **'חינמי: עד 7 חברים, ל-7 ימים, ועד 3 קבוצות חינמיות למשתמש'**
   String get freeIncluded;
+
+  /// No description provided for @freeTierDetails.
+  ///
+  /// In he, this message translates to:
+  /// **'המסלול החינמי מוגבל ל-7 ימים, עד 7 חברים בקבוצה, ועד 3 קבוצות חינמיות למשתמש.'**
+  String get freeTierDetails;
 
   /// No description provided for @createGroupFree.
   ///
@@ -2949,6 +2955,12 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'אשר קבלה'**
   String get confirmReceipt;
+
+  /// No description provided for @goToConfirmPayment.
+  ///
+  /// In he, this message translates to:
+  /// **'עבור לאישור התשלום'**
+  String get goToConfirmPayment;
 
   /// No description provided for @rejectPayment.
   ///

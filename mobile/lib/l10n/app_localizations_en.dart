@@ -1307,7 +1307,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get freeTierLabel => 'Free - up to 7 members';
 
   @override
-  String get freeIncluded => 'Free: up to 7 members & 7 days';
+  String get freeIncluded =>
+      'Free: up to 7 members, 7 days, and up to 3 free groups per user';
+
+  @override
+  String get freeTierDetails =>
+      'The free plan is limited to 7 days, up to 7 members per group, and up to 3 free groups per user.';
 
   @override
   String get createGroupFree => 'Create Group - Free';
@@ -1573,6 +1578,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmReceipt => 'Confirm receipt';
+
+  @override
+  String get goToConfirmPayment => 'Go to confirm payment';
 
   @override
   String get rejectPayment => 'Reject';

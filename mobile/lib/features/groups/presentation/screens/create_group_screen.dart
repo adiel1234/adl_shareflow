@@ -384,7 +384,17 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                                   : AppColors.primary,
                             ),
                           ),
-                          if (!isFreeEffective) ...[
+                          if (isFreeEffective) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              l.freeTierDetails,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                height: 1.35,
+                                color: Color(0xFF15803D),
+                              ),
+                            ),
+                          ] else ...[
                             const SizedBox(height: 2),
                             Text(
                               () {
