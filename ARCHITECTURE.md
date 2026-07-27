@@ -320,8 +320,9 @@ flutter build apk --release
 flutter install --release
 ```
 
-**APK נוכחי (גרסה 1.0.9+49):**
-- קישור: `APK_DOWNLOAD_URL` ב-Railway (מזהה Google Drive); משתמשים מקבלים `GET /download/apk` (proxy) כדי לעקוף דף אזהרת virus-scan של Drive
+**APK נוכחי (גרסה 1.0.9+55):**
+- קישור: `APK_DOWNLOAD_URL` ב-Railway (GitHub Releases); משתמשים מקבלים `GET /download/apk`
+- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build55
 - **למשתמשי פיילוט:** הורדה דרך המדריך בלבד — `https://adlshareflow-production.up.railway.app/pilot` (לא `/download`)
 
 ### iOS (TestFlight)
