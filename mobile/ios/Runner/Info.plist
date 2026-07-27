@@ -49,6 +49,9 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Standard HTTPS only — speeds App Store export compliance -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>לצילום קבלות, הוצאות וסריקת קוד QR</string>
 	<key>NSPhotoLibraryUsageDescription</key>

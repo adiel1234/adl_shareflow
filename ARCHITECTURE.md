@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 27 יולי 2026 - תיקון FCM ברקע/סגורה (APNs `ApsAlert`); גרסה אפליקציה 1.0.9+55
+> עודכן לאחרונה: 27 יולי 2026 - גרסת פיילוט 1.0.9+56 (FCM ברקע/סגורה, אישור תשלום מהתראה, מגבלות חינם)
 
 ---
 
@@ -320,9 +320,9 @@ flutter build apk --release
 flutter install --release
 ```
 
-**APK נוכחי (גרסה 1.0.9+55):**
+**APK נוכחי (גרסה 1.0.9+56):**
 - קישור: `APK_DOWNLOAD_URL` ב-Railway (GitHub Releases); משתמשים מקבלים `GET /download/apk`
-- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build55
+- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build56
 - **למשתמשי פיילוט:** הורדה דרך המדריך בלבד — `https://adlshareflow-production.up.railway.app/pilot` (לא `/download`)
 
 ### iOS (TestFlight)
