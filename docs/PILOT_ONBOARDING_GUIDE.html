@@ -741,6 +741,51 @@
     }
 
     .sticky-cta.hidden { transform: translateY(110%); }
+
+    .in-app-banner {
+      background: #FEF3C7;
+      border: 2px solid #F59E0B;
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .in-app-banner.hidden { display: none; }
+
+    .in-app-banner strong {
+      display: block;
+      font-size: 1.0625rem;
+      color: #92400E;
+      margin-bottom: 6px;
+    }
+
+    .in-app-banner p {
+      font-size: 0.9375rem;
+      color: #78350F;
+      margin-bottom: 12px;
+    }
+
+    .btn-open-browser {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 20px;
+      background: #1E40AF;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+    }
+
+    .js-apk-download.is-loading {
+      opacity: 0.75;
+      pointer-events: none;
+    }
     .sticky-cta-inner {
       display: flex;
       flex-direction: column;
@@ -795,6 +840,12 @@
 
   <main class="container">
 
+    <div class="in-app-banner hidden" id="in-app-banner" role="alert">
+      <strong>📱 פתחו בדפדפן Chrome (לא מתוך WhatsApp)</strong>
+      <p>דפדפן מוטמע לא תומך בהורדת APK. לחצו <strong>⋮</strong> למעלה → <strong>«פתח ב-Chrome»</strong> — ואז לחצו שוב על «הורדת האפליקציה».</p>
+      <button type="button" class="btn-open-browser" id="btn-open-external">פתח בדפדפן Chrome</button>
+    </div>
+
     <section class="welcome-card" id="cta-section">
       <h2>ברוך הבא לפיילוט!</h2>
       <p>נבחרתם לקבוצת הבטא של <strong>ShareFlow</strong> מבית <strong>ADL Projects</strong>. תודה שאתם עוזרים לנו לבנות את האפליקציה הטובה ביותר לשיתוף הוצאות.</p>
@@ -823,10 +874,11 @@
       <div class="platform-panel" id="panel-android" role="tabpanel">
         <div class="tap-box">👆 מה ללחוץ — משתמשי Android: כפתור «הורדת האפליקציה» למטה</div>
         <div class="action-stack">
-          <a class="btn-android" id="apk-link" href="__APK_DOWNLOAD_URL__">
+          <a class="btn-android js-apk-download" id="apk-link" href="__APK_DOWNLOAD_URL__" download="ADL-ShareFlow.apk">
             <span aria-hidden="true">📥</span>
-            הורדת האפליקציה ל-Android
+            <span class="btn-label">הורדת האפליקציה ל-Android</span>
           </a>
+          <p style="font-size:0.875rem;color:var(--text-light);text-align:center;margin-top:4px">ההורדה (~30MB) עשויה לקחת כמה שניות — המתינו לסמל ההורדה</p>
           <a class="btn-wa" href="https://chat.whatsapp.com/CsLnZVcopXJ83gmhadew9I?s=sh&amp;p=i&amp;mlu=3">
             <span aria-hidden="true">💬</span>
             הצטרפות לקבוצת הוואטסאפ
@@ -847,7 +899,7 @@
     <section class="platform-section" id="ios-install">
       <div class="platform-header">
         <h2><span aria-hidden="true">🍎</span> התקנה ב-iPhone</h2>
-        <p>האפליקציה מגיעה דרך אפליקיית TestFlight של Apple — חינמית מהחנות. עקבו אחרי השלבים.</p>
+        <p>האפליקציה מגיעה דרך אפליקציית TestFlight של Apple — חינמית מהחנות. עקבו אחרי השלבים.</p>
       </div>
 
       <article class="step-card">
@@ -896,16 +948,16 @@
         <div class="step-header">
           <span class="step-num">3</span>
           <div class="step-body">
-            <h3>הירשמו והתחברו</h3>
+            <h3>הירשמו, אשרו התראות ובדקו גרסה</h3>
             <ol class="substeps">
               <li data-step="א">פתחו את <strong>ShareFlow</strong> מהמסך הבית או מ-TestFlight</li>
-              <li data-step="ב">במסך הראשון — הזינו את כתובת המייל והגדירו סיסמה (או התחברו אם כבר נרשמתם)</li>
-              <li data-step="ג">אשרו את תנאי השימוש אם מתבקשים</li>
-              <li data-step="ד">לאחר ההתחברות תגיעו למסך הבית של האפליקציה</li>
+              <li data-step="ב">הירשמו עם מייל וסיסמה (או התחברו אם כבר נרשמתם)</li>
+              <li data-step="ג">כשמופיעה בקשה להתראות — לחצו <strong>אפשר</strong> (חשוב לאישורי תשלום)</li>
+              <li data-step="ד">היכנסו ל<strong>פרופיל</strong> וודאו שמופיע <strong>1.0.9 (56)</strong> או גרסה חדשה יותר</li>
             </ol>
             <div class="screen-note">
               <span class="label" aria-hidden="true">👀</span>
-              <span><strong>מה תראו על המסך:</strong> מסך כניסה עם שדות מייל וסיסמה, ואז רשימת קבוצות (ריקה בהתחלה).</span>
+              <span><strong>מה תראו על המסך:</strong> מסך כניסה עם מייל וסיסמה, ואז רשימת קבוצות (ריקה אם עוד לא הצטרפתם לקבוצה).</span>
             </div>
           </div>
         </div>
@@ -925,7 +977,7 @@
             <ol class="substeps">
               <li data-step="א">לחצו על הכפתור הירוק למעלה</li>
               <li data-step="ב">ייפתח WhatsApp — לחצו <strong>הצטרפות לקבוצה</strong></li>
-              <li data-step="ג">ברוכים הבאים! כתבו הודעת הצגה קצרה</li>
+              <li data-step="ג">כתבו «הותקן» + iPhone + מספר הגרסה מהפרופיל</li>
             </ol>
           </div>
         </div>
@@ -964,12 +1016,12 @@
           <div class="step-body">
             <h3>הורידו את האפליקציה</h3>
             <div class="tap-box">👆 מה ללחוץ — כפתור «הורדת האפליקציה»</div>
-            <a class="btn-android" href="__APK_DOWNLOAD_URL__">
+            <a class="btn-android js-apk-download" href="__APK_DOWNLOAD_URL__" download="ADL-ShareFlow.apk">
               <span aria-hidden="true">📥</span>
-              הורדת האפליקציה ל-Android
+              <span class="btn-label">הורדת האפליקציה ל-Android</span>
             </a>
             <ol class="substeps">
-              <li data-step="א">לחצו על הכפתור למעלה</li>
+              <li data-step="א">לחצו על הכפתור למעלה — ההורדה (~30MB) תתחיל תוך כמה שניות</li>
               <li data-step="ב">אם מופיעה שאלה «להוריד?» — לחצו <strong>הורדה</strong></li>
               <li data-step="ג">המתינו לסיום — תראו סמל הורדה למעלה במסך</li>
             </ol>
@@ -1026,11 +1078,12 @@
         <div class="step-header">
           <span class="step-num">4</span>
           <div class="step-body">
-            <h3>הירשמו והתחברו</h3>
+            <h3>הירשמו, אשרו התראות ובדקו גרסה</h3>
             <ol class="substeps">
               <li data-step="א">פתחו את <strong>ShareFlow</strong> מהמסך הבית</li>
-              <li data-step="ב">הזינו מייל וסיסמה</li>
-              <li data-step="ג">אשרו תנאי שימוש אם מתבקשים</li>
+              <li data-step="ב">הירשמו עם מייל וסיסמה (או התחברו)</li>
+              <li data-step="ג">כשמופיעה בקשה להתראות — לחצו <strong>אפשר</strong></li>
+              <li data-step="ד">היכנסו ל<strong>פרופיל</strong> וודאו שמופיע <strong>1.0.9 (56)</strong> או גרסה חדשה יותר</li>
             </ol>
           </div>
         </div>
@@ -1046,6 +1099,11 @@
               <span aria-hidden="true">💬</span>
               הצטרפות לקבוצה — פיילוט אפליקציה
             </a>
+            <ol class="substeps">
+              <li data-step="א">לחצו על הכפתור הירוק</li>
+              <li data-step="ב">הצטרפו לקבוצה</li>
+              <li data-step="ג">כתבו «הותקן» + Android + מספר הגרסה מהפרופיל</li>
+            </ol>
           </div>
         </div>
       </article>
@@ -1056,9 +1114,9 @@
           <div class="step-body">
             <h3>עדכונים עתידיים</h3>
             <p>כשתשוחרר גרסה חדשה — נודיע בקבוצת הוואטסאפ. הורידו שוב מהכפתור:</p>
-            <a class="btn-android" href="__APK_DOWNLOAD_URL__">
+            <a class="btn-android js-apk-download" href="__APK_DOWNLOAD_URL__" download="ADL-ShareFlow.apk">
               <span aria-hidden="true">📥</span>
-              הורדת גרסה חדשה
+              <span class="btn-label">הורדת גרסה חדשה</span>
             </a>
           </div>
         </div>
@@ -1067,8 +1125,31 @@
 
     <div class="tip">
       <span class="tip-icon" aria-hidden="true">💡</span>
-      <span>נתקעתם? צלמו מסך של השלב שבו אתם תקועים ושלחו בקבוצת הוואטסאפ או בוואטסאפ לצוות — נעזור לכם צעד-אחר-צעד.</span>
+      <span>נתקעתם? צלמו מסך של השלב שבו אתם תקועים ושלחו בקבוצת הוואטסאפ — נעזור צעד-אחר-צעד.</span>
     </div>
+
+    <section class="faq-card" id="first-day">
+      <h2><span aria-hidden="true">✅</span> מה לנסות ביום הראשון</h2>
+      <ol class="wa-steps" style="margin-top:8px">
+        <li>
+          <span class="wa-num">1</span>
+          <span>צרו קבוצה קטנה (או הצטרפו לקבוצה שהמארגן שולח)</span>
+        </li>
+        <li>
+          <span class="wa-num">2</span>
+          <span>הוסיפו הוצאה וחלקו בין חברים</span>
+        </li>
+        <li>
+          <span class="wa-num">3</span>
+          <span>ב«יתרות» — לחצו «שלם ישירות» ובדקו שהמקבל יכול לאשר קבלה</span>
+        </li>
+        <li>
+          <span class="wa-num">4</span>
+          <span>סגרו את האפליקציה לגמרי ובדקו אם מגיעה התראת פוש</span>
+        </li>
+      </ol>
+      <p style="margin-top:14px;font-size:0.95rem;color:var(--text-muted)">מצאתם משהו מוזר? שלחו בקבוצה: מה ניסיתם, מה קרה, צילום מסך, ומספר גרסה מהפרופיל.</p>
+    </section>
 
     <section class="wa-card" id="whatsapp">
       <h2><span aria-hidden="true">💬</span> קבוצת WhatsApp של הפיילוט</h2>
@@ -1120,12 +1201,22 @@
 
       <details class="faq-item">
         <summary>לא מגיעות התראות מהאפליקציה</summary>
-        <p>הגדרות המכשיר → ShareFlow → התראות → אפשרו הכל. ב-iPhone כדאי לאשר גם התראות מ-TestFlight.</p>
+        <p>הגדרות המכשיר → ShareFlow → התראות → אפשרו הכל. ב-iPhone אשרו גם התראות מ-TestFlight. פתחו מחדש את ShareFlow אחרי האישור.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>איך בודקים איזו גרסה מותקנת?</summary>
+        <p>באפליקציה → <strong>פרופיל</strong>. צריכה להופיע <strong>1.0.9 (56)</strong> או גרסה חדשה יותר. אם ישנה יותר — עדכנו דרך TestFlight (iPhone) או הורידו שוב (Android).</p>
+      </details>
+
+      <details class="faq-item">
+        <summary>שכחתי סיסמה</summary>
+        <p>במסך ההתחברות לחצו «שכחתי סיסמה» — יישלח קוד למייל. אם המייל לא מגיע, בדקו ספאם או פנו בקבוצת הוואטסאפ.</p>
       </details>
 
       <details class="faq-item">
         <summary>איך מדווחים על תקלה?</summary>
-        <p>בקבוצת WhatsApp, בוואטסאפ לצוות, או במייל — תארו מה עשיתם ומה קרה. צילום מסך עוזר מאוד.</p>
+        <p>בקבוצת WhatsApp או במייל — כתבו: מה ניסיתם, מה קרה בפועל, צילום מסך, ומספר גרסה מהפרופיל.</p>
       </details>
     </section>
 
@@ -1180,8 +1271,19 @@
       var stickyLink = document.getElementById('sticky-cta-link');
       var sticky = document.getElementById('sticky-cta');
       var ctaSection = document.getElementById('cta-section');
+      var inAppBanner = document.getElementById('in-app-banner');
+      var btnOpenExternal = document.getElementById('btn-open-external');
       var iosDownloadUrl = '__IOS_DOWNLOAD_URL__';
       var apkDownloadUrl = '__APK_DOWNLOAD_URL__';
+
+      // ── זיהוי פלטפורמה ──────────────────────────────────────────────────
+      var ua = navigator.userAgent || '';
+      var isAndroid = /android/i.test(ua);
+      var isIOS = /iphone|ipad|ipod/i.test(ua);
+
+      // דפדפן מוטמע — WhatsApp / Telegram / Facebook / Instagram
+      var isInAppBrowser = /FBAN|FBAV|Instagram|LinkedInApp|Snapchat|Twitter|MicroMessenger/.test(ua)
+        || (/android/i.test(ua) && /wv\b/.test(ua));
 
       function setPlatform(p) {
         tabs.forEach(function (t) {
@@ -1195,20 +1297,76 @@
         if (stickyLink) {
           if (p === 'android') {
             stickyLink.href = apkDownloadUrl;
+            stickyLink.setAttribute('download', 'ADL-ShareFlow.apk');
             stickyLink.innerHTML = '<span aria-hidden="true">📥</span> הורדת האפליקציה ל-Android';
           } else {
             stickyLink.href = iosDownloadUrl;
+            stickyLink.removeAttribute('download');
             stickyLink.innerHTML = '<span aria-hidden="true">🍎</span> הורדת האפליקציה ל-iPhone';
           }
         }
       }
 
+      // ── עדכון APK_DOWNLOAD_URL לנתיב proxy ב-/download/apk ─────────────
+      // אם ה-URL הוא Drive / כל URL חיצוני — החלף ל-proxy מהשרת
+      // proxy מוגדר תמיד בשרת; מניעת Drive virus-scan HTML
+      (function fixApkUrl() {
+        var base = window.location.origin;
+        var proxyUrl = base + '/download/apk';
+        // החלף בכל הכפתורים שמצביעים ל-__APK_DOWNLOAD_URL__
+        document.querySelectorAll('.js-apk-download').forEach(function (el) {
+          el.href = proxyUrl;
+        });
+        if (stickyLink && /android/i.test(navigator.userAgent)) {
+          stickyLink.href = proxyUrl;
+        }
+        apkDownloadUrl = proxyUrl;
+      })();
+
+      // ── אירועי לחיצה — משוב ויזואלי ────────────────────────────────────
+      document.querySelectorAll('.js-apk-download').forEach(function (el) {
+        el.addEventListener('click', function () {
+          var label = el.querySelector('.btn-label');
+          if (label) label.textContent = '⏳ מתחיל הורדה...';
+          el.classList.add('is-loading');
+          setTimeout(function () {
+            if (label) label.textContent = el.classList.contains('update-btn') ? 'הורדת גרסה חדשה' : 'הורדת האפליקציה ל-Android';
+            el.classList.remove('is-loading');
+          }, 8000);
+        });
+      });
+
+      // ── זיהוי אוטומטי לפי OS ─────────────────────────────────────────────
+      if (isAndroid) {
+        setPlatform('android');
+        // הצג באנר אם דפדפן מוטמע
+        if (isInAppBrowser && inAppBanner) {
+          inAppBanner.classList.remove('hidden');
+        }
+      } else if (isIOS) {
+        setPlatform('ios');
+      }
+
+      // ── כפתור «פתח ב-Chrome» ─────────────────────────────────────────────
+      if (btnOpenExternal) {
+        btnOpenExternal.addEventListener('click', function () {
+          var url = window.location.href;
+          // intent ל-Android Chrome
+          window.location.href = 'intent://' + url.replace(/^https?:\/\//, '')
+            + '#Intent;scheme=https;package=com.android.chrome;end';
+          // fallback
+          setTimeout(function () { window.open(url, '_blank'); }, 1500);
+        });
+      }
+
+      // ── טאבים ─────────────────────────────────────────────────────────────
       tabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
           setPlatform(tab.getAttribute('data-platform'));
         });
       });
 
+      // ── sticky CTA ────────────────────────────────────────────────────────
       if (sticky && ctaSection && 'IntersectionObserver' in window) {
         var observer = new IntersectionObserver(function (entries) {
           entries.forEach(function (entry) {
