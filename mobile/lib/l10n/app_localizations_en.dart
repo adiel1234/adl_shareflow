@@ -882,6 +882,45 @@ class AppLocalizationsEn extends AppLocalizations {
       'Manual reminders open WhatsApp on your device (from balances / summary)';
 
   @override
+  String get forgotPasswordTitle => 'Reset password';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'We will send a 6-digit code to your email';
+
+  @override
+  String get sendResetCode => 'Send code to email';
+
+  @override
+  String get resetCodeSent =>
+      'If this email is registered, a reset code was sent';
+
+  @override
+  String get enterResetCode => 'Code from email';
+
+  @override
+  String get resetCodeRequired => 'Please enter the code from your email';
+
+  @override
+  String get invalidResetCode => 'Invalid or expired code';
+
+  @override
+  String get newPassword => 'New password';
+
+  @override
+  String get confirmNewPassword => 'Confirm new password';
+
+  @override
+  String get resetPasswordBtn => 'Update password';
+
+  @override
+  String get passwordResetSuccess => 'Password updated. You can sign in now';
+
+  @override
+  String get resetEmailSendError =>
+      'Could not send email right now. Please try again later';
+
+  @override
   String get fullName => 'Full Name';
 
   @override

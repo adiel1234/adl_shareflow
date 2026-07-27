@@ -10,8 +10,12 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 from flask import current_app
 
 from app import db
-from app.models import User, UserIdentity, RefreshToken
+from app.models import User, UserIdentity, RefreshToken, PasswordResetToken
 from app.common.utils import hash_token
+from app.email_service import send_password_reset_email
+
+
+_RESET_CODE_TTL_MINUTES = 30
 
 
 # ---------------------------------------------------------------------------
@@ -156,23 +160,80 @@ def logout(raw_refresh_token: str):
 # Password reset
 # ---------------------------------------------------------------------------
 
-def request_password_reset(email: str):
-    """Generates a reset token (in production: send via email)."""
-    email = email.lower().strip()
-    identity = UserIdentity.query.filter_by(provider='email', provider_user_id=email).first()
-    if not identity:
-        return  # Silent — don't reveal if email exists
-
+def request_password_reset(email: str) -> None:
+    """Create a 6-digit reset code and email it. Silent if email unknown."""
     import secrets
-    token = secrets.token_urlsafe(32)
-    # TODO: store token with expiry and send email
-    # For now: return token (dev only)
-    return token
+
+    email = email.lower().strip()
+    identity = UserIdentity.query.filter_by(
+        provider='email', provider_user_id=email
+    ).first()
+    if not identity or not identity.password_hash:
+        return
+
+    user = db.session.get(User, identity.user_id)
+    if not user or not user.is_active or user.is_guest:
+        return
+
+    # Invalidate previous unused codes for this user.
+    PasswordResetToken.query.filter_by(user_id=user.id, used_at=None).delete()
+
+    code = f'{secrets.randbelow(1_000_000):06d}'
+    row = PasswordResetToken(
+        user_id=user.id,
+        code_hash=hash_token(code),
+        expires_at=datetime.now(timezone.utc) + timedelta(minutes=_RESET_CODE_TTL_MINUTES),
+    )
+    db.session.add(row)
+    db.session.commit()
+
+    sent = send_password_reset_email(
+        to_email=user.email,
+        display_name=user.display_name,
+        code=code,
+    )
+    if not sent:
+        # Keep token so a retry can still work after Resend recovers;
+        # surface a soft failure to the route layer.
+        raise RuntimeError('Failed to send password reset email')
 
 
-def reset_password(token: str, new_password: str):
-    # TODO: validate token from storage, update password_hash
-    raise NotImplementedError('Password reset storage not yet implemented')
+def reset_password(email: str, code: str, new_password: str) -> None:
+    """Validate emailed code and set a new password for the email identity."""
+    email = email.lower().strip()
+    code = (code or '').strip().replace(' ', '')
+    if len(code) != 6 or not code.isdigit():
+        raise ValueError('קוד לא תקין או שפג תוקפו')
+    if len(new_password) < 8:
+        raise ValueError('הסיסמה חייבת להיות לפחות 8 תווים')
+
+    identity = UserIdentity.query.filter_by(
+        provider='email', provider_user_id=email
+    ).first()
+    if not identity:
+        raise ValueError('קוד לא תקין או שפג תוקפו')
+
+    now = datetime.now(timezone.utc)
+    row = (
+        PasswordResetToken.query
+        .filter_by(user_id=identity.user_id, code_hash=hash_token(code), used_at=None)
+        .order_by(PasswordResetToken.created_at.desc())
+        .first()
+    )
+    if not row:
+        raise ValueError('קוד לא תקין או שפג תוקפו')
+
+    expires = row.expires_at
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    if expires < now:
+        raise ValueError('קוד לא תקין או שפג תוקפו')
+
+    identity.password_hash = generate_password_hash(new_password)
+    row.used_at = now
+    # Revoke all refresh tokens so other devices must re-login.
+    RefreshToken.query.filter_by(user_id=identity.user_id).delete()
+    db.session.commit()
 
 
 # ---------------------------------------------------------------------------

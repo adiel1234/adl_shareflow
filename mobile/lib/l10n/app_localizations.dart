@@ -1718,6 +1718,78 @@ abstract class AppLocalizations {
   /// **'תזכורות ידניות ייפתחו ב-WhatsApp במכשיר שלך (ממסך היתרות / סיכום)'**
   String get whatsappDeviceReminders;
 
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'שחזור סיסמה'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'נשלח קוד בן 6 ספרות למייל שלך'**
+  String get forgotPasswordSubtitle;
+
+  /// No description provided for @sendResetCode.
+  ///
+  /// In he, this message translates to:
+  /// **'שלח קוד למייל'**
+  String get sendResetCode;
+
+  /// No description provided for @resetCodeSent.
+  ///
+  /// In he, this message translates to:
+  /// **'אם המייל רשום במערכת — נשלח אליו קוד איפוס'**
+  String get resetCodeSent;
+
+  /// No description provided for @enterResetCode.
+  ///
+  /// In he, this message translates to:
+  /// **'קוד מהמייל'**
+  String get enterResetCode;
+
+  /// No description provided for @resetCodeRequired.
+  ///
+  /// In he, this message translates to:
+  /// **'נא להזין את הקוד מהמייל'**
+  String get resetCodeRequired;
+
+  /// No description provided for @invalidResetCode.
+  ///
+  /// In he, this message translates to:
+  /// **'קוד לא תקין או שפג תוקפו'**
+  String get invalidResetCode;
+
+  /// No description provided for @newPassword.
+  ///
+  /// In he, this message translates to:
+  /// **'סיסמה חדשה'**
+  String get newPassword;
+
+  /// No description provided for @confirmNewPassword.
+  ///
+  /// In he, this message translates to:
+  /// **'אימות סיסמה חדשה'**
+  String get confirmNewPassword;
+
+  /// No description provided for @resetPasswordBtn.
+  ///
+  /// In he, this message translates to:
+  /// **'עדכן סיסמה'**
+  String get resetPasswordBtn;
+
+  /// No description provided for @passwordResetSuccess.
+  ///
+  /// In he, this message translates to:
+  /// **'הסיסמה עודכנה בהצלחה. אפשר להתחבר'**
+  String get passwordResetSuccess;
+
+  /// No description provided for @resetEmailSendError.
+  ///
+  /// In he, this message translates to:
+  /// **'לא ניתן לשלוח מייל כרגע. נסה שוב מאוחר יותר'**
+  String get resetEmailSendError;
+
   /// No description provided for @fullName.
   ///
   /// In he, this message translates to:

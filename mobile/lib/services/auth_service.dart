@@ -88,6 +88,24 @@ class AuthService {
     return response.data['data']['user'];
   }
 
+  Future<void> requestPasswordReset(String email) async {
+    await _api.post('/auth/forgot-password', data: {
+      'email': email.trim(),
+    });
+  }
+
+  Future<void> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    await _api.post('/auth/reset-password', data: {
+      'email': email.trim(),
+      'code': code.trim(),
+      'new_password': newPassword,
+    });
+  }
+
   Future<void> logout() async {
     final refreshToken =
         await AppSecureStorage.read(AppConstants.refreshTokenKey);

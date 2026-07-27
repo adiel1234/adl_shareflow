@@ -132,24 +132,35 @@ def forgot_password():
     if not email:
         return error_response('email is required')
 
-    service.request_password_reset(email)
-    return success_response(message='If this email exists, a reset link has been sent')
+    try:
+        service.request_password_reset(email)
+    except RuntimeError:
+        return error_response(
+            'Could not send reset email. Please try again later.',
+            503,
+        )
+
+    # Always the same message — do not reveal whether the email exists.
+    return success_response(
+        message='If this email exists, a reset code has been sent'
+    )
 
 
 @auth_bp.post('/reset-password')
 def reset_password():
     data = request.get_json(silent=True) or {}
-    token = (data.get('token') or '').strip()
+    email = (data.get('email') or '').strip()
+    code = (data.get('code') or data.get('token') or '').strip()
     new_password = data.get('new_password', '')
 
-    if not token or not new_password:
-        return error_response('token and new_password are required')
+    if not email or not code or not new_password:
+        return error_response('email, code, and new_password are required')
     if len(new_password) < 8:
         return error_response('Password must be at least 8 characters')
 
     try:
-        service.reset_password(token, new_password)
-    except (ValueError, NotImplementedError) as e:
+        service.reset_password(email, code, new_password)
+    except ValueError as e:
         return error_response(str(e))
 
     return success_response(message='Password reset successfully')

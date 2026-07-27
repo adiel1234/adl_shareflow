@@ -878,6 +878,43 @@ class AppLocalizationsHe extends AppLocalizations {
       'תזכורות ידניות ייפתחו ב-WhatsApp במכשיר שלך (ממסך היתרות / סיכום)';
 
   @override
+  String get forgotPasswordTitle => 'שחזור סיסמה';
+
+  @override
+  String get forgotPasswordSubtitle => 'נשלח קוד בן 6 ספרות למייל שלך';
+
+  @override
+  String get sendResetCode => 'שלח קוד למייל';
+
+  @override
+  String get resetCodeSent => 'אם המייל רשום במערכת — נשלח אליו קוד איפוס';
+
+  @override
+  String get enterResetCode => 'קוד מהמייל';
+
+  @override
+  String get resetCodeRequired => 'נא להזין את הקוד מהמייל';
+
+  @override
+  String get invalidResetCode => 'קוד לא תקין או שפג תוקפו';
+
+  @override
+  String get newPassword => 'סיסמה חדשה';
+
+  @override
+  String get confirmNewPassword => 'אימות סיסמה חדשה';
+
+  @override
+  String get resetPasswordBtn => 'עדכן סיסמה';
+
+  @override
+  String get passwordResetSuccess => 'הסיסמה עודכנה בהצלחה. אפשר להתחבר';
+
+  @override
+  String get resetEmailSendError =>
+      'לא ניתן לשלוח מייל כרגע. נסה שוב מאוחר יותר';
+
+  @override
   String get fullName => 'שם מלא';
 
   @override

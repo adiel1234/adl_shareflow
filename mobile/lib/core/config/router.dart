@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
+import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/home/presentation/screens/main_shell.dart';
 import '../../features/groups/presentation/screens/group_detail_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
@@ -17,6 +18,8 @@ class AppRouter {
         return _slide(const LoginScreen());
       case '/register':
         return _slide(const RegisterScreen());
+      case '/forgot-password':
+        return _slide(const ForgotPasswordScreen());
       case '/home':
         return _fade(const MainShell());
       case '/onboarding':

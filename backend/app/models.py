@@ -54,6 +54,9 @@ class User(db.Model):
     # Relationships
     identities = relationship('UserIdentity', back_populates='user', cascade='all, delete-orphan')
     refresh_tokens = relationship('RefreshToken', back_populates='user', cascade='all, delete-orphan')
+    password_reset_tokens = relationship(
+        'PasswordResetToken', back_populates='user', cascade='all, delete-orphan'
+    )
     fcm_tokens = relationship('FCMToken', back_populates='user', cascade='all, delete-orphan')
     group_memberships = relationship('GroupMember', back_populates='user', cascade='all, delete-orphan')
     notifications = relationship('Notification', back_populates='user', cascade='all, delete-orphan')
@@ -109,6 +112,19 @@ class RefreshToken(db.Model):
     created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
 
     user = relationship('User', back_populates='refresh_tokens')
+
+
+class PasswordResetToken(db.Model):
+    __tablename__ = 'password_reset_tokens'
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    user_id = Column(UUID(as_uuid=False), ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    code_hash = Column(Text, nullable=False, index=True)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    used_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
+
+    user = relationship('User', back_populates='password_reset_tokens')
 
 
 class FCMToken(db.Model):
