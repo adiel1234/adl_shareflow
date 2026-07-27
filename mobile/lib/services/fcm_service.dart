@@ -11,11 +11,61 @@ import '../core/storage/secure_storage.dart';
 import 'feedback_service.dart';
 
 /// Background message handler — must be top-level function.
+/// Called for data messages (and some Android cases). When the server sends a
+/// proper `notification` + APNs `alert`, iOS/Android system trays show the
+/// banner without this handler — this is a fallback for data-only delivery.
 @pragma('vm:entry-point')
 Future<void> _firebaseBackgroundHandler(RemoteMessage message) async {
-  // Firebase is already initialized when this is called.
-  // No UI work here — just log / store if needed.
   debugPrint('[FCM] Background message: ${message.messageId}');
+  try {
+    final data = message.data;
+    final title = data['title'] as String? ?? message.notification?.title ?? '';
+    final body = data['body'] as String? ?? message.notification?.body ?? '';
+    // System already displayed a tray notification — avoid duplicates.
+    if (message.notification != null) return;
+    if (title.isEmpty && body.isEmpty) return;
+
+    const channel = AndroidNotificationChannel(
+      'shareflow_default',
+      'ADL ShareFlow',
+      description: 'ADL ShareFlow notifications',
+      importance: Importance.high,
+      playSound: true,
+    );
+    final plugin = FlutterLocalNotificationsPlugin();
+    await plugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+    await plugin.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        iOS: DarwinInitializationSettings(),
+      ),
+    );
+    await plugin.show(
+      message.messageId?.hashCode ?? title.hashCode,
+      title,
+      body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          channel.id,
+          channel.name,
+          channelDescription: channel.description,
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+    );
+  } catch (e) {
+    debugPrint('[FCM] Background handler error: $e');
+  }
 }
 
 class NotificationTapInfo {
@@ -89,6 +139,17 @@ class FcmService {
   /// Call this after login to ensure the token is registered when auth is ready.
   Future<void> registerToken() async {
     try {
+      // On iOS, FCM token may be null until APNs token is available.
+      if (!kIsWeb && Platform.isIOS) {
+        String? apns = await _messaging.getAPNSToken();
+        for (var i = 0; i < 10 && apns == null; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 500));
+          apns = await _messaging.getAPNSToken();
+        }
+        if (apns == null) {
+          debugPrint('[FCM] APNs token not ready yet — will retry on refresh');
+        }
+      }
       final token = await _messaging.getToken();
       if (token != null) await _sendTokenToBackend(token);
     } catch (e) {

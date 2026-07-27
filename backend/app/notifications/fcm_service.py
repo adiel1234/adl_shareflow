@@ -89,10 +89,21 @@ def _build_message(title: str, body: str, payload_data: dict, token: str):
                 default_sound=True,
             ),
         ),
+        # Custom apns.payload OVERRIDES notification.title/body on the APNs
+        # path. Always include ApsAlert — otherwise iOS shows no banner when
+        # the app is backgrounded or killed (foreground still works via local
+        # notifications from the data payload).
         apns=messaging.APNSConfig(
-            headers={'apns-priority': '10'},
+            headers={
+                'apns-priority': '10',
+                'apns-push-type': 'alert',
+            },
             payload=messaging.APNSPayload(
-                aps=messaging.Aps(sound='default', badge=1),
+                aps=messaging.Aps(
+                    alert=messaging.ApsAlert(title=title, body=body),
+                    sound='default',
+                    badge=1,
+                ),
             ),
         ),
     )
