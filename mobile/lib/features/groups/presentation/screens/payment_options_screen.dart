@@ -1,12 +1,15 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
+import '../../../balances/data/balance_repository.dart';
 
 /// Shown when a group member wants to settle a debt.
 /// Always shows Bit, PayBox, and bank transfer options.
 /// If recipient hasn't configured details, shows a prompt.
+/// When [groupId] + [toUserId] are set, shows «שילמתי — שלח לאישור».
 class PaymentOptionsScreen extends StatefulWidget {
   final String recipientName;
   final double amount;
@@ -16,6 +19,8 @@ class PaymentOptionsScreen extends StatefulWidget {
   final String? bankName;
   final String? bankBranch;
   final String? bankAccountNumber;
+  final String? groupId;
+  final String? toUserId;
 
   const PaymentOptionsScreen({
     super.key,
@@ -27,6 +32,8 @@ class PaymentOptionsScreen extends StatefulWidget {
     this.bankName,
     this.bankBranch,
     this.bankAccountNumber,
+    this.groupId,
+    this.toUserId,
   });
 
   @override
@@ -34,7 +41,15 @@ class PaymentOptionsScreen extends StatefulWidget {
 }
 
 class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
+  bool _markingPaid = false;
+
   int get _roundedAmount => widget.amount.round();
+
+  bool get _canMarkPaid =>
+      widget.groupId != null &&
+      widget.groupId!.isNotEmpty &&
+      widget.toUserId != null &&
+      widget.toUserId!.isNotEmpty;
 
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
@@ -59,8 +74,53 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
     }
   }
 
+  Future<void> _markPaidAndReturn() async {
+    if (!_canMarkPaid || _markingPaid) return;
+    final l = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(l.paidDirectly,
+            style: const TextStyle(fontWeight: FontWeight.w700)),
+        content: Text(l.confirmDirectPayment(widget.recipientName)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.yesConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _markingPaid = true);
+    try {
+      HapticFeedback.mediumImpact();
+      await BalanceRepository().requestSettlement(
+        groupId: widget.groupId!,
+        toUserId: widget.toUserId!,
+        amount: widget.amount,
+        currency: widget.currency,
+      );
+      if (!mounted) return;
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      String msg = 'שגיאה בסימון תשלום';
+      if (e is DioException) {
+        msg = (e.response?.data?['message'] as String?) ?? msg;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      setState(() => _markingPaid = false);
+    }
+  }
+
   /// Shows a confirmation sheet with amount + phone, then opens the app.
-  /// [launchUri] defaults to [scheme]:// — Bit uses plain `bit://` (no amount deep link).
   void _showAppLaunchConfirm(
     String appName,
     String phone,
@@ -161,16 +221,11 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
     );
   }
 
-  /// Bit accepts only `bit://` from third-party apps; amount/phone query params are ignored.
   Uri get _bitLaunchUri => Uri(scheme: 'bit');
 
-  /// Opens Bit via confirmation sheet (amount shown for copy — not pre-filled in Bit).
   void _openBit(String phone) =>
       _showAppLaunchConfirm('Bit', phone, 'bit', launchUri: _bitLaunchUri);
 
-  /// Opens PayBox via confirmation sheet.
-  /// If a personal PayBox link is stored, opens it directly (Universal Link).
-  /// Otherwise falls back to manual phone input then `paybox://`.
   void _openPayBox(String phone) {
     final link = widget.recipientPayboxLink;
     if (link != null && link.isNotEmpty) {
@@ -180,7 +235,6 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
     }
   }
 
-  /// Shows amount + confirmation sheet, then opens the PayBox Universal Link.
   void _showPayboxLinkConfirm(String link, String phone) {
     showModalBottomSheet(
       context: context,
@@ -263,7 +317,6 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
     );
   }
 
-  /// Shows a bottom sheet to enter phone number manually, then opens [scheme]://
   void _showPhoneInput(String appName, String scheme) {
     final controller = TextEditingController();
     showModalBottomSheet(
@@ -367,7 +420,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                     });
                   });
                 },
-                child: Text('המשך'),
+                child: const Text('המשך'),
               ),
             ),
           ],
@@ -390,141 +443,205 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
         title: Text(l.sendPayment),
         backgroundColor: AppColors.background,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Summary card
-            Container(
-              width: double.infinity,
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: AppColors.brandGradient,
-                borderRadius: BorderRadius.circular(18),
-              ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '$_roundedAmount ${widget.currency}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 36,
-                      fontWeight: FontWeight.w800,
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: AppColors.brandGradient,
+                      borderRadius: BorderRadius.circular(18),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l.payTo(widget.recipientName),
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.85),
-                      fontSize: 15,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 28),
-
-            Text(
-              l.choosePaymentMethod,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600, fontSize: 15),
-            ),
-            const SizedBox(height: 14),
-
-            // Bit
-            _PaymentTile(
-              emoji: '💙',
-              title: 'Bit',
-              subtitle: phone != null
-                  ? phone
-                  : 'המקבל לא הגדיר מספר טלפון',
-              hasDetails: phone != null,
-              onTap: () {
-                if (phone != null) {
-                  _openBit(phone);
-                } else {
-                  _showPhoneInput('Bit', 'bit');
-                }
-              },
-            ),
-
-            // PayBox
-            _PaymentTile(
-              emoji: '🟢',
-              title: 'PayBox',
-              subtitle: payboxLink != null
-                  ? 'קישור אישי מוגדר'
-                  : phone != null
-                      ? phone
-                      : 'המקבל לא הגדיר קישור PayBox',
-              hasDetails: hasPayboxDetails,
-              onTap: () {
-                if (hasPayboxDetails) {
-                  _openPayBox(phone ?? '');
-                } else {
-                  _showPhoneInput('PayBox', 'paybox');
-                }
-              },
-            ),
-
-            // Bank transfer
-            hasBankDetails
-                ? _BankTransferTile(
-                    bankName: widget.bankName,
-                    bankBranch: widget.bankBranch,
-                    bankAccountNumber: widget.bankAccountNumber!,
-                    amount: _roundedAmount,
-                    currency: widget.currency,
-                    recipientName: widget.recipientName,
-                  )
-                : _PaymentTile(
-                    emoji: '🏦',
-                    title: l.bankTransfer,
-                    subtitle: 'המקבל לא הגדיר פרטי בנק',
-                    hasDetails: false,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'המקבל לא הגדיר פרטי בנק בפרופיל שלו'),
+                    child: Column(
+                      children: [
+                        Text(
+                          '$_roundedAmount ${widget.currency}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 36,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
-                      );
+                        const SizedBox(height: 4),
+                        Text(
+                          l.payTo(widget.recipientName),
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.85),
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  Text(
+                    l.choosePaymentMethod,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600, fontSize: 15),
+                  ),
+                  const SizedBox(height: 14),
+
+                  _PaymentTile(
+                    emoji: '💙',
+                    title: 'Bit',
+                    subtitle: phone != null
+                        ? phone
+                        : 'המקבל לא הגדיר מספר טלפון',
+                    hasDetails: phone != null,
+                    onTap: () {
+                      if (phone != null) {
+                        _openBit(phone);
+                      } else {
+                        _showPhoneInput('Bit', 'bit');
+                      }
                     },
                   ),
 
-            const SizedBox(height: 20),
+                  _PaymentTile(
+                    emoji: '🟢',
+                    title: 'PayBox',
+                    subtitle: payboxLink != null
+                        ? 'קישור אישי מוגדר'
+                        : phone != null
+                            ? phone
+                            : 'המקבל לא הגדיר קישור PayBox',
+                    hasDetails: hasPayboxDetails,
+                    onTap: () {
+                      if (hasPayboxDetails) {
+                        _openPayBox(phone ?? '');
+                      } else {
+                        _showPhoneInput('PayBox', 'paybox');
+                      }
+                    },
+                  ),
 
-            // Info note
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.info.withOpacity(0.07),
-                borderRadius: BorderRadius.circular(10),
-                border:
-                    Border.all(color: AppColors.info.withOpacity(0.2)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('ℹ️', style: TextStyle(fontSize: 14)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'ניתן לעדכן פרטי תשלום (Bit/PayBox/בנק) בפרופיל → "פרטי תשלום"',
-                      style: const TextStyle(
-                          color: AppColors.info,
-                          fontSize: 12,
-                          height: 1.4),
+                  hasBankDetails
+                      ? _BankTransferTile(
+                          bankName: widget.bankName,
+                          bankBranch: widget.bankBranch,
+                          bankAccountNumber: widget.bankAccountNumber!,
+                          amount: _roundedAmount,
+                          currency: widget.currency,
+                          recipientName: widget.recipientName,
+                        )
+                      : _PaymentTile(
+                          emoji: '🏦',
+                          title: l.bankTransfer,
+                          subtitle: 'המקבל לא הגדיר פרטי בנק',
+                          hasDetails: false,
+                          onTap: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'המקבל לא הגדיר פרטי בנק בפרופיל שלו'),
+                              ),
+                            );
+                          },
+                        ),
+
+                  const SizedBox(height: 20),
+
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.info.withOpacity(0.07),
+                      borderRadius: BorderRadius.circular(10),
+                      border:
+                          Border.all(color: AppColors.info.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('ℹ️', style: TextStyle(fontSize: 14)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'ניתן לעדכן פרטי תשלום (Bit/PayBox/בנק) בפרופיל → "פרטי תשלום"',
+                            style: const TextStyle(
+                                color: AppColors.info,
+                                fontSize: 12,
+                                height: 1.4),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          if (_canMarkPaid)
+            SafeArea(
+              top: false,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l.paidSendForApprovalHint,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.positive,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(double.infinity, 52),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        onPressed: _markingPaid ? null : _markPaidAndReturn,
+                        child: _markingPaid
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                l.paidSendForApproval,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

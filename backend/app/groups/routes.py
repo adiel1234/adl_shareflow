@@ -469,6 +469,7 @@ def close_group(group_id, **kwargs):
 
     data = request.get_json(silent=True) or {}
     force = data.get('force', False)
+    dry_run = bool(data.get('dry_run', False))
 
     # Check for unsettled balances
     balances = calculate_group_balances(group_id)
@@ -490,6 +491,12 @@ def close_group(group_id, **kwargs):
             'יש חובות שטרם הוסדרו בקבוצה',
             409,
             errors={'unsettled': details}
+        )
+
+    if dry_run:
+        return success_response(
+            data={'can_close': True, 'unsettled': []},
+            message='ניתן לסגור את הקבוצה',
         )
 
     from datetime import datetime, timezone

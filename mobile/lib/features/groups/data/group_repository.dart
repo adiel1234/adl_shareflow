@@ -155,12 +155,21 @@ class GroupRepository {
   }
 
   /// Closes the group. Returns the updated group on success.
-  /// Throws [CloseGroupException] if there are unsettled debts.
-  Future<Group> closeGroup(String groupId, {bool force = false}) async {
+  /// Throws [DioException] 409 if there are unsettled debts (unless [force]).
+  /// When [dryRun] is true the group is not closed — only debt status is checked.
+  Future<Group?> closeGroup(
+    String groupId, {
+    bool force = false,
+    bool dryRun = false,
+  }) async {
     final response = await _api.post(
       '/groups/$groupId/close',
-      data: {'force': force},
+      data: {
+        'force': force,
+        'dry_run': dryRun,
+      },
     );
+    if (dryRun) return null;
     return Group.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 

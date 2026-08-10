@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 אוגוסט 2026 - מצב פיילוט on/off + `account_mode` (pilot/active)
+> עודכן לאחרונה: 10 אוגוסט 2026 - פישוט זרימת חשבון באפליקציה + `dry_run` לסגירת קבוצה
 
 ---
 
@@ -551,6 +551,7 @@ flutter install --release
 - **ADL Control Pilot**: לשונית «פיילוט» + מתג `PILOT_MODE_ENABLED`; קוראת ל-`/api/adl/stats|users|activity|settlements|users/<id>` עם `scope=pilot`.
 - **איפוס פיילוט (10 אוג׳ 2026):** נמחקו משתמשים/קבוצות/הוצאות/סילוקים בייצור; נשמרים `feature_flags`, `plans`, `exchange_rates`.
 - **סיום פיילוט:** כיבוי חוסם משתמשי `pilot`; הרשמה מחדש (אותו אימייל/OAuth) ממירה ל-`active`; JWT בודק `is_active` בכל בקשה (blocklist).
+- **פישוט חשבון (אפליקציה):** במסך תשלום — «שילמתי — שלח לאישור»; סגירת קבוצה תמיד עם אישור (`dry_run` ב-`POST /groups/<id>/close`); אשף «סיים אירוע» ב-2 שלבים + קישור חזרה להסדרת חובות.
 - **Group Renewal Pricing**: `MonetizationService.renew_group` משתמש ב-`resolve_price(group_type, member_count)` — אותו מחיר כמו הפעלה; אפליקציה קוראת `required_pricing` מהשרת (build 30).
 
 ---

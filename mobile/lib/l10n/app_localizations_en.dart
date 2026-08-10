@@ -270,6 +270,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closeGroup => 'Close Group';
 
   @override
+  String get closeGroupShortHint =>
+      'Stops new expenses — does not settle debts';
+
+  @override
   String get groupClosedSuccess => 'Group closed successfully 🔒';
 
   @override
@@ -280,7 +284,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get closeGroupConfirm =>
-      'Are you sure you want to close this group?\nAfter closing, no new expenses can be added.';
+      'Close this group?\nAfter closing, no new expenses can be added.\nTo settle debts, use the Balances tab first.';
 
   @override
   String get unsettledDebtsTitle => 'Not all debts have been settled:';
@@ -361,7 +365,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get summarizeEvent => 'Summarize Event';
 
   @override
-  String get sendSummaryToMembers => 'Send cost summary to members';
+  String get sendSummaryToMembers =>
+      'Summary, notify members, then optional close';
 
   @override
   String get expenseDescription => 'Expense description';
@@ -1168,7 +1173,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get finishEventWizard => 'Finish event';
 
   @override
-  String get wizardStepSummary => 'Summary';
+  String get wizardStepSummary => 'Summary & send';
 
   @override
   String get wizardStepSend => 'Send';
@@ -1180,11 +1185,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closeGroupAfterSummary => 'Close group';
 
   @override
+  String get settleDebtsOnBalances => 'Settle debts — back to Balances tab';
+
+  @override
+  String get settleDebtsHint =>
+      'This is the summary. To pay or confirm receipt — go back to the Balances tab.';
+
+  @override
   String get unsettledDebtsWarning =>
       'There are still open debts. Close anyway?';
 
   @override
-  String get wizardNext => 'Next';
+  String get wizardNext => 'Next — close';
 
   @override
   String get wizardBack => 'Previous';
@@ -1193,6 +1205,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String wizardStepOf(int current, int total) {
     return 'Step $current of $total';
   }
+
+  @override
+  String get yesConfirm => 'Yes';
+
+  @override
+  String get paidSendForApproval => 'I paid — send for approval';
+
+  @override
+  String get paidSendForApprovalHint =>
+      'After paying in the external app, tap here so the recipient can confirm.';
+
+  @override
+  String get balancesHowItWorks =>
+      'How to settle? Debtor taps «I paid» → recipient taps «Confirm receipt».';
+
+  @override
+  String get periodSettleHint =>
+      'Closing a period creates a report. Debts still need «Paid» or confirmation on the Balances tab.';
 
   @override
   String get shareGuestDebtWhatsApp => 'Share reminder via WhatsApp';
@@ -1454,11 +1484,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markAsPaid => 'Paid ✓';
 
   @override
-  String get paidDirectly => 'I paid directly';
+  String get paidDirectly => 'I paid';
 
   @override
   String confirmDirectPayment(String name) {
-    return 'Are you confirming you paid $name directly?';
+    return 'Confirm you paid $name?\nWe\'ll ask them to confirm receipt.';
   }
 
   @override

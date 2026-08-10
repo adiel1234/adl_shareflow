@@ -175,11 +175,9 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen>
                           fontWeight: FontWeight.w700,
                           fontSize: 15)),
                               Text(
-                                group.nextSettlementDate != null
-                                    ? AppLocalizations.of(context)!.settlePeriodNext(_fmtDate(group.nextSettlementDate!))
-                                    : AppLocalizations.of(context)!.settlePeriodCreateReport,
+                                AppLocalizations.of(context)!.periodSettleHint,
                                 style: const TextStyle(
-                                    color: Colors.white70, fontSize: 12),
+                                    color: Colors.white70, fontSize: 11, height: 1.3),
                               ),
                             ],
                           ),
@@ -633,9 +631,9 @@ class _TransfersCard extends ConsumerStatefulWidget {
 }
 
 class _TransfersCardState extends ConsumerState<_TransfersCard> {
-  void _openPayment(BuildContext context, SettlementSuggestion s) {
+  Future<void> _openPayment(BuildContext context, SettlementSuggestion s) async {
     HapticFeedback.lightImpact();
-    Navigator.push(
+    final marked = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (_) => PaymentOptionsScreen(
@@ -647,9 +645,23 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
           bankName: s.toBankName,
           bankBranch: s.toBankBranch,
           bankAccountNumber: s.toBankAccountNumber,
+          groupId: widget.group.id,
+          toUserId: s.toUserId,
         ),
       ),
     );
+    if (!mounted) return;
+    if (marked == true) {
+      ref.invalidate(pendingSettlementsProvider(widget.group.id));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!
+                .waitingForConfirmation(s.toDisplayName),
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _paidDirectly(
@@ -671,7 +683,7 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                 child: Text(dl.cancel)),
             ElevatedButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('כן')),
+                child: Text(dl.yesConfirm)),
           ],
         );
       },
@@ -911,8 +923,20 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                 style: TextStyle(fontSize: 12, color: headerColor.withOpacity(0.8)),
               )),
             )
-          else
+          else ...[
+            const SizedBox(height: 8),
+            Builder(
+              builder: (ctx) => Text(
+                AppLocalizations.of(ctx)!.balancesHowItWorks,
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.35,
+                  color: headerColor.withOpacity(0.85),
+                ),
+              ),
+            ),
             const SizedBox(height: 12),
+          ],
           ...suggestions.map(
             (s) {
               final isMyDebt = s.fromUserId == currentUserId;

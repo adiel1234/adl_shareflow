@@ -608,6 +608,12 @@ abstract class AppLocalizations {
   /// **'סגור קבוצה'**
   String get closeGroup;
 
+  /// No description provided for @closeGroupShortHint.
+  ///
+  /// In he, this message translates to:
+  /// **'עוצר הוצאות חדשות — לא מסדיר חובות'**
+  String get closeGroupShortHint;
+
   /// No description provided for @groupClosedSuccess.
   ///
   /// In he, this message translates to:
@@ -629,7 +635,7 @@ abstract class AppLocalizations {
   /// No description provided for @closeGroupConfirm.
   ///
   /// In he, this message translates to:
-  /// **'האם אתה בטוח שברצונך לסגור את הקבוצה?\nלאחר הסגירה לא ניתן יהיה להוסיף הוצאות חדשות.'**
+  /// **'לסגור את הקבוצה?\nלאחר הסגירה לא ניתן להוסיף הוצאות חדשות.\nלהסדרת חובות השתמשו בטאב «חשבון» לפני הסגירה.'**
   String get closeGroupConfirm;
 
   /// No description provided for @unsettledDebtsTitle.
@@ -785,7 +791,7 @@ abstract class AppLocalizations {
   /// No description provided for @sendSummaryToMembers.
   ///
   /// In he, this message translates to:
-  /// **'שלח סיכום וחלוקת עלויות לחברים'**
+  /// **'סיכום, שליחה לחברים, ואז סגירה (אופציונלי)'**
   String get sendSummaryToMembers;
 
   /// No description provided for @expenseDescription.
@@ -2255,7 +2261,7 @@ abstract class AppLocalizations {
   /// No description provided for @wizardStepSummary.
   ///
   /// In he, this message translates to:
-  /// **'סיכום'**
+  /// **'סיכום ושליחה'**
   String get wizardStepSummary;
 
   /// No description provided for @wizardStepSend.
@@ -2276,6 +2282,18 @@ abstract class AppLocalizations {
   /// **'סגור את הקבוצה'**
   String get closeGroupAfterSummary;
 
+  /// No description provided for @settleDebtsOnBalances.
+  ///
+  /// In he, this message translates to:
+  /// **'להסדרת חובות — חזרה לטאב חשבון'**
+  String get settleDebtsOnBalances;
+
+  /// No description provided for @settleDebtsHint.
+  ///
+  /// In he, this message translates to:
+  /// **'כאן רואים את הסיכום. כדי לשלם או לאשר קבלה — חזרו לטאב «חשבון».'**
+  String get settleDebtsHint;
+
   /// No description provided for @unsettledDebtsWarning.
   ///
   /// In he, this message translates to:
@@ -2285,7 +2303,7 @@ abstract class AppLocalizations {
   /// No description provided for @wizardNext.
   ///
   /// In he, this message translates to:
-  /// **'הבא'**
+  /// **'הבא — סגירה'**
   String get wizardNext;
 
   /// No description provided for @wizardBack.
@@ -2299,6 +2317,36 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'שלב {current} מתוך {total}'**
   String wizardStepOf(int current, int total);
+
+  /// No description provided for @yesConfirm.
+  ///
+  /// In he, this message translates to:
+  /// **'כן'**
+  String get yesConfirm;
+
+  /// No description provided for @paidSendForApproval.
+  ///
+  /// In he, this message translates to:
+  /// **'שילמתי — שלח לאישור'**
+  String get paidSendForApproval;
+
+  /// No description provided for @paidSendForApprovalHint.
+  ///
+  /// In he, this message translates to:
+  /// **'אחרי ששילמתם באפליקציה החיצונית, לחצו כאן כדי שהמקבל יאשר.'**
+  String get paidSendForApprovalHint;
+
+  /// No description provided for @balancesHowItWorks.
+  ///
+  /// In he, this message translates to:
+  /// **'איך מסדירים? החייב לוחץ «שילמתי» → המקבל לוחץ «אשר קבלה».'**
+  String get balancesHowItWorks;
+
+  /// No description provided for @periodSettleHint.
+  ///
+  /// In he, this message translates to:
+  /// **'סגירת תקופה יוצרת דוח לחברים. חובות עדיין דורשים סימון «שולם» או אישור בטאב חשבון.'**
+  String get periodSettleHint;
 
   /// No description provided for @shareGuestDebtWhatsApp.
   ///
@@ -2765,13 +2813,13 @@ abstract class AppLocalizations {
   /// No description provided for @paidDirectly.
   ///
   /// In he, this message translates to:
-  /// **'שילמתי ישירות'**
+  /// **'שילמתי'**
   String get paidDirectly;
 
   /// No description provided for @confirmDirectPayment.
   ///
   /// In he, this message translates to:
-  /// **'האם אתה מאשר ששלמת ל{name} ישירות?'**
+  /// **'לאשר ששילמת ל{name}?\nנשלח למקבל לאישור קבלה.'**
   String confirmDirectPayment(String name);
 
   /// No description provided for @confirmPaymentReceived.

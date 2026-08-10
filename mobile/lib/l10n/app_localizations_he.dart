@@ -269,6 +269,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get closeGroup => 'סגור קבוצה';
 
   @override
+  String get closeGroupShortHint => 'עוצר הוצאות חדשות — לא מסדיר חובות';
+
+  @override
   String get groupClosedSuccess => 'הקבוצה נסגרה בהצלחה 🔒';
 
   @override
@@ -279,7 +282,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get closeGroupConfirm =>
-      'האם אתה בטוח שברצונך לסגור את הקבוצה?\nלאחר הסגירה לא ניתן יהיה להוסיף הוצאות חדשות.';
+      'לסגור את הקבוצה?\nלאחר הסגירה לא ניתן להוסיף הוצאות חדשות.\nלהסדרת חובות השתמשו בטאב «חשבון» לפני הסגירה.';
 
   @override
   String get unsettledDebtsTitle => 'טרם הוסדרו כלל החובות בקבוצה:';
@@ -360,7 +363,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get summarizeEvent => 'סכם אירוע';
 
   @override
-  String get sendSummaryToMembers => 'שלח סיכום וחלוקת עלויות לחברים';
+  String get sendSummaryToMembers =>
+      'סיכום, שליחה לחברים, ואז סגירה (אופציונלי)';
 
   @override
   String get expenseDescription => 'תיאור ההוצאה';
@@ -1159,7 +1163,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get finishEventWizard => 'סיים אירוע';
 
   @override
-  String get wizardStepSummary => 'סיכום';
+  String get wizardStepSummary => 'סיכום ושליחה';
 
   @override
   String get wizardStepSend => 'שליחה';
@@ -1171,10 +1175,17 @@ class AppLocalizationsHe extends AppLocalizations {
   String get closeGroupAfterSummary => 'סגור את הקבוצה';
 
   @override
+  String get settleDebtsOnBalances => 'להסדרת חובות — חזרה לטאב חשבון';
+
+  @override
+  String get settleDebtsHint =>
+      'כאן רואים את הסיכום. כדי לשלם או לאשר קבלה — חזרו לטאב «חשבון».';
+
+  @override
   String get unsettledDebtsWarning => 'עדיין יש חובות פתוחים. לסגור בכל זאת?';
 
   @override
-  String get wizardNext => 'הבא';
+  String get wizardNext => 'הבא — סגירה';
 
   @override
   String get wizardBack => 'הקודם';
@@ -1183,6 +1194,24 @@ class AppLocalizationsHe extends AppLocalizations {
   String wizardStepOf(int current, int total) {
     return 'שלב $current מתוך $total';
   }
+
+  @override
+  String get yesConfirm => 'כן';
+
+  @override
+  String get paidSendForApproval => 'שילמתי — שלח לאישור';
+
+  @override
+  String get paidSendForApprovalHint =>
+      'אחרי ששילמתם באפליקציה החיצונית, לחצו כאן כדי שהמקבל יאשר.';
+
+  @override
+  String get balancesHowItWorks =>
+      'איך מסדירים? החייב לוחץ «שילמתי» → המקבל לוחץ «אשר קבלה».';
+
+  @override
+  String get periodSettleHint =>
+      'סגירת תקופה יוצרת דוח לחברים. חובות עדיין דורשים סימון «שולם» או אישור בטאב חשבון.';
 
   @override
   String get shareGuestDebtWhatsApp => 'שתף תזכורת ב-WhatsApp';
@@ -1444,11 +1473,11 @@ class AppLocalizationsHe extends AppLocalizations {
   String get markAsPaid => 'שולם ✓';
 
   @override
-  String get paidDirectly => 'שילמתי ישירות';
+  String get paidDirectly => 'שילמתי';
 
   @override
   String confirmDirectPayment(String name) {
-    return 'האם אתה מאשר ששלמת ל$name ישירות?';
+    return 'לאשר ששילמת ל$name?\nנשלח למקבל לאישור קבלה.';
   }
 
   @override

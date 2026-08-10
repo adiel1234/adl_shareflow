@@ -298,7 +298,8 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
   }
 
   Widget _wizardBar(AppLocalizations l) {
-    final steps = [l.wizardStepSummary, l.wizardStepSend, l.wizardStepClose];
+    // 2 steps: summary+send, then optional close
+    final steps = [l.wizardStepSummary, l.wizardStepClose];
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Row(
@@ -358,7 +359,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
   }
 
   Widget _buildBottomBar(AppLocalizations l) {
-    const totalSteps = 3;
+    const totalSteps = 2;
     final displayStep = _loading ? 0 : _wizardStep;
 
     return SafeArea(
@@ -414,7 +415,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                       const SizedBox(width: 12),
                     ],
                     Expanded(
-                      child: displayStep < 2
+                      child: displayStep < 1
                           ? ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 minimumSize: const Size(0, 52),
@@ -566,13 +567,21 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
           ],
 
           if (_wizardStep == 0) ...[
-          // Transfers section
           Text(
             l.requiredTransfers,
             style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l.settleDebtsHint,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+              height: 1.35,
+            ),
           ),
           const SizedBox(height: 12),
 
@@ -623,7 +632,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                 ],
               ),
             )
-          else
+          else ...[
             ...transfers.map((t) => _TransferCard(
                   fromName: t['from_name'] as String,
                   toName: t['to_name'] as String,
@@ -632,11 +641,19 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                   onRemind: () => _sendReminder(t),
                   onWhatsApp: () => _remindViaWhatsApp(t),
                 )),
-
-          const SizedBox(height: 32),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.account_balance_wallet_outlined, size: 18),
+              label: Text(l.settleDebtsOnBalances),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+                foregroundColor: AppColors.primary,
+              ),
+            ),
           ],
 
-          if (_wizardStep == 1) ...[
+          const SizedBox(height: 28),
           Text(
             l.sendSummary,
             style: TextStyle(
@@ -662,9 +679,10 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
             loading: _sharingWa,
             onTap: _shareWhatsApp,
           ),
+          const SizedBox(height: 16),
           ],
 
-          if (_wizardStep == 2) ...[
+          if (_wizardStep == 1) ...[
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(

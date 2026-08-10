@@ -138,7 +138,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
               if (group.isAdmin && !group.isClosed)
                 IconButton(
                   icon: const Icon(Icons.lock_outline, color: Colors.white),
-                  tooltip: AppLocalizations.of(context)!.closeGroup,
+                  tooltip: AppLocalizations.of(context)!.closeGroupShortHint,
                   onPressed: () => _closeGroup(context, group),
                 ),
               if (group.isAdmin)
@@ -675,26 +675,24 @@ class _CloseGroupDialogState extends State<_CloseGroupDialog> {
     _preflight();
   }
 
-  /// First try to close (without force) to detect debts upfront.
+  /// Check unsettled debts without closing (dry_run) — always require confirm.
   Future<void> _preflight() async {
     try {
-      await widget.repo.closeGroup(widget.group.id);
-      if (mounted) {
-        Navigator.pop(context);
-        widget.onClosed();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.groupClosedSuccess)),
-        );
-      }
+      await widget.repo.closeGroup(widget.group.id, dryRun: true);
+      if (mounted) setState(() => _phase = _ClosePhase.confirm);
     } on DioException catch (e) {
       final body = e.response?.data as Map<String, dynamic>?;
       final list = (body?['errors']?['unsettled'] as List?)
           ?.cast<Map<String, dynamic>>();
       if (list != null && list.isNotEmpty) {
-        if (mounted) setState(() { _unsettled = list; _phase = _ClosePhase.hasDebts; });
-      } else {
-        // Clean close — show simple confirm
-        if (mounted) setState(() => _phase = _ClosePhase.confirm);
+        if (mounted) {
+          setState(() {
+            _unsettled = list;
+            _phase = _ClosePhase.hasDebts;
+          });
+        }
+      } else if (mounted) {
+        setState(() => _phase = _ClosePhase.confirm);
       }
     } catch (_) {
       if (mounted) setState(() => _phase = _ClosePhase.confirm);
