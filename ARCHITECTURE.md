@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 אוגוסט 2026 - קישור ישיר /install/testflight להתקנת TestFlight בלבד
+> עודכן לאחרונה: 10 אוגוסט 2026 - התקנה פשוטה: אייפון 2 שלבים / אנדרואיד הורדה ישירה
 
 ---
 
@@ -336,7 +336,7 @@ flutter install --release
 4. App Store Connect → TestFlight → Build חדש מופיע אוטומטית
 ```
 
-**מסע פיילוט:** `/pilot/join` (שכנוע) → באייפון `/install/testflight` (הפניה ישירה לחנות, בלי מדריך). באנדרואיד `/getting-started` להורדת APK. `/invite` ו-`/pilot` מפנים לנתיבים החדשים. `/join/<code>` נשאר להזמנת קבוצה.
+**מסע פיילוט:** `/pilot/join` → `/getting-started`. אייפון: (1) `/install/testflight` (2) `TESTFLIGHT_URL` ל-ShareFlow. אנדרואיד: `/download/apk`. `/invite` ו-`/pilot` מפנים לנתיבים החדשים. `/join/<code>` נשאר להזמנת קבוצה.
 
 ---
 

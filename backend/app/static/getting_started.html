@@ -24,13 +24,12 @@
       color: var(--ink);
       background: linear-gradient(180deg, #EEF3FA 0%, var(--sand) 100%);
       min-height: 100vh;
-      line-height: 1.65;
       -webkit-font-smoothing: antialiased;
     }
     .wrap {
       max-width: 420px;
       margin: 0 auto;
-      padding: calc(40px + var(--safe-top)) 18px calc(40px + var(--safe-bottom));
+      padding: calc(36px + var(--safe-top)) 18px calc(36px + var(--safe-bottom));
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -45,62 +44,146 @@
       text-align: center;
     }
     h1 {
-      font-size: 1.5rem;
+      font-size: 1.45rem;
       font-weight: 800;
       color: var(--brand);
-      margin-bottom: 20px;
+      margin-bottom: 8px;
+    }
+    .step-label {
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 18px;
     }
     .btn {
       display: block;
       text-align: center;
       text-decoration: none;
+      border: none;
       border-radius: 14px;
-      padding: 16px 16px;
+      padding: 16px;
       font-weight: 800;
-      font-size: 1.1rem;
+      font-size: 1.08rem;
+      font-family: inherit;
       background: var(--brand);
       color: #fff;
+      cursor: pointer;
+      width: 100%;
     }
+    .btn + .btn { margin-top: 10px; }
     .btn-android { background: var(--accent); }
-    .panel { display: none; }
-    .panel.active { display: block; }
+    .btn-outline {
+      background: #fff;
+      color: var(--brand);
+      border: 2px solid var(--brand);
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
     .ghost {
       display: block;
       margin-top: 16px;
       color: var(--muted);
       font-size: 0.9rem;
+      font-weight: 600;
       text-decoration: none;
+      background: none;
+      border: none;
+      font-family: inherit;
+      cursor: pointer;
+      width: 100%;
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <div class="panel active" id="panel-ios">
-        <h1>התקנת TestFlight</h1>
-        <a class="btn" href="/install/testflight">הורידו את TestFlight</a>
+
+      <!-- Choose platform -->
+      <div class="screen active" id="screen-choose">
+        <h1>בחרו מכשיר</h1>
+        <p class="step-label">ואז נמשיך להתקנה</p>
+        <button class="btn" type="button" id="choose-ios">אייפון</button>
+        <button class="btn btn-android" type="button" id="choose-android">אנדרואיד</button>
       </div>
 
-      <div class="panel" id="panel-android">
+      <!-- iPhone step 1 -->
+      <div class="screen" id="screen-ios-1">
+        <p class="step-label">שלב 1 מתוך 2</p>
+        <h1>התקנת TestFlight</h1>
+        <a class="btn" href="/install/testflight" id="btn-testflight">
+          הורידו את TestFlight
+        </a>
+        <button class="ghost" type="button" id="ios-to-step2">
+          הורדתי · המשך לשלב 2 →
+        </button>
+        <button class="ghost" type="button" data-back="choose">← החלפת מכשיר</button>
+      </div>
+
+      <!-- iPhone step 2 -->
+      <div class="screen" id="screen-ios-2">
+        <p class="step-label">שלב 2 מתוך 2</p>
+        <h1>התקנת ShareFlow</h1>
+        <a class="btn" href="__IOS_DOWNLOAD_URL__">
+          התקינו את ShareFlow
+        </a>
+        <button class="ghost" type="button" data-back="ios-1">← חזרה לשלב 1</button>
+      </div>
+
+      <!-- Android -->
+      <div class="screen" id="screen-android">
         <h1>התקנה לאנדרואיד</h1>
         <a class="btn btn-android js-apk-download" href="__APK_DOWNLOAD_URL__" download="ADL-ShareFlow.apk">
           הורדה לאנדרואיד
         </a>
-        <a class="ghost" href="/pilot/join">← חזרה</a>
+        <button class="ghost" type="button" data-back="choose">← החלפת מכשיר</button>
       </div>
+
     </div>
   </div>
 
   <script>
     (function () {
-      var ua = navigator.userAgent || '';
-      var isAndroid = /android/i.test(ua);
-      var ios = document.getElementById('panel-ios');
-      var android = document.getElementById('panel-android');
-      if (isAndroid) {
-        ios.classList.remove('active');
-        android.classList.add('active');
+      var screens = {
+        choose: document.getElementById('screen-choose'),
+        'ios-1': document.getElementById('screen-ios-1'),
+        'ios-2': document.getElementById('screen-ios-2'),
+        android: document.getElementById('screen-android')
+      };
+
+      function show(name) {
+        Object.keys(screens).forEach(function (key) {
+          screens[key].classList.toggle('active', key === name);
+        });
       }
+
+      document.getElementById('choose-ios').addEventListener('click', function () {
+        show('ios-1');
+      });
+      document.getElementById('choose-android').addEventListener('click', function () {
+        show('android');
+      });
+      document.getElementById('ios-to-step2').addEventListener('click', function () {
+        show('ios-2');
+      });
+      // After tapping TestFlight, offer step 2 next time they return
+      document.getElementById('btn-testflight').addEventListener('click', function () {
+        setTimeout(function () { show('ios-2'); }, 800);
+      });
+
+      document.querySelectorAll('[data-back]').forEach(function (el) {
+        el.addEventListener('click', function () {
+          show(el.getAttribute('data-back'));
+        });
+      });
+
+      // Auto-pick by device (still allows switching)
+      var ua = navigator.userAgent || '';
+      if (/android/i.test(ua)) {
+        show('android');
+      } else if (/iphone|ipad|ipod/i.test(ua)) {
+        show('ios-1');
+      }
+
       var proxyUrl = window.location.origin + '/download/apk';
       document.querySelectorAll('.js-apk-download').forEach(function (el) {
         el.href = proxyUrl;

@@ -195,7 +195,7 @@
         <p>הפיילוט חינמי לגמרי. בלי התחייבות ובלי תשלום.</p>
 
         <div class="actions">
-          <a class="btn btn-yes" href="/install/testflight" id="btn-join">אני רוצה להשתתף</a>
+          <a class="btn btn-yes" href="/getting-started" id="btn-join">אני רוצה להשתתף</a>
           <button class="btn btn-no" type="button" id="btn-decline">לא עכשיו</button>
         </div>
       </section>
@@ -218,16 +218,6 @@
       var thanks = document.getElementById('thanks');
       var decline = document.getElementById('btn-decline');
       var back = document.getElementById('btn-back');
-      var join = document.getElementById('btn-join');
-      var ua = navigator.userAgent || '';
-      // iPhone → TestFlight App Store only; Android → APK download page
-      if (join) {
-        if (/android/i.test(ua)) {
-          join.href = '/getting-started';
-        } else {
-          join.href = '/install/testflight';
-        }
-      }
       if (decline) {
         decline.addEventListener('click', function () {
           main.classList.add('hidden');
