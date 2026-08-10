@@ -6,7 +6,7 @@ import os
 from datetime import datetime, timedelta, timezone
 
 from flask import Blueprint, request
-from sqlalchemy import func
+from sqlalchemy import func, text
 
 from app import db
 from app.models import (
@@ -17,6 +17,29 @@ from app.common.errors import success_response, error_response
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
+PILOT_STARTED_FLAG = 'PILOT_STARTED_AT'
+_PILOT_USER_TABLES = (
+    'period_debts',
+    'period_reports',
+    'scheduled_reminders',
+    'reminder_settings',
+    'notifications',
+    'receipts',
+    'expense_participants',
+    'expenses',
+    'settlements',
+    'group_payments',
+    'group_members',
+    'groups',
+    'fcm_tokens',
+    'refresh_tokens',
+    'password_reset_tokens',
+    'user_identities',
+    'subscriptions',
+    'deferred_links',
+    'users',
+)
+
 
 def _require_adl_admin():
     adl_key = request.headers.get('X-ADL-Admin-Key', '')
@@ -24,6 +47,33 @@ def _require_adl_admin():
     if not expected or adl_key != expected:
         return error_response('ADL admin access required', 403)
     return None
+
+
+def _pilot_cutoff():
+    """When scope=pilot, return PILOT_STARTED_AT cutoff (or far-future if unset → empty)."""
+    if request.args.get('scope') != 'pilot':
+        return None
+    flag = FeatureFlag.query.filter_by(key=PILOT_STARTED_FLAG).first()
+    raw = flag.value if flag else None
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        # Pilot mode without a start mark: show nothing (clean slate until reset).
+        return datetime.now(timezone.utc) + timedelta(days=36500)
+    try:
+        text_val = str(raw).strip().strip('"').replace('Z', '+00:00')
+        return datetime.fromisoformat(text_val)
+    except ValueError:
+        return datetime.now(timezone.utc) + timedelta(days=36500)
+
+
+def _with_cutoff(query, column, cutoff):
+    if cutoff is None:
+        return query
+    return query.filter(column >= cutoff)
+
+
+def _pilot_started_value() -> str | None:
+    flag = FeatureFlag.query.filter_by(key=PILOT_STARTED_FLAG).first()
+    return flag.value if flag else None
 
 
 def _platform_map(user_ids: list[str]) -> dict[str, str]:
@@ -51,6 +101,26 @@ def _user_admin_dict(user: User, platform: str | None = None) -> dict:
     return d
 
 
+def _set_pilot_started_at(when: datetime | None = None) -> str:
+    when = when or datetime.now(timezone.utc)
+    value = when.isoformat()
+    flag = FeatureFlag.query.filter_by(key=PILOT_STARTED_FLAG).first()
+    if not flag:
+        flag = FeatureFlag(
+            key=PILOT_STARTED_FLAG,
+            description='תחילת פיילוט — סינון דשבורד (scope=pilot)',
+        )
+        db.session.add(flag)
+    flag.value = value
+    return value
+
+
+def _wipe_user_data() -> None:
+    """Delete all user-generated rows. Keeps feature_flags, plans, exchange_rates."""
+    tables = ', '.join(_PILOT_USER_TABLES)
+    db.session.execute(text(f'TRUNCATE TABLE {tables} RESTART IDENTITY CASCADE'))
+
+
 # ---------------------------------------------------------------------------
 # Stats
 # ---------------------------------------------------------------------------
@@ -61,64 +131,135 @@ def adl_stats():
     if err:
         return err
 
+    cutoff = _pilot_cutoff()
     now = datetime.now(timezone.utc)
     last_30 = now - timedelta(days=30)
     last_7 = now - timedelta(days=7)
     last_1 = now - timedelta(days=1)
 
-    total_users = User.query.count()
-    active_users = User.query.filter_by(is_active=True).count()
-    pro_users = User.query.filter_by(plan='pro').count()
-    new_users_30d = User.query.filter(User.created_at >= last_30).count()
-    new_users_7d = User.query.filter(User.created_at >= last_7).count()
-    dau = User.query.filter(User.last_login_at >= last_1).count()
-    wau = User.query.filter(User.last_login_at >= last_7).count()
-    ios_users = (
-        db.session.query(func.count(func.distinct(FCMToken.user_id)))
-        .filter(FCMToken.platform == 'ios')
+    users_q = _with_cutoff(User.query, User.created_at, cutoff)
+    total_users = users_q.count()
+    active_users = users_q.filter_by(is_active=True).count()
+    pro_users = users_q.filter_by(plan='pro').count()
+    new_users_30d = _with_cutoff(User.query, User.created_at, cutoff).filter(
+        User.created_at >= last_30
+    ).count()
+    new_users_7d = _with_cutoff(User.query, User.created_at, cutoff).filter(
+        User.created_at >= last_7
+    ).count()
+    dau = _with_cutoff(User.query, User.created_at, cutoff).filter(
+        User.last_login_at >= last_1
+    ).count()
+    wau = _with_cutoff(User.query, User.created_at, cutoff).filter(
+        User.last_login_at >= last_7
+    ).count()
+
+    if cutoff is not None:
+        pilot_user_ids = [uid for (uid,) in db.session.query(User.id).filter(User.created_at >= cutoff).all()]
+        if not pilot_user_ids:
+            ios_users = 0
+            android_users = 0
+        else:
+            ios_users = (
+                db.session.query(func.count(func.distinct(FCMToken.user_id)))
+                .filter(FCMToken.platform == 'ios', FCMToken.user_id.in_(pilot_user_ids))
+                .scalar()
+                or 0
+            )
+            android_users = (
+                db.session.query(func.count(func.distinct(FCMToken.user_id)))
+                .filter(FCMToken.platform == 'android', FCMToken.user_id.in_(pilot_user_ids))
+                .scalar()
+                or 0
+            )
+    else:
+        ios_users = (
+            db.session.query(func.count(func.distinct(FCMToken.user_id)))
+            .filter(FCMToken.platform == 'ios')
+            .scalar()
+            or 0
+        )
+        android_users = (
+            db.session.query(func.count(func.distinct(FCMToken.user_id)))
+            .filter(FCMToken.platform == 'android')
+            .scalar()
+            or 0
+        )
+
+    groups_q = _with_cutoff(Group.query, Group.created_at, cutoff).filter_by(is_active=True)
+    total_groups = groups_q.count()
+    active_groups_30d = (
+        _with_cutoff(
+            db.session.query(func.count(func.distinct(Expense.group_id))),
+            Expense.created_at,
+            cutoff,
+        )
+        .filter(Expense.created_at >= last_30)
         .scalar()
         or 0
     )
-    android_users = (
-        db.session.query(func.count(func.distinct(FCMToken.user_id)))
-        .filter(FCMToken.platform == 'android')
-        .scalar()
+
+    total_expenses = _with_cutoff(Expense.query, Expense.created_at, cutoff).count()
+    expenses_30d = _with_cutoff(Expense.query, Expense.created_at, cutoff).filter(
+        Expense.created_at >= last_30
+    ).count()
+    total_expense_volume = (
+        _with_cutoff(
+            db.session.query(func.sum(Expense.converted_amount)),
+            Expense.created_at,
+            cutoff,
+        ).scalar()
         or 0
     )
 
-    total_groups = Group.query.filter_by(is_active=True).count()
-    active_groups_30d = db.session.query(func.count(func.distinct(Expense.group_id)))\
-        .filter(Expense.created_at >= last_30).scalar() or 0
+    receipts_q = _with_cutoff(Receipt.query, Receipt.created_at, cutoff)
+    total_receipts = receipts_q.count()
+    ocr_confirmed = receipts_q.filter_by(status='confirmed').count()
+    ocr_pending = receipts_q.filter_by(status='pending').count()
 
-    total_expenses = Expense.query.count()
-    expenses_30d = Expense.query.filter(Expense.created_at >= last_30).count()
-    total_expense_volume = db.session.query(func.sum(Expense.converted_amount)).scalar() or 0
-
-    total_receipts = Receipt.query.count()
-    ocr_confirmed = Receipt.query.filter_by(status='confirmed').count()
-    ocr_pending = Receipt.query.filter_by(status='pending').count()
-
-    total_settlements = Settlement.query.count()
-    confirmed_settlements = Settlement.query.filter_by(status='confirmed').count()
+    settlements_q = _with_cutoff(Settlement.query, Settlement.created_at, cutoff)
+    total_settlements = settlements_q.count()
+    confirmed_settlements = settlements_q.filter_by(status='confirmed').count()
+    pending_settlements = settlements_q.filter_by(status='pending').count()
 
     # Monetization metrics
-    groups_free = Group.query.filter_by(is_active=True, group_state='free').count()
-    groups_limited = Group.query.filter_by(is_active=True, group_state='limited').count()
-    groups_active_event = Group.query.filter_by(
-        is_active=True, group_state='active', group_type='event').count()
-    groups_active_ongoing = Group.query.filter_by(
-        is_active=True, group_state='active', group_type='ongoing').count()
-    groups_expired = Group.query.filter_by(is_active=True, group_state='expired').count()
-    groups_read_only = Group.query.filter_by(is_active=True, group_state='read_only').count()
+    groups_free = groups_q.filter_by(group_state='free').count()
+    groups_limited = groups_q.filter_by(group_state='limited').count()
+    groups_active_event = groups_q.filter_by(
+        group_state='active', group_type='event'
+    ).count()
+    groups_active_ongoing = groups_q.filter_by(
+        group_state='active', group_type='ongoing'
+    ).count()
+    groups_expired = groups_q.filter_by(group_state='expired').count()
+    groups_read_only = groups_q.filter_by(group_state='read_only').count()
 
     total_activatable = groups_free + groups_limited
     total_converted = groups_active_event + groups_active_ongoing
-    upgrade_rate = round(total_converted / (total_activatable + total_converted) * 100, 1) \
-        if (total_activatable + total_converted) > 0 else 0
+    upgrade_rate = (
+        round(total_converted / (total_activatable + total_converted) * 100, 1)
+        if (total_activatable + total_converted) > 0
+        else 0
+    )
 
-    total_payments = db.session.query(func.sum(GroupPayment.amount)).scalar() or 0
-    payments_30d = db.session.query(func.sum(GroupPayment.amount))\
-        .filter(GroupPayment.created_at >= last_30).scalar() or 0
+    total_payments = (
+        _with_cutoff(
+            db.session.query(func.sum(GroupPayment.amount)),
+            GroupPayment.created_at,
+            cutoff,
+        ).scalar()
+        or 0
+    )
+    payments_30d = (
+        _with_cutoff(
+            db.session.query(func.sum(GroupPayment.amount)),
+            GroupPayment.created_at,
+            cutoff,
+        )
+        .filter(GroupPayment.created_at >= last_30)
+        .scalar()
+        or 0
+    )
 
     return success_response(data={
         'users': {
@@ -152,7 +293,7 @@ def adl_stats():
         'settlements': {
             'total': total_settlements,
             'confirmed': confirmed_settlements,
-            'pending': Settlement.query.filter_by(status='pending').count(),
+            'pending': pending_settlements,
         },
         'shareflow': {
             'groups_free': groups_free,
@@ -165,6 +306,7 @@ def adl_stats():
             'total_revenue_ils': float(total_payments),
             'revenue_30d_ils': float(payments_30d),
         },
+        'pilot_started_at': _pilot_started_value(),
     })
 
 
@@ -255,7 +397,7 @@ def adl_users():
     search = request.args.get('search', '').strip()
     plan_filter = request.args.get('plan', '').strip()
 
-    q = User.query
+    q = _with_cutoff(User.query, User.created_at, _pilot_cutoff())
     if search:
         q = q.filter(
             (User.email.ilike(f'%{search}%')) |
@@ -283,6 +425,10 @@ def adl_user_detail(user_id):
 
     user = db.session.get(User, user_id)
     if not user:
+        return error_response('User not found', 404)
+
+    cutoff = _pilot_cutoff()
+    if cutoff is not None and (not user.created_at or user.created_at < cutoff):
         return error_response('User not found', 404)
 
     platforms = _platform_map([user.id])
@@ -535,9 +681,11 @@ def adl_activity():
         return err
 
     limit = min(request.args.get('limit', 40, type=int), 100)
+    cutoff = _pilot_cutoff()
     events = []
 
-    for u in User.query.filter(User.is_guest.is_(False)).order_by(User.created_at.desc()).limit(20):
+    users_q = _with_cutoff(User.query.filter(User.is_guest.is_(False)), User.created_at, cutoff)
+    for u in users_q.order_by(User.created_at.desc()).limit(20):
         events.append({
             'type': 'registration',
             'at': u.created_at.isoformat() if u.created_at else None,
@@ -546,7 +694,8 @@ def adl_activity():
             'summary': f'{u.display_name} נרשם/ה',
         })
 
-    for g in Group.query.order_by(Group.created_at.desc()).limit(20):
+    groups_q = _with_cutoff(Group.query, Group.created_at, cutoff)
+    for g in groups_q.order_by(Group.created_at.desc()).limit(20):
         creator = db.session.get(User, g.created_by)
         events.append({
             'type': 'group_created',
@@ -558,7 +707,8 @@ def adl_activity():
             'summary': f'נוצרה קבוצה «{g.name}»',
         })
 
-    for e in Expense.query.order_by(Expense.created_at.desc()).limit(20):
+    expenses_q = _with_cutoff(Expense.query, Expense.created_at, cutoff)
+    for e in expenses_q.order_by(Expense.created_at.desc()).limit(20):
         payer = db.session.get(User, e.paid_by)
         group = db.session.get(Group, e.group_id)
         events.append({
@@ -573,7 +723,8 @@ def adl_activity():
             'summary': f'הוצאה: {e.title} · {e.original_amount} {e.original_currency}',
         })
 
-    for s in Settlement.query.order_by(Settlement.created_at.desc()).limit(20):
+    settlements_q = _with_cutoff(Settlement.query, Settlement.created_at, cutoff)
+    for s in settlements_q.order_by(Settlement.created_at.desc()).limit(20):
         from_u = s.from_user
         to_u = s.to_user
         group = db.session.get(Group, s.group_id)
@@ -613,7 +764,7 @@ def adl_settlements():
     date_from = request.args.get('from', '').strip()
     date_to = request.args.get('to', '').strip()
 
-    q = Settlement.query
+    q = _with_cutoff(Settlement.query, Settlement.created_at, _pilot_cutoff())
     if status:
         q = q.filter_by(status=status)
     if group_id:
@@ -660,3 +811,29 @@ def adl_settlements():
         'settlements': result,
         'pagination': {'total': total, 'page': page, 'per_page': per_page},
     })
+
+
+@dashboard_bp.post('/pilot/reset')
+def adl_pilot_reset():
+    """
+    Wipe all user-generated data and mark pilot start time.
+    Keeps feature_flags (except overwriting PILOT_STARTED_AT), plans, exchange_rates.
+    Body: { "confirm": "RESET_PILOT_DATA" }
+    """
+    err = _require_adl_admin()
+    if err:
+        return err
+
+    data = request.get_json(silent=True) or {}
+    if data.get('confirm') != 'RESET_PILOT_DATA':
+        return error_response('confirm must be RESET_PILOT_DATA', 400)
+
+    # Preserve PAYMENTS_ENABLED and other flags across TRUNCATE (flags table not truncated).
+    _wipe_user_data()
+    started = _set_pilot_started_at()
+    db.session.commit()
+
+    return success_response(
+        data={'pilot_started_at': started},
+        message='Pilot data wiped; dashboard scope=pilot starts empty',
+    )

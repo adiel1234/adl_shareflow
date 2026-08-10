@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 אוגוסט 2026 - חוויית פיילוט: `/pilot/join` + `/getting-started`; לשונית Pilot ב-ADL Control
+> עודכן לאחרונה: 10 אוגוסט 2026 - איפוס נתוני פיילוט + סינון `scope=pilot` / `PILOT_STARTED_AT`
 
 ---
 
@@ -220,7 +220,8 @@ SHAREFLOW_ADMIN_KEY=<זהה ל-ADL_ADMIN_KEY ב-adlshareflow-production>
 
 `adl_platform_module/.env` **לא** משפיע על ADL Control בייצור. `ADL_ADMIN_KEY` ב-backend בלבד **לא מספיק** — חובה `SHAREFLOW_ADMIN_KEY` על ADL Control.
 
-- **Endpoints (ShareFlow API):** `GET /api/adl/stats`, `/users`, `/groups`, `/monetization`, `/ocr-stats`, `/feature-flags`
+- **Endpoints (ShareFlow API):** `GET /api/adl/stats`, `/users`, `/groups`, `/monetization`, `/ocr-stats`, `/feature-flags`, `/activity`, `/settlements`; `POST /api/adl/pilot/reset` (איפוס נתוני משתמשים לפיילוט)
+- **סינון פיילוט:** פרמטר `scope=pilot` מסנן לפי `feature_flags.PILOT_STARTED_AT` (לשונית פיילוט ב-ADL Control בלבד)
 - **נתוני ShareFlow:** PostgreSQL ShareFlow (`DATABASE_URL` בפרויקט **ADL ShareFlow** בלבד)
 - **DB של ADL Control:** `adl_control` PostgreSQL (`DATABASE_URL` בפרויקט **ADL Control**)
 
@@ -353,6 +354,7 @@ flutter install --release
 | `RESEND_FROM_EMAIL` | כתובת שולח המיילים | ✅ | `noreply@adl-studio.com` |
 | `SMTP_SENDER_NAME` | שם השולח בכותרת המייל | 🟡 | `ADL ShareFlow` (ברירת מחדל) |
 | _(DB: `feature_flags`)_ | `PAYMENTS_ENABLED` — גביית תשלום אמיתי (לא משתנה סביבה) | 🔴 כבוי בפיילוט | `false` ב-PostgreSQL; ניהול: Control → `/shareflow` |
+| _(DB: `feature_flags`)_ | `PILOT_STARTED_AT` — חותמת זמן לתחילת הפיילוט | ✅ פעיל | סינון `scope=pilot`; מתעדכן ב-`POST /api/adl/pilot/reset` |
 | `TESTFLIGHT_URL` | קישור TestFlight Public Link ל-iOS — `/pilot`, `/download` (redirect iPhone) | ✅ **חובה לפיילוט** | Public Link מ-App Store Connect; לא `placeholder` |
 | `APK_DOWNLOAD_URL` | מקור APK (Drive file URL / id) — בדפים מוגש `/download/apk` | ✅ | Google Drive / GitHub Releases (ישיר) |
 
@@ -543,7 +545,8 @@ flutter install --release
 - **Event Summary Non-Blocking** (build 26 fix): `queue_notify_event_summary` — כל `notify_event_summary` (DB + FCM) ברקע; האפליקציה קוראת `GET /event-summary` בפתיחת הוויזארד ו-`POST /summary` רק בשלב 2.
 - **DB Migration** (`480ff4d3679c`): נוסף `is_guest BOOLEAN NOT NULL DEFAULT false` ל-`users`.
 - **Download / Pilot Pages**: `/pilot/join` שכנוע; `/getting-started` התקנה; `/download` redirect לפי מכשיר.
-- **ADL Control Pilot**: לשונית «פיילוט» קוראת ל-`/api/adl/stats|users|activity|settlements|users/<id>` (עם `last_login_at` + פלטפורמה מ-`FCMToken`).
+- **ADL Control Pilot**: לשונית «פיילוט» קוראת ל-`/api/adl/stats|users|activity|settlements|users/<id>` עם `scope=pilot` (סינון לפי `PILOT_STARTED_AT`; `last_login_at` + פלטפורמה מ-`FCMToken`).
+- **איפוס פיילוט (10 אוג׳ 2026):** נמחקו משתמשים/קבוצות/הוצאות/סילוקים בייצור; נשמרים `feature_flags`, `plans`, `exchange_rates`.
 - **Group Renewal Pricing**: `MonetizationService.renew_group` משתמש ב-`resolve_price(group_type, member_count)` — אותו מחיר כמו הפעלה; אפליקציה קוראת `required_pricing` מהשרת (build 30).
 
 ---
