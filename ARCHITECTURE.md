@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 27 יולי 2026 - גרסת פיילוט 1.0.9+56 (FCM ברקע/סגורה, אישור תשלום מהתראה, מגבלות חינם)
+> עודכן לאחרונה: 10 אוגוסט 2026 - חוויית פיילוט: `/pilot/join` + `/getting-started`; לשונית Pilot ב-ADL Control
 
 ---
 
@@ -45,7 +45,8 @@
 
 **מפת מוצרים, env, ניקוי Railway ותוכנית פירוד:** [`docs/ADL_PRODUCTS.md`](docs/ADL_PRODUCTS.md)  
 **יום 2 — בדיקות פיילוט ו-15–20 משתתפים:** [`docs/PILOT_DAY2.md`](docs/PILOT_DAY2.md)  
-**מדריך אונבורדינג פיילוט (iOS + Android):** https://adlshareflow-production.up.railway.app/pilot · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)  
+**הזמנת פיילוט (שכנוע):** https://adlshareflow-production.up.railway.app/pilot/join  
+**התקנה / התחלה:** https://adlshareflow-production.up.railway.app/getting-started · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)  
 **מדריך iOS (legacy):** [`docs/TESTFLIGHT_IOS_GUIDE.html`](docs/TESTFLIGHT_IOS_GUIDE.html)
 
 שלושה פרויקטים נפרדים ב-Railway:
@@ -127,7 +128,7 @@
 | `ocr/` | קבלות — צירוף + OCR | POST /ocr/attach, POST /ocr/scan, GET /ocr/receipts/{id}/image |
 | `currency/` | שערי חליפין | GET /currency/rates, /convert; POST /currency/rates (admin), /refresh (admin) |
 | `dashboard/` | ADL Admin API | GET /dashboard/stats, /monetization |
-| `download/` | דפי הורדה + join + פיילוט | GET /download, /pilot, /privacy, /join/<code>, /api/deferred-link |
+| `download/` | דפי הורדה + פיילוט | GET /download, /pilot/join, /getting-started, /privacy, /join/<code>; `/pilot` ו-`/invite` מפנים לנתיבים החדשים |
 | `scheduler.py` | משימות אוטומטיות | תזכורות שעתיות + בדיקת פקיעה יומית |
 
 **קובץ הגדרות:** `/backend/.env` (לא ב-git)
@@ -323,7 +324,7 @@ flutter install --release
 **APK נוכחי (גרסה 1.0.9+56):**
 - קישור: `APK_DOWNLOAD_URL` ב-Railway (GitHub Releases); משתמשים מקבלים `GET /download/apk`
 - Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build56
-- **למשתמשי פיילוט:** הורדה דרך המדריך בלבד — `https://adlshareflow-production.up.railway.app/pilot` (לא `/download`)
+- **למשתמשי פיילוט:** שתפו `/pilot/join` → `/getting-started` (לא `/download` ישירות)
 
 ### iOS (TestFlight)
 ```
@@ -333,7 +334,7 @@ flutter install --release
 4. App Store Connect → TestFlight → Build חדש מופיע אוטומטית
 ```
 
-**מדריך למשתמשי פיילוט:** https://adlshareflow-production.up.railway.app/pilot — iOS (TestFlight) + Android (APK), RTL, מיתוג ADL. מקור: `docs/PILOT_ONBOARDING_GUIDE.html` → `backend/app/static/pilot_onboarding.html`. דף `/pilot` מחליף placeholders (`__IOS_DOWNLOAD_URL__`, `__APK_DOWNLOAD_URL__`) בזמן הגשה מ-`TESTFLIGHT_URL` / `APK_DOWNLOAD_URL` ב-Railway. בפיילוט — שתפו ב-WA **רק** `/pilot`; `/download` הוא redirect קצר ללא הוראות.
+**מסע פיילוט:** `/pilot/join` (שכנוע) → `/getting-started` (התקנה קצרה). קישורי הורדה מ-`TESTFLIGHT_URL` / `APK_DOWNLOAD_URL`. `/invite` ו-`/pilot` מפנים לנתיבים החדשים. `/join/<code>` נשאר להזמנת קבוצה.
 
 ---
 
@@ -541,7 +542,8 @@ flutter install --release
 - **FCM Async Dispatch** (build 25+): `notifications/fcm_service.py` — `send_to_user` / `send_to_users` רצים ב-thread נפרד (`app/common/background.py`).
 - **Event Summary Non-Blocking** (build 26 fix): `queue_notify_event_summary` — כל `notify_event_summary` (DB + FCM) ברקע; האפליקציה קוראת `GET /event-summary` בפתיחת הוויזארד ו-`POST /summary` רק בשלב 2.
 - **DB Migration** (`480ff4d3679c`): נוסף `is_guest BOOLEAN NOT NULL DEFAULT false` ל-`users`.
-- **Download / Pilot Pages**: `/download` (blueprint בלבד) — redirect אוטומטי ל-iPhone/Android; `/pilot` — placeholders מוחלפים מ-env בזמן ריצה.
+- **Download / Pilot Pages**: `/pilot/join` שכנוע; `/getting-started` התקנה; `/download` redirect לפי מכשיר.
+- **ADL Control Pilot**: לשונית «פיילוט» קוראת ל-`/api/adl/stats|users|activity|settlements|users/<id>` (עם `last_login_at` + פלטפורמה מ-`FCMToken`).
 - **Group Renewal Pricing**: `MonetizationService.renew_group` משתמש ב-`resolve_price(group_type, member_count)` — אותו מחיר כמו הפעלה; אפליקציה קוראת `required_pricing` מהשרת (build 30).
 
 ---

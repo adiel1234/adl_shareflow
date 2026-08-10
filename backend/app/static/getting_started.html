@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>התחלה מהירה — שיתוף הוצאות</title>
+  <meta name="description" content="התקנה וצעדים ראשונים לפיילוט שיתוף הוצאות.">
+  <meta name="theme-color" content="#0B3D91">
+  <style>
+    :root {
+      --brand: #0B3D91;
+      --accent: #0F766E;
+      --sand: #F3F0E8;
+      --ink: #14213D;
+      --muted: #5B6475;
+      --surface: #FFFFFF;
+      --line: rgba(20, 33, 61, 0.1);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #EEF3FA 0%, var(--sand) 100%);
+      min-height: 100vh;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 640px; margin: 0 auto; padding: calc(24px + var(--safe-top)) 18px calc(40px + var(--safe-bottom)); }
+    .top { margin-bottom: 18px; }
+    .top a { color: var(--muted); text-decoration: none; font-size: 0.95rem; }
+    h1 {
+      font-size: clamp(1.7rem, 5vw, 2.1rem);
+      font-weight: 800;
+      color: var(--brand);
+      margin-bottom: 8px;
+    }
+    .lead { color: var(--muted); margin-bottom: 18px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 22px 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 6px 20px rgba(20, 33, 61, 0.04);
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--brand);
+      margin-bottom: 12px;
+    }
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tab {
+      border: 1px solid var(--line);
+      background: #F7F9FC;
+      border-radius: 12px;
+      padding: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--ink);
+    }
+    .tab.active {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    ol { padding-right: 20px; margin: 0 0 14px; }
+    li { margin-bottom: 8px; }
+    .btn {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 14px;
+      padding: 15px 16px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      background: var(--brand);
+      color: #fff;
+      margin-top: 8px;
+    }
+    .btn-android { background: var(--accent); }
+    .note {
+      background: #ECFDF5;
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: #065F46;
+      font-size: 0.95rem;
+      margin-top: 12px;
+    }
+    .steps-list {
+      list-style: none;
+      padding: 0;
+      counter-reset: s;
+    }
+    .steps-list li {
+      counter-increment: s;
+      position: relative;
+      padding: 12px 14px;
+      padding-right: 48px;
+      background: #F7F9FC;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      border: 1px solid var(--line);
+    }
+    .steps-list li::before {
+      content: counter(s);
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .version {
+      text-align: center;
+      margin-top: 10px;
+      padding: 12px;
+      background: #FFF7ED;
+      border-radius: 12px;
+      border: 1px solid #FDBA74;
+    }
+    .version strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 1.25rem;
+      direction: ltr;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      color: #9A3412;
+    }
+    .muted { color: var(--muted); font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a href="/pilot/join">← חזרה להזמנה</a>
+    </div>
+
+    <h1>בואו נתחיל</h1>
+    <p class="lead">כמה צעדים קצרים — ואפשר כבר להשתמש.</p>
+
+    <section class="card">
+      <h2>1. התקנה</h2>
+      <div class="tabs" role="tablist">
+        <button class="tab active" type="button" data-platform="ios">אייפון</button>
+        <button class="tab" type="button" data-platform="android">אנדרואיד</button>
+      </div>
+
+      <div class="panel active" id="panel-ios">
+        <ol>
+          <li>אם אין לכם את אפליקציית ההתקנה של אפל — התקינו אותה קודם מחנות האפליקציות (חינם). השם שלה: TestFlight</li>
+          <li>לחצו על הכפתור למטה</li>
+          <li>אשרו והתקינו</li>
+          <li>פתחו את האפליקציה ואפשרו התראות כשמבקשים</li>
+        </ol>
+        <a class="btn" href="__IOS_DOWNLOAD_URL__">הורדה לאייפון</a>
+      </div>
+
+      <div class="panel" id="panel-android">
+        <ol>
+          <li>לחצו על הכפתור למטה</li>
+          <li>אם המכשיר שואל על התקנה מחוץ לחנות — אשרו (פעם אחת)</li>
+          <li>התקינו ופתחו</li>
+          <li>אפשרו התראות כשמבקשים</li>
+        </ol>
+        <a class="btn btn-android js-apk-download" href="__APK_DOWNLOAD_URL__" download="ADL-ShareFlow.apk">הורדה לאנדרואיד</a>
+      </div>
+
+      <div class="version">
+        אחרי ההתקנה, בפרופיל צריכה להופיע הגרסה:
+        <strong>1.0.9 (56)</strong>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. צעדים ראשונים</h2>
+      <ol class="steps-list">
+        <li>התקינו את האפליקציה</li>
+        <li>צרו חשבון</li>
+        <li>הצטרפו לקבוצה או צרו קבוצה חדשה</li>
+        <li>התחילו להשתמש — הוסיפו הוצאה וראו יתרות</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>3. משוב</h2>
+      <p>נשמח לשמוע על:</p>
+      <ol>
+        <li>תקלות</li>
+        <li>דברים לא ברורים במסך</li>
+        <li>הצעות לשיפור</li>
+        <li>רעיונות חדשים</li>
+      </ol>
+      <div class="note">
+        כתבו בקבוצת הוואטסאפ. גם דעה כללית חשובה — לא רק בעיות.
+      </div>
+      <p class="muted" style="margin-top:12px">נתקעתם בהתקנה? שלחו צילום מסך לקבוצה ונעזור.</p>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var tabs = document.querySelectorAll('.tab');
+      var panels = {
+        ios: document.getElementById('panel-ios'),
+        android: document.getElementById('panel-android')
+      };
+      var ua = navigator.userAgent || '';
+      var isAndroid = /android/i.test(ua);
+
+      function setPlatform(p) {
+        tabs.forEach(function (t) {
+          t.classList.toggle('active', t.getAttribute('data-platform') === p);
+        });
+        Object.keys(panels).forEach(function (key) {
+          panels[key].classList.toggle('active', key === p);
+        });
+      }
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          setPlatform(tab.getAttribute('data-platform'));
+        });
+      });
+
+      if (isAndroid) setPlatform('android');
+
+      var proxyUrl = window.location.origin + '/download/apk';
+      document.querySelectorAll('.js-apk-download').forEach(function (el) {
+        el.href = proxyUrl;
+      });
+    })();
+  </script>
+</body>
+</html>

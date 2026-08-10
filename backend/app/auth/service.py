@@ -18,6 +18,12 @@ from app.email_service import send_password_reset_email
 _RESET_CODE_TTL_MINUTES = 30
 
 
+def _touch_last_login(user: User) -> None:
+    user.last_login_at = datetime.now(timezone.utc)
+    db.session.add(user)
+    db.session.commit()
+
+
 # ---------------------------------------------------------------------------
 # Email / Password
 # ---------------------------------------------------------------------------
@@ -42,6 +48,7 @@ def register_email(email: str, password: str, display_name: str) -> tuple[User, 
     db.session.add(identity)
     db.session.commit()
 
+    _touch_last_login(user)
     access_token, refresh_token = _generate_tokens(user)
     return user, access_token, refresh_token
 
@@ -57,6 +64,7 @@ def login_email(email: str, password: str) -> tuple[User, str, str]:
     if not user or not user.is_active:
         raise ValueError('Account is disabled')
 
+    _touch_last_login(user)
     access_token, refresh_token = _generate_tokens(user)
     return user, access_token, refresh_token
 
@@ -276,6 +284,7 @@ def _upsert_oauth_user(
     if not user.is_active:
         raise ValueError('Account is disabled')
 
+    _touch_last_login(user)
     access_token, refresh_token = _generate_tokens(user)
     return user, access_token, refresh_token
 

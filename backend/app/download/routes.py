@@ -239,10 +239,18 @@ def download_apk_proxy():
     )
 
 
-@download_bp.get('/pilot')
-def pilot_onboarding():
-    """Public pilot onboarding guide — shareable URL for beta testers."""
-    html_path = _STATIC_DIR / 'pilot_onboarding.html'
+@download_bp.get('/pilot/join')
+def pilot_landing():
+    """Pilot persuasion landing — decide to participate (not install)."""
+    html_path = _STATIC_DIR / 'pilot_landing.html'
+    html = html_path.read_text(encoding='utf-8')
+    return Response(html, mimetype='text/html; charset=utf-8')
+
+
+@download_bp.get('/getting-started')
+def getting_started():
+    """Short install + first-steps page after user opts in."""
+    html_path = _STATIC_DIR / 'getting_started.html'
     html = html_path.read_text(encoding='utf-8')
     urls = _pilot_download_urls()
     html = (
@@ -254,13 +262,17 @@ def pilot_onboarding():
     return Response(html, mimetype='text/html; charset=utf-8')
 
 
+@download_bp.get('/pilot')
+def pilot_onboarding():
+    """Legacy full guide — redirect to the shorter getting-started flow."""
+    return redirect('/getting-started', code=302)
+
+
 @download_bp.get('/pilot/invite')
 @download_bp.get('/invite')
 def pilot_invite():
-    """Friendly Hebrew invite page for the review group (shareable)."""
-    html_path = _STATIC_DIR / 'pilot_invite.html'
-    html = html_path.read_text(encoding='utf-8')
-    return Response(html, mimetype='text/html; charset=utf-8')
+    """Legacy invite aliases — redirect to the new landing page."""
+    return redirect('/pilot/join', code=302)
 
 
 @download_bp.get('/privacy')
