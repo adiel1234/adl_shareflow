@@ -1,6 +1,6 @@
 # פריסת פיילוט — Railway + טלפון
 
-גרסה: **1.0.5+11**
+גרסה: **1.0.9+58**
 
 ---
 
@@ -12,7 +12,7 @@
 cd "/Users/adl/Projects/ADL ShareFlow"
 git status
 git add -A
-git commit -m "פיילוט 1.0.5: תיקוני ליבה, משתתפים, סשן, אורח, wizard סגירה"
+git commit -m "פיילוט 1.0.9: תיקוני ליבה, משתתפים, סשן, אורח, wizard סגירה"
 git push origin main
 ```
 
@@ -80,7 +80,7 @@ flutter build ios --release
 2. Product → Archive
 3. Distribute → TestFlight (או Development למכשיר שלך)
 
-**גרסה:** וודא `1.0.5` build `11` ב-Xcode תואם ל-`pubspec.yaml`.
+**גרסה:** וודא `1.0.9` build `58` ב-Xcode תואם ל-`pubspec.yaml`.
 
 ### בדיקת חיבור לשרת
 
