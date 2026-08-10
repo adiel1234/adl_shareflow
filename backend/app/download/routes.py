@@ -207,10 +207,16 @@ def _pilot_download_urls() -> dict[str, str]:
 
 @download_bp.get('/download/apk')
 def download_apk_proxy():
-    """Stream Android APK — avoids Drive virus-scan HTML page on direct links."""
-    file_id = _drive_file_id_from_apk_url(APK_URL)
-    if not file_id:
+    """Serve Android APK — Drive is streamed (virus-scan bypass); GitHub/other redirect."""
+    raw = (APK_URL or '').strip()
+    if not raw:
         return Response('APK download not configured', status=503)
+
+    file_id = _drive_file_id_from_apk_url(raw)
+    if not file_id:
+        # GitHub Releases / direct HTTPS — redirect (no Drive interstitial).
+        return redirect(raw, code=302)
+
     try:
         drive_resp, filename = _stream_google_drive_apk(file_id)
     except Exception as exc:
