@@ -2585,8 +2585,20 @@ abstract class AppLocalizations {
   /// No description provided for @createGroupPaid.
   ///
   /// In he, this message translates to:
-  /// **'צור קבוצה · ללא חיוב עכשיו ({price} ₪ להפעלה בהמשך)'**
+  /// **'צור קבוצה - {price} ₪'**
   String createGroupPaid(int price);
+
+  /// No description provided for @createGroupPaidPilot.
+  ///
+  /// In he, this message translates to:
+  /// **'צור קבוצה · ללא חיוב עכשיו ({price} ₪ להפעלה בהמשך)'**
+  String createGroupPaidPilot(int price);
+
+  /// No description provided for @tipCreateGroupLive.
+  ///
+  /// In he, this message translates to:
+  /// **'המחיר הוא להפעלת הקבוצה. אחרי היצירה תוכלו להפעיל כשתהיו מוכנים.'**
+  String get tipCreateGroupLive;
 
   /// No description provided for @durationDays.
   ///

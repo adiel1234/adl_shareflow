@@ -10,12 +10,14 @@ import '../core/network/api_client.dart';
 import '../core/storage/secure_storage.dart';
 import 'feedback_service.dart';
 
-/// Background message handler — must be top-level function.
-/// Called for data messages (and some Android cases). When the server sends a
-/// proper `notification` + APNs `alert`, iOS/Android system trays show the
-/// banner without this handler — this is a fallback for data-only delivery.
+/// Background message handler — must be a top-level function and registered
+/// immediately after [Firebase.initializeApp] (before [runApp]).
+///
+/// When the server sends `notification` + APNs `alert`, iOS/Android system
+/// trays show the banner without this handler. This is a fallback for
+/// data-only delivery so a killed/background device still gets a tray item.
 @pragma('vm:entry-point')
-Future<void> _firebaseBackgroundHandler(RemoteMessage message) async {
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint('[FCM] Background message: ${message.messageId}');
   try {
     final data = message.data;
@@ -43,6 +45,13 @@ Future<void> _firebaseBackgroundHandler(RemoteMessage message) async {
         iOS: DarwinInitializationSettings(),
       ),
     );
+    final payload = jsonEncode({
+      'title': title,
+      'body': body,
+      if (data['group_id'] != null) 'group_id': data['group_id'],
+      if (data['settlement_id'] != null) 'settlement_id': data['settlement_id'],
+      'type': data['type'] ?? '',
+    });
     await plugin.show(
       message.messageId?.hashCode ?? title.hashCode,
       title,
@@ -55,13 +64,16 @@ Future<void> _firebaseBackgroundHandler(RemoteMessage message) async {
           importance: Importance.high,
           priority: Priority.high,
           icon: '@mipmap/ic_launcher',
+          playSound: true,
         ),
         iOS: const DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
+          sound: 'default',
         ),
       ),
+      payload: payload,
     );
   } catch (e) {
     debugPrint('[FCM] Background handler error: $e');
@@ -101,15 +113,13 @@ class FcmService {
     playSound: true,
   );
 
-  /// Called once from main(), after Firebase.initializeApp().
+  /// Called once from main() after auth is ready.
+  /// Background handler must already be registered in [main] before [runApp].
   Future<void> initialize() async {
-    // Register background handler
-    FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundHandler);
-
     // Init local notifications (needed for foreground on Android + all iOS)
     await _initLocalNotifications();
 
-    // Request permission (iOS / macOS)
+    // Request permission (iOS / Android 13+)
     await _requestPermission();
 
     // Token registration is deferred until after login (registerToken) or
@@ -124,7 +134,7 @@ class FcmService {
     FirebaseMessaging.onMessage.listen(_handleForeground);
   }
 
-  /// Request notification permission on iOS.
+  /// Request notification permission (iOS + Android 13+).
   Future<void> _requestPermission() async {
     final settings = await _messaging.requestPermission(
       alert: true,
@@ -133,6 +143,15 @@ class FcmService {
       provisional: false,
     );
     debugPrint('[FCM] Permission: ${settings.authorizationStatus}');
+
+    // Android 13+: explicit runtime POST_NOTIFICATIONS (needed for tray when
+    // the app is backgrounded/killed).
+    if (!kIsWeb && Platform.isAndroid) {
+      await _localNotifications
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+    }
   }
 
   /// Get the FCM token and register it with our backend.
@@ -281,13 +300,24 @@ class FcmService {
   /// Setup tap handler for notifications that opened the app from terminated
   /// or background state. Call after setNotificationTapCallback().
   Future<void> setupOpenedAppHandler() async {
-    // Terminated state — app was opened by tapping the notification
+    // Terminated via system FCM notification
     final initial = await _messaging.getInitialMessage();
     if (initial != null) {
       _onNotificationOpened?.call(_tapInfoFromMessage(initial));
     }
 
-    // Background state — app was resumed by tapping the notification
+    // Terminated via local notification (data-only fallback path)
+    final launchDetails =
+        await _localNotifications.getNotificationAppLaunchDetails();
+    if (launchDetails?.didNotificationLaunchApp == true) {
+      final payload = launchDetails!.notificationResponse?.payload;
+      if (payload != null && payload.isNotEmpty) {
+        final info = _infoFromPayload(payload);
+        if (info != null) _onNotificationOpened?.call(info);
+      }
+    }
+
+    // Background — resumed by tapping a system FCM notification
     FirebaseMessaging.onMessageOpenedApp.listen(
       (msg) => _onNotificationOpened?.call(_tapInfoFromMessage(msg)),
     );

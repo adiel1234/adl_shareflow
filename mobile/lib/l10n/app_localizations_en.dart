@@ -1355,8 +1355,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String createGroupPaid(int price) {
+    return 'Create Group - ₪$price';
+  }
+
+  @override
+  String createGroupPaidPilot(int price) {
     return 'Create group · no charge now (₪$price for later activation)';
   }
+
+  @override
+  String get tipCreateGroupLive =>
+      'The price is for activating the group. After creating, you can activate when ready.';
 
   @override
   String durationDays(int days) {

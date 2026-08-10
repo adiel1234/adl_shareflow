@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 אוגוסט 2026 - פוליש פיילוט: נתיב תשלום אחד, סריקה ראשית, אורחים פשוטים יותר
+> עודכן לאחרונה: 10 אוגוסט 2026 - build 57 (פיילוט): תווית יצירה דינמית + FCM ברקע/סגורה
 
 ---
 
@@ -323,9 +323,9 @@ flutter build apk --release
 flutter install --release
 ```
 
-**APK נוכחי (גרסה 1.0.9+56):**
+**APK נוכחי (גרסה 1.0.9+57):**
 - קישור: `APK_DOWNLOAD_URL` ב-Railway (GitHub Releases); משתמשים מקבלים `GET /download/apk`
-- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build56
+- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build57
 - **למשתמשי פיילוט:** שתפו `/pilot/join` → `/getting-started` (לא `/download` ישירות)
 
 ### iOS (TestFlight)
@@ -518,7 +518,7 @@ flutter install --release
 ### Flutter (Mobile)
 - **FCM Real-Time Refresh**: `FcmService.setDataChangeCallback` + `_invalidateForGroup` ב-`main.dart` — כשמגיעה התראה FCM ב-foreground, מתבצע `ref.invalidate` על `expensesProvider` / `balancesProvider` / `pendingSettlementsProvider` / `settlementPlanProvider` / `notificationsProvider` לפי סוג ההתראה.
 - **אישור תשלום מהתראה (build 55)**: ב-`settlement_requested` נפתח דיאלוג עם כפתור ירוק «אשר קבלה» (לפי `settlement_id` ב-payload) + «עבור לאישור התשלום» ללשונית יתרות; גם מרשימת ההתראות באפליקציה. קלף ההמתנה ביתרות מציג כפתור אישור לפני מצב «ממתין» של חייב.
-- **FCM כשהאפליקציה סגורה**: ב-`fcm_service.py` חייב להיות `ApsAlert(title, body)` בתוך `apns.payload` — אחרת FCM דורס את כותרת/גוף ההתראה ב-iOS ואין באנר ברקע/סגורה (foreground עדיין עובד דרך local notifications).
+- **FCM כשהאפליקציה סגורה**: ב-`fcm_service.py` חייב להיות `ApsAlert(title, body)` בתוך `apns.payload` — אחרת FCM דורס את כותרת/גוף ההתראה ב-iOS ואין באנר ברקע/סגורה (foreground עדיין עובד דרך local notifications). הלקוח רושם `FirebaseMessaging.onBackgroundMessage` ב-`main()` לפני `runApp`; Android: `POST_NOTIFICATIONS` + בקשת הרשאה ב-`initialize`; ערוץ `shareflow_default` תואם לשרת.
 - **FCM Tap → Dialog** (build 24): `FcmService.setNotificationTapCallback` + `notification_detail_dialog.dart` — לחיצה על push פותחת דיאלוג עם טקסט מלא וכפתור «סגור»; payload FCM כולל `title`/`body` ב-`data`.
 - **Notification Sound** (build 24+): `FeedbackService.notification()` + `assets/sounds/notification.wav` — צליל ב-foreground; `fcm_service.dart` מציג local notification תמיד (גם כש-iOS מסיר `message.notification`); `FeedbackService` משתמש ב-`playback` ב-iOS.
 - **FCM Sound Payload** (build 25 fix): `fcm_service.py` — `apns.Aps(sound='default')` + `AndroidNotification(sound='default', channel_id='shareflow_default')` לצליל ב-background.
@@ -553,7 +553,8 @@ flutter install --release
 - **סיום פיילוט:** כיבוי חוסם משתמשי `pilot`; הרשמה מחדש (אותו אימייל/OAuth) ממירה ל-`active`; JWT בודק `is_active` בכל בקשה (blocklist).
 - **פישוט חשבון (אפליקציה):** במסך תשלום — «שילמתי — שלח לאישור»; סגירת קבוצה תמיד עם אישור (`dry_run` ב-`POST /groups/<id>/close`); אשף «סיים אירוע» ב-2 שלבים + קישור חזרה להסדרת חובות.
 - **טיפי בהירות (פיילוט):** הסברים קצרים ביצירת קבוצה, הוצאות ריקות, משתתפים, טאב חשבון, באנר חינם, פרטי תשלום, הזמנה/אורח, סריקה מול צירוף קבלה.
-- **פוליש לפני פיילוט:** נתיב הסדרה אחד («הסדר תשלום» → מסך תשלום → «שילמתי»); יצירת קבוצה «ללא חיוב עכשיו»; סריקת קבלה כ-CTA ראשי; רמזי אורח מקוצרים בלי תגי תרחיש.
+- **פוליש לפני פיילוט:** נתיב הסדרה אחד («הסדר תשלום» → מסך תשלום → «שילמתי»); סריקת קבלה כ-CTA ראשי; רמזי אורח מקוצרים בלי תגי תרחיש.
+- **תווית יצירת קבוצה (דינמית):** האפליקציה קוראת `GET /api/config/public` (`pilot_mode_enabled`). פיילוט פתוח → «ללא חיוב עכשיו»; פיילוט סגור → «צור קבוצה - {price} ₪». מתג: Control → `/shareflow/pilot`.
 - **Group Renewal Pricing**: `MonetizationService.renew_group` משתמש ב-`resolve_price(group_type, member_count)` — אותו מחיר כמו הפעלה; אפליקציה קוראת `required_pricing` מהשרת (build 30).
 
 ---

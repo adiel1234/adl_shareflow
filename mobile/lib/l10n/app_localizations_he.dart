@@ -1344,8 +1344,17 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String createGroupPaid(int price) {
+    return 'צור קבוצה - $price ₪';
+  }
+
+  @override
+  String createGroupPaidPilot(int price) {
     return 'צור קבוצה · ללא חיוב עכשיו ($price ₪ להפעלה בהמשך)';
   }
+
+  @override
+  String get tipCreateGroupLive =>
+      'המחיר הוא להפעלת הקבוצה. אחרי היצירה תוכלו להפעיל כשתהיו מוכנים.';
 
   @override
   String durationDays(int days) {

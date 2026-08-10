@@ -2,6 +2,7 @@ import 'package:app_links/app_links.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -46,6 +47,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
+  // Must be registered before runApp so background/killed isolates can show
+  // data-only fallbacks. System notification+data banners do not need this.
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await FeedbackService.init();
 
   await SystemChrome.setPreferredOrientations([

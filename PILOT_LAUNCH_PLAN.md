@@ -1,6 +1,6 @@
 # תכנית השקת פיילוט — ADL ShareFlow
 
-עודכן: 17 יוני 2026 · גרסת פיילוט: **1.0.5** · **`pubspec`:** `1.0.5+43` · **build 43 נבנה** (commit `c4cd974`) — תיקון תצוגת build Android · ממתין Drive + Transporter · **build 44 בתור** (באג join 404 + UX דיאלוג)
+עודכן: 10 אוגוסט 2026 · גרסת פיילוט: **1.0.9** · **`pubspec`:** `1.0.9+57` · **build 57 נבנה** — תווית יצירה דינמית + חיזוק FCM ברקע/סגורה · IPA + APK מוכנים להפצה
 
 > **מסמכים קשורים:** [`PILOT_TEST_CHECKLIST.md`](PILOT_TEST_CHECKLIST.md) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)
 

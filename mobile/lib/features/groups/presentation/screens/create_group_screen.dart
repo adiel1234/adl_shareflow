@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/groups_provider.dart';
+import '../../../../providers/payments_config_provider.dart';
 import '../../../../providers/quota_provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/app_button.dart';
@@ -28,6 +29,15 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
   String _settlementPeriod = 'monthly';
   bool _loading = false;
   int _tierIdx = 0;   // selected pricing tier index
+
+  @override
+  void initState() {
+    super.initState();
+    // Refetch public config so pilot/live create-CTA copy stays in sync with Control.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(publicAppConfigProvider);
+    });
+  }
 
   // Event tiers: (maxParticipants, priceIls, durationDays)
   // maxParticipants=0 means "free"
@@ -612,24 +622,44 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
 
               const SizedBox(height: 32),
 
-              if (!isFreeEffective) ...[
-                Text(
-                  l.tipCreateGroupNoCharge,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    height: 1.35,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
-              GradientButton(
-                label: isFreeEffective
-                    ? l.createGroupFree
-                    : l.createGroupPaid(effectivePrice),
-                onPressed: _loading ? null : () => _create(l),
-                isLoading: _loading,
+              Builder(
+                builder: (context) {
+                  final pilotMode = ref.watch(pilotModeConfigProvider).maybeWhen(
+                        data: (v) => v,
+                        orElse: () => true,
+                      );
+                  final tip = !isFreeEffective
+                      ? (pilotMode
+                          ? l.tipCreateGroupNoCharge
+                          : l.tipCreateGroupLive)
+                      : null;
+                  final label = isFreeEffective
+                      ? l.createGroupFree
+                      : (pilotMode
+                          ? l.createGroupPaidPilot(effectivePrice)
+                          : l.createGroupPaid(effectivePrice));
+                  return Column(
+                    children: [
+                      if (tip != null) ...[
+                        Text(
+                          tip,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            height: 1.35,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      GradientButton(
+                        label: label,
+                        onPressed: _loading ? null : () => _create(l),
+                        isLoading: _loading,
+                      ),
+                    ],
+                  );
+                },
               ),
             ],
           ),
