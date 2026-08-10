@@ -205,6 +205,17 @@ def _pilot_download_urls() -> dict[str, str]:
     }
 
 
+# Official Apple TestFlight app — direct App Store install (no guide page).
+_TESTFLIGHT_APP_STORE_URL = 'https://apps.apple.com/app/testflight/id899247664'
+
+
+@download_bp.get('/install/testflight')
+@download_bp.get('/download/testflight')
+def install_testflight_only():
+    """Redirect straight to the TestFlight App Store page — no explanations."""
+    return redirect(_TESTFLIGHT_APP_STORE_URL, code=302)
+
+
 @download_bp.get('/download/apk')
 def download_apk_proxy():
     """Serve Android APK — Drive is streamed (virus-scan bypass); GitHub/other redirect."""
