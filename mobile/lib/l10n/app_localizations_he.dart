@@ -1754,7 +1754,26 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get guestReminderAction => 'לניהול אורחים';
+  String get guestReminderAction => 'הוסף אורח';
+
+  @override
+  String get tipInvitePrimary => 'שלחו קישור — החבר מצטרף דרך האפליקציה';
+
+  @override
+  String get showQrAndCode => 'הצג קוד QR וקוד להקלדה';
+
+  @override
+  String get inviteEmailOption => 'שלח גם במייל';
+
+  @override
+  String get addGuestOption => 'אין אפליקציה? הוסיפו כאורח';
+
+  @override
+  String get tipMembersActions =>
+      'הזמן עם קישור — זה הנתיב הרגיל. אורח רק למי שבלי אפליקציה.';
+
+  @override
+  String get inviteViaApp => 'הזמן עם קישור';
 
   @override
   String get linkGuestTitle => 'קשר אורח לחשבון';
@@ -1831,7 +1850,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get gotIt => 'הבנתי';
 
   @override
-  String get doneBtn => 'סיים הוספת אורחים';
+  String get doneBtn => 'סיום';
 
   @override
   String get tipCreateGroupNoCharge =>
@@ -1858,12 +1877,11 @@ class AppLocalizationsHe extends AppLocalizations {
       'הסורק למעלה ממלא סכום ותיאור אוטומטית. «צרף קבלה» רק שומר תמונה לצפייה.';
 
   @override
-  String get tipWhatsAppInvite =>
-      'נפתח WhatsApp — בחרו איש קשר, שלחו, וחזרו לכאן להזמין עוד.';
+  String get tipWhatsAppInvite => 'נפתח WhatsApp — בחרו למי לשלוח.';
 
   @override
   String get tipAddGuestNoApp =>
-      'לאורח אין אפליקציה — אתם מנהלים בשמו את החלוקה והתשלומים עד שיוריד.';
+      'רק אם אין להם אפליקציה — אתם מנהלים בשמם עד שירשמו.';
 
   @override
   String get tipMemberBalanceLegend =>

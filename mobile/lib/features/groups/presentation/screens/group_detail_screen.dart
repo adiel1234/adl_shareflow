@@ -549,97 +549,21 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
     );
   }
 
-  void _showInvite(BuildContext context, Group group) async {
-    final l = AppLocalizations.of(context)!;
-    final repo = ref.read(groupRepositoryProvider);
-
-    // Only ask about split mode if the group already has expenses
-    String splitMode = 'forward';
-    int expenseCount = group.expenseCount;
-    try {
-      expenseCount = await repo.fetchExpenseCount(group.id);
-    } catch (_) {}
-
-    if (expenseCount > 0) {
-      final choice = await showDialog<String>(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(l.splitExpenses,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-              textAlign: TextAlign.right),
-          content: Text(l.howShouldNewMemberJoin,
-              style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
-              textAlign: TextAlign.right),
-          actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            _SplitOptionButton(
-              icon: Icons.history,
-              color: AppColors.primary,
-              title: l.splitAll,
-              subtitle: l.includePastExpenses,
-              onTap: () => Navigator.pop(ctx, 'full'),
-            ),
-            const SizedBox(height: 8),
-            _SplitOptionButton(
-              icon: Icons.arrow_forward,
-              color: AppColors.secondary,
-              title: l.fromNowOn,
-              subtitle: l.notChargedPast,
-              onTap: () => Navigator.pop(ctx, 'forward'),
-            ),
-            const SizedBox(height: 4),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, null),
-              child: Text(l.cancel,
-                  style: const TextStyle(color: AppColors.textSecondary)),
-            ),
-          ],
-        ),
-      );
-      if (choice == null || !context.mounted) return;
-      splitMode = choice;
-    }
-
-    if (!context.mounted) return;
-
-    try {
-      final data = await repo.fetchInviteLink(group.id, splitMode: splitMode);
-      final code = data['invite_code'] as String;
-      final link = data['invite_link'] as String;
-
-      if (!context.mounted) return;
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder: (_) => InviteSheet(
-          code: code,
-          link: link,
-          groupId: group.id,
-          groupName: group.name,
-          splitMode: splitMode,
-          expenseCount: expenseCount,
-          isAdmin: group.isAdmin,
-          onGuestAdded: () {
-            ref.invalidate(groupMembersProvider(group.id));
-            ref.invalidate(balancesProvider(group.id));
-            ref.invalidate(expensesProvider(group.id));
-            ref.invalidate(groupDetailProvider(group.id));
-            ref.invalidate(groupsProvider);
-          },
-        ),
-      );
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l.errorLoadingInvite)),
-        );
-      }
-    }
+  void _showInvite(BuildContext context, Group group) {
+    openInviteFlow(
+      context,
+      groupId: group.id,
+      groupName: group.name,
+      isAdmin: group.isAdmin,
+      expenseCountHint: group.expenseCount,
+      onGuestAdded: () {
+        ref.invalidate(groupMembersProvider(group.id));
+        ref.invalidate(balancesProvider(group.id));
+        ref.invalidate(expensesProvider(group.id));
+        ref.invalidate(groupDetailProvider(group.id));
+        ref.invalidate(groupsProvider);
+      },
+    );
   }
 }
 

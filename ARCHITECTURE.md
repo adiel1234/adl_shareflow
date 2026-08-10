@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 אוגוסט 2026 - מדריכי פיילוט מסונכרנים ל-build 58 (1.0.9)
+> עודכן לאחרונה: 10 אוגוסט 2026 - build 59: פישוט הזמנת חברים
 
 ---
 
@@ -323,9 +323,9 @@ flutter build apk --release
 flutter install --release
 ```
 
-**APK נוכחי (גרסה 1.0.9+58):**
+**APK נוכחי (גרסה 1.0.9+59):**
 - קישור: `APK_DOWNLOAD_URL` ב-Railway (GitHub Releases); משתמשים מקבלים `GET /download/apk`
-- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build58
+- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build59
 - **למשתמשי פיילוט:** שתפו `/pilot/join` → `/getting-started` (לא `/download` ישירות)
 
 ### iOS (TestFlight)
@@ -555,6 +555,7 @@ flutter install --release
 - **טיפי בהירות (פיילוט):** הסברים קצרים ביצירת קבוצה, הוצאות ריקות, משתתפים, טאב חשבון, באנר חינם, פרטי תשלום, הזמנה/אורח, סריקה מול צירוף קבלה.
 - **פוליש לפני פיילוט:** נתיב הסדרה אחד («הסדר תשלום» → מסך תשלום → «שילמתי»); סריקת קבלה כ-CTA ראשי; רמזי אורח מקוצרים בלי תגי תרחיש.
 - **תווית יצירת קבוצה (דינמית):** האפליקציה קוראת `GET /api/config/public` (`pilot_mode_enabled`). פיילוט פתוח → «ללא חיוב עכשיו»; פיילוט סגור → «צור קבוצה - {price} ₪». מתג: Control → `/shareflow/pilot`.
+- **הזמנת חברים (פישוט):** גיליון הזמנה — WhatsApp ראשי, העתקה/שיתוף משניים, QR/קוד/מייל/אורח מקופלים; בטאב חברים — «הזמן עם קישור» ראשי ו«הוסיפו כאורח» משני.
 - **Group Renewal Pricing**: `MonetizationService.renew_group` משתמש ב-`resolve_price(group_type, member_count)` — אותו מחיר כמו הפעלה; אפליקציה קוראת `required_pricing` מהשרת (build 30).
 
 ---

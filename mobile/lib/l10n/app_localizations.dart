@@ -3267,8 +3267,44 @@ abstract class AppLocalizations {
   /// No description provided for @guestReminderAction.
   ///
   /// In he, this message translates to:
-  /// **'לניהול אורחים'**
+  /// **'הוסף אורח'**
   String get guestReminderAction;
+
+  /// No description provided for @tipInvitePrimary.
+  ///
+  /// In he, this message translates to:
+  /// **'שלחו קישור — החבר מצטרף דרך האפליקציה'**
+  String get tipInvitePrimary;
+
+  /// No description provided for @showQrAndCode.
+  ///
+  /// In he, this message translates to:
+  /// **'הצג קוד QR וקוד להקלדה'**
+  String get showQrAndCode;
+
+  /// No description provided for @inviteEmailOption.
+  ///
+  /// In he, this message translates to:
+  /// **'שלח גם במייל'**
+  String get inviteEmailOption;
+
+  /// No description provided for @addGuestOption.
+  ///
+  /// In he, this message translates to:
+  /// **'אין אפליקציה? הוסיפו כאורח'**
+  String get addGuestOption;
+
+  /// No description provided for @tipMembersActions.
+  ///
+  /// In he, this message translates to:
+  /// **'הזמן עם קישור — זה הנתיב הרגיל. אורח רק למי שבלי אפליקציה.'**
+  String get tipMembersActions;
+
+  /// No description provided for @inviteViaApp.
+  ///
+  /// In he, this message translates to:
+  /// **'הזמן עם קישור'**
+  String get inviteViaApp;
 
   /// No description provided for @linkGuestTitle.
   ///
@@ -3393,7 +3429,7 @@ abstract class AppLocalizations {
   /// No description provided for @doneBtn.
   ///
   /// In he, this message translates to:
-  /// **'סיים הוספת אורחים'**
+  /// **'סיום'**
   String get doneBtn;
 
   /// No description provided for @tipCreateGroupNoCharge.
@@ -3435,13 +3471,13 @@ abstract class AppLocalizations {
   /// No description provided for @tipWhatsAppInvite.
   ///
   /// In he, this message translates to:
-  /// **'נפתח WhatsApp — בחרו איש קשר, שלחו, וחזרו לכאן להזמין עוד.'**
+  /// **'נפתח WhatsApp — בחרו למי לשלוח.'**
   String get tipWhatsAppInvite;
 
   /// No description provided for @tipAddGuestNoApp.
   ///
   /// In he, this message translates to:
-  /// **'לאורח אין אפליקציה — אתם מנהלים בשמו את החלוקה והתשלומים עד שיוריד.'**
+  /// **'רק אם אין להם אפליקציה — אתם מנהלים בשמם עד שירשמו.'**
   String get tipAddGuestNoApp;
 
   /// No description provided for @tipMemberBalanceLegend.

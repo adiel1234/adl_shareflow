@@ -1767,7 +1767,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get guestReminderAction => 'Manage guests';
+  String get guestReminderAction => 'Add guest';
+
+  @override
+  String get tipInvitePrimary => 'Send a link — they join through the app';
+
+  @override
+  String get showQrAndCode => 'Show QR and invite code';
+
+  @override
+  String get inviteEmailOption => 'Also send by email';
+
+  @override
+  String get addGuestOption => 'No app? Add as guest';
+
+  @override
+  String get tipMembersActions =>
+      'Invite with a link — the usual path. Guests only if they don\'t have the app.';
+
+  @override
+  String get inviteViaApp => 'Invite with a link';
 
   @override
   String get linkGuestTitle => 'Link guest to account';
@@ -1844,7 +1863,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gotIt => 'Got it';
 
   @override
-  String get doneBtn => 'Done adding guests';
+  String get doneBtn => 'Done';
 
   @override
   String get tipCreateGroupNoCharge =>
@@ -1871,12 +1890,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'The scanner above auto-fills amount and title. «Attach receipt» only saves an image to view.';
 
   @override
-  String get tipWhatsAppInvite =>
-      'WhatsApp opens — pick a contact, send, then return here to invite more.';
+  String get tipWhatsAppInvite => 'WhatsApp opens — pick who to send to.';
 
   @override
   String get tipAddGuestNoApp =>
-      'Guests don\'t have the app — you manage their share and payments until they install.';
+      'Only if they don\'t have the app — you manage for them until they sign up.';
 
   @override
   String get tipMemberBalanceLegend =>

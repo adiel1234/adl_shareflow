@@ -10,9 +10,7 @@ import '../../../groups/domain/group_model.dart';
 import '../../../balances/domain/balance_model.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../services/share_service.dart';
 import '../widgets/invite_sheet.dart';
-import '../../data/group_repository.dart';
 
 class MembersTabScreen extends ConsumerWidget {
   final Group group;
@@ -62,7 +60,7 @@ class MembersTabScreen extends ConsumerWidget {
               var slot = 0;
               if (isAdmin) {
                 if (i == slot) {
-                  return _AddGuestCard(group: group);
+                  return _MembersInviteActions(group: group);
                 }
                 slot++;
               }
@@ -935,11 +933,19 @@ class _GuestSplitOptionButton extends StatelessWidget {
   }
 }
 
-// ── Add guest quick action (admin) ────────────────────────────────────────────
+// ── Invite + guest actions (admin) ────────────────────────────────────────────
 
-class _AddGuestCard extends ConsumerWidget {
+class _MembersInviteActions extends ConsumerWidget {
   final Group group;
-  const _AddGuestCard({required this.group});
+  const _MembersInviteActions({required this.group});
+
+  void _invalidate(WidgetRef ref) {
+    ref.invalidate(groupMembersProvider(group.id));
+    ref.invalidate(balancesProvider(group.id));
+    ref.invalidate(expensesProvider(group.id));
+    ref.invalidate(groupDetailProvider(group.id));
+    ref.invalidate(groupsProvider);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -949,22 +955,46 @@ class _AddGuestCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          OutlinedButton.icon(
-            onPressed: () => _showAddGuestSheet(context, ref, group),
-            icon: const Icon(Icons.person_add_outlined, color: Colors.purple),
-            label: Text(l.addGuestTitle,
-                style: const TextStyle(fontWeight: FontWeight.w600)),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.purple,
-              side: BorderSide(color: Colors.purple.withOpacity(0.4)),
+          ElevatedButton.icon(
+            onPressed: () => openInviteFlow(
+              context,
+              groupId: group.id,
+              groupName: group.name,
+              isAdmin: group.isAdmin,
+              expenseCountHint: group.expenseCount,
+              onGuestAdded: () => _invalidate(ref),
+            ),
+            icon: const Icon(Icons.person_add_alt_1_rounded, size: 20),
+            label: Text(
+              l.inviteViaApp,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14)),
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => _showAddGuestSheet(context, ref, group),
+            icon: const Icon(Icons.person_outline, size: 18),
+            label: Text(l.addGuestOption),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.textPrimary,
+              side: const BorderSide(color: AppColors.border),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
             ),
           ),
           const SizedBox(height: 6),
           Text(
-            l.tipAddGuestNoApp,
+            l.tipMembersActions,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 12,
