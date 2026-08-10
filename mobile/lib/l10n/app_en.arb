@@ -313,6 +313,7 @@
   "passwordRequired": "Password is required",
   "wrongCredentials": "Incorrect email or password",
   "loginError": "Login error, please try again",
+  "pilotEndedLogin": "The pilot period has ended. Register again with the same email to open an active account.",
   "orDivider": "or",
   "rememberMe": "Remember my login details",
   "rememberMeSubtitle": "Next time we will offer to fill in your email and password",

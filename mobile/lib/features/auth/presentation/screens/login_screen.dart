@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -109,7 +110,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   String _parseError(dynamic e, AppLocalizations l) {
-    final msg = e.toString();
+    String msg = e.toString();
+    if (e is DioException) {
+      final data = e.response?.data;
+      if (data is Map && data['message'] != null) {
+        msg = data['message'].toString();
+      }
+    }
+    if (msg.contains('PILOT_ENDED')) {
+      return l.pilotEndedLogin;
+    }
     if (msg.contains('401') || msg.contains('Invalid email')) {
       return l.wrongCredentials;
     }

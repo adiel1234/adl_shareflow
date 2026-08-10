@@ -843,6 +843,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get loginError => 'שגיאה בהתחברות, נסה שוב';
 
   @override
+  String get pilotEndedLogin =>
+      'תקופת הפיילוט הסתיימה. הירשם מחדש עם אותו אימייל כדי לפתוח חשבון פעיל.';
+
+  @override
   String get orDivider => 'או';
 
   @override

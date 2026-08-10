@@ -13,6 +13,13 @@ from app import db
 from app.models import User, UserIdentity, RefreshToken, PasswordResetToken
 from app.common.utils import hash_token
 from app.email_service import send_password_reset_email
+from app.pilot_mode import (
+    ACCOUNT_MODE_PILOT,
+    is_pilot_mode_enabled,
+    promote_to_active,
+    raise_if_blocked,
+    registration_account_mode,
+)
 
 
 _RESET_CODE_TTL_MINUTES = 30
@@ -33,9 +40,28 @@ def register_email(email: str, password: str, display_name: str) -> tuple[User, 
 
     existing = UserIdentity.query.filter_by(provider='email', provider_user_id=email).first()
     if existing:
+        user = db.session.get(User, existing.user_id)
+        # Same pilot email may re-register as a real (active) account after pilot ends.
+        if (
+            user
+            and user.account_mode == ACCOUNT_MODE_PILOT
+            and not user.is_active
+            and not is_pilot_mode_enabled()
+        ):
+            promote_to_active(user, display_name=display_name)
+            existing.password_hash = generate_password_hash(password)
+            db.session.add(existing)
+            db.session.commit()
+            _touch_last_login(user)
+            access_token, refresh_token = _generate_tokens(user)
+            return user, access_token, refresh_token
         raise ValueError('Email already registered')
 
-    user = User(email=email, display_name=display_name)
+    user = User(
+        email=email,
+        display_name=display_name,
+        account_mode=registration_account_mode(),
+    )
     db.session.add(user)
     db.session.flush()
 
@@ -61,8 +87,7 @@ def login_email(email: str, password: str) -> tuple[User, str, str]:
         raise ValueError('Invalid email or password')
 
     user = db.session.get(User, identity.user_id)
-    if not user or not user.is_active:
-        raise ValueError('Account is disabled')
+    raise_if_blocked(user)
 
     _touch_last_login(user)
     access_token, refresh_token = _generate_tokens(user)
@@ -152,8 +177,7 @@ def refresh_access_token(raw_refresh_token: str) -> str:
         raise ValueError('Refresh token expired')
 
     user = db.session.get(User, stored.user_id)
-    if not user or not user.is_active:
-        raise ValueError('Account disabled')
+    raise_if_blocked(user)
 
     return create_access_token(identity=user.id)
 
@@ -269,7 +293,12 @@ def _upsert_oauth_user(
         # Check if email already exists (link accounts)
         user = User.query.filter_by(email=email).first()
         if not user:
-            user = User(email=email, display_name=display_name, avatar_url=avatar_url)
+            user = User(
+                email=email,
+                display_name=display_name,
+                avatar_url=avatar_url,
+                account_mode=registration_account_mode(),
+            )
             db.session.add(user)
             db.session.flush()
 
@@ -281,8 +310,17 @@ def _upsert_oauth_user(
         db.session.add(identity)
         db.session.commit()
 
-    if not user.is_active:
-        raise ValueError('Account is disabled')
+    # After pilot ends: same OAuth identity may become a real active account.
+    if (
+        user
+        and user.account_mode == ACCOUNT_MODE_PILOT
+        and not user.is_active
+        and not is_pilot_mode_enabled()
+    ):
+        promote_to_active(user, display_name=display_name or user.display_name)
+        db.session.commit()
+    else:
+        raise_if_blocked(user)
 
     _touch_last_login(user)
     access_token, refresh_token = _generate_tokens(user)

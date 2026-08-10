@@ -1658,6 +1658,12 @@ abstract class AppLocalizations {
   /// **'שגיאה בהתחברות, נסה שוב'**
   String get loginError;
 
+  /// No description provided for @pilotEndedLogin.
+  ///
+  /// In he, this message translates to:
+  /// **'תקופת הפיילוט הסתיימה. הירשם מחדש עם אותו אימייל כדי לפתוח חשבון פעיל.'**
+  String get pilotEndedLogin;
+
   /// No description provided for @orDivider.
   ///
   /// In he, this message translates to:

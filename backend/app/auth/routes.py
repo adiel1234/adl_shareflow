@@ -3,8 +3,16 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.auth import service
 from app.common.errors import success_response, error_response
+from app.pilot_mode import ERR_PILOT_ENDED
 
 auth_bp = Blueprint('auth', __name__)
+
+
+def _auth_error(exc: Exception, default_status: int = 401):
+    msg = str(exc)
+    if msg == ERR_PILOT_ENDED:
+        return error_response(ERR_PILOT_ENDED, 403)
+    return error_response(msg, default_status)
 
 
 @auth_bp.post('/register')
@@ -22,7 +30,7 @@ def register():
     try:
         user, access_token, refresh_token = service.register_email(email, password, display_name)
     except ValueError as e:
-        return error_response(str(e))
+        return _auth_error(e, 400)
 
     return success_response(
         data={
@@ -46,7 +54,7 @@ def login():
     try:
         user, access_token, refresh_token = service.login_email(email, password)
     except ValueError as e:
-        return error_response(str(e), 401)
+        return _auth_error(e, 401)
 
     return success_response(data={
         'user': user.to_dict(),
@@ -66,7 +74,7 @@ def google_login():
     try:
         user, access_token, refresh_token = service.login_google(id_token)
     except ValueError as e:
-        return error_response(str(e), 401)
+        return _auth_error(e, 401)
 
     return success_response(data={
         'user': user.to_dict(),
@@ -87,7 +95,7 @@ def apple_login():
     try:
         user, access_token, refresh_token = service.login_apple(identity_token, display_name)
     except ValueError as e:
-        return error_response(str(e), 401)
+        return _auth_error(e, 401)
 
     return success_response(data={
         'user': user.to_dict(),
@@ -107,7 +115,7 @@ def refresh():
     try:
         access_token = service.refresh_access_token(raw_refresh_token)
     except ValueError as e:
-        return error_response(str(e), 401)
+        return _auth_error(e, 401)
 
     return success_response(data={'access_token': access_token})
 

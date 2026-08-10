@@ -1092,12 +1092,14 @@ def add_guest_member(group_id, **kwargs):
 
     # Create a ghost User record — fake email, no auth identity
     ghost_id = str(_uuid_mod.uuid4())
+    from app.pilot_mode import registration_account_mode
     ghost = User(
         id=ghost_id,
         email=f'guest_{ghost_id}@shareflow.internal',
         display_name=name,
         is_guest=True,
         is_active=True,
+        account_mode=registration_account_mode(),
         default_currency='ILS',
         language='he',
         plan='free',

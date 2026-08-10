@@ -846,6 +846,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginError => 'Login error, please try again';
 
   @override
+  String get pilotEndedLogin =>
+      'The pilot period has ended. Register again with the same email to open an active account.';
+
+  @override
   String get orDivider => 'or';
 
   @override

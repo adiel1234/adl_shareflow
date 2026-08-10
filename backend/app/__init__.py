@@ -113,14 +113,18 @@ def create_app(config=None):
         import json
         return Response(json.dumps(data), mimetype='application/json')
 
-    # Public config — app reads this to decide whether to trigger IAP
+    # Public config — app reads this to decide whether to trigger IAP / pilot messaging
     @app.get('/api/config/public')
     def public_config():
         from flask import jsonify
+        from app.pilot_mode import is_pilot_mode_enabled, flag_truthy
         from app.models import FeatureFlag
         flag = FeatureFlag.query.filter_by(key='PAYMENTS_ENABLED').first()
-        payments_enabled = bool(flag and str(flag.value).lower() in ('true', '1', 'yes'))
-        return jsonify({'payments_enabled': payments_enabled})
+        payments_enabled = flag_truthy(flag.value if flag else None)
+        return jsonify({
+            'payments_enabled': payments_enabled,
+            'pilot_mode_enabled': is_pilot_mode_enabled(),
+        })
 
     # Deferred deep link - app calls this on first launch to retrieve pending invite code
     @app.get('/api/deferred-link')
@@ -372,6 +376,7 @@ def _seed_feature_flags():
         from app.models import FeatureFlag
         defaults = [
             ('PAYMENTS_ENABLED', 'false', 'הפעלת מנגנון תשלום - כשכבוי הקבוצות מופעלות חינם (מצב בטא)'),
+            ('PILOT_MODE_ENABLED', 'true', 'מצב פיילוט — הרשמות חדשות מסומנות כ-pilot'),
         ]
         for key, value, description in defaults:
             if not FeatureFlag.query.filter_by(key=key).first():
@@ -383,6 +388,9 @@ def _seed_feature_flags():
 
 def _register_jwt_handlers(jwt_manager):
     from app.common.errors import error_response
+    from app import db
+    from app.models import User
+    from app.pilot_mode import ERR_PILOT_ENDED
 
     @jwt_manager.expired_token_loader
     def expired_token_callback(jwt_header, jwt_data):
@@ -398,4 +406,16 @@ def _register_jwt_handlers(jwt_manager):
 
     @jwt_manager.revoked_token_loader
     def revoked_token_callback(jwt_header, jwt_data):
+        identity = (jwt_data or {}).get('sub')
+        user = db.session.get(User, identity) if identity else None
+        if user and not user.is_active and user.account_mode == 'pilot':
+            return error_response(ERR_PILOT_ENDED, 401)
         return error_response('Token has been revoked', 401)
+
+    @jwt_manager.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload):
+        identity = jwt_payload.get('sub')
+        if not identity:
+            return True
+        user = db.session.get(User, identity)
+        return (not user) or (not user.is_active)

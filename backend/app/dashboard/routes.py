@@ -14,10 +14,13 @@ from app.models import (
     Notification, FeatureFlag, GroupPayment, FCMToken,
 )
 from app.common.errors import success_response, error_response
+from app.pilot_mode import (
+    PILOT_STARTED_FLAG,
+    is_pilot_mode_enabled,
+    set_pilot_mode,
+)
 
 dashboard_bp = Blueprint('dashboard', __name__)
-
-PILOT_STARTED_FLAG = 'PILOT_STARTED_AT'
 _PILOT_USER_TABLES = (
     'period_debts',
     'period_reports',
@@ -307,6 +310,7 @@ def adl_stats():
             'revenue_30d_ils': float(payments_30d),
         },
         'pilot_started_at': _pilot_started_value(),
+        'pilot_mode_enabled': is_pilot_mode_enabled(),
     })
 
 
@@ -832,8 +836,49 @@ def adl_pilot_reset():
     _wipe_user_data()
     started = _set_pilot_started_at()
     db.session.commit()
+    mode = set_pilot_mode(True)
 
     return success_response(
-        data={'pilot_started_at': started},
+        data={'pilot_started_at': started, **mode},
         message='Pilot data wiped; dashboard scope=pilot starts empty',
+    )
+
+
+@dashboard_bp.get('/pilot/mode')
+def adl_pilot_mode_get():
+    err = _require_adl_admin()
+    if err:
+        return err
+    return success_response(data={
+        'pilot_mode_enabled': is_pilot_mode_enabled(),
+        'pilot_started_at': _pilot_started_value(),
+    })
+
+
+@dashboard_bp.put('/pilot/mode')
+def adl_pilot_mode_set():
+    """
+    Enable/disable pilot mode.
+    Body: { "enabled": true|false }
+    When disabled: all account_mode=pilot users are blocked and must re-register
+    as active (same email/OAuth identity is allowed and becomes active).
+    """
+    err = _require_adl_admin()
+    if err:
+        return err
+
+    data = request.get_json(silent=True) or {}
+    if 'enabled' not in data:
+        return error_response('enabled is required', 400)
+
+    enabled = data.get('enabled')
+    if isinstance(enabled, str):
+        enabled = enabled.strip().lower() in ('true', '1', 'yes')
+    else:
+        enabled = bool(enabled)
+
+    result = set_pilot_mode(enabled)
+    return success_response(
+        data=result,
+        message='Pilot mode enabled' if enabled else 'Pilot mode disabled; pilot users blocked',
     )

@@ -40,6 +40,8 @@ class User(db.Model):
     language = Column(String(5), nullable=False, default='he')
     plan = Column(String(20), nullable=False, default='free')
     is_active = Column(Boolean, nullable=False, default=True)
+    # pilot = registered during pilot; active = real production account
+    account_mode = Column(String(20), nullable=False, default='pilot', index=True)
     # Payment details (for settling debts via Bit / PayBox / bank transfer)
     payment_phone = Column(String(20), nullable=True)   # Bit / PayBox phone
     paybox_link = Column(String(500), nullable=True)    # personal PayBox "שלם לי" link
@@ -80,6 +82,7 @@ class User(db.Model):
             'bank_account_number': self.bank_account_number,
             'is_active': self.is_active,
             'is_guest': self.is_guest,
+            'account_mode': self.account_mode,
             'last_login_at': self.last_login_at.isoformat() if self.last_login_at else None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
         }
