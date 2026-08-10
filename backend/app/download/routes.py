@@ -255,6 +255,7 @@ def pilot_onboarding():
 
 
 @download_bp.get('/pilot/invite')
+@download_bp.get('/invite')
 def pilot_invite():
     """Friendly Hebrew invite page for the review group (shareable)."""
     html_path = _STATIC_DIR / 'pilot_invite.html'
