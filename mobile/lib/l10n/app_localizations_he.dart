@@ -1208,11 +1208,11 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get balancesHowItWorks =>
-      'איך מסדירים? החייב לוחץ «שילמתי» → המקבל לוחץ «אשר קבלה».';
+      'איך מסדירים? החייב לוחץ «הסדר תשלום» → מסמן «שילמתי» → המקבל לוחץ «אשר קבלה».';
 
   @override
   String get periodSettleHint =>
-      'סגירת תקופה יוצרת דוח לחברים. חובות עדיין דורשים סימון «שולם» או אישור בטאב חשבון.';
+      'יוצר דוח לחברים — לא מסמן חובות כשולמו אוטומטית.';
 
   @override
   String get shareGuestDebtWhatsApp => 'שתף תזכורת ב-WhatsApp';
@@ -1344,7 +1344,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String createGroupPaid(int price) {
-    return 'צור קבוצה - $price ₪';
+    return 'צור קבוצה · ללא חיוב עכשיו ($price ₪ להפעלה בהמשך)';
   }
 
   @override
@@ -1398,7 +1398,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get automaticPeriodicDesc =>
-      'דוח נשלח אוטומטית וניתן לסמן חובות כשולמו';
+      'דוח בטאב «חשבון» לפי תדירות — לא משלם חובות אוטומטית';
 
   @override
   String get settlementFrequency => 'תדירות התחשבנות';
@@ -1559,17 +1559,23 @@ class AppLocalizationsHe extends AppLocalizations {
   String get pendingCardTitleMixed => 'תשלומים בהמתנה';
 
   @override
-  String get transferHintMemberToMember => 'החייב מסמן «שילמתי» - המקבל מאשר';
+  String get transferHintMemberToMember =>
+      'החייב: «הסדר תשלום» → «שילמתי» · המקבל: «אשר קבלה»';
 
   @override
-  String get transferHintMemberToGuest => 'החבר משלם - המנהל מאשר שהאורח קיבל';
+  String get transferHintMemberToGuest =>
+      'החבר משלם לאורח · המנהל מאשר שהאורח קיבל';
 
   @override
   String get transferHintGuestToMember =>
-      'המנהל מאשר שהאורח שילם - החבר מאשר קבלה';
+      'המנהל: «סמן שאורח שילם» · המקבל: «אשר קבלה»';
 
   @override
-  String get transferHintGuestToGuest => 'המנהל מאשר העברה וקבלה בפעולה אחת';
+  String get transferHintGuestToGuest => 'המנהל סוגר את החוב בפעולה אחת';
+
+  @override
+  String get tipScanPrimary =>
+      'מומלץ לסרוק קבלה — ממלא סכום ותיאור אוטומטית. אפשר גם לצרף תמונה לצפייה בלבד.';
 
   @override
   String get transferPendingBadge => 'ממתין לאישור - אין פעולה נוספת';
@@ -1722,7 +1728,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get guestExplainBody =>
-      'אורח הוא חבר שעדיין אין לו את האפליקציה.\n• הוא נכלל בחישוב ההוצאות כמו כל חבר אחר\n• המנהל מנהל את תשלומיו עד שיוריד את האפליקציה\n• ברגע שיוריד - המנהל מקשר אותו לחשבון שלו ומשם הוא פועל עצמאית';
+      'אורח = חבר בלי אפליקציה. הוא נכלל בחלוקה, ואתם מנהלים בשמו עד שיוריד ויתחבר לחשבון.';
 
   @override
   String get guestReminderTitle => 'אורחים ללא חשבון';
@@ -1820,7 +1826,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipCreateGroupNoCharge =>
-      'המחיר המוצג הוא להפעלה בהמשך — היצירה עצמה לא גובה תשלום עכשיו.';
+      'רק יוצרים את הקבוצה עכשיו. התשלום — אם בכלל — רק בהפעלה בהמשך.';
 
   @override
   String get tipEmptyExpensesInvite =>
@@ -1828,7 +1834,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipBalancesBeforeDebts =>
-      'כאן רואים מי חייב למי. כפתורי «שילמתי» / «אשר קבלה» יופיעו כשיהיו חובות.';
+      'כאן רואים מי חייב למי. כשיהיו חובות יופיעו «הסדר תשלום» ו«אשר קבלה».';
 
   @override
   String get tipParticipantsEqualSplit =>
@@ -1856,7 +1862,10 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipPeriodicSettlement =>
-      'בתקופתית אפשר לסגור תקופה בטאב «חשבון» ולשלוח דוח — זה לא משלם חובות אוטומטית.';
+      'בסליקה תקופתית סוגרים תקופה בטאב «חשבון» ושולחים דוח — בלי תשלום אוטומטי של חובות.';
+
+  @override
+  String get markGuestPaidShort => 'סמן שאורח שילם';
 
   @override
   String get tipPaymentDetailsScreen =>

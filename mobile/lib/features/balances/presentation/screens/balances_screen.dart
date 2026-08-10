@@ -81,7 +81,7 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen>
         final dl = AppLocalizations.of(ctx)!;
         return AlertDialog(
           title: Text(dl.settlePeriodDialogTitle),
-          content: Text(dl.settlePeriodConfirmMsg),
+          content: Text('${dl.settlePeriodConfirmMsg}\n\n${dl.periodSettleHint}'),
           actions: [
             TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
@@ -175,9 +175,14 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen>
                           fontWeight: FontWeight.w700,
                           fontSize: 15)),
                               Text(
-                                AppLocalizations.of(context)!.periodSettleHint,
+                                group.nextSettlementDate != null
+                                    ? AppLocalizations.of(context)!
+                                        .settlePeriodNext(
+                                            _fmtDate(group.nextSettlementDate!))
+                                    : AppLocalizations.of(context)!
+                                        .settlePeriodCreateReport,
                                 style: const TextStyle(
-                                    color: Colors.white70, fontSize: 11, height: 1.3),
+                                    color: Colors.white70, fontSize: 12),
                               ),
                             ],
                           ),
@@ -685,57 +690,6 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
     }
   }
 
-  Future<void> _paidDirectly(
-      BuildContext context, SettlementSuggestion s) async {
-    if (!mounted) return;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) {
-        final dl = AppLocalizations.of(ctx)!;
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(dl.paidDirectly,
-              style: const TextStyle(fontWeight: FontWeight.w700)),
-          content: Text(dl.confirmDirectPayment(s.toDisplayName)),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: Text(dl.cancel)),
-            ElevatedButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: Text(dl.yesConfirm)),
-          ],
-        );
-      },
-    );
-    if (confirmed != true || !mounted) return;
-    try {
-      HapticFeedback.mediumImpact();
-      await BalanceRepository().requestSettlement(
-        groupId: widget.group.id,
-        toUserId: s.toUserId,
-        amount: s.amountDouble,
-        currency: s.currency,
-      );
-      if (!mounted) return;
-      ref.invalidate(pendingSettlementsProvider(widget.group.id));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              AppLocalizations.of(context)!.waitingForConfirmation(s.toDisplayName)),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      String msg = 'שגיאה בסימון תשלום';
-      if (e is DioException) {
-        msg = (e.response?.data?['message'] as String?) ?? msg;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-    }
-  }
-
   Future<void> _scheduleReminder(BuildContext context, SettlementSuggestion s) async {
     final now = DateTime.now();
     final date = await showDatePicker(
@@ -992,29 +946,6 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (group.isAdmin && scenario != PaymentScenario.memberToMember)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: Colors.purple.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            PaymentScenarioLabels.scenarioName(
-                              AppLocalizations.of(context)!,
-                              scenario,
-                            ),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.purple,
-                            ),
-                          ),
-                        ),
-                      ),
                     Builder(builder: (ctx) {
                       final dl = AppLocalizations.of(ctx)!;
                       return Column(
@@ -1084,13 +1015,13 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                               onTap: () => _openPayment(ctx, s),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
+                                    horizontal: 14, vertical: 8),
                                 decoration: BoxDecoration(
                                   color: headerColor,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  dl.pay,
+                                  dl.settleUp,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700,
@@ -1100,32 +1031,34 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                               ),
                             );
                           }),
-                          const SizedBox(width: 6),
+                        ],
+                        if (showAdminGuestAction) ...[
                           Builder(builder: (ctx) {
                             final dl = AppLocalizations.of(ctx)!;
+                            final label = scenario == PaymentScenario.guestToGuest
+                                ? dl.closeDebt
+                                : dl.markGuestPaidShort;
                             return GestureDetector(
-                              onTap: () => _paidDirectly(ctx, s),
+                              onTap: () => _markGuestPaid(context, s),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
+                                    horizontal: 12, vertical: 8),
                                 decoration: BoxDecoration(
-                                  color: Colors.transparent,
+                                  color: Colors.purple,
                                   borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: headerColor),
                                 ),
                                 child: Text(
-                                  dl.paidDirectly,
-                                  style: TextStyle(
-                                    color: headerColor,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 11,
+                                  label,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 12,
                                   ),
                                 ),
                               ),
                             );
                           }),
-                        ],
-                        if (showAdminGuestAction) ...[
+                          const SizedBox(width: 6),
                           GestureDetector(
                             onTap: () => _shareGuestDebtWhatsApp(context, s),
                             child: Container(
@@ -1142,32 +1075,6 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                                   size: 16, color: Color(0xFF25D366)),
                             ),
                           ),
-                          const SizedBox(width: 6),
-                          Builder(builder: (ctx) {
-                            final dl = AppLocalizations.of(ctx)!;
-                            final label = scenario == PaymentScenario.guestToGuest
-                                ? dl.closeDebt
-                                : dl.confirmGuestTransfer;
-                            return GestureDetector(
-                              onTap: () => _markGuestPaid(context, s),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.purple,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  label,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
                         ],
                         if (!showDebtorActions &&
                             !showAdminGuestAction &&
@@ -1392,18 +1299,6 @@ class _PendingSettlementsCard extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (isAdmin && scenario != PaymentScenario.memberToMember)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        PaymentScenarioLabels.scenarioName(l, scenario),
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF7C3AED),
-                        ),
-                      ),
-                    ),
                   Text(
                     l.debtOwesAmount(
                       r.fromDisplayName,

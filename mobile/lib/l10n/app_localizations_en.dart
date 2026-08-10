@@ -1219,11 +1219,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get balancesHowItWorks =>
-      'How to settle? Debtor taps «I paid» → recipient taps «Confirm receipt».';
+      'How to settle? Debtor taps «Settle» → «I paid» → recipient taps «Confirm receipt».';
 
   @override
   String get periodSettleHint =>
-      'Closing a period creates a report. Debts still need «Paid» or confirmation on the Balances tab.';
+      'Creates a report for members — does not auto-mark debts as paid.';
 
   @override
   String get shareGuestDebtWhatsApp => 'Share reminder via WhatsApp';
@@ -1355,7 +1355,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String createGroupPaid(int price) {
-    return 'Create Group - ₪$price';
+    return 'Create group · no charge now (₪$price for later activation)';
   }
 
   @override
@@ -1409,7 +1409,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get automaticPeriodicDesc =>
-      'Report sent automatically, debts can be marked as paid';
+      'Report on Balances by schedule — does not auto-pay debts';
 
   @override
   String get settlementFrequency => 'Settlement Frequency';
@@ -1572,19 +1572,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transferHintMemberToMember =>
-      'Debtor marks paid - creditor confirms';
+      'Debtor: «Settle» → «I paid» · Creditor: «Confirm receipt»';
 
   @override
   String get transferHintMemberToGuest =>
-      'Member pays - admin confirms guest received';
+      'Member pays the guest · Admin confirms guest received';
 
   @override
   String get transferHintGuestToMember =>
-      'Admin confirms guest paid - member confirms receipt';
+      'Admin: «Mark guest paid» · Creditor: «Confirm receipt»';
 
   @override
-  String get transferHintGuestToGuest =>
-      'Admin confirms transfer and receipt in one step';
+  String get transferHintGuestToGuest => 'Admin closes the debt in one action';
+
+  @override
+  String get tipScanPrimary =>
+      'Scan a receipt to auto-fill amount and title. You can also attach an image for viewing only.';
 
   @override
   String get transferPendingBadge => 'Awaiting approval - no further action';
@@ -1738,7 +1741,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guestExplainBody =>
-      'A guest is a member who doesn\'t have the app yet.\n• They are included in expense calculations like any other member\n• The admin manages their payments until they download the app\n• Once they download it - the admin links them to their account and they become fully independent';
+      'A guest is a member without the app. They\'re included in the split, and you manage payments for them until they install and link their account.';
 
   @override
   String get guestReminderTitle => 'Guests without an account';
@@ -1836,7 +1839,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipCreateGroupNoCharge =>
-      'The price shown is for later activation — creating the group does not charge you now.';
+      'You only create the group now. Payment — if any — happens later at activation.';
 
   @override
   String get tipEmptyExpensesInvite =>
@@ -1872,7 +1875,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipPeriodicSettlement =>
-      'With periodic settlement you can close a period on Balances and send a report — it does not auto-pay debts.';
+      'With periodic settlement you close a period on Balances and send a report — without auto-paying debts.';
+
+  @override
+  String get markGuestPaidShort => 'Mark guest paid';
 
   @override
   String get tipPaymentDetailsScreen =>

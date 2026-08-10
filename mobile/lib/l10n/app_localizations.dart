@@ -2339,13 +2339,13 @@ abstract class AppLocalizations {
   /// No description provided for @balancesHowItWorks.
   ///
   /// In he, this message translates to:
-  /// **'איך מסדירים? החייב לוחץ «שילמתי» → המקבל לוחץ «אשר קבלה».'**
+  /// **'איך מסדירים? החייב לוחץ «הסדר תשלום» → מסמן «שילמתי» → המקבל לוחץ «אשר קבלה».'**
   String get balancesHowItWorks;
 
   /// No description provided for @periodSettleHint.
   ///
   /// In he, this message translates to:
-  /// **'סגירת תקופה יוצרת דוח לחברים. חובות עדיין דורשים סימון «שולם» או אישור בטאב חשבון.'**
+  /// **'יוצר דוח לחברים — לא מסמן חובות כשולמו אוטומטית.'**
   String get periodSettleHint;
 
   /// No description provided for @shareGuestDebtWhatsApp.
@@ -2585,7 +2585,7 @@ abstract class AppLocalizations {
   /// No description provided for @createGroupPaid.
   ///
   /// In he, this message translates to:
-  /// **'צור קבוצה - {price} ₪'**
+  /// **'צור קבוצה · ללא חיוב עכשיו ({price} ₪ להפעלה בהמשך)'**
   String createGroupPaid(int price);
 
   /// No description provided for @durationDays.
@@ -2675,7 +2675,7 @@ abstract class AppLocalizations {
   /// No description provided for @automaticPeriodicDesc.
   ///
   /// In he, this message translates to:
-  /// **'דוח נשלח אוטומטית וניתן לסמן חובות כשולמו'**
+  /// **'דוח בטאב «חשבון» לפי תדירות — לא משלם חובות אוטומטית'**
   String get automaticPeriodicDesc;
 
   /// No description provided for @settlementFrequency.
@@ -2947,26 +2947,32 @@ abstract class AppLocalizations {
   /// No description provided for @transferHintMemberToMember.
   ///
   /// In he, this message translates to:
-  /// **'החייב מסמן «שילמתי» - המקבל מאשר'**
+  /// **'החייב: «הסדר תשלום» → «שילמתי» · המקבל: «אשר קבלה»'**
   String get transferHintMemberToMember;
 
   /// No description provided for @transferHintMemberToGuest.
   ///
   /// In he, this message translates to:
-  /// **'החבר משלם - המנהל מאשר שהאורח קיבל'**
+  /// **'החבר משלם לאורח · המנהל מאשר שהאורח קיבל'**
   String get transferHintMemberToGuest;
 
   /// No description provided for @transferHintGuestToMember.
   ///
   /// In he, this message translates to:
-  /// **'המנהל מאשר שהאורח שילם - החבר מאשר קבלה'**
+  /// **'המנהל: «סמן שאורח שילם» · המקבל: «אשר קבלה»'**
   String get transferHintGuestToMember;
 
   /// No description provided for @transferHintGuestToGuest.
   ///
   /// In he, this message translates to:
-  /// **'המנהל מאשר העברה וקבלה בפעולה אחת'**
+  /// **'המנהל סוגר את החוב בפעולה אחת'**
   String get transferHintGuestToGuest;
+
+  /// No description provided for @tipScanPrimary.
+  ///
+  /// In he, this message translates to:
+  /// **'מומלץ לסרוק קבלה — ממלא סכום ותיאור אוטומטית. אפשר גם לצרף תמונה לצפייה בלבד.'**
+  String get tipScanPrimary;
 
   /// No description provided for @transferPendingBadge.
   ///
@@ -3231,7 +3237,7 @@ abstract class AppLocalizations {
   /// No description provided for @guestExplainBody.
   ///
   /// In he, this message translates to:
-  /// **'אורח הוא חבר שעדיין אין לו את האפליקציה.\n• הוא נכלל בחישוב ההוצאות כמו כל חבר אחר\n• המנהל מנהל את תשלומיו עד שיוריד את האפליקציה\n• ברגע שיוריד - המנהל מקשר אותו לחשבון שלו ומשם הוא פועל עצמאית'**
+  /// **'אורח = חבר בלי אפליקציה. הוא נכלל בחלוקה, ואתם מנהלים בשמו עד שיוריד ויתחבר לחשבון.'**
   String get guestExplainBody;
 
   /// No description provided for @guestReminderTitle.
@@ -3381,7 +3387,7 @@ abstract class AppLocalizations {
   /// No description provided for @tipCreateGroupNoCharge.
   ///
   /// In he, this message translates to:
-  /// **'המחיר המוצג הוא להפעלה בהמשך — היצירה עצמה לא גובה תשלום עכשיו.'**
+  /// **'רק יוצרים את הקבוצה עכשיו. התשלום — אם בכלל — רק בהפעלה בהמשך.'**
   String get tipCreateGroupNoCharge;
 
   /// No description provided for @tipEmptyExpensesInvite.
@@ -3393,7 +3399,7 @@ abstract class AppLocalizations {
   /// No description provided for @tipBalancesBeforeDebts.
   ///
   /// In he, this message translates to:
-  /// **'כאן רואים מי חייב למי. כפתורי «שילמתי» / «אשר קבלה» יופיעו כשיהיו חובות.'**
+  /// **'כאן רואים מי חייב למי. כשיהיו חובות יופיעו «הסדר תשלום» ו«אשר קבלה».'**
   String get tipBalancesBeforeDebts;
 
   /// No description provided for @tipParticipantsEqualSplit.
@@ -3435,8 +3441,14 @@ abstract class AppLocalizations {
   /// No description provided for @tipPeriodicSettlement.
   ///
   /// In he, this message translates to:
-  /// **'בתקופתית אפשר לסגור תקופה בטאב «חשבון» ולשלוח דוח — זה לא משלם חובות אוטומטית.'**
+  /// **'בסליקה תקופתית סוגרים תקופה בטאב «חשבון» ושולחים דוח — בלי תשלום אוטומטי של חובות.'**
   String get tipPeriodicSettlement;
+
+  /// No description provided for @markGuestPaidShort.
+  ///
+  /// In he, this message translates to:
+  /// **'סמן שאורח שילם'**
+  String get markGuestPaidShort;
 
   /// No description provided for @tipPaymentDetailsScreen.
   ///

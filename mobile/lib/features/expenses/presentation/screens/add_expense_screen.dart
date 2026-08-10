@@ -303,7 +303,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
               // OCR banner — if receipt was scanned
               if (_scannedReceiptId != null) ...[
                 _OcrBanner(
-                  onRescan: _attachReceipt,
+                  onRescan: _scanReceipt,
                   onRemove: () => setState(() {
                     _scannedReceiptId = null;
                     _receiptImageUrl = null;
@@ -311,15 +311,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 ),
                 const SizedBox(height: 16),
               ] else ...[
-                _ScanCta(onTap: _attachReceipt),
-                const SizedBox(height: 8),
-                Text(
-                  AppLocalizations.of(context)!.tipScanVsAttach,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    height: 1.35,
-                    color: AppColors.textSecondary,
-                  ),
+                _ScanCta(
+                  onScan: _scanReceipt,
+                  onAttachOnly: _attachReceipt,
                 ),
                 const SizedBox(height: 20),
               ],
@@ -567,67 +561,101 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 // ---------------------------------------------------------------------------
 
 class _ScanCta extends StatelessWidget {
-  final VoidCallback onTap;
-  const _ScanCta({required this.onTap});
+  final VoidCallback onScan;
+  final VoidCallback onAttachOnly;
+  const _ScanCta({required this.onScan, required this.onAttachOnly});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppColors.primary.withOpacity(0.08),
-              AppColors.secondary.withOpacity(0.08),
-            ],
-          ),
+    final l = AppLocalizations.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        InkWell(
+          onTap: onScan,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: AppColors.primary.withOpacity(0.25),
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                gradient: AppColors.brandGradient,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.receipt_long_rounded,
-                  color: Colors.white, size: 20),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.attachReceiptTitle,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  Text(
-                    AppLocalizations.of(context)!.attachReceiptSubtitle,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.primary.withOpacity(0.08),
+                  AppColors.secondary.withOpacity(0.08),
                 ],
               ),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: AppColors.primary.withOpacity(0.25),
+              ),
             ),
-            Icon(Icons.chevron_left, color: AppColors.primary),
-          ],
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    gradient: AppColors.brandGradient,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.document_scanner_outlined,
+                      color: Colors.white, size: 20),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l.scanReceipt,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        l.scanReceiptDescription,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_left, color: AppColors.primary),
+              ],
+            ),
+          ),
         ),
-      ),
+        const SizedBox(height: 8),
+        Text(
+          l.tipScanPrimary,
+          style: const TextStyle(
+            fontSize: 12,
+            height: 1.35,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton(
+            onPressed: onAttachOnly,
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+            ),
+            child: Text(
+              l.attachReceiptTitle,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
