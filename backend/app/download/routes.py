@@ -254,6 +254,14 @@ def pilot_onboarding():
     return Response(html, mimetype='text/html; charset=utf-8')
 
 
+@download_bp.get('/pilot/invite')
+def pilot_invite():
+    """Friendly Hebrew invite page for the review group (shareable)."""
+    html_path = _STATIC_DIR / 'pilot_invite.html'
+    html = html_path.read_text(encoding='utf-8')
+    return Response(html, mimetype='text/html; charset=utf-8')
+
+
 @download_bp.get('/privacy')
 def privacy_policy():
     """Privacy policy page - required by App Store and Google Play."""
