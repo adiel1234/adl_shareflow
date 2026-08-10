@@ -1,0 +1,49 @@
+---
+description: בכל בנייה/הפצה של האפליקציה — לעדכן את מספר הגרסה במדריכי ההתקנה
+alwaysApply: true
+---
+
+# עדכון מדריכי התקנה בכל בנייה
+
+אחרי כל bump של `mobile/pubspec.yaml` (למשל `1.0.9+N`) ולפני/יחד עם build + הפצה:
+
+## חובה לעדכן את מספר הגרסה בכל הקבצים הבאים
+
+### דפים חיים בשרת (נפרסים עם Railway)
+- `backend/app/static/getting_started.html`
+- `backend/app/static/pilot_invite.html`
+- `backend/app/static/pilot_onboarding.html`
+
+### עותקי docs
+- `docs/GETTING_STARTED.html`
+- `docs/PILOT_INVITE.html`
+- `docs/PILOT_ONBOARDING_GUIDE.html`
+- `docs/PILOT_ONBOARDING_GUIDE.md`
+- `docs/TESTFLIGHT_IOS_GUIDE.html` (אם מופיע מספר גרסה)
+- `docs/PILOT_DAY2.md` (אם מופיע מספר גרסה)
+
+### מסמכי פיילוט
+- `PILOT_LAUNCH_PLAN.md`
+- `PILOT_TEST_CHECKLIST.md`
+- `DEPLOY_PILOT.md`
+- `ARCHITECTURE.md` (שורת APK נוכחי + שורת «עודכן לאחרונה»)
+
+## מה להחליף
+
+לכל build חדש `X.Y.Z+N` לעדכן גם:
+- `X.Y.Z (N)`
+- `X.Y.Z+N`
+- `build N` / `build N`
+- תגי GitHub Release: `vX.Y.Z-buildN`
+- שם קובץ APK: `shareflow-X.Y.Z+N.apk`
+
+## אחרי העדכון
+
+1. Commit + push (כדי ש־Railway יפרוס את הדפים החיים)
+2. לאשר ש־`/getting-started` מציג את הגרסה החדשה
+3. לעדכן `APK_DOWNLOAD_URL` ב־Railway ל־Release החדש
+
+## חשוב
+
+- אל תסיים בנייה/הפצה בלי סנכרון מדריכים לגרסה החדשה
+- אל תשאיר בייצור גרסה ישנה במדריך ההתקנה
