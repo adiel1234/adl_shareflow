@@ -336,7 +336,7 @@ flutter install --release
 4. App Store Connect → TestFlight → Build חדש מופיע אוטומטית
 ```
 
-**מסע פיילוט:** `/pilot/join` (שכנוע) → `/getting-started` (התקנה קצרה). קישורי הורדה מ-`TESTFLIGHT_URL` / `APK_DOWNLOAD_URL`. `/invite` ו-`/pilot` מפנים לנתיבים החדשים. `/join/<code>` נשאר להזמנת קבוצה.
+**מסע פיילוט:** `/pilot/join` (שכנוע) → באייפון `/install/testflight` (הפניה ישירה לחנות, בלי מדריך). באנדרואיד `/getting-started` להורדת APK. `/invite` ו-`/pilot` מפנים לנתיבים החדשים. `/join/<code>` נשאר להזמנת קבוצה.
 
 ---
 
