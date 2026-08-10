@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 אוגוסט 2026 - build 57: הפצה + `/download/apk` תומך ב-GitHub Releases
+> עודכן לאחרונה: 10 אוגוסט 2026 - build 58: MinimumOSVersion iOS 15.0 (אזהרת App Store 90068)
 
 ---
 
@@ -323,9 +323,9 @@ flutter build apk --release
 flutter install --release
 ```
 
-**APK נוכחי (גרסה 1.0.9+57):**
+**APK נוכחי (גרסה 1.0.9+58):**
 - קישור: `APK_DOWNLOAD_URL` ב-Railway (GitHub Releases); משתמשים מקבלים `GET /download/apk`
-- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build57
+- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build58
 - **למשתמשי פיילוט:** שתפו `/pilot/join` → `/getting-started` (לא `/download` ישירות)
 
 ### iOS (TestFlight)
