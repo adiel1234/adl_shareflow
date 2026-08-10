@@ -461,6 +461,15 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                   ),
                 ),
                 if (_settlementType == 'periodic') ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    l.tipPeriodicSettlement,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      height: 1.35,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     l.settlementFrequency,
@@ -612,6 +621,18 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
 
               const SizedBox(height: 32),
 
+              if (!isFreeEffective) ...[
+                Text(
+                  l.tipCreateGroupNoCharge,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    height: 1.35,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               GradientButton(
                 label: isFreeEffective
                     ? l.createGroupFree

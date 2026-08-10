@@ -380,6 +380,16 @@ class _EmptyState extends ConsumerWidget {
               icon: const Icon(Icons.group_add_outlined),
               label: Text(AppLocalizations.of(context)!.joinWithCode),
             ),
+            const SizedBox(height: 10),
+            Text(
+              AppLocalizations.of(context)!.tipJoinWithCode,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 12,
+                height: 1.4,
+                color: AppColors.textSecondary,
+              ),
+            ),
           ],
         ),
       ),

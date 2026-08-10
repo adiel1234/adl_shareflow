@@ -515,6 +515,19 @@ class _EmptyExpenses extends StatelessWidget {
             AppLocalizations.of(context)!.noExpensesHint,
             style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              AppLocalizations.of(context)!.tipEmptyExpensesInvite,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12,
+                height: 1.4,
+              ),
+            ),
+          ),
         ],
       ),
     );

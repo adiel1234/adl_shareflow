@@ -211,7 +211,7 @@
   "bannerClosedTitle": "Group closed",
   "bannerClosedSubtitle": "Restore with all data, or duplicate to a new group with the same members",
   "bannerFreeTitle": "Free mode",
-  "bannerFreeSubtitle": "Up to 7 participants and 7 days free.",
+  "bannerFreeSubtitle": "Up to 7 participants and 7 days free. After that — or above 7 members — paid activation is required.",
 
   "justNow": "now",
   "minutesAgo": "{count}m ago",
@@ -488,7 +488,7 @@
   "proPlanTitle": "Pro Plan",
   "proPlanSubtitle": "Coming soon - analytics, stats and more",
   "appSection": "App",
-  "paymentMethodSubtitle": "Bit, PayBox, Bank transfer",
+  "paymentMethodSubtitle": "Bit / PayBox / bank — without this, friends can't send you money from the app",
 
   "pricingSection": "Pricing",
   "estimatedCost": "Estimated cost",
@@ -674,5 +674,19 @@
   "whatsappOpenHint": "Opens WhatsApp - select a contact and tap Send, then return here",
   "shareOtherWay": "Share another way",
   "gotIt": "Got it",
-  "doneBtn": "Done adding guests"
+  "doneBtn": "Done adding guests",
+
+  "tipCreateGroupNoCharge": "The price shown is for later activation — creating the group does not charge you now.",
+  "tipEmptyExpensesInvite": "Start by inviting friends (person icon above) — alone there's no one to split with.",
+  "tipBalancesBeforeDebts": "Here you'll see who owes whom. «I paid» / «Confirm receipt» appear when there are debts.",
+  "tipParticipantsEqualSplit": "Select only who truly shared this expense — the amount splits equally among selected.",
+  "tipJoinWithCode": "The invite code comes from a friend who already created a group — or from scanning their QR.",
+  "tipScanVsAttach": "The scanner above auto-fills amount and title. «Attach receipt» only saves an image to view.",
+  "tipWhatsAppInvite": "WhatsApp opens — pick a contact, send, then return here to invite more.",
+  "tipAddGuestNoApp": "Guests don't have the app — you manage their share and payments until they install.",
+  "tipMemberBalanceLegend": "Plus = they're owed money · Minus = they owe.",
+  "tipPeriodicSettlement": "With periodic settlement you can close a period on Balances and send a report — it does not auto-pay debts.",
+  "tipPaymentDetailsScreen": "Add at least a Bit/PayBox phone or bank details so friends can pay you easily.",
+  "attachReceiptTitle": "Attach receipt",
+  "attachReceiptSubtitle": "Camera or gallery — view only, no auto-fill"
 }

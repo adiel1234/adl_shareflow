@@ -211,7 +211,7 @@
   "bannerClosedTitle": "קבוצה סגורה",
   "bannerClosedSubtitle": "ניתן לשחזר את הקבוצה עם כל הנתונים, או לשכפל לקבוצה חדשה עם אותם חברים",
   "bannerFreeTitle": "מצב חינמי",
-  "bannerFreeSubtitle": "עד 7 משתתפים ו-7 ימים ללא עלות.",
+  "bannerFreeSubtitle": "עד 7 משתתפים ו-7 ימים ללא עלות. אחרי מכן — או מעל 7 חברים — תידרש הפעלה בתשלום.",
 
   "justNow": "עכשיו",
   "minutesAgo": "לפני {count} דק׳",
@@ -488,7 +488,7 @@
   "proPlanTitle": "תוכנית Pro",
   "proPlanSubtitle": "בקרוב - ניתוחים, סטטיסטיקות ועוד",
   "appSection": "אפליקציה",
-  "paymentMethodSubtitle": "Bit, PayBox, העברה בנקאית",
+  "paymentMethodSubtitle": "Bit / PayBox / בנק — בלי זה חברים לא יוכלו לשלוח לכם כסף מהאפליקציה",
 
   "pricingSection": "תמחור",
   "estimatedCost": "עלות משוערת",
@@ -674,5 +674,19 @@
   "whatsappOpenHint": "יפתח WhatsApp - בחר איש קשר ולחץ שלח, ואז חזור לכאן",
   "shareOtherWay": "שתף בדרך אחרת",
   "gotIt": "הבנתי",
-  "doneBtn": "סיים הוספת אורחים"
+  "doneBtn": "סיים הוספת אורחים",
+
+  "tipCreateGroupNoCharge": "המחיר המוצג הוא להפעלה בהמשך — היצירה עצמה לא גובה תשלום עכשיו.",
+  "tipEmptyExpensesInvite": "התחילו בהזמנת חברים (אייקון האדם למעלה) — לבד אין עם מי להתחלק.",
+  "tipBalancesBeforeDebts": "כאן רואים מי חייב למי. כפתורי «שילמתי» / «אשר קבלה» יופיעו כשיהיו חובות.",
+  "tipParticipantsEqualSplit": "סמנו רק מי באמת חלק בהוצאה — הסכום מתחלק שווה בין המסומנים.",
+  "tipJoinWithCode": "קוד ההזמנה מגיע מחבר שכבר יצר קבוצה — או מסריקת ה-QR שלו.",
+  "tipScanVsAttach": "הסורק למעלה ממלא סכום ותיאור אוטומטית. «צרף קבלה» רק שומר תמונה לצפייה.",
+  "tipWhatsAppInvite": "נפתח WhatsApp — בחרו איש קשר, שלחו, וחזרו לכאן להזמין עוד.",
+  "tipAddGuestNoApp": "לאורח אין אפליקציה — אתם מנהלים בשמו את החלוקה והתשלומים עד שיוריד.",
+  "tipMemberBalanceLegend": "פלוס = מגיע לו כסף מהקבוצה · מינוס = הוא חייב.",
+  "tipPeriodicSettlement": "בתקופתית אפשר לסגור תקופה בטאב «חשבון» ולשלוח דוח — זה לא משלם חובות אוטומטית.",
+  "tipPaymentDetailsScreen": "מלאו לפחות טלפון ל-Bit/PayBox או פרטי בנק כדי שחברים יוכלו לשלם לכם בקלות.",
+  "attachReceiptTitle": "צרף קבלה",
+  "attachReceiptSubtitle": "צילום או גלריה — לצפייה בלבד, ללא מילוי אוטומטי"
 }

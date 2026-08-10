@@ -48,6 +48,8 @@ class MembersTabScreen extends ConsumerWidget {
         if (isAdmin) headerSlots++;
         if (isAdmin && guestMembers.isNotEmpty) headerSlots++;
 
+        final legendSlots = members.isNotEmpty ? 1 : 0;
+
         return RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(groupMembersProvider(group.id));
@@ -55,7 +57,7 @@ class MembersTabScreen extends ConsumerWidget {
           },
           child: ListView.builder(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-            itemCount: members.length + headerSlots,
+            itemCount: members.length + headerSlots + legendSlots,
             itemBuilder: (context, i) {
               var slot = 0;
               if (isAdmin) {
@@ -69,6 +71,22 @@ class MembersTabScreen extends ConsumerWidget {
                   return _GuestReminderCard(
                     count: guestMembers.length,
                     onTap: () => _showAddGuestSheet(context, ref, group),
+                  );
+                }
+                slot++;
+              }
+              if (legendSlots == 1) {
+                if (i == slot) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      AppLocalizations.of(context)!.tipMemberBalanceLegend,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        height: 1.35,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
                   );
                 }
                 slot++;
@@ -928,17 +946,33 @@ class _AddGuestCard extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      child: OutlinedButton.icon(
-        onPressed: () => _showAddGuestSheet(context, ref, group),
-        icon: const Icon(Icons.person_add_outlined, color: Colors.purple),
-        label: Text(l.addGuestTitle,
-            style: const TextStyle(fontWeight: FontWeight.w600)),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.purple,
-          side: BorderSide(color: Colors.purple.withOpacity(0.4)),
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          OutlinedButton.icon(
+            onPressed: () => _showAddGuestSheet(context, ref, group),
+            icon: const Icon(Icons.person_add_outlined, color: Colors.purple),
+            label: Text(l.addGuestTitle,
+                style: const TextStyle(fontWeight: FontWeight.w600)),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.purple,
+              side: BorderSide(color: Colors.purple.withOpacity(0.4)),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14)),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            l.tipAddGuestNoApp,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12,
+              height: 1.35,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -52,7 +52,16 @@ class ParticipantsSelector extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
+        Text(
+          l.tipParticipantsEqualSplit,
+          style: const TextStyle(
+            fontSize: 12,
+            height: 1.35,
+            color: AppColors.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
             color: AppColors.surface,

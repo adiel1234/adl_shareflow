@@ -569,7 +569,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get bannerFreeTitle => 'מצב חינמי';
 
   @override
-  String get bannerFreeSubtitle => 'עד 7 משתתפים ו-7 ימים ללא עלות.';
+  String get bannerFreeSubtitle =>
+      'עד 7 משתתפים ו-7 ימים ללא עלות. אחרי מכן — או מעל 7 חברים — תידרש הפעלה בתשלום.';
 
   @override
   String get justNow => 'עכשיו';
@@ -1308,7 +1309,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get appSection => 'אפליקציה';
 
   @override
-  String get paymentMethodSubtitle => 'Bit, PayBox, העברה בנקאית';
+  String get paymentMethodSubtitle =>
+      'Bit / PayBox / בנק — בלי זה חברים לא יוכלו לשלוח לכם כסף מהאפליקציה';
 
   @override
   String get pricingSection => 'תמחור';
@@ -1815,4 +1817,55 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get doneBtn => 'סיים הוספת אורחים';
+
+  @override
+  String get tipCreateGroupNoCharge =>
+      'המחיר המוצג הוא להפעלה בהמשך — היצירה עצמה לא גובה תשלום עכשיו.';
+
+  @override
+  String get tipEmptyExpensesInvite =>
+      'התחילו בהזמנת חברים (אייקון האדם למעלה) — לבד אין עם מי להתחלק.';
+
+  @override
+  String get tipBalancesBeforeDebts =>
+      'כאן רואים מי חייב למי. כפתורי «שילמתי» / «אשר קבלה» יופיעו כשיהיו חובות.';
+
+  @override
+  String get tipParticipantsEqualSplit =>
+      'סמנו רק מי באמת חלק בהוצאה — הסכום מתחלק שווה בין המסומנים.';
+
+  @override
+  String get tipJoinWithCode =>
+      'קוד ההזמנה מגיע מחבר שכבר יצר קבוצה — או מסריקת ה-QR שלו.';
+
+  @override
+  String get tipScanVsAttach =>
+      'הסורק למעלה ממלא סכום ותיאור אוטומטית. «צרף קבלה» רק שומר תמונה לצפייה.';
+
+  @override
+  String get tipWhatsAppInvite =>
+      'נפתח WhatsApp — בחרו איש קשר, שלחו, וחזרו לכאן להזמין עוד.';
+
+  @override
+  String get tipAddGuestNoApp =>
+      'לאורח אין אפליקציה — אתם מנהלים בשמו את החלוקה והתשלומים עד שיוריד.';
+
+  @override
+  String get tipMemberBalanceLegend =>
+      'פלוס = מגיע לו כסף מהקבוצה · מינוס = הוא חייב.';
+
+  @override
+  String get tipPeriodicSettlement =>
+      'בתקופתית אפשר לסגור תקופה בטאב «חשבון» ולשלוח דוח — זה לא משלם חובות אוטומטית.';
+
+  @override
+  String get tipPaymentDetailsScreen =>
+      'מלאו לפחות טלפון ל-Bit/PayBox או פרטי בנק כדי שחברים יוכלו לשלם לכם בקלות.';
+
+  @override
+  String get attachReceiptTitle => 'צרף קבלה';
+
+  @override
+  String get attachReceiptSubtitle =>
+      'צילום או גלריה — לצפייה בלבד, ללא מילוי אוטומטי';
 }

@@ -312,6 +312,15 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 const SizedBox(height: 16),
               ] else ...[
                 _ScanCta(onTap: _attachReceipt),
+                const SizedBox(height: 8),
+                Text(
+                  AppLocalizations.of(context)!.tipScanVsAttach,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    height: 1.35,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 20),
               ],
 
@@ -598,7 +607,7 @@ class _ScanCta extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'צרף קבלה',
+                    AppLocalizations.of(context)!.attachReceiptTitle,
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 15,
@@ -606,8 +615,8 @@ class _ScanCta extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'צילום או גלריה — לצפייה בלבד, ללא פרסור',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.attachReceiptSubtitle,
+                    style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
                     ),

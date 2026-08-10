@@ -364,15 +364,13 @@ class _InviteSheetState extends State<InviteSheet> {
               ),
             ),
           ),
-          if (_invitedCount > 0) ...[
-            const SizedBox(height: 6),
-            Text(
-              l.whatsappOpenHint,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  fontSize: 11, color: AppColors.textSecondary),
-            ),
-          ],
+          const SizedBox(height: 6),
+          Text(
+            l.tipWhatsAppInvite,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+                fontSize: 11, color: AppColors.textSecondary, height: 1.35),
+          ),
           const SizedBox(height: 8),
 
           // Generic share

@@ -97,6 +97,24 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.info.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.info.withOpacity(0.25)),
+                    ),
+                    child: Text(
+                      l.tipPaymentDetailsScreen,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        height: 1.4,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   _SectionHeader(
                       icon: '💙',
                       title: 'Bit / PayBox',

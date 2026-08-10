@@ -1181,7 +1181,7 @@ abstract class AppLocalizations {
   /// No description provided for @bannerFreeSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'עד 7 משתתפים ו-7 ימים ללא עלות.'**
+  /// **'עד 7 משתתפים ו-7 ימים ללא עלות. אחרי מכן — או מעל 7 חברים — תידרש הפעלה בתשלום.'**
   String get bannerFreeSubtitle;
 
   /// No description provided for @justNow.
@@ -2531,7 +2531,7 @@ abstract class AppLocalizations {
   /// No description provided for @paymentMethodSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'Bit, PayBox, העברה בנקאית'**
+  /// **'Bit / PayBox / בנק — בלי זה חברים לא יוכלו לשלוח לכם כסף מהאפליקציה'**
   String get paymentMethodSubtitle;
 
   /// No description provided for @pricingSection.
@@ -3377,6 +3377,84 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'סיים הוספת אורחים'**
   String get doneBtn;
+
+  /// No description provided for @tipCreateGroupNoCharge.
+  ///
+  /// In he, this message translates to:
+  /// **'המחיר המוצג הוא להפעלה בהמשך — היצירה עצמה לא גובה תשלום עכשיו.'**
+  String get tipCreateGroupNoCharge;
+
+  /// No description provided for @tipEmptyExpensesInvite.
+  ///
+  /// In he, this message translates to:
+  /// **'התחילו בהזמנת חברים (אייקון האדם למעלה) — לבד אין עם מי להתחלק.'**
+  String get tipEmptyExpensesInvite;
+
+  /// No description provided for @tipBalancesBeforeDebts.
+  ///
+  /// In he, this message translates to:
+  /// **'כאן רואים מי חייב למי. כפתורי «שילמתי» / «אשר קבלה» יופיעו כשיהיו חובות.'**
+  String get tipBalancesBeforeDebts;
+
+  /// No description provided for @tipParticipantsEqualSplit.
+  ///
+  /// In he, this message translates to:
+  /// **'סמנו רק מי באמת חלק בהוצאה — הסכום מתחלק שווה בין המסומנים.'**
+  String get tipParticipantsEqualSplit;
+
+  /// No description provided for @tipJoinWithCode.
+  ///
+  /// In he, this message translates to:
+  /// **'קוד ההזמנה מגיע מחבר שכבר יצר קבוצה — או מסריקת ה-QR שלו.'**
+  String get tipJoinWithCode;
+
+  /// No description provided for @tipScanVsAttach.
+  ///
+  /// In he, this message translates to:
+  /// **'הסורק למעלה ממלא סכום ותיאור אוטומטית. «צרף קבלה» רק שומר תמונה לצפייה.'**
+  String get tipScanVsAttach;
+
+  /// No description provided for @tipWhatsAppInvite.
+  ///
+  /// In he, this message translates to:
+  /// **'נפתח WhatsApp — בחרו איש קשר, שלחו, וחזרו לכאן להזמין עוד.'**
+  String get tipWhatsAppInvite;
+
+  /// No description provided for @tipAddGuestNoApp.
+  ///
+  /// In he, this message translates to:
+  /// **'לאורח אין אפליקציה — אתם מנהלים בשמו את החלוקה והתשלומים עד שיוריד.'**
+  String get tipAddGuestNoApp;
+
+  /// No description provided for @tipMemberBalanceLegend.
+  ///
+  /// In he, this message translates to:
+  /// **'פלוס = מגיע לו כסף מהקבוצה · מינוס = הוא חייב.'**
+  String get tipMemberBalanceLegend;
+
+  /// No description provided for @tipPeriodicSettlement.
+  ///
+  /// In he, this message translates to:
+  /// **'בתקופתית אפשר לסגור תקופה בטאב «חשבון» ולשלוח דוח — זה לא משלם חובות אוטומטית.'**
+  String get tipPeriodicSettlement;
+
+  /// No description provided for @tipPaymentDetailsScreen.
+  ///
+  /// In he, this message translates to:
+  /// **'מלאו לפחות טלפון ל-Bit/PayBox או פרטי בנק כדי שחברים יוכלו לשלם לכם בקלות.'**
+  String get tipPaymentDetailsScreen;
+
+  /// No description provided for @attachReceiptTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'צרף קבלה'**
+  String get attachReceiptTitle;
+
+  /// No description provided for @attachReceiptSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'צילום או גלריה — לצפייה בלבד, ללא מילוי אוטומטי'**
+  String get attachReceiptSubtitle;
 }
 
 class _AppLocalizationsDelegate

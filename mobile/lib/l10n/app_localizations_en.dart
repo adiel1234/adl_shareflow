@@ -572,7 +572,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bannerFreeTitle => 'Free mode';
 
   @override
-  String get bannerFreeSubtitle => 'Up to 7 participants and 7 days free.';
+  String get bannerFreeSubtitle =>
+      'Up to 7 participants and 7 days free. After that — or above 7 members — paid activation is required.';
 
   @override
   String get justNow => 'now';
@@ -1319,7 +1320,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appSection => 'App';
 
   @override
-  String get paymentMethodSubtitle => 'Bit, PayBox, Bank transfer';
+  String get paymentMethodSubtitle =>
+      'Bit / PayBox / bank — without this, friends can\'t send you money from the app';
 
   @override
   String get pricingSection => 'Pricing';
@@ -1831,4 +1833,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get doneBtn => 'Done adding guests';
+
+  @override
+  String get tipCreateGroupNoCharge =>
+      'The price shown is for later activation — creating the group does not charge you now.';
+
+  @override
+  String get tipEmptyExpensesInvite =>
+      'Start by inviting friends (person icon above) — alone there\'s no one to split with.';
+
+  @override
+  String get tipBalancesBeforeDebts =>
+      'Here you\'ll see who owes whom. «I paid» / «Confirm receipt» appear when there are debts.';
+
+  @override
+  String get tipParticipantsEqualSplit =>
+      'Select only who truly shared this expense — the amount splits equally among selected.';
+
+  @override
+  String get tipJoinWithCode =>
+      'The invite code comes from a friend who already created a group — or from scanning their QR.';
+
+  @override
+  String get tipScanVsAttach =>
+      'The scanner above auto-fills amount and title. «Attach receipt» only saves an image to view.';
+
+  @override
+  String get tipWhatsAppInvite =>
+      'WhatsApp opens — pick a contact, send, then return here to invite more.';
+
+  @override
+  String get tipAddGuestNoApp =>
+      'Guests don\'t have the app — you manage their share and payments until they install.';
+
+  @override
+  String get tipMemberBalanceLegend =>
+      'Plus = they\'re owed money · Minus = they owe.';
+
+  @override
+  String get tipPeriodicSettlement =>
+      'With periodic settlement you can close a period on Balances and send a report — it does not auto-pay debts.';
+
+  @override
+  String get tipPaymentDetailsScreen =>
+      'Add at least a Bit/PayBox phone or bank details so friends can pay you easily.';
+
+  @override
+  String get attachReceiptTitle => 'Attach receipt';
+
+  @override
+  String get attachReceiptSubtitle =>
+      'Camera or gallery — view only, no auto-fill';
 }

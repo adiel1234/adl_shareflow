@@ -317,7 +317,28 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen>
                 loading: () => const SizedBox.shrink(),
                 error: (_, __) => const SizedBox.shrink(),
                 data: (suggestions) {
-                  if (suggestions.isEmpty) return const SizedBox.shrink();
+                  if (suggestions.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context)!.tipBalancesBeforeDebts,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            height: 1.4,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
                   return _TransfersCard(
                     group: group,
                     suggestions: suggestions,
