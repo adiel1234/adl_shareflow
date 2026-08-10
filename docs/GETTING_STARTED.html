@@ -90,6 +90,23 @@
       margin-top: 8px;
     }
     .btn-android { background: var(--accent); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--brand);
+      border: 2px solid var(--brand);
+      margin-top: 12px;
+    }
+    .btn-ghost {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .ios-step { display: none; }
+    .ios-step.active { display: block; }
     .note {
       background: #ECFDF5;
       border-radius: 12px;
@@ -164,17 +181,29 @@
       </div>
 
       <div class="panel active" id="panel-ios">
-        <p class="muted" style="margin-bottom:12px">
-          באייפון ההתקנה היא דרך אפליקציה בשם <strong>TestFlight</strong> (של אפל, חינם).
-          משם מתקינים את ShareFlow — לא מחנות האפליקציות ישירות.
-        </p>
-        <ol>
-          <li>אם אין לכם <strong>TestFlight</strong> — התקינו אותה קודם מחנות האפליקציות (חפשו: TestFlight)</li>
-          <li>חזרו לכאן ולחצו על הכפתור למטה — ייפתח TestFlight</li>
-          <li>ב־TestFlight לחצו <strong>«קבל»</strong> ואז <strong>«התקן»</strong> על ADL ShareFlow</li>
-          <li>פתחו את ShareFlow ממסך הבית ואפשרו התראות כשמבקשים</li>
-        </ol>
-        <a class="btn" href="__IOS_DOWNLOAD_URL__">פתחו ב־TestFlight והתקינו</a>
+        <div class="ios-step active" id="ios-step-testflight">
+          <a class="btn"
+             href="https://apps.apple.com/app/testflight/id899247664"
+             target="_blank"
+             rel="noopener">
+            הורידו את TestFlight
+          </a>
+          <a class="btn-ghost" href="#" id="ios-have-testflight">
+            כבר יש לכם TestFlight? המשך →
+          </a>
+        </div>
+
+        <div class="ios-step" id="ios-step-shareflow">
+          <a class="btn" href="__IOS_DOWNLOAD_URL__">
+            התקינו את ShareFlow
+          </a>
+          <p class="muted" style="margin-top:12px; text-align:center">
+            ייפתח TestFlight — לחצו «קבל» ואז «התקן».
+          </p>
+          <a class="btn-ghost" href="#" id="ios-back-testflight">
+            ← חזרה להורדת TestFlight
+          </a>
+        </div>
       </div>
 
       <div class="panel" id="panel-android">
@@ -250,6 +279,28 @@
       document.querySelectorAll('.js-apk-download').forEach(function (el) {
         el.href = proxyUrl;
       });
+
+      var stepTf = document.getElementById('ios-step-testflight');
+      var stepSf = document.getElementById('ios-step-shareflow');
+      var goSf = document.getElementById('ios-have-testflight');
+      var backTf = document.getElementById('ios-back-testflight');
+      function showIosStep(step) {
+        if (!stepTf || !stepSf) return;
+        stepTf.classList.toggle('active', step === 'tf');
+        stepSf.classList.toggle('active', step === 'sf');
+      }
+      if (goSf) {
+        goSf.addEventListener('click', function (e) {
+          e.preventDefault();
+          showIosStep('sf');
+        });
+      }
+      if (backTf) {
+        backTf.addEventListener('click', function (e) {
+          e.preventDefault();
+          showIosStep('tf');
+        });
+      }
     })();
   </script>
 </body>
