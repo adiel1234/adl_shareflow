@@ -49,11 +49,11 @@
       color: var(--brand);
       margin-bottom: 8px;
     }
-    .step-label {
+    .hint {
       color: var(--muted);
       font-size: 0.95rem;
-      font-weight: 700;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
+      line-height: 1.45;
     }
     .btn {
       display: block;
@@ -63,7 +63,7 @@
       border-radius: 14px;
       padding: 16px;
       font-weight: 800;
-      font-size: 1.08rem;
+      font-size: 1.05rem;
       font-family: inherit;
       background: var(--brand);
       color: #fff;
@@ -72,13 +72,35 @@
     }
     .btn + .btn { margin-top: 10px; }
     .btn-android { background: var(--accent); }
-    .btn-outline {
+    .btn-secondary {
       background: #fff;
       color: var(--brand);
       border: 2px solid var(--brand);
     }
     .screen { display: none; }
     .screen.active { display: block; }
+    .step {
+      display: flex;
+      align-items: stretch;
+      gap: 10px;
+      margin-bottom: 12px;
+      text-align: right;
+    }
+    .step-num {
+      flex: 0 0 28px;
+      width: 28px;
+      height: 28px;
+      margin-top: 12px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step .btn { flex: 1; }
     .ghost {
       display: block;
       margin-top: 16px;
@@ -98,40 +120,37 @@
   <div class="wrap">
     <div class="card">
 
-      <!-- Choose platform -->
       <div class="screen active" id="screen-choose">
         <h1>בחרו מכשיר</h1>
-        <p class="step-label">ואז נמשיך להתקנה</p>
+        <p class="hint">ואז נמשיך להתקנה</p>
         <button class="btn" type="button" id="choose-ios">אייפון</button>
         <button class="btn btn-android" type="button" id="choose-android">אנדרואיד</button>
       </div>
 
-      <!-- iPhone step 1 -->
-      <div class="screen" id="screen-ios-1">
-        <p class="step-label">שלב 1 מתוך 2</p>
-        <h1>התקנת TestFlight</h1>
-        <a class="btn" href="/install/testflight" id="btn-testflight">
-          הורידו את TestFlight
-        </a>
-        <button class="ghost" type="button" id="ios-to-step2">
-          הורדתי · המשך לשלב 2 →
-        </button>
+      <div class="screen" id="screen-ios">
+        <h1>התקנה לאייפון</h1>
+        <p class="hint">לחצו על 1, התקינו, וחזרו לכאן ללחוץ על 2</p>
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <a class="btn" href="/install/testflight">
+            הורידו את TestFlight
+          </a>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <a class="btn btn-secondary" href="__IOS_DOWNLOAD_URL__">
+            התקינו את ShareFlow
+          </a>
+        </div>
+
         <button class="ghost" type="button" data-back="choose">← החלפת מכשיר</button>
       </div>
 
-      <!-- iPhone step 2 -->
-      <div class="screen" id="screen-ios-2">
-        <p class="step-label">שלב 2 מתוך 2</p>
-        <h1>התקנת ShareFlow</h1>
-        <a class="btn" href="__IOS_DOWNLOAD_URL__">
-          התקינו את ShareFlow
-        </a>
-        <button class="ghost" type="button" data-back="ios-1">← חזרה לשלב 1</button>
-      </div>
-
-      <!-- Android -->
       <div class="screen" id="screen-android">
         <h1>התקנה לאנדרואיד</h1>
+        <p class="hint">לחצו להורדה והתקינו</p>
         <a class="btn btn-android js-apk-download" href="__APK_DOWNLOAD_URL__" download="ADL-ShareFlow.apk">
           הורדה לאנדרואיד
         </a>
@@ -145,8 +164,7 @@
     (function () {
       var screens = {
         choose: document.getElementById('screen-choose'),
-        'ios-1': document.getElementById('screen-ios-1'),
-        'ios-2': document.getElementById('screen-ios-2'),
+        ios: document.getElementById('screen-ios'),
         android: document.getElementById('screen-android')
       };
 
@@ -154,39 +172,33 @@
         Object.keys(screens).forEach(function (key) {
           screens[key].classList.toggle('active', key === name);
         });
+        try { history.replaceState(null, '', '#' + name); } catch (e) {}
       }
 
       document.getElementById('choose-ios').addEventListener('click', function () {
-        show('ios-1');
+        show('ios');
       });
       document.getElementById('choose-android').addEventListener('click', function () {
         show('android');
       });
-      document.getElementById('ios-to-step2').addEventListener('click', function () {
-        show('ios-2');
-      });
-      // After tapping TestFlight, offer step 2 next time they return
-      document.getElementById('btn-testflight').addEventListener('click', function () {
-        setTimeout(function () { show('ios-2'); }, 800);
-      });
-
       document.querySelectorAll('[data-back]').forEach(function (el) {
         el.addEventListener('click', function () {
           show(el.getAttribute('data-back'));
         });
       });
 
-      // Auto-pick by device (still allows switching)
-      var ua = navigator.userAgent || '';
-      if (/android/i.test(ua)) {
+      // Restore screen after returning from App Store / TestFlight
+      var hash = (location.hash || '').replace('#', '');
+      if (hash === 'ios' || hash === 'android') {
+        show(hash);
+      } else if (/android/i.test(navigator.userAgent || '')) {
         show('android');
-      } else if (/iphone|ipad|ipod/i.test(ua)) {
-        show('ios-1');
+      } else if (/iphone|ipad|ipod/i.test(navigator.userAgent || '')) {
+        show('ios');
       }
 
-      var proxyUrl = window.location.origin + '/download/apk';
       document.querySelectorAll('.js-apk-download').forEach(function (el) {
-        el.href = proxyUrl;
+        el.href = window.location.origin + '/download/apk';
       });
     })();
   </script>
