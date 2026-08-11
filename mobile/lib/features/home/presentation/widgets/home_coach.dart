@@ -41,11 +41,15 @@ Future<void> showHomeCoach(
 
   await showGeneralDialog<void>(
     context: context,
-    barrierDismissible: false,
+    barrierDismissible: true,
     barrierLabel: 'coach',
     barrierColor: Colors.transparent,
     transitionDuration: const Duration(milliseconds: 200),
-    pageBuilder: (ctx, _, __) => _HomeCoachDialog(targets: usable),
+    pageBuilder: (ctx, _, __) {
+      return SizedBox.expand(
+        child: _HomeCoachDialog(targets: usable),
+      );
+    },
   );
   await markHomeCoachDone();
 }
@@ -74,37 +78,40 @@ class _HomeCoachDialogState extends State<_HomeCoachDialog> {
     ).inflate(4);
   }
 
+  void _close() => Navigator.of(context).pop();
+
+  void _next() {
+    if (_step >= widget.targets.length - 1) {
+      _close();
+    } else {
+      setState(() => _step++);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final target = widget.targets[_step];
     final rect = _targetRect();
-    final size = MediaQuery.sizeOf(context);
     final isLast = _step >= widget.targets.length - 1;
-
-    // Prefer card below the hole; flip above if near bottom.
-    final holeBottom = rect?.bottom ?? size.height * 0.35;
-    final showBelow = holeBottom < size.height * 0.55;
-    final cardTop = showBelow
-        ? (rect?.bottom ?? 120) + 16
-        : null;
-    final cardBottom = showBelow
-        ? null
-        : size.height - (rect?.top ?? size.height * 0.45) + 16;
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Material(
       color: Colors.transparent,
       child: Stack(
+        fit: StackFit.expand,
         children: [
+          // Dimmed backdrop — tap to skip (escape hatch)
           Positioned.fill(
-            child: CustomPaint(
-              painter: _SpotlightPainter(hole: rect),
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {}, // block taps outside
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: _close,
+              child: CustomPaint(
+                painter: _SpotlightPainter(hole: rect),
               ),
             ),
           ),
+
           if (rect != null)
             Positioned(
               left: rect.left,
@@ -115,16 +122,17 @@ class _HomeCoachDialogState extends State<_HomeCoachDialog> {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white, width: 2),
+                    border: Border.all(color: Colors.white, width: 2.5),
                   ),
                 ),
               ),
             ),
+
+          // Card always pinned above the bottom nav / home indicator
           Positioned(
-            left: 20,
-            right: 20,
-            top: cardTop,
-            bottom: cardBottom,
+            left: 16,
+            right: 16,
+            bottom: bottomInset + 16,
             child: _CoachCard(
               step: _step + 1,
               total: widget.targets.length,
@@ -132,14 +140,8 @@ class _HomeCoachDialogState extends State<_HomeCoachDialog> {
               body: target.body,
               primaryLabel: isLast ? l.coachDone : l.coachNext,
               skipLabel: l.coachSkip,
-              onSkip: () => Navigator.of(context).pop(),
-              onPrimary: () {
-                if (isLast) {
-                  Navigator.of(context).pop();
-                } else {
-                  setState(() => _step++);
-                }
-              },
+              onSkip: _close,
+              onPrimary: _next,
             ),
           ),
         ],
@@ -172,7 +174,7 @@ class _CoachCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      elevation: 8,
+      elevation: 10,
       borderRadius: BorderRadius.circular(18),
       color: AppColors.surface,
       child: Padding(
@@ -207,14 +209,17 @@ class _CoachCard extends StatelessWidget {
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
             Row(
               children: [
                 TextButton(
                   onPressed: onSkip,
                   child: Text(
                     skipLabel,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 const Spacer(),
@@ -223,11 +228,15 @@ class _CoachCard extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
+                    minimumSize: const Size(120, 44),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(primaryLabel),
+                  child: Text(
+                    primaryLabel,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
               ],
             ),
