@@ -1,6 +1,6 @@
 # תכנית השקת פיילוט — ADL ShareFlow
 
-עודכן: 11 אוגוסט 2026 · גרסת פיילוט: **1.0.9** · **`pubspec`:** `1.0.9+60` · **build 60 נבנה** · תיקוני הזמנה/אורח, לוגין, coach, יצירת קבוצה · IPA + APK מוכנים להפצה
+עודכן: 11 אוגוסט 2026 · גרסת פיילוט: **1.0.9** · **`pubspec`:** `1.0.9+61` · **build 61 נבנה** · תיקוני הזמנה/אורח, לוגין, coach, יצירת קבוצה · IPA + APK מוכנים להפצה
 
 > **מסמכים קשורים:** [`PILOT_TEST_CHECKLIST.md`](PILOT_TEST_CHECKLIST.md) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)
 

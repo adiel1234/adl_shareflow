@@ -1,6 +1,6 @@
 # פריסת פיילוט — Railway + טלפון
 
-גרסה: **1.0.9+60**
+גרסה: **1.0.9+61**
 
 ---
 
@@ -80,7 +80,7 @@ flutter build ios --release
 2. Product → Archive
 3. Distribute → TestFlight (או Development למכשיר שלך)
 
-**גרסה:** וודא `1.0.9` build `60` ב-Xcode תואם ל-`pubspec.yaml`.
+**גרסה:** וודא `1.0.9` build `61` ב-Xcode תואם ל-`pubspec.yaml`.
 
 ### בדיקת חיבור לשרת
 
