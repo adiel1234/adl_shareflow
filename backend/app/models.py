@@ -697,3 +697,22 @@ class DeferredLink(db.Model):
     client_ip = Column(String(64), nullable=False, unique=True, index=True)
     invite_code = Column(String(20), nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
+
+
+class PilotFunnelEvent(db.Model):
+    """Anonymous pilot funnel events (page views / download clicks)."""
+    __tablename__ = 'pilot_funnel_events'
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    # getting_started | testflight_app | shareflow_ios | apk | pilot_join
+    event = Column(String(40), nullable=False, index=True)
+    platform = Column(String(20))  # ios | android | other
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_now, index=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'event': self.event,
+            'platform': self.platform,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }

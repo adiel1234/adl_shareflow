@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 10 אוגוסט 2026 - עמוד התקנה: שני קישורים באייפון באותו מסך
+> עודכן לאחרונה: 11 אוגוסט 2026 - מעקב הורדות בדשבורד פיילוט (funnel)
 
 ---
 
@@ -153,6 +153,7 @@
 | `fcm_tokens` | tokens לפוש נוטיפיקיישן |
 | `group_payments` | תשלומי הפעלה/שדרוג/הארכה |
 | `feature_flags` | הגדרות מערכת (PAYMENTS_ENABLED וכו') |
+| `pilot_funnel_events` | אירועי משפך פיילוט אנונימיים (עמוד התקנה / TestFlight / APK) |
 | `reminder_settings` | הגדרות תזכורות אוטומטיות |
 
 **שינוי סכמה אחרון (migration `a9b8c7d6e5f4`):**
@@ -549,6 +550,7 @@ flutter install --release
 - **DB Migration** (`480ff4d3679c`): נוסף `is_guest BOOLEAN NOT NULL DEFAULT false` ל-`users`.
 - **Download / Pilot Pages**: `/pilot/join` שכנוע; `/getting-started` התקנה; `/download` redirect לפי מכשיר.
 - **ADL Control Pilot**: לשונית «פיילוט» + מתג `PILOT_MODE_ENABLED`; קוראת ל-`/api/adl/stats|users|activity|settlements|users/<id>` עם `scope=pilot`.
+- **מעקב הורדות בפיילוט:** `GET /install/testflight`, `/install/shareflow`, `/download/apk`, `/getting-started`, `/pilot/join` רושמים ל-`pilot_funnel_events`; מוצג ב-`/api/adl/stats` → `downloads` ובלשונית פיילוט ב-Control.
 - **איפוס פיילוט (10 אוג׳ 2026):** נמחקו משתמשים/קבוצות/הוצאות/סילוקים בייצור; נשמרים `feature_flags`, `plans`, `exchange_rates`.
 - **סיום פיילוט:** כיבוי חוסם משתמשי `pilot`; הרשמה מחדש (אותו אימייל/OAuth) ממירה ל-`active`; JWT בודק `is_active` בכל בקשה (blocklist).
 - **פישוט חשבון (אפליקציה):** במסך תשלום — «שילמתי — שלח לאישור»; סגירת קבוצה תמיד עם אישור (`dry_run` ב-`POST /groups/<id>/close`); אשף «סיים אירוע» ב-2 שלבים + קישור חזרה להסדרת חובות.

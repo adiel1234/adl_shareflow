@@ -213,12 +213,25 @@ _TESTFLIGHT_APP_STORE_URL = 'https://apps.apple.com/app/testflight/id899247664'
 @download_bp.get('/download/testflight')
 def install_testflight_only():
     """Redirect straight to the TestFlight App Store page — no explanations."""
+    from app.funnel import track_funnel_event
+    track_funnel_event('testflight_app')
     return redirect(_TESTFLIGHT_APP_STORE_URL, code=302)
+
+
+@download_bp.get('/install/shareflow')
+def install_shareflow_ios():
+    """Redirect to ShareFlow TestFlight public link (iOS app install)."""
+    from app.funnel import track_funnel_event
+    track_funnel_event('shareflow_ios', platform='ios')
+    dest = _valid_testflight_url() or _TESTFLIGHT_APP_STORE_URL
+    return redirect(dest, code=302)
 
 
 @download_bp.get('/download/apk')
 def download_apk_proxy():
     """Serve Android APK — Drive is streamed (virus-scan bypass); GitHub/other redirect."""
+    from app.funnel import track_funnel_event
+    track_funnel_event('apk', platform='android')
     raw = (APK_URL or '').strip()
     if not raw:
         return Response('APK download not configured', status=503)
@@ -259,6 +272,8 @@ def download_apk_proxy():
 @download_bp.get('/pilot/join')
 def pilot_landing():
     """Pilot persuasion landing — decide to participate (not install)."""
+    from app.funnel import track_funnel_event
+    track_funnel_event('pilot_join')
     html_path = _STATIC_DIR / 'pilot_landing.html'
     html = html_path.read_text(encoding='utf-8')
     return Response(html, mimetype='text/html; charset=utf-8')
@@ -267,12 +282,15 @@ def pilot_landing():
 @download_bp.get('/getting-started')
 def getting_started():
     """Short install + first-steps page after user opts in."""
+    from app.funnel import track_funnel_event
+    track_funnel_event('getting_started')
     html_path = _STATIC_DIR / 'getting_started.html'
     html = html_path.read_text(encoding='utf-8')
     urls = _pilot_download_urls()
     html = (
         html
-        .replace('__IOS_DOWNLOAD_URL__', urls['ios'])
+        # Trackable proxy — do not deep-link TESTFLIGHT_URL (would skip funnel).
+        .replace('__IOS_DOWNLOAD_URL__', '/install/shareflow')
         .replace('__DOWNLOAD_PAGE_URL__', urls['download_page'])
         .replace('__APK_DOWNLOAD_URL__', urls['apk'])
     )

@@ -11,7 +11,7 @@ from sqlalchemy import func, text
 from app import db
 from app.models import (
     User, Group, GroupMember, Expense, Receipt, Settlement,
-    Notification, FeatureFlag, GroupPayment, FCMToken,
+    Notification, FeatureFlag, GroupPayment, FCMToken, PilotFunnelEvent,
 )
 from app.common.errors import success_response, error_response
 from app.pilot_mode import (
@@ -40,6 +40,7 @@ _PILOT_USER_TABLES = (
     'user_identities',
     'subscriptions',
     'deferred_links',
+    'pilot_funnel_events',
     'users',
 )
 
@@ -311,7 +312,51 @@ def adl_stats():
         },
         'pilot_started_at': _pilot_started_value(),
         'pilot_mode_enabled': is_pilot_mode_enabled(),
+        'downloads': _funnel_stats(cutoff),
     })
+
+
+def _funnel_stats(cutoff):
+    """Anonymous install-funnel counts (+ recent events) for the pilot dashboard."""
+    def _base():
+        q = PilotFunnelEvent.query
+        if cutoff is not None:
+            q = q.filter(PilotFunnelEvent.created_at >= cutoff)
+        return q
+
+    def _count(event: str) -> int:
+        return _base().filter(PilotFunnelEvent.event == event).count()
+
+    recent = (
+        _base()
+        .order_by(PilotFunnelEvent.created_at.desc())
+        .limit(40)
+        .all()
+    )
+    labels = {
+        'pilot_join': 'פתיחת הזמנה',
+        'getting_started': 'עמוד התקנה',
+        'testflight_app': 'הורדת TestFlight',
+        'shareflow_ios': 'הורדת ShareFlow (אייפון)',
+        'apk': 'הורדת APK (אנדרואיד)',
+    }
+    ios_dl = _count('shareflow_ios')
+    apk_dl = _count('apk')
+    return {
+        'pilot_join': _count('pilot_join'),
+        'getting_started': _count('getting_started'),
+        'testflight_app': _count('testflight_app'),
+        'shareflow_ios': ios_dl,
+        'apk': apk_dl,
+        'total_downloads': ios_dl + apk_dl,
+        'recent': [
+            {
+                **e.to_dict(),
+                'label': labels.get(e.event, e.event),
+            }
+            for e in recent
+        ],
+    }
 
 
 # ---------------------------------------------------------------------------
