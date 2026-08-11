@@ -43,7 +43,11 @@ class MembersTabScreen extends ConsumerWidget {
 
         final guestMembers = members.where((m) => m.isGuest).toList();
         var headerSlots = 0;
-        if (isAdmin) headerSlots++;
+        if (isAdmin) {
+          headerSlots++;
+        } else {
+          headerSlots++; // guest-admin-only hint for non-admins
+        }
         if (isAdmin && guestMembers.isNotEmpty) headerSlots++;
 
         final legendSlots = members.isNotEmpty ? 1 : 0;
@@ -61,6 +65,11 @@ class MembersTabScreen extends ConsumerWidget {
               if (isAdmin) {
                 if (i == slot) {
                   return _MembersInviteActions(group: group);
+                }
+                slot++;
+              } else {
+                if (i == slot) {
+                  return const _GuestAdminOnlyHint();
                 }
                 slot++;
               }
@@ -659,6 +668,35 @@ Future<void> _showAddGuestSheet(
       ref.invalidate(groupsProvider);
     },
   );
+}
+
+// ── Non-admin hint about guest permissions ────────────────────────────────────
+
+class _GuestAdminOnlyHint extends StatelessWidget {
+  const _GuestAdminOnlyHint();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Text(
+        l.guestAdminOnlyHint,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 13,
+          height: 1.4,
+          color: AppColors.textSecondary,
+        ),
+      ),
+    );
+  }
 }
 
 // ── Invite + guest actions (admin) ────────────────────────────────────────────

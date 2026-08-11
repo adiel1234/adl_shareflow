@@ -1796,6 +1796,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Invite with a link: the usual path. Guests only if they don\'t have the app.';
 
   @override
+  String get guestAdminOnlyHint =>
+      'Only the group admin can add and manage members without the app';
+
+  @override
   String get inviteViaApp => 'Invite with a link';
 
   @override

@@ -1784,6 +1784,10 @@ class AppLocalizationsHe extends AppLocalizations {
       'הזמן עם קישור: זה הנתיב הרגיל. אורח רק למי שבלי אפליקציה.';
 
   @override
+  String get guestAdminOnlyHint =>
+      'רק מנהל הקבוצה יכול להוסיף ולנהל חברים ללא אפליקציה';
+
+  @override
   String get inviteViaApp => 'הזמן עם קישור';
 
   @override

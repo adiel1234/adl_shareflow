@@ -655,6 +655,7 @@
   "inviteEmailOption": "Also send by email",
   "addGuestOption": "No app? Add as guest",
   "tipMembersActions": "Invite with a link: the usual path. Guests only if they don't have the app.",
+  "guestAdminOnlyHint": "Only the group admin can add and manage members without the app",
   "inviteViaApp": "Invite with a link",
   "linkGuestTitle": "Link guest to account",
   "linkGuestSubtitle": "Select the registered member to link {name} to",

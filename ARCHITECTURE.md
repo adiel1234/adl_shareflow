@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 11 אוגוסט 2026 - תיקוני אורח/הוצאה/סיור (build 63)
+> עודכן לאחרונה: 11 אוגוסט 2026 - פיילוט build 64: הודעת הרשאות אורח + my_role ביצירה/שכפול/פתיחה מחדש
 
 ---
 
@@ -324,9 +324,9 @@ flutter build apk --release
 flutter install --release
 ```
 
-**APK נוכחי (גרסה 1.0.9+63):**
+**APK נוכחי (גרסה 1.0.9+64):**
 - קישור: `APK_DOWNLOAD_URL` ב-Railway (GitHub Releases); משתמשים מקבלים `GET /download/apk`
-- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build63
+- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build64
 - **למשתמשי פיילוט:** שתפו `/pilot/join` → `/getting-started` (לא `/download` ישירות)
 
 ### iOS (TestFlight)
@@ -506,7 +506,8 @@ flutter install --release
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): מניעת כפילויות — אם כבר קיים pending לאותו אורח→נושה, מחזיר אותו במקום ליצור כפילות; תוכנית העברות (`calculate_settlement_plan`) מפחיתה סכומי pending כדי שלא יופיע חוב כפול ב-UI.
 - **`MonetizationService`** (`groups/monetization_service.py`): הוצאת מערכת (`ADL ShareFlow Service`) **תמיד** נוצרת בהפעלה/הארכה/חידוש/שדרוג — גם כש-`PAYMENTS_ENABLED=false` (פיילוט חינמי). `GroupPayment.amount=0` כשאין גבייה אמיתית; `split_among_group=true` מחלק שווה בין **כל** `GroupMember` פעילים בהפעלה; `add_member_to_group_split_expenses` מוסיף חברים/אורחים חדשים להוצאות מערכת (הצטרפות + `POST /groups/<id>/guests`).
 - **`POST /groups/<id>/duplicate`** (`groups/routes.py`): שכפול קבוצה סגורה — קבוצה חדשה ללא הוצאות. כשמגבלת 3 קבוצות (`limited`) ו-`PAYMENTS_ENABLED=false` — **הפעלה אוטומטית** בשרת (ללא מסך תשלום באפליקציה); `creation_reason` לא נשלח. כש-`PAYMENTS_ENABLED=true` — נשאר `limited` + דיאלוג הפעלה בלקוח.
-- **`POST /groups/<id>/guests`** (`groups/routes.py`): body אופציונלי `split_mode` — `'forward'` (ברירת מחדל) או `'full'`. `'full'` קורא ל-`retroactively_add_member_to_expenses` ומחלק מחדש שווה את כל ההוצאות הקיימות (כולל אורח). אותה לוגיקה משותפת עם `POST /groups/join/<code>`.
+- **`POST /groups/<id>/guests`** (`groups/routes.py`): body אופציונלי `split_mode` — `'forward'` (ברירת מחדל) או `'full'`. `'full'` קורא ל-`retroactively_add_member_to_expenses` ומחלק מחדש שווה את כל ההוצאות הקיימות (כולל אורח). אותה לוגיקה משותפת עם `POST /groups/join/<code>`. מנהל בלבד (`require_group_admin`); בממשק — רמז `guestAdminOnlyHint` לחברים שאינם מנהלים (טאב חברים + גיליון הזמנה).
+- **`my_role` בתשובות קבוצה:** `POST /groups` (יצירה), `POST /groups/<id>/duplicate`, `POST /groups/<id>/reopen` מחזירים `my_role` (בדרך כלל `admin`) כדי שהלקוח לא יחשב `isAdmin=false` אחרי ניווט ישיר עם האובייקט מהתשובה.
 - **דיאלוג `split_mode` בהוספת אורח (build 40, UX build 42):** לפני הצגת הדיאלוג, האפליקציה קוראת `GET /groups/<id>` ל-`fetchExpenseCount` — אובייקט `Group` במטמון Riverpod לא התעדכן אחרי הוספת הוצאה (`expenseCount` נשאר 0). נקודות כניסה: טאב חברים (`_showAddGuestSheet` — דיאלוג לפני פתיחת הגיליון) וגיליון הזמנה (`_showInvite` — דיאלוג לפני פתיחת הגיליון; `splitMode` מועבר ל-`_InviteSheet` ול-`POST /groups/<id>/guests`). build 41: דיאלוג הופיע פעמיים (בפתיחת הזמנה + בסיום `_addGuest`) — תוקן ב-build 42.
 - **`split_mode` — מי מחליט? (build 44):** **המזמין** (admin/manager) מגדיר `split_mode` בעת יצירת קישור הזמנה (`_showInvite` ב-`group_detail_screen.dart`) — נשמר כ-`invite_split_mode` על הקבוצה. **הג'וינר** לא רואה דיאלוג — `_join()` בגיליון ההצטרפות קורא את `invite_split_mode` מתגובת `checkInvite` ומשתמש בו ישירות.
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (build 21): כשהמנהל שמסמן תשלום הוא גם הנושה (אורח→חבר) — הסטטוס `confirmed` מיד (ללא שלב pending נוסף); pending קיים מאותו סכום מועלה ל-`confirmed` באותה קריאה.

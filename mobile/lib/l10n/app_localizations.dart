@@ -3318,6 +3318,12 @@ abstract class AppLocalizations {
   /// **'הזמן עם קישור: זה הנתיב הרגיל. אורח רק למי שבלי אפליקציה.'**
   String get tipMembersActions;
 
+  /// No description provided for @guestAdminOnlyHint.
+  ///
+  /// In he, this message translates to:
+  /// **'רק מנהל הקבוצה יכול להוסיף ולנהל חברים ללא אפליקציה'**
+  String get guestAdminOnlyHint;
+
   /// No description provided for @inviteViaApp.
   ///
   /// In he, this message translates to:

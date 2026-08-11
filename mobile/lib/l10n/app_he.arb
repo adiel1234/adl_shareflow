@@ -654,6 +654,7 @@
   "inviteEmailOption": "שלח גם במייל",
   "addGuestOption": "אין אפליקציה? הוסיפו כאורח",
   "tipMembersActions": "הזמן עם קישור: זה הנתיב הרגיל. אורח רק למי שבלי אפליקציה.",
+  "guestAdminOnlyHint": "רק מנהל הקבוצה יכול להוסיף ולנהל חברים ללא אפליקציה",
   "inviteViaApp": "הזמן עם קישור",
   "linkGuestTitle": "קשר אורח לחשבון",
   "linkGuestSubtitle": "בחר את החבר הרשום שאליו תרצה לשייך את {name}",

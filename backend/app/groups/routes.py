@@ -136,6 +136,7 @@ def create_group():
     db.session.commit()
 
     response_data = group.to_dict()
+    response_data['my_role'] = 'admin'
     if limit_reached:
         response_data['creation_reason'] = 'free_group_limit_reached'
 
@@ -571,6 +572,12 @@ def duplicate_group(group_id, **kwargs):
             return error_response(str(e), 400)
 
     response_data = new_group.to_dict()
+    # Duplicator is always admin of the source group; preserve their role copy.
+    my_membership = next(
+        (sm for sm in source_members if sm.user_id == user_id),
+        None,
+    )
+    response_data['my_role'] = my_membership.role if my_membership else 'admin'
     if limit_reached and new_group.group_state != 'active':
         response_data['creation_reason'] = 'free_group_limit_reached'
 
@@ -597,7 +604,9 @@ def reopen_group(group_id, **kwargs):
     group.closed_at = None
     GroupLifecycleService.sync_state(group, db.session)
     db.session.commit()
-    return success_response(data=group.to_dict(), message='הקבוצה נפתחה מחדש בהצלחה')
+    response_data = group.to_dict()
+    response_data['my_role'] = 'admin'
+    return success_response(data=response_data, message='הקבוצה נפתחה מחדש בהצלחה')
 
 
 @groups_bp.get('/<group_id>/invite-link')

@@ -655,7 +655,7 @@ class _InviteSheetState extends State<InviteSheet> {
           ),
           const SizedBox(height: 16),
 
-          // Guest without app — first and obvious for admins
+          // Guest without app — admins get the form; others get a clear hint
           if (widget.isAdmin) ...[
             Container(
               width: double.infinity,
@@ -760,6 +760,26 @@ class _InviteSheetState extends State<InviteSheet> {
               ),
             ),
             const SizedBox(height: 10),
+          ] else ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Text(
+                l.guestAdminOnlyHint,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 13,
+                  height: 1.4,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
 
           // Primary: WhatsApp
