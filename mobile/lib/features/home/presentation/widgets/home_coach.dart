@@ -4,7 +4,8 @@ import '../../../../core/storage/secure_storage.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
 
-const kHomeCoachDoneKey = 'home_coach_done_v1';
+/// Bumped so users who saw the broken coach get the fixed tour once.
+const kHomeCoachDoneKey = 'home_coach_done_v2';
 
 class CoachTarget {
   final GlobalKey key;
@@ -65,17 +66,44 @@ class _HomeCoachDialog extends StatefulWidget {
 class _HomeCoachDialogState extends State<_HomeCoachDialog> {
   int _step = 0;
 
+  static const _cardH = 150.0;
+  static const _gap = 10.0;
+
   Rect? _targetRect() {
     final ctx = widget.targets[_step].key.currentContext;
     final box = ctx?.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize || !box.attached) return null;
     final offset = box.localToGlobal(Offset.zero);
     return Rect.fromLTWH(
-      offset.dx - 8,
-      offset.dy - 8,
-      box.size.width + 16,
-      box.size.height + 16,
-    ).inflate(4);
+      offset.dx - 6,
+      offset.dy - 6,
+      box.size.width + 12,
+      box.size.height + 12,
+    );
+  }
+
+  /// Place the card next to the target without covering it.
+  double _cardTop(Size screen, EdgeInsets pad, Rect? rect) {
+    final minTop = pad.top + 8;
+    final maxTop = screen.height - pad.bottom - _cardH - 8;
+    if (rect == null) {
+      return (screen.height * 0.32).clamp(minTop, maxTop);
+    }
+
+    final spaceBelow = screen.height - pad.bottom - rect.bottom - _gap;
+    final spaceAbove = rect.top - pad.top - _gap;
+
+    double top;
+    if (spaceBelow >= _cardH) {
+      top = rect.bottom + _gap;
+    } else if (spaceAbove >= _cardH) {
+      top = rect.top - _gap - _cardH;
+    } else if (spaceBelow >= spaceAbove) {
+      top = rect.bottom + _gap;
+    } else {
+      top = rect.top - _gap - _cardH;
+    }
+    return top.clamp(minTop, maxTop);
   }
 
   void _close() => Navigator.of(context).pop();
@@ -94,14 +122,15 @@ class _HomeCoachDialogState extends State<_HomeCoachDialog> {
     final target = widget.targets[_step];
     final rect = _targetRect();
     final isLast = _step >= widget.targets.length - 1;
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final size = MediaQuery.sizeOf(context);
+    final pad = MediaQuery.paddingOf(context);
+    final cardTop = _cardTop(size, pad, rect);
 
     return Material(
       color: Colors.transparent,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Dimmed backdrop — tap to skip (escape hatch)
           Positioned.fill(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -111,7 +140,6 @@ class _HomeCoachDialogState extends State<_HomeCoachDialog> {
               ),
             ),
           ),
-
           if (rect != null)
             Positioned(
               left: rect.left,
@@ -121,18 +149,16 @@ class _HomeCoachDialogState extends State<_HomeCoachDialog> {
               child: IgnorePointer(
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white, width: 2.5),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white, width: 2),
                   ),
                 ),
               ),
             ),
-
-          // Card always pinned above the bottom nav / home indicator
           Positioned(
             left: 16,
             right: 16,
-            bottom: bottomInset + 16,
+            top: cardTop,
             child: _CoachCard(
               step: _step + 1,
               total: widget.targets.length,
@@ -174,11 +200,11 @@ class _CoachCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      elevation: 10,
-      borderRadius: BorderRadius.circular(18),
+      elevation: 8,
+      borderRadius: BorderRadius.circular(14),
       color: AppColors.surface,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -186,37 +212,42 @@ class _CoachCard extends StatelessWidget {
             Text(
               '$step / $total',
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
               title,
               style: const TextStyle(
-                fontSize: 17,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 3),
             Text(
               body,
               style: const TextStyle(
-                fontSize: 14,
-                height: 1.45,
+                fontSize: 12,
+                height: 1.35,
                 color: AppColors.textSecondary,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             Row(
               children: [
                 TextButton(
                   onPressed: onSkip,
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  ),
                   child: Text(
                     skipLabel,
                     style: const TextStyle(
+                      fontSize: 13,
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
@@ -228,14 +259,18 @@ class _CoachCard extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    minimumSize: const Size(120, 44),
+                    minimumSize: const Size(96, 36),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: Text(
                     primaryLabel,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
@@ -257,16 +292,16 @@ class _SpotlightPainter extends CustomPainter {
     if (hole != null) {
       final cut = Path()
         ..addRRect(
-          RRect.fromRectAndRadius(hole!, const Radius.circular(14)),
+          RRect.fromRectAndRadius(hole!, const Radius.circular(12)),
         );
       canvas.drawPath(
         Path.combine(PathOperation.difference, overlay, cut),
-        Paint()..color = Colors.black.withValues(alpha: 0.72),
+        Paint()..color = Colors.black.withValues(alpha: 0.7),
       );
     } else {
       canvas.drawPath(
         overlay,
-        Paint()..color = Colors.black.withValues(alpha: 0.72),
+        Paint()..color = Colors.black.withValues(alpha: 0.7),
       );
     }
   }

@@ -995,8 +995,20 @@ abstract class AppLocalizations {
   /// No description provided for @optionalNotes.
   ///
   /// In he, this message translates to:
-  /// **'הערות (אופציונלי)'**
+  /// **'הערות'**
   String get optionalNotes;
+
+  /// No description provided for @inviteHowTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'איך להוסיף חבר?'**
+  String get inviteHowTitle;
+
+  /// No description provided for @inviteWithAppSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'לחבר שכבר יש לו אפליקציה, או שירצה להוריד'**
+  String get inviteWithAppSubtitle;
 
   /// No description provided for @addNotesHint.
   ///

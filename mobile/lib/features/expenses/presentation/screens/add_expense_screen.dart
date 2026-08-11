@@ -296,11 +296,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // OCR banner — if receipt was scanned
               if (_scannedReceiptId != null) ...[
                 _OcrBanner(
                   onRescan: _scanReceipt,
@@ -309,174 +308,182 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     _receiptImageUrl = null;
                   }),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
               ] else ...[
-                _ScanCta(
-                  onScan: _scanReceipt,
-                  onAttachOnly: _attachReceipt,
+                _FieldSection(
+                  title: AppLocalizations.of(context)!.scanReceipt,
+                  required: false,
+                  child: _ScanCta(
+                    onScan: _scanReceipt,
+                    onAttachOnly: _attachReceipt,
+                  ),
                 ),
-                const SizedBox(height: 20),
               ],
 
-              // Category
-              _SectionLabel(AppLocalizations.of(context)!.category),
-              const SizedBox(height: 10),
-              SizedBox(
-                height: 72,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: _categoryDefs.map((cat) {
-                    final selected = _category == cat.$1;
-                    final catColor = cat.$3;
-                    final catColor2 = cat.$4;
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: InkWell(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() => _category = cat.$1);
-                        },
-                        borderRadius: BorderRadius.circular(12),
+              _FieldSection(
+                title: AppLocalizations.of(context)!.category,
+                required: false,
+                child: SizedBox(
+                  height: 72,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: _categoryDefs.map((cat) {
+                      final selected = _category == cat.$1;
+                      final catColor = cat.$3;
+                      final catColor2 = cat.$4;
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: InkWell(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() => _category = cat.$1);
+                          },
+                          borderRadius: BorderRadius.circular(12),
                           child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 180),
-                          width: 72,
-                          decoration: BoxDecoration(
-                            gradient: selected
-                                ? LinearGradient(
-                                    colors: [catColor, catColor2],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  )
-                                : null,
-                            color: selected ? null : const Color(0xFFF1F5F9),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
+                            duration: const Duration(milliseconds: 180),
+                            width: 72,
+                            decoration: BoxDecoration(
+                              gradient: selected
+                                  ? LinearGradient(
+                                      colors: [catColor, catColor2],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )
+                                  : null,
                               color: selected
-                                  ? catColor
-                                  : const Color(0xFFE2E8F0),
-                              width: selected ? 1.5 : 1,
+                                  ? null
+                                  : AppColors.surfaceVariant,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: selected
+                                    ? catColor
+                                    : AppColors.border,
+                                width: selected ? 1.5 : 1,
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  cat.$2,
+                                  size: 24,
+                                  color: selected ? Colors.white : catColor,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  _catLabel(context, cat.$1),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: selected
+                                        ? Colors.white
+                                        : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                cat.$2,
-                                size: 24,
-                                color: selected
-                                    ? Colors.white
-                                    : catColor,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _catLabel(context, cat.$1),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: selected
-                                      ? Colors.white
-                                      : AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+
+              _FieldSection(
+                title: AppLocalizations.of(context)!.expenseDescription,
+                required: true,
+                child: TextFormField(
+                  controller: _titleCtrl,
+                  decoration: InputDecoration(
+                    hintText:
+                        AppLocalizations.of(context)!.expenseDescriptionHint,
+                    filled: true,
+                    fillColor: AppColors.background,
+                  ),
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? AppLocalizations.of(context)!.descriptionRequired
+                      : null,
+                ),
+              ),
+
+              _FieldSection(
+                title: AppLocalizations.of(context)!.amount,
+                required: true,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: TextFormField(
+                            controller: _amountCtrl,
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                            textDirection: TextDirection.ltr,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            decoration: const InputDecoration(
+                              hintText: '0.00',
+                              filled: true,
+                              fillColor: AppColors.background,
+                            ),
+                            validator: (v) {
+                              final l = AppLocalizations.of(context)!;
+                              if (v == null || v.isEmpty) {
+                                return l.amountRequired;
+                              }
+                              if (double.tryParse(v) == null ||
+                                  double.parse(v) <= 0) {
+                                return l.invalidAmount;
+                              }
+                              return null;
+                            },
                           ),
                         ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: DropdownButtonFormField<String>(
+                            value: _currency,
+                            decoration: const InputDecoration(
+                              filled: true,
+                              fillColor: AppColors.background,
+                            ),
+                            items: AppConstants.supportedCurrencies
+                                .map((c) => DropdownMenuItem(
+                                    value: c, child: Text(c)))
+                                .toList(),
+                            onChanged: (v) => _onCurrencyChanged(
+                                v ?? widget.group.baseCurrency),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_showConversion) ...[
+                      const SizedBox(height: 10),
+                      CurrencyConversionChip(
+                        fromCurrency: _currency,
+                        toCurrency: widget.group.baseCurrency,
+                        amount: _currentAmount,
                       ),
-                    );
-                  }).toList(),
+                    ],
+                  ],
                 ),
               ),
 
-              const SizedBox(height: 20),
-
-              // Title
-              _SectionLabel(AppLocalizations.of(context)!.expenseDescription),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _titleCtrl,
-                decoration: InputDecoration(hintText: AppLocalizations.of(context)!.expenseDescriptionHint),
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? AppLocalizations.of(context)!.descriptionRequired : null,
-              ),
-
-              const SizedBox(height: 16),
-
-              // Amount + Currency
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _SectionLabel(AppLocalizations.of(context)!.amount),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _amountCtrl,
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
-                          textDirection: TextDirection.ltr,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          decoration:
-                              const InputDecoration(hintText: '0.00'),
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return AppLocalizations.of(context)!.amountRequired;
-                            if (double.tryParse(v) == null ||
-                                double.parse(v) <= 0) {
-                              return AppLocalizations.of(context)!.invalidAmount;
-                            }
-                            return null;
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const _SectionLabel('מטבע'),
-                        const SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          value: _currency,
-                          decoration: const InputDecoration(),
-                          items: AppConstants.supportedCurrencies
-                              .map((c) =>
-                                  DropdownMenuItem(value: c, child: Text(c)))
-                              .toList(),
-                          onChanged: (v) =>
-                              _onCurrencyChanged(v ?? widget.group.baseCurrency),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              // Currency conversion chip
-              if (_showConversion) ...[
-                const SizedBox(height: 10),
-                CurrencyConversionChip(
-                  fromCurrency: _currency,
-                  toCurrency: widget.group.baseCurrency,
-                  amount: _currentAmount,
-                ),
-              ],
-
-              const SizedBox(height: 16),
-
-              // Paid by + Participants
               membersAsync.when(
-                loading: () => const LinearProgressIndicator(),
-                error: (_, __) => Text(AppLocalizations.of(context)!.errorLoadingMembers),
+                loading: () => const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: LinearProgressIndicator(),
+                ),
+                error: (_, __) => Text(
+                    AppLocalizations.of(context)!.errorLoadingMembers),
                 data: (members) {
-                  // Initialise selectedParticipantIds once when members load
                   if (_selectedParticipantIds.isEmpty && members.isNotEmpty) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       setState(() {
@@ -486,10 +493,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     });
                   }
 
-                  // Ensure _paidBy is valid — reset if not found in list
-                  final validPaidBy = members.any((m) => m.userId == _paidBy)
-                      ? _paidBy
-                      : null;
+                  final validPaidBy =
+                      members.any((m) => m.userId == _paidBy)
+                          ? _paidBy
+                          : null;
                   if (validPaidBy != _paidBy) {
                     WidgetsBinding.instance.addPostFrameCallback(
                       (_) => setState(() => _paidBy = validPaidBy),
@@ -497,57 +504,67 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                   }
 
                   return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _SectionLabel(AppLocalizations.of(context)!.paidBy),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: validPaidBy,
-                        decoration: const InputDecoration(),
-                        hint: Text(AppLocalizations.of(context)!.paidByHint),
-                        items: members
-                            .map((m) => DropdownMenuItem(
-                                  value: m.userId,
-                                  child: Text(m.displayLabel),
-                                ))
-                            .toList(),
-                        onChanged: (v) => setState(() => _paidBy = v),
-                        validator: (v) =>
-                            v == null || v.isEmpty ? AppLocalizations.of(context)!.paidByHint : null,
+                      _FieldSection(
+                        title: AppLocalizations.of(context)!.paidBy,
+                        required: true,
+                        child: DropdownButtonFormField<String>(
+                          value: validPaidBy,
+                          decoration: const InputDecoration(
+                            filled: true,
+                            fillColor: AppColors.background,
+                          ),
+                          hint: Text(
+                              AppLocalizations.of(context)!.paidByHint),
+                          items: members
+                              .map((m) => DropdownMenuItem(
+                                    value: m.userId,
+                                    child: Text(m.displayLabel),
+                                  ))
+                              .toList(),
+                          onChanged: (v) => setState(() => _paidBy = v),
+                          validator: (v) => v == null || v.isEmpty
+                              ? AppLocalizations.of(context)!.paidByHint
+                              : null,
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                      ParticipantsSelector(
-                        members: members,
-                        selectedIds: _selectedParticipantIds,
-                        totalAmount: _currentAmount,
-                        currency: _currency,
-                        onChanged: (ids) => setState(() => _selectedParticipantIds = ids),
+                      _FieldSection(
+                        title: AppLocalizations.of(context)!.participants,
+                        required: true,
+                        child: ParticipantsSelector(
+                          members: members,
+                          selectedIds: _selectedParticipantIds,
+                          totalAmount: _currentAmount,
+                          currency: _currency,
+                          onChanged: (ids) => setState(
+                              () => _selectedParticipantIds = ids),
+                        ),
                       ),
                     ],
                   );
                 },
               ),
 
-              const SizedBox(height: 16),
-
-              // Notes
-              _SectionLabel(AppLocalizations.of(context)!.optionalNotes),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _notesCtrl,
-                maxLines: 2,
-                decoration: InputDecoration(hintText: AppLocalizations.of(context)!.addNotesHint),
+              _FieldSection(
+                title: AppLocalizations.of(context)!.optionalNotes,
+                required: false,
+                child: TextFormField(
+                  controller: _notesCtrl,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.addNotesHint,
+                    filled: true,
+                    fillColor: AppColors.background,
+                  ),
+                ),
               ),
 
-              const SizedBox(height: 32),
-
+              const SizedBox(height: 8),
               GradientButton(
                 label: AppLocalizations.of(context)!.addExpenseBtn,
                 onPressed: _loading ? null : _save,
                 isLoading: _loading,
               ),
-
-              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -704,17 +721,69 @@ class _OcrBanner extends StatelessWidget {
   }
 }
 
-class _SectionLabel extends StatelessWidget {
-  final String text;
-  const _SectionLabel(this.text);
+class _FieldSection extends StatelessWidget {
+  final String title;
+  final bool required;
+  final Widget child;
+
+  const _FieldSection({
+    required this.title,
+    required this.required,
+    required this.child,
+  });
 
   @override
-  Widget build(BuildContext context) => Text(
-        text,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          color: AppColors.textSecondary,
-          fontSize: 13,
-        ),
-      );
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: required
+                      ? AppColors.primary.withValues(alpha: 0.10)
+                      : AppColors.surfaceVariant,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  required ? l.fieldRequiredBadge : l.fieldOptionalBadge,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: required
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          child,
+        ],
+      ),
+    );
+  }
 }

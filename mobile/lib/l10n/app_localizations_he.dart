@@ -471,7 +471,14 @@ class AppLocalizationsHe extends AppLocalizations {
   String get errorLoadingMembers => 'שגיאה בטעינת חברים';
 
   @override
-  String get optionalNotes => 'הערות (אופציונלי)';
+  String get optionalNotes => 'הערות';
+
+  @override
+  String get inviteHowTitle => 'איך להוסיף חבר?';
+
+  @override
+  String get inviteWithAppSubtitle =>
+      'לחבר שכבר יש לו אפליקציה, או שירצה להוריד';
 
   @override
   String get addNotesHint => 'הוסף הערה...';

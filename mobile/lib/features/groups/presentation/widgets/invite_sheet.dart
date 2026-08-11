@@ -80,7 +80,240 @@ Future<String?> showSplitModeDialog(
   );
 }
 
-/// Full invite flow: optional split-mode question → invite sheet.
+/// Asks admin how to add a member: invite link vs guest without app.
+Future<String?> showInviteMethodDialog(BuildContext context) {
+  final l = AppLocalizations.of(context)!;
+  return showDialog<String>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Text(
+        l.inviteHowTitle,
+        style: const TextStyle(fontWeight: FontWeight.w700),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _SplitModeOption(
+            icon: Icons.link_rounded,
+            color: AppColors.primary,
+            title: l.inviteViaApp,
+            subtitle: l.inviteWithAppSubtitle,
+            onTap: () => Navigator.pop(ctx, 'link'),
+          ),
+          const SizedBox(height: 10),
+          _SplitModeOption(
+            icon: Icons.person_outline,
+            color: Colors.purple,
+            title: l.addGuestTitle,
+            subtitle: l.guestNoApp,
+            onTap: () => Navigator.pop(ctx, 'guest'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, null),
+          child: Text(
+            l.cancel,
+            style: const TextStyle(color: AppColors.textSecondary),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+/// Dedicated flow: add guest(s) without the app.
+Future<void> openAddGuestFlow(
+  BuildContext context, {
+  required String groupId,
+  required String groupName,
+  int expenseCountHint = 0,
+  VoidCallback? onGuestAdded,
+}) async {
+  final l = AppLocalizations.of(context)!;
+  final repo = GroupRepository();
+
+  var splitMode = 'forward';
+  var expenseCount = expenseCountHint;
+  try {
+    expenseCount = await repo.fetchExpenseCount(groupId);
+  } catch (_) {}
+
+  if (expenseCount > 0) {
+    if (!context.mounted) return;
+    final choice = await showSplitModeDialog(
+      context,
+      groupName: groupName,
+      expenseCount: expenseCount,
+    );
+    if (choice == null || !context.mounted) return;
+    splitMode = choice;
+  }
+
+  if (!context.mounted) return;
+
+  final nameCtrl = TextEditingController();
+  final nameFocus = FocusNode();
+  var loading = false;
+  final addedGuests = <String>[];
+
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setSheetState) => Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 20,
+          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l.addGuestTitle,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.purple.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.purple.withValues(alpha: 0.25)),
+              ),
+              child: Text(
+                l.guestNoApp,
+                style: const TextStyle(
+                  fontSize: 13,
+                  height: 1.4,
+                  color: Colors.purple,
+                ),
+              ),
+            ),
+            if (addedGuests.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              ...addedGuests.map(
+                (name) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle,
+                          size: 18, color: Colors.green),
+                      const SizedBox(width: 8),
+                      Text(name,
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 14),
+            TextField(
+              controller: nameCtrl,
+              focusNode: nameFocus,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                hintText: l.addGuestHint,
+                filled: true,
+                fillColor: AppColors.surfaceVariant,
+                prefixIcon: const Icon(Icons.person_outline),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onSubmitted: (_) async {},
+            ),
+            const SizedBox(height: 14),
+            ElevatedButton(
+              onPressed: loading
+                  ? null
+                  : () async {
+                      final name = nameCtrl.text.trim();
+                      if (name.isEmpty) return;
+                      setSheetState(() => loading = true);
+                      try {
+                        await repo.addGuest(
+                          groupId,
+                          name,
+                          splitMode: splitMode,
+                        );
+                        onGuestAdded?.call();
+                        if (ctx.mounted) {
+                          setSheetState(() {
+                            addedGuests.add(name);
+                            nameCtrl.clear();
+                          });
+                          nameFocus.requestFocus();
+                        }
+                      } catch (e) {
+                        if (ctx.mounted) {
+                          var msg = l.errorAddingGuest;
+                          if (e is DioException) {
+                            msg = (e.response?.data?['message'] as String?) ??
+                                msg;
+                          }
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(content: Text(msg)),
+                          );
+                        }
+                      } finally {
+                        if (ctx.mounted) {
+                          setSheetState(() => loading = false);
+                        }
+                      }
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.purple,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: loading
+                  ? const SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      l.addGuestBtn,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l.doneBtn),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+
+  nameCtrl.dispose();
+  nameFocus.dispose();
+}
+
+/// Full invite flow: method choice → optional split-mode → invite / guest sheet.
+///
+/// Pass [forceMethod] as `link` or `guest` to skip the choice dialog
+/// (e.g. from dedicated buttons on the members tab).
 Future<void> openInviteFlow(
   BuildContext context, {
   required String groupId,
@@ -88,9 +321,29 @@ Future<void> openInviteFlow(
   required bool isAdmin,
   int expenseCountHint = 0,
   VoidCallback? onGuestAdded,
+  String? forceMethod,
 }) async {
   final l = AppLocalizations.of(context)!;
   final repo = GroupRepository();
+
+  // Admins choose: invite with app OR add without app.
+  var method = forceMethod ?? 'link';
+  if (forceMethod == null && isAdmin) {
+    final picked = await showInviteMethodDialog(context);
+    if (picked == null || !context.mounted) return;
+    method = picked;
+  }
+
+  if (method == 'guest') {
+    await openAddGuestFlow(
+      context,
+      groupId: groupId,
+      groupName: groupName,
+      expenseCountHint: expenseCountHint,
+      onGuestAdded: onGuestAdded,
+    );
+    return;
+  }
 
   var splitMode = 'forward';
   var expenseCount = expenseCountHint;
@@ -402,6 +655,113 @@ class _InviteSheetState extends State<InviteSheet> {
           ),
           const SizedBox(height: 16),
 
+          // Guest without app — first and obvious for admins
+          if (widget.isAdmin) ...[
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.purple.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.purple.withValues(alpha: 0.28)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l.addGuestTitle,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.purple,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    l.guestNoApp,
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 1.35,
+                      color: Colors.purple.shade700,
+                    ),
+                  ),
+                  if (_addedGuests.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    ..._addedGuests.map(
+                      (name) => Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check_circle,
+                                size: 16, color: Colors.green),
+                            const SizedBox(width: 6),
+                            Text(name, style: const TextStyle(fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _guestNameController,
+                          textCapitalization: TextCapitalization.words,
+                          decoration: InputDecoration(
+                            hintText: l.addGuestHint,
+                            filled: true,
+                            fillColor: Colors.white,
+                            prefixIcon:
+                                const Icon(Icons.person_outline, size: 18),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                          ),
+                          onSubmitted: (_) => _addGuest(),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      _addingGuest
+                          ? const SizedBox(
+                              width: 42,
+                              height: 42,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : IconButton.filled(
+                              onPressed: _addGuest,
+                              icon: const Icon(Icons.person_add),
+                              style: IconButton.styleFrom(
+                                backgroundColor: Colors.purple,
+                                foregroundColor: Colors.white,
+                              ),
+                            ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Divider(),
+            const SizedBox(height: 8),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                l.inviteViaApp,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+
           // Primary: WhatsApp
           SizedBox(
             width: double.infinity,
@@ -570,168 +930,6 @@ class _InviteSheetState extends State<InviteSheet> {
               ],
             ),
           ),
-
-          // Guest without app — always visible for admins
-          if (widget.isAdmin) ...[
-            const Divider(height: 28),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l.addGuestTitle,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  tooltip: l.guestExplainTitle,
-                  onPressed: () => showDialog<void>(
-                    context: context,
-                    builder: (ctx) {
-                      final ll = AppLocalizations.of(ctx)!;
-                      return AlertDialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        title: Row(
-                          children: [
-                            const Icon(Icons.person_outline,
-                                color: Colors.purple, size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                ll.guestExplainTitle,
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                            ),
-                          ],
-                        ),
-                        content: Text(
-                          ll.guestExplainBody,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            height: 1.6,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx),
-                            child: Text(ll.gotIt),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  icon: const Icon(Icons.info_outline, size: 20),
-                  color: AppColors.textSecondary,
-                ),
-              ],
-            ),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.purple.withValues(alpha: 0.07),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.purple.withValues(alpha: 0.2)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.info_outline, size: 14, color: Colors.purple),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      l.guestNoApp,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.purple,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (_addedGuests.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              ..._addedGuests.map(
-                (name) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.check_circle_outline,
-                        size: 16,
-                        color: Colors.green,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _guestNameController,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      hintText: l.addGuestHint,
-                      filled: true,
-                      fillColor: AppColors.surfaceVariant,
-                      prefixIcon: const Icon(Icons.person_outline, size: 18),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 12,
-                      ),
-                    ),
-                    onSubmitted: (_) => _addGuest(),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                _addingGuest
-                    ? const SizedBox(
-                        width: 42,
-                        height: 42,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : IconButton.filled(
-                        onPressed: _addGuest,
-                        icon: const Icon(Icons.person_add),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.purple,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              l.tipAddGuestNoApp,
-              style: const TextStyle(
-                fontSize: 12,
-                height: 1.35,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
 
           const SizedBox(height: 8),
           TextButton(

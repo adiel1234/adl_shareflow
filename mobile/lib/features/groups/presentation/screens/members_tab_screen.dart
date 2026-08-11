@@ -646,173 +646,19 @@ Future<void> _showAddGuestSheet(
   WidgetRef ref,
   Group group,
 ) async {
-  final l = AppLocalizations.of(context)!;
-
-  var splitMode = 'forward';
-  int expenseCount = group.expenseCount;
-  try {
-    expenseCount = await ref
-        .read(groupRepositoryProvider)
-        .fetchExpenseCount(group.id);
-  } catch (_) {}
-
-  if (expenseCount > 0) {
-    if (!context.mounted) return;
-    final chosen = await showSplitModeDialog(
-      context,
-      groupName: group.name,
-      expenseCount: expenseCount,
-    );
-    if (chosen == null) return;
-    splitMode = chosen;
-  }
-
-  if (!context.mounted) return;
-
-  final nameCtrl = TextEditingController();
-  final nameFocus = FocusNode();
-  final scrollCtrl = ScrollController();
-  var loading = false;
-  final addedGuests = <String>[];
-
-  // Scroll to bottom when keyboard appears so the field stays visible
-  nameFocus.addListener(() {
-    if (nameFocus.hasFocus) {
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (scrollCtrl.hasClients) {
-          scrollCtrl.animateTo(
-            scrollCtrl.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOut,
-          );
-        }
-      });
-    }
-  });
-
-  await showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (ctx) => StatefulBuilder(
-      builder: (ctx, setSheetState) => SingleChildScrollView(
-        controller: scrollCtrl,
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 20,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l.addGuestTitle,
-                style: const TextStyle(
-                    fontSize: 17, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 8),
-            Text(l.guestNoApp,
-                style: const TextStyle(
-                    fontSize: 13, color: AppColors.textSecondary, height: 1.4)),
-            // Added guests list
-            if (addedGuests.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              ...addedGuests.map((name) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 3),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.check_circle_outline,
-                            size: 16, color: Colors.green),
-                        const SizedBox(width: 8),
-                        Text(name,
-                            style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary)),
-                      ],
-                    ),
-                  )),
-            ],
-            const SizedBox(height: 14),
-            TextField(
-              controller: nameCtrl,
-              focusNode: nameFocus,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(
-                hintText: l.addGuestHint,
-                filled: true,
-                fillColor: AppColors.surfaceVariant,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            ElevatedButton(
-              onPressed: loading
-                  ? null
-                  : () async {
-                      final name = nameCtrl.text.trim();
-                      if (name.isEmpty) return;
-
-                      setSheetState(() => loading = true);
-                      try {
-                        await ref.read(groupRepositoryProvider).addGuest(
-                          group.id,
-                          name,
-                          splitMode: splitMode,
-                        );
-                        ref.invalidate(groupMembersProvider(group.id));
-                        ref.invalidate(balancesProvider(group.id));
-                        ref.invalidate(expensesProvider(group.id));
-                        ref.invalidate(groupDetailProvider(group.id));
-                        ref.invalidate(groupsProvider);
-                        if (ctx.mounted) {
-                          setSheetState(() {
-                            addedGuests.add(name);
-                            nameCtrl.clear();
-                          });
-                          // Keep focus on the field for quick multi-add
-                          nameFocus.requestFocus();
-                        }
-                      } catch (e) {
-                        if (ctx.mounted) {
-                          final msg = e is DioException
-                              ? (e.response?.data?['message'] as String?) ??
-                                  l.errorAddingGuest
-                              : l.errorAddingGuest;
-                          ScaffoldMessenger.of(ctx).showSnackBar(
-                            SnackBar(content: Text(msg)),
-                          );
-                        }
-                      } finally {
-                        if (ctx.mounted) setSheetState(() => loading = false);
-                      }
-                    },
-              child: loading
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(l.addGuestTitle),
-            ),
-            const SizedBox(height: 10),
-            OutlinedButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(l.notifClose),
-            ),
-          ],
-        ),
-      ),
-    ),
+  await openAddGuestFlow(
+    context,
+    groupId: group.id,
+    groupName: group.name,
+    expenseCountHint: group.expenseCount,
+    onGuestAdded: () {
+      ref.invalidate(groupMembersProvider(group.id));
+      ref.invalidate(balancesProvider(group.id));
+      ref.invalidate(expensesProvider(group.id));
+      ref.invalidate(groupDetailProvider(group.id));
+      ref.invalidate(groupsProvider);
+    },
   );
-  nameCtrl.dispose();
-  nameFocus.dispose();
-  scrollCtrl.dispose();
 }
 
 // ── Invite + guest actions (admin) ────────────────────────────────────────────
@@ -845,6 +691,7 @@ class _MembersInviteActions extends ConsumerWidget {
               isAdmin: group.isAdmin,
               expenseCountHint: group.expenseCount,
               onGuestAdded: () => _invalidate(ref),
+              forceMethod: 'link',
             ),
             icon: const Icon(Icons.person_add_alt_1_rounded, size: 20),
             label: Text(
@@ -879,7 +726,7 @@ class _MembersInviteActions extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            l.tipAddGuestNoApp,
+            l.tipMembersActions,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 12,

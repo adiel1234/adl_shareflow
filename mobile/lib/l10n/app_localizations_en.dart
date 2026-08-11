@@ -472,7 +472,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorLoadingMembers => 'Error loading members';
 
   @override
-  String get optionalNotes => 'Notes (optional)';
+  String get optionalNotes => 'Notes';
+
+  @override
+  String get inviteHowTitle => 'How do you want to add a member?';
+
+  @override
+  String get inviteWithAppSubtitle =>
+      'For someone who has the app, or will download it';
 
   @override
   String get addNotesHint => 'Add a note...';
