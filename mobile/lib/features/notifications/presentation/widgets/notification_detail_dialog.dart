@@ -172,7 +172,7 @@ String _formatEventSummaryBody(Map<String, dynamic> summary) {
     }
   } else if (summary['books_balanced'] != false) {
     lines.add('');
-    lines.add('הכל מאוזן — אין חובות');
+    lines.add('הכל מאוזן, אין חובות');
   }
   return lines.join('\n');
 }

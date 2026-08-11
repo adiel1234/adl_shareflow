@@ -137,7 +137,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
           withPhone.isEmpty
               ? l.shareWhatsAppSubtitle
               : '${l.shareWhatsAppSubtitle}\n\n'
-                  '${withPhone.length} משתתפים עם מספר טלפון — '
+                  '${withPhone.length} משתתפים עם מספר טלפון: '
                   'ייפתח WhatsApp אחד אחרי השני.',
         ),
         actions: [
@@ -597,7 +597,8 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text('✅', style: TextStyle(fontSize: 22)),
+                  Icon(Icons.check_circle,
+                      color: AppColors.positive, size: 22),
                   const SizedBox(width: 10),
                   Text(l.allSettled,
                       style: TextStyle(

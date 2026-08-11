@@ -10,6 +10,76 @@ import '../../../../services/share_service.dart';
 import '../../../../theme/app_colors.dart';
 import '../../data/group_repository.dart';
 
+/// Asks whether a new member joins past expenses or only from now on.
+Future<String?> showSplitModeDialog(
+  BuildContext context, {
+  required String groupName,
+  required int expenseCount,
+}) {
+  final l = AppLocalizations.of(context)!;
+  return showDialog<String>(
+    context: context,
+    barrierDismissible: false,
+    builder: (ctx) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          l.splitExpenses,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                l.groupExpensesCount(groupName, expenseCount),
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                l.howShouldNewMemberJoin,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 14),
+              _SplitModeOption(
+                icon: Icons.history,
+                color: AppColors.primary,
+                title: l.splitAll,
+                subtitle: l.includePastExpenses,
+                onTap: () => Navigator.pop(ctx, 'full'),
+              ),
+              const SizedBox(height: 8),
+              _SplitModeOption(
+                icon: Icons.arrow_forward,
+                color: AppColors.secondary,
+                title: l.fromNowOn,
+                subtitle: l.notChargedPast,
+                onTap: () => Navigator.pop(ctx, 'forward'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, null),
+            child: Text(
+              l.cancel,
+              style: const TextStyle(color: AppColors.textSecondary),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 /// Full invite flow: optional split-mode question → invite sheet.
 Future<void> openInviteFlow(
   BuildContext context, {
@@ -30,80 +100,10 @@ Future<void> openInviteFlow(
 
   if (expenseCount > 0) {
     if (!context.mounted) return;
-    final choice = await showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) {
-        final ll = AppLocalizations.of(ctx)!;
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(
-            ll.splitExpenses,
-            style: const TextStyle(fontWeight: FontWeight.w700),
-            textAlign: TextAlign.right,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                ll.howShouldNewMemberJoin,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.right,
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton(
-                onPressed: () => Navigator.pop(ctx, 'full'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  alignment: Alignment.centerRight,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(ll.splitAll,
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
-                    Text(ll.includePastExpenses,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.textSecondary)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton(
-                onPressed: () => Navigator.pop(ctx, 'forward'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  alignment: Alignment.centerRight,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(ll.fromNowOn,
-                        style: const TextStyle(fontWeight: FontWeight.w700)),
-                    Text(ll.notChargedPast,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.textSecondary)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, null),
-              child: Text(
-                ll.cancel,
-                style: const TextStyle(color: AppColors.textSecondary),
-              ),
-            ),
-          ],
-        );
-      },
+    final choice = await showSplitModeDialog(
+      context,
+      groupName: groupName,
+      expenseCount: expenseCount,
     );
     if (choice == null || !context.mounted) return;
     splitMode = choice;
@@ -571,99 +571,167 @@ class _InviteSheetState extends State<InviteSheet> {
             ),
           ),
 
-          // Collapsed: guest (admin)
-          if (widget.isAdmin)
-            Theme(
-              data:
-                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                tilePadding: EdgeInsets.zero,
-                childrenPadding: const EdgeInsets.only(bottom: 8),
-                title: Text(
-                  l.addGuestOption,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+          // Guest without app — always visible for admins
+          if (widget.isAdmin) ...[
+            const Divider(height: 28),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l.addGuestTitle,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                subtitle: Text(
-                  l.guestNoApp,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                children: [
-                  if (_addedGuests.isNotEmpty) ...[
-                    ..._addedGuests.map(
-                      (name) => Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Row(
+                IconButton(
+                  tooltip: l.guestExplainTitle,
+                  onPressed: () => showDialog<void>(
+                    context: context,
+                    builder: (ctx) {
+                      final ll = AppLocalizations.of(ctx)!;
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        title: Row(
                           children: [
-                            const Icon(
-                              Icons.check_circle_outline,
-                              size: 16,
-                              color: Colors.green,
-                            ),
+                            const Icon(Icons.person_outline,
+                                color: Colors.purple, size: 20),
                             const SizedBox(width: 8),
-                            Text(
-                              name,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
+                            Expanded(
+                              child: Text(
+                                ll.guestExplainTitle,
+                                style: const TextStyle(fontSize: 15),
                               ),
                             ),
                           ],
                         ),
+                        content: Text(
+                          ll.guestExplainBody,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            height: 1.6,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: Text(ll.gotIt),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  icon: const Icon(Icons.info_outline, size: 20),
+                  color: AppColors.textSecondary,
+                ),
+              ],
+            ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.purple.withValues(alpha: 0.07),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.purple.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.info_outline, size: 14, color: Colors.purple),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l.guestNoApp,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.purple,
+                        height: 1.4,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                  ],
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _guestNameController,
-                          textCapitalization: TextCapitalization.words,
-                          decoration: InputDecoration(
-                            hintText: l.addGuestHint,
-                            filled: true,
-                            fillColor: AppColors.surfaceVariant,
-                            prefixIcon:
-                                const Icon(Icons.person_outline, size: 18),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 12,
-                            ),
-                          ),
-                          onSubmitted: (_) => _addGuest(),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      _addingGuest
-                          ? const SizedBox(
-                              width: 42,
-                              height: 42,
-                              child:
-                                  CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : IconButton.filled(
-                              onPressed: _addGuest,
-                              icon: const Icon(Icons.person_add),
-                              style: IconButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
-                              ),
-                            ),
-                    ],
                   ),
                 ],
               ),
             ),
+            if (_addedGuests.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              ..._addedGuests.map(
+                (name) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle_outline,
+                        size: 16,
+                        color: Colors.green,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _guestNameController,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      hintText: l.addGuestHint,
+                      filled: true,
+                      fillColor: AppColors.surfaceVariant,
+                      prefixIcon: const Icon(Icons.person_outline, size: 18),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                    ),
+                    onSubmitted: (_) => _addGuest(),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                _addingGuest
+                    ? const SizedBox(
+                        width: 42,
+                        height: 42,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : IconButton.filled(
+                        onPressed: _addGuest,
+                        icon: const Icon(Icons.person_add),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.purple,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l.tipAddGuestNoApp,
+              style: const TextStyle(
+                fontSize: 12,
+                height: 1.35,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
 
           const SizedBox(height: 8),
           TextButton(
@@ -671,6 +739,81 @@ class _InviteSheetState extends State<InviteSheet> {
             child: Text(l.doneBtn),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SplitModeOption extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _SplitModeOption({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Ink(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withValues(alpha: 0.25)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: color, size: 18),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: color,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_left, color: color, size: 18),
+            ],
+          ),
+        ),
       ),
     );
   }

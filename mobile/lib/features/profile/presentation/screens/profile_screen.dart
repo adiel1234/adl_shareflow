@@ -258,7 +258,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    auth.isPro ? '✨ Pro' : 'Free',
+                    auth.isPro ? 'Pro' : 'Free',
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -308,14 +308,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
           const SizedBox(height: 20),
 
-          // About / Contact / ADL section
-          _SectionHeader(label: l.adlProjects),
-          _SettingsTile(
-            icon: Icons.business_outlined,
-            title: l.adlProjects,
-            subtitle: l.adlProjectsSubtitle,
-            onTap: () => _launchUrl('https://adlprojects.co.il'),
-          ),
           _SettingsTile(
             icon: Icons.lightbulb_outline,
             title: l.suggestions,
@@ -383,7 +375,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 gradient: AppColors.brandGradient,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Text('💸', style: TextStyle(fontSize: 40)),
+              child: const Icon(Icons.account_balance_wallet_rounded,
+                  color: Colors.white, size: 40),
             ),
             const SizedBox(height: 16),
             Text(
@@ -484,7 +477,7 @@ void _pickCurrency(BuildContext context, WidgetRef ref, String current) {
                   ),
                 ),
                 title: Text(
-                  '${c.$1} — ${c.$3}',
+                  '${c.$1} · ${c.$3}',
                   style: TextStyle(
                     fontWeight:
                         isSelected ? FontWeight.w700 : FontWeight.w500,
@@ -678,7 +671,7 @@ class _ProPlanBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Text('✨', style: TextStyle(fontSize: 24)),
+          const Icon(Icons.star_rounded, color: Colors.white, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

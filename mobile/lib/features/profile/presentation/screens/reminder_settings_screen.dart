@@ -180,7 +180,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                         subtitle: Text(
                           _preferredHour != null
                               ? 'תזכורות ישלחו בשעה ${_preferredHour.toString().padLeft(2, "0")}:00'
-                              : 'ללא העדפה — ישלח בכל שעה',
+                              : 'ללא העדפה, ישלח בכל שעה',
                           style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 12),

@@ -45,6 +45,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get dontHaveAccount => 'אין לך חשבון?';
 
   @override
+  String get loginRegisterFirstHint =>
+      'אין לך משתמש עדיין? קודם הירשמו לאפליקציה, ואז תוכלו להתחבר.';
+
+  @override
   String get alreadyHaveAccount => 'כבר יש לך חשבון?';
 
   @override
@@ -269,7 +273,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get closeGroup => 'סגור קבוצה';
 
   @override
-  String get closeGroupShortHint => 'עוצר הוצאות חדשות — לא מסדיר חובות';
+  String get closeGroupShortHint => 'עוצר הוצאות חדשות, לא מסדיר חובות';
 
   @override
   String get groupClosedSuccess => 'הקבוצה נסגרה בהצלחה 🔒';
@@ -449,7 +453,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get owesYouLabel => 'חייבים לך';
 
   @override
-  String get balanceSettled => 'מסודר ✅';
+  String get balanceSettled => 'מסודר';
 
   @override
   String get owesLabel => 'חייב';
@@ -515,7 +519,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get groupNameRequired => 'נדרש שם לקבוצה';
 
   @override
-  String get groupDescription => 'תיאור (אופציונלי)';
+  String get groupDescription => 'תיאור';
 
   @override
   String get groupDescriptionHint => 'הוסף תיאור קצר...';
@@ -570,7 +574,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get bannerFreeSubtitle =>
-      'עד 7 משתתפים ו-7 ימים ללא עלות. אחרי מכן — או מעל 7 חברים — תידרש הפעלה בתשלום.';
+      'עד 7 משתתפים ו-7 ימים ללא עלות. אחרי מכן, או מעל 7 חברים, תידרש הפעלה בתשלום.';
 
   @override
   String get justNow => 'עכשיו';
@@ -756,13 +760,13 @@ class AppLocalizationsHe extends AppLocalizations {
       'בשלב הביתא ההפעלה מתבצעת ידנית על ידי המנהל. תשלום ישיר יתווסף בגרסה הבאה.';
 
   @override
-  String get extendedSuccess => 'הקבוצה הוארכה בהצלחה 🎉';
+  String get extendedSuccess => 'הקבוצה הוארכה בהצלחה';
 
   @override
-  String get renewedSuccess => 'הקבוצה חודשה בהצלחה 🎉';
+  String get renewedSuccess => 'הקבוצה חודשה בהצלחה';
 
   @override
-  String get activatedSuccess => 'הקבוצה הופעלה בהצלחה 🎉';
+  String get activatedSuccess => 'הקבוצה הופעלה בהצלחה';
 
   @override
   String get errorTryAgain => 'שגיאה - נסה שוב';
@@ -896,7 +900,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get sendResetCode => 'שלח קוד למייל';
 
   @override
-  String get resetCodeSent => 'אם המייל רשום במערכת — נשלח אליו קוד איפוס';
+  String get resetCodeSent => 'אם המייל רשום במערכת, נשלח אליו קוד איפוס';
 
   @override
   String get enterResetCode => 'קוד מהמייל';
@@ -969,7 +973,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get costPerParticipant => 'עלות לכל משתתף';
 
   @override
-  String get requiredTransfers => '💸 העברות נדרשות';
+  String get requiredTransfers => 'העברות נדרשות';
 
   @override
   String get allSettled => 'הכל מסודר! אין העברות נדרשות';
@@ -1176,17 +1180,17 @@ class AppLocalizationsHe extends AppLocalizations {
   String get closeGroupAfterSummary => 'סגור את הקבוצה';
 
   @override
-  String get settleDebtsOnBalances => 'להסדרת חובות — חזרה לטאב חשבון';
+  String get settleDebtsOnBalances => 'להסדרת חובות: חזרה לטאב חשבון';
 
   @override
   String get settleDebtsHint =>
-      'כאן רואים את הסיכום. כדי לשלם או לאשר קבלה — חזרו לטאב «חשבון».';
+      'כאן רואים את הסיכום. כדי לשלם או לאשר קבלה, חזרו לטאב חשבון.';
 
   @override
   String get unsettledDebtsWarning => 'עדיין יש חובות פתוחים. לסגור בכל זאת?';
 
   @override
-  String get wizardNext => 'הבא — סגירה';
+  String get wizardNext => 'הבא: סגירה';
 
   @override
   String get wizardBack => 'הקודם';
@@ -1200,7 +1204,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get yesConfirm => 'כן';
 
   @override
-  String get paidSendForApproval => 'שילמתי — שלח לאישור';
+  String get paidSendForApproval => 'שילמתי, שלח לאישור';
 
   @override
   String get paidSendForApprovalHint =>
@@ -1212,7 +1216,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get periodSettleHint =>
-      'יוצר דוח לחברים — לא מסמן חובות כשולמו אוטומטית.';
+      'יוצר דוח לחברים. לא מסמן חובות כשולמו אוטומטית.';
 
   @override
   String get shareGuestDebtWhatsApp => 'שתף תזכורת ב-WhatsApp';
@@ -1310,7 +1314,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get paymentMethodSubtitle =>
-      'Bit / PayBox / בנק — בלי זה חברים לא יוכלו לשלוח לכם כסף מהאפליקציה';
+      'Bit / PayBox / בנק. בלי זה חברים לא יוכלו לשלוח לכם כסף מהאפליקציה';
 
   @override
   String get pricingSection => 'תמחור';
@@ -1388,7 +1392,7 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get upgradedSuccess => 'התוכנית שודרגה בהצלחה 🎉';
+  String get upgradedSuccess => 'התוכנית שודרגה בהצלחה';
 
   @override
   String get errorUpgradingTier => 'שגיאה בשדרוג התוכנית';
@@ -1407,7 +1411,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get automaticPeriodicDesc =>
-      'דוח בטאב «חשבון» לפי תדירות — לא משלם חובות אוטומטית';
+      'דוח בטאב חשבון לפי תדירות. לא משלם חובות אוטומטית';
 
   @override
   String get settlementFrequency => 'תדירות התחשבנות';
@@ -1584,7 +1588,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipScanPrimary =>
-      'מומלץ לסרוק קבלה — ממלא סכום ותיאור אוטומטית. אפשר גם לצרף תמונה לצפייה בלבד.';
+      'מומלץ לסרוק קבלה: ממלא סכום ותיאור אוטומטית. אפשר גם לצרף תמונה לצפייה בלבד.';
 
   @override
   String get transferPendingBadge => 'ממתין לאישור - אין פעולה נוספת';
@@ -1730,7 +1734,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get guestAddedSuccess => 'האורח נוסף לקבוצה';
 
   @override
-  String get guestLabel => '👤 אורח';
+  String get guestLabel => 'אורח';
 
   @override
   String get guestExplainTitle => 'מה זה אורח?';
@@ -1757,7 +1761,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get guestReminderAction => 'הוסף אורח';
 
   @override
-  String get tipInvitePrimary => 'שלחו קישור — החבר מצטרף דרך האפליקציה';
+  String get tipInvitePrimary => 'שלחו קישור. החבר מצטרף דרך האפליקציה';
 
   @override
   String get showQrAndCode => 'הצג קוד QR וקוד להקלדה';
@@ -1770,7 +1774,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipMembersActions =>
-      'הזמן עם קישור — זה הנתיב הרגיל. אורח רק למי שבלי אפליקציה.';
+      'הזמן עם קישור: זה הנתיב הרגיל. אורח רק למי שבלי אפליקציה.';
 
   @override
   String get inviteViaApp => 'הזמן עם קישור';
@@ -1854,11 +1858,11 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipCreateGroupNoCharge =>
-      'רק יוצרים את הקבוצה עכשיו. התשלום — אם בכלל — רק בהפעלה בהמשך.';
+      'רק יוצרים את הקבוצה עכשיו. התשלום, אם בכלל, רק בהפעלה בהמשך.';
 
   @override
   String get tipEmptyExpensesInvite =>
-      'התחילו בהזמנת חברים (אייקון האדם למעלה) — לבד אין עם מי להתחלק.';
+      'התחילו בהזמנת חברים (אייקון האדם למעלה). לבד אין עם מי להתחלק.';
 
   @override
   String get tipBalancesBeforeDebts =>
@@ -1866,22 +1870,22 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipParticipantsEqualSplit =>
-      'סמנו רק מי באמת חלק בהוצאה — הסכום מתחלק שווה בין המסומנים.';
+      'סמנו רק מי באמת חלק בהוצאה. הסכום מתחלק שווה בין המסומנים.';
 
   @override
   String get tipJoinWithCode =>
-      'קוד ההזמנה מגיע מחבר שכבר יצר קבוצה — או מסריקת ה-QR שלו.';
+      'קוד ההזמנה מגיע מחבר שכבר יצר קבוצה, או מסריקת ה-QR שלו.';
 
   @override
   String get tipScanVsAttach =>
       'הסורק למעלה ממלא סכום ותיאור אוטומטית. «צרף קבלה» רק שומר תמונה לצפייה.';
 
   @override
-  String get tipWhatsAppInvite => 'נפתח WhatsApp — בחרו למי לשלוח.';
+  String get tipWhatsAppInvite => 'נפתח WhatsApp. בחרו למי לשלוח.';
 
   @override
   String get tipAddGuestNoApp =>
-      'רק אם אין להם אפליקציה — אתם מנהלים בשמם עד שירשמו.';
+      'רק אם אין להם אפליקציה. אתם מנהלים בשמם עד שירשמו.';
 
   @override
   String get tipMemberBalanceLegend =>
@@ -1889,7 +1893,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipPeriodicSettlement =>
-      'בסליקה תקופתית סוגרים תקופה בטאב «חשבון» ושולחים דוח — בלי תשלום אוטומטי של חובות.';
+      'בסליקה תקופתית סוגרים תקופה בטאב חשבון ושולחים דוח, בלי תשלום אוטומטי של חובות.';
 
   @override
   String get markGuestPaidShort => 'סמן שאורח שילם';
@@ -1903,5 +1907,54 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get attachReceiptSubtitle =>
-      'צילום או גלריה — לצפייה בלבד, ללא מילוי אוטומטי';
+      'צילום או גלריה, לצפייה בלבד, ללא מילוי אוטומטי';
+
+  @override
+  String get coachSkip => 'דלג';
+
+  @override
+  String get coachNext => 'הבא';
+
+  @override
+  String get coachDone => 'סיום';
+
+  @override
+  String get coachCreateGroupTitle => 'יצירת קבוצה';
+
+  @override
+  String get coachCreateGroupBody =>
+      'כאן יוצרים קבוצה חדשה לחלוקת הוצאות עם חברים.';
+
+  @override
+  String get coachJoinGroupTitle => 'הצטרפות לקבוצה';
+
+  @override
+  String get coachJoinGroupBody =>
+      'קיבלתם קוד הזמנה מחבר? לחצו כאן והקלידו את הקוד.';
+
+  @override
+  String get coachScanQrTitle => 'סריקת QR';
+
+  @override
+  String get coachScanQrBody =>
+      'אפשר גם לסרוק את קוד ה-QR של החבר במקום להקליד.';
+
+  @override
+  String get coachNotificationsTitle => 'התראות';
+
+  @override
+  String get coachNotificationsBody =>
+      'כאן מופיעות הזמנות, עדכוני הוצאות ותזכורות תשלום.';
+
+  @override
+  String get coachProfileTitle => 'פרופיל';
+
+  @override
+  String get coachProfileBody => 'כאן מעדכנים פרטי תשלום, שפה והגדרות אישיות.';
+
+  @override
+  String get fieldRequiredBadge => 'חובה';
+
+  @override
+  String get fieldOptionalBadge => 'רשות';
 }

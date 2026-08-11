@@ -11,7 +11,16 @@ import 'create_group_screen.dart';
 import 'qr_scanner_screen.dart';
 
 class GroupsScreen extends ConsumerStatefulWidget {
-  const GroupsScreen({super.key});
+  final GlobalKey? coachScanKey;
+  final GlobalKey? coachJoinKey;
+  final GlobalKey? coachCreateKey;
+
+  const GroupsScreen({
+    super.key,
+    this.coachScanKey,
+    this.coachJoinKey,
+    this.coachCreateKey,
+  });
 
   @override
   ConsumerState<GroupsScreen> createState() => _GroupsScreenState();
@@ -87,18 +96,21 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
             ),
             actions: [
               IconButton(
+                key: widget.coachScanKey,
                 icon: const Icon(Icons.qr_code_scanner,
                     color: AppColors.primary, size: 26),
                 tooltip: l.scanQrCode,
                 onPressed: () => _scanQr(context, ref),
               ),
               IconButton(
+                key: widget.coachJoinKey,
                 icon: const Icon(Icons.group_add_outlined,
                     color: AppColors.primary, size: 26),
                 tooltip: l.joinGroup,
                 onPressed: () => _showJoinSheet(context, ref),
               ),
               IconButton(
+                key: widget.coachCreateKey,
                 icon: const Icon(Icons.add, color: AppColors.primary, size: 28),
                 tooltip: l.createGroup,
                 onPressed: () => Navigator.push(

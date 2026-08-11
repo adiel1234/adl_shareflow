@@ -7,6 +7,7 @@ import '../../../../providers/auth_provider.dart';
 import '../../../../providers/notifications_provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../widgets/home_coach.dart';
 
 final _navIndexProvider = StateProvider<int>((_) => 0);
 
@@ -20,27 +21,92 @@ final profileIncompleteProvider = Provider<bool>((ref) {
   return !hasPhone && !hasBank;
 });
 
-class MainShell extends ConsumerWidget {
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
-  static const _screens = [
-    GroupsScreen(),
-    NotificationsScreen(),
-    ProfileScreen(),
-  ];
+  @override
+  ConsumerState<MainShell> createState() => _MainShellState();
+}
+
+class _MainShellState extends ConsumerState<MainShell> {
+  final _scanKey = GlobalKey();
+  final _joinKey = GlobalKey();
+  final _createKey = GlobalKey();
+  final _notifKey = GlobalKey();
+  final _profileKey = GlobalKey();
+  bool _coachStarted = false;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowCoach());
+  }
+
+  Future<void> _maybeShowCoach() async {
+    if (_coachStarted || !mounted) return;
+    _coachStarted = true;
+    if (await isHomeCoachDone()) return;
+    // Let the first frame settle so GlobalKeys have render boxes.
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+    if (!mounted) return;
+
+    final l = AppLocalizations.of(context)!;
+    await showHomeCoach(
+      context,
+      targets: [
+        CoachTarget(
+          key: _createKey,
+          title: l.coachCreateGroupTitle,
+          body: l.coachCreateGroupBody,
+        ),
+        CoachTarget(
+          key: _joinKey,
+          title: l.coachJoinGroupTitle,
+          body: l.coachJoinGroupBody,
+        ),
+        CoachTarget(
+          key: _scanKey,
+          title: l.coachScanQrTitle,
+          body: l.coachScanQrBody,
+        ),
+        CoachTarget(
+          key: _notifKey,
+          title: l.coachNotificationsTitle,
+          body: l.coachNotificationsBody,
+        ),
+        CoachTarget(
+          key: _profileKey,
+          title: l.coachProfileTitle,
+          body: l.coachProfileBody,
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final index = ref.watch(_navIndexProvider);
     final unread = ref.watch(unreadCountProvider);
     final profileIncomplete = ref.watch(profileIncompleteProvider);
 
+    final screens = [
+      GroupsScreen(
+        coachScanKey: _scanKey,
+        coachJoinKey: _joinKey,
+        coachCreateKey: _createKey,
+      ),
+      const NotificationsScreen(),
+      const ProfileScreen(),
+    ];
+
     return Scaffold(
-      body: IndexedStack(index: index, children: _screens),
+      body: IndexedStack(index: index, children: screens),
       bottomNavigationBar: _BottomNav(
         currentIndex: index,
         unreadCount: unread,
         profileIncomplete: profileIncomplete,
+        notifKey: _notifKey,
+        profileKey: _profileKey,
         onTap: (i) => ref.read(_navIndexProvider.notifier).state = i,
       ),
     );
@@ -51,12 +117,16 @@ class _BottomNav extends StatelessWidget {
   final int currentIndex;
   final int unreadCount;
   final bool profileIncomplete;
+  final GlobalKey notifKey;
+  final GlobalKey profileKey;
   final ValueChanged<int> onTap;
 
   const _BottomNav({
     required this.currentIndex,
     required this.unreadCount,
     required this.profileIncomplete,
+    required this.notifKey,
+    required this.profileKey,
     required this.onTap,
   });
 
@@ -81,6 +151,7 @@ class _BottomNav extends StatelessWidget {
                 onTap: () => onTap(0),
               ),
               _NavItemWithBadge(
+                key: notifKey,
                 icon: Icons.notifications_outlined,
                 activeIcon: Icons.notifications,
                 label: l.notifications,
@@ -89,6 +160,7 @@ class _BottomNav extends StatelessWidget {
                 onTap: () => onTap(1),
               ),
               _NavItemWithDot(
+                key: profileKey,
                 icon: Icons.person_outline,
                 activeIcon: Icons.person,
                 label: l.profile,
@@ -166,6 +238,7 @@ class _NavItemWithDot extends StatelessWidget {
   final VoidCallback onTap;
 
   const _NavItemWithDot({
+    super.key,
     required this.icon,
     required this.activeIcon,
     required this.label,
@@ -240,6 +313,7 @@ class _NavItemWithBadge extends StatelessWidget {
   final VoidCallback onTap;
 
   const _NavItemWithBadge({
+    super.key,
     required this.icon,
     required this.activeIcon,
     required this.label,

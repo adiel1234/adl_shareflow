@@ -144,7 +144,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         SnackBar(
           content: Text(
             result.amount != null
-                ? 'קבלה נסרקה — סכום: ${result.amount} ₪'
+                ? 'קבלה נסרקה. סכום: ${result.amount} ₪'
                 : 'הקבלה נסרקה, בדוק את הנתונים',
           ),
           backgroundColor: AppColors.positive,

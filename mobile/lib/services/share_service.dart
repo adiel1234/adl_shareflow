@@ -98,7 +98,7 @@ $inviteUrl
     required String summary,
   }) async {
     final text = '''
-סיכום יתרות — $groupName 📊
+סיכום יתרות: $groupName
 
 $summary
 
@@ -117,7 +117,7 @@ $summary
     required String paidBy,
   }) async {
     final text =
-        '$paidBy שילם $amount $currency עבור "$expenseTitle" בקבוצה $groupName — ADL ShareFlow';
+        '$paidBy שילם $amount $currency עבור "$expenseTitle" בקבוצה $groupName (ADL ShareFlow)';
     await _share(text);
   }
 

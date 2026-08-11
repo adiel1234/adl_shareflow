@@ -45,6 +45,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dontHaveAccount => 'Don\'t have an account?';
 
   @override
+  String get loginRegisterFirstHint =>
+      'Don\'t have an account yet? Register first, then you can sign in.';
+
+  @override
   String get alreadyHaveAccount => 'Already have an account?';
 
   @override
@@ -270,8 +274,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closeGroup => 'Close Group';
 
   @override
-  String get closeGroupShortHint =>
-      'Stops new expenses — does not settle debts';
+  String get closeGroupShortHint => 'Stops new expenses, does not settle debts';
 
   @override
   String get groupClosedSuccess => 'Group closed successfully 🔒';
@@ -451,7 +454,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get owesYouLabel => 'Others owe you';
 
   @override
-  String get balanceSettled => 'Settled ✅';
+  String get balanceSettled => 'Settled';
 
   @override
   String get owesLabel => 'Owes';
@@ -518,7 +521,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupNameRequired => 'Group name is required';
 
   @override
-  String get groupDescription => 'Description (optional)';
+  String get groupDescription => 'Description';
 
   @override
   String get groupDescriptionHint => 'Add a short description...';
@@ -573,7 +576,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bannerFreeSubtitle =>
-      'Up to 7 participants and 7 days free. After that — or above 7 members — paid activation is required.';
+      'Up to 7 participants and 7 days free. After that, or above 7 members, paid activation is required.';
 
   @override
   String get justNow => 'now';
@@ -760,13 +763,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'During beta, activation is done manually by the admin. Direct payment coming soon.';
 
   @override
-  String get extendedSuccess => 'Group extended successfully 🎉';
+  String get extendedSuccess => 'Group extended successfully';
 
   @override
-  String get renewedSuccess => 'Group renewed successfully 🎉';
+  String get renewedSuccess => 'Group renewed successfully';
 
   @override
-  String get activatedSuccess => 'Group activated successfully 🎉';
+  String get activatedSuccess => 'Group activated successfully';
 
   @override
   String get errorTryAgain => 'Error - try again';
@@ -1186,18 +1189,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closeGroupAfterSummary => 'Close group';
 
   @override
-  String get settleDebtsOnBalances => 'Settle debts — back to Balances tab';
+  String get settleDebtsOnBalances => 'Settle debts: back to Balances tab';
 
   @override
   String get settleDebtsHint =>
-      'This is the summary. To pay or confirm receipt — go back to the Balances tab.';
+      'This is the summary. To pay or confirm receipt, go back to the Balances tab.';
 
   @override
   String get unsettledDebtsWarning =>
       'There are still open debts. Close anyway?';
 
   @override
-  String get wizardNext => 'Next — close';
+  String get wizardNext => 'Next: close';
 
   @override
   String get wizardBack => 'Previous';
@@ -1211,7 +1214,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yesConfirm => 'Yes';
 
   @override
-  String get paidSendForApproval => 'I paid — send for approval';
+  String get paidSendForApproval => 'I paid, send for approval';
 
   @override
   String get paidSendForApprovalHint =>
@@ -1223,7 +1226,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get periodSettleHint =>
-      'Creates a report for members — does not auto-mark debts as paid.';
+      'Creates a report for members. Does not auto-mark debts as paid.';
 
   @override
   String get shareGuestDebtWhatsApp => 'Share reminder via WhatsApp';
@@ -1321,7 +1324,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paymentMethodSubtitle =>
-      'Bit / PayBox / bank — without this, friends can\'t send you money from the app';
+      'Bit / PayBox / bank. Without this, friends can\'t send you money from the app';
 
   @override
   String get pricingSection => 'Pricing';
@@ -1399,7 +1402,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get upgradedSuccess => 'Plan upgraded successfully 🎉';
+  String get upgradedSuccess => 'Plan upgraded successfully';
 
   @override
   String get errorUpgradingTier => 'Error upgrading plan';
@@ -1418,7 +1421,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get automaticPeriodicDesc =>
-      'Report on Balances by schedule — does not auto-pay debts';
+      'Report on Balances by schedule. Does not auto-pay debts';
 
   @override
   String get settlementFrequency => 'Settlement Frequency';
@@ -1743,7 +1746,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guestAddedSuccess => 'Guest added to group';
 
   @override
-  String get guestLabel => '👤 Guest';
+  String get guestLabel => 'Guest';
 
   @override
   String get guestExplainTitle => 'What is a guest?';
@@ -1770,7 +1773,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guestReminderAction => 'Add guest';
 
   @override
-  String get tipInvitePrimary => 'Send a link — they join through the app';
+  String get tipInvitePrimary => 'Send a link. They join through the app';
 
   @override
   String get showQrAndCode => 'Show QR and invite code';
@@ -1783,7 +1786,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipMembersActions =>
-      'Invite with a link — the usual path. Guests only if they don\'t have the app.';
+      'Invite with a link: the usual path. Guests only if they don\'t have the app.';
 
   @override
   String get inviteViaApp => 'Invite with a link';
@@ -1867,11 +1870,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipCreateGroupNoCharge =>
-      'You only create the group now. Payment — if any — happens later at activation.';
+      'You only create the group now. Payment, if any, happens later at activation.';
 
   @override
   String get tipEmptyExpensesInvite =>
-      'Start by inviting friends (person icon above) — alone there\'s no one to split with.';
+      'Start by inviting friends (person icon above). Alone there\'s no one to split with.';
 
   @override
   String get tipBalancesBeforeDebts =>
@@ -1879,22 +1882,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipParticipantsEqualSplit =>
-      'Select only who truly shared this expense — the amount splits equally among selected.';
+      'Select only who truly shared this expense. The amount splits equally among selected.';
 
   @override
   String get tipJoinWithCode =>
-      'The invite code comes from a friend who already created a group — or from scanning their QR.';
+      'The invite code comes from a friend who already created a group, or from scanning their QR.';
 
   @override
   String get tipScanVsAttach =>
       'The scanner above auto-fills amount and title. «Attach receipt» only saves an image to view.';
 
   @override
-  String get tipWhatsAppInvite => 'WhatsApp opens — pick who to send to.';
+  String get tipWhatsAppInvite => 'WhatsApp opens. Pick who to send to.';
 
   @override
   String get tipAddGuestNoApp =>
-      'Only if they don\'t have the app — you manage for them until they sign up.';
+      'Only if they don\'t have the app. You manage for them until they sign up.';
 
   @override
   String get tipMemberBalanceLegend =>
@@ -1902,7 +1905,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipPeriodicSettlement =>
-      'With periodic settlement you close a period on Balances and send a report — without auto-paying debts.';
+      'With periodic settlement you close a period on Balances and send a report, without auto-paying debts.';
 
   @override
   String get markGuestPaidShort => 'Mark guest paid';
@@ -1916,5 +1919,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get attachReceiptSubtitle =>
-      'Camera or gallery — view only, no auto-fill';
+      'Camera or gallery, view only, no auto-fill';
+
+  @override
+  String get coachSkip => 'Skip';
+
+  @override
+  String get coachNext => 'Next';
+
+  @override
+  String get coachDone => 'Done';
+
+  @override
+  String get coachCreateGroupTitle => 'Create a group';
+
+  @override
+  String get coachCreateGroupBody =>
+      'Tap here to start a new group for splitting expenses with friends.';
+
+  @override
+  String get coachJoinGroupTitle => 'Join a group';
+
+  @override
+  String get coachJoinGroupBody =>
+      'Got an invite code from a friend? Tap here and enter it.';
+
+  @override
+  String get coachScanQrTitle => 'Scan QR';
+
+  @override
+  String get coachScanQrBody =>
+      'You can also scan a friend\'s QR code instead of typing.';
+
+  @override
+  String get coachNotificationsTitle => 'Notifications';
+
+  @override
+  String get coachNotificationsBody =>
+      'Invites, expense updates, and payment reminders show up here.';
+
+  @override
+  String get coachProfileTitle => 'Profile';
+
+  @override
+  String get coachProfileBody =>
+      'Update payment details, language, and personal settings here.';
+
+  @override
+  String get fieldRequiredBadge => 'Required';
+
+  @override
+  String get fieldOptionalBadge => 'Optional';
 }

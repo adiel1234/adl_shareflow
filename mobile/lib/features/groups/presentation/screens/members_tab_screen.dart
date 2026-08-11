@@ -641,67 +641,6 @@ class MembersTabScreen extends ConsumerWidget {
   }
 }
 
-Future<String?> _showGuestSplitModeDialog(
-  BuildContext context, {
-  required String groupName,
-  required int expenseCount,
-}) {
-  final l = AppLocalizations.of(context)!;
-  return showDialog<String>(
-    context: context,
-    barrierDismissible: false,
-    builder: (ctx) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text(
-        l.splitExpenses,
-        style: const TextStyle(fontWeight: FontWeight.w700),
-        textAlign: TextAlign.right,
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l.groupExpensesCount(groupName, expenseCount),
-            style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
-            textAlign: TextAlign.right,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            l.howShouldNewMemberJoin,
-            style: const TextStyle(fontWeight: FontWeight.w600),
-            textAlign: TextAlign.right,
-          ),
-        ],
-      ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        _GuestSplitOptionButton(
-          icon: Icons.history,
-          color: AppColors.primary,
-          title: l.splitAll,
-          subtitle: l.includePastExpenses,
-          onTap: () => Navigator.pop(ctx, 'full'),
-        ),
-        const SizedBox(height: 8),
-        _GuestSplitOptionButton(
-          icon: Icons.arrow_forward,
-          color: AppColors.secondary,
-          title: l.fromNowOn,
-          subtitle: l.notChargedPast,
-          onTap: () => Navigator.pop(ctx, 'forward'),
-        ),
-        const SizedBox(height: 4),
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, null),
-          child: Text(l.cancel,
-              style: const TextStyle(color: AppColors.textSecondary)),
-        ),
-      ],
-    ),
-  );
-}
-
 Future<void> _showAddGuestSheet(
   BuildContext context,
   WidgetRef ref,
@@ -718,7 +657,8 @@ Future<void> _showAddGuestSheet(
   } catch (_) {}
 
   if (expenseCount > 0) {
-    final chosen = await _showGuestSplitModeDialog(
+    if (!context.mounted) return;
+    final chosen = await showSplitModeDialog(
       context,
       groupName: group.name,
       expenseCount: expenseCount,
@@ -726,6 +666,8 @@ Future<void> _showAddGuestSheet(
     if (chosen == null) return;
     splitMode = chosen;
   }
+
+  if (!context.mounted) return;
 
   final nameCtrl = TextEditingController();
   final nameFocus = FocusNode();
@@ -873,66 +815,6 @@ Future<void> _showAddGuestSheet(
   scrollCtrl.dispose();
 }
 
-class _GuestSplitOptionButton extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _GuestSplitOptionButton({
-    required this.icon,
-    required this.color,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.25)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: color, size: 18),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
-                  Text(subtitle,
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.textSecondary)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 // ── Invite + guest actions (admin) ────────────────────────────────────────────
 
 class _MembersInviteActions extends ConsumerWidget {
@@ -979,14 +861,17 @@ class _MembersInviteActions extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 8),
-          OutlinedButton.icon(
+          ElevatedButton.icon(
             onPressed: () => _showAddGuestSheet(context, ref, group),
-            icon: const Icon(Icons.person_outline, size: 18),
-            label: Text(l.addGuestOption),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.textPrimary,
-              side: const BorderSide(color: AppColors.border),
-              padding: const EdgeInsets.symmetric(vertical: 12),
+            icon: const Icon(Icons.person_outline, size: 20),
+            label: Text(
+              l.addGuestTitle,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.purple,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
               ),
@@ -994,7 +879,7 @@ class _MembersInviteActions extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            l.tipMembersActions,
+            l.tipAddGuestNoApp,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 12,

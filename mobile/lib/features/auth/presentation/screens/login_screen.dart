@@ -174,16 +174,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 6),
                     Text(
                       l.loginSubtitle,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 15,
                         color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Text(
+                        l.loginRegisterFirstHint,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          height: 1.4,
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
 
               // Form
               Form(
@@ -291,20 +316,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
               const SizedBox(height: 24),
 
-              // Register link
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    l.dontHaveAccount,
-                    style: const TextStyle(color: AppColors.textSecondary),
+              // Register CTA
+              OutlinedButton(
+                onPressed: () => Navigator.pushNamed(context, '/register'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                  side: BorderSide(
+                    color: AppColors.primary.withValues(alpha: 0.45),
                   ),
-                  TextButton(
-                    onPressed: () =>
-                        Navigator.pushNamed(context, '/register'),
-                    child: Text(l.register),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                ],
+                ),
+                child: Text(
+                  '${l.dontHaveAccount} ${l.register}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                  ),
+                ),
               ),
               const SizedBox(height: 24),
             ],

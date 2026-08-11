@@ -237,7 +237,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   TextButton(
                     onPressed: _saving ? null : _skip,
                     child: const Text(
-                      'דלג — אשלים מאוחר יותר',
+                      'דלג, אשלים מאוחר יותר',
                       style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 14),
@@ -276,12 +276,13 @@ class _WelcomePage extends StatelessWidget {
               borderRadius: BorderRadius.circular(22),
             ),
             child: const Center(
-              child: Text('💸', style: TextStyle(fontSize: 44)),
+              child: Icon(Icons.account_balance_wallet_rounded,
+                  color: Colors.white, size: 44),
             ),
           ),
           const SizedBox(height: 28),
           Text(
-            'ברוך הבא${name.isNotEmpty ? ", $name" : ""}! 👋',
+            'ברוך הבא${name.isNotEmpty ? ", $name" : ""}!',
             textAlign: TextAlign.center,
             style: const TextStyle(
                 fontSize: 26, fontWeight: FontWeight.w700),
@@ -301,7 +302,7 @@ class _WelcomePage extends StatelessWidget {
           const SizedBox(height: 12),
           _FeatureRow(
               icon: '💳',
-              text: 'פרטי תשלום — Bit, PayBox, העברה בנקאית'),
+              text: 'פרטי תשלום: Bit, PayBox, העברה בנקאית'),
           const SizedBox(height: 12),
           _FeatureRow(
               icon: '⚡', text: 'חברים יוכלו לשלם לך ישירות מהאפליקציה'),
@@ -497,7 +498,7 @@ class _PaymentPage extends StatelessWidget {
 
           // Bit / PayBox
           _SectionHeader(
-              icon: '💙', title: 'Bit / PayBox — מספר טלפון'),
+              icon: '💙', title: 'Bit / PayBox: מספר טלפון'),
           const SizedBox(height: 8),
           _Field(
             controller: phoneCtrl,

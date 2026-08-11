@@ -166,7 +166,7 @@ class FcmService {
           apns = await _messaging.getAPNSToken();
         }
         if (apns == null) {
-          debugPrint('[FCM] APNs token not ready yet — will retry on refresh');
+          debugPrint('[FCM] APNs token not ready yet; will retry on refresh');
         }
       }
       final token = await _messaging.getToken();
