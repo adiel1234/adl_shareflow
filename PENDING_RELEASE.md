@@ -1,86 +1,50 @@
-# מוכנות לחנויות — גרסה `1.0.9+65`
+# גרסה `1.0.9+65` — מצב נוכחי
 
-> **עודכן:** 2026-08-21 02:15 (שעון ישראל)  
-> **ענף:** `main`  
-> **יעד build:** `1.0.9+65` (בניה אחת בסוף — אחרי deploy)
+> **עודכן:** 2026-08-21 02:20 (שעון ישראל)  
+> **ענף / HEAD:** `main` @ `bcce496`  
+> **pubspec:** `1.0.9+65`  
+> **Backend:** פרוס ב־Railway  
 
 ---
 
-## בוצע הערב / מוכן בקוד
+## מצב ייצור (כפי שהוגדר בדשבורד)
+
+| דגל | ערך נוכחי | משמעות |
+|-----|-----------|--------|
+| `PAYMENTS_ENABLED` | `false` | הפעלת קבוצות בחינם (פיילוט) |
+| `PILOT_MODE_ENABLED` | `true` | פיילוט פתוח; הרשמות → `account_mode=pilot` |
+
+הקוד מוכן לחנויות; **ההפעלה בחנויות תיעשה רק כשתהיה מוכן סופית** (אז: `PAYMENTS_ENABLED=true`, `PILOT_MODE_ENABLED=false`, בניה והעלאה).
+
+---
+
+## מה כלול ב־`+65` (כבר בשרת + בקוד)
 
 | נושא | סטטוס |
 |------|--------|
-| ניקוי נתוני הדמייה/עומס מפיילוט בייצור | ✅ נמחקו 3 חשבונות דמו + 3 קבוצות + 60 אורחים |
+| ניקוי נתוני הדמייה/עומס מהפיילוט | ✅ |
 | טעינת כל עמודי הוצאות (באג 30) | ✅ |
-| עיגול סכומים → אגורות | ✅ `currency_format.dart` + מסך תשלום |
-| חלוקה שווה עם remainder | ✅ backend |
-| FCM iOS AppDelegate | ✅ בקוד |
-| קישור אורח בהצטרפות | ✅ בקוד |
-| אנדרואיד Safe Area | ✅ |
-| סיור / howto / UX | ✅ |
-| IAP: מוצרי 5/10/25 + הודעות כשל | ✅ בקוד |
-| Google Play package name באימות | ✅ תוקן |
-| באנר בנק נראה | ✅ |
-| שגיאות join אמיתיות | ✅ |
-| סה״כ תקופתי נכון | ✅ |
-| bump `1.0.9+65` | ✅ pubspec |
+| עיגול סכומים → אגורות | ✅ |
+| חלוקה שווה עם remainder | ✅ |
+| FCM iOS / קישור אורח / Safe Area / סיורים | ✅ |
+| IAP מוכן בקוד (יופעל רק כש־`PAYMENTS_ENABLED=true`) | ✅ |
+| Deploy Railway | ✅ |
 
 ---
 
-## חובה לפני Submit לחנויות
+## לפני העלאה לחנויות (מאוחר יותר)
 
-### 1. Deploy Backend (Railway)
-אחרי `git push` לוודא ש־Railway עלה עם הקומיט החדש.
-
-### 2. דגלי ייצור
-| דגל | ערך לחנות |
-|-----|-----------|
-| `PAYMENTS_ENABLED` | `true` |
-| `PILOT_MODE_ENABLED` | `false` (משתמשי פיילוט ייחסמו עד הרשמה מחדש) |
-
-### 3. מוצרי IAP בחנויות (חובה ליצור ידנית)
-מזהים ב־`IapService.kPriceToProductId`:
-
-| מחיר | Product ID |
-|------|------------|
-| 5 | `com.adl.shareflow.tier_5` |
-| 10 | `com.adl.shareflow.tier_10` |
-| 15 | `com.adl.shareflow.tier_15` |
-| 20 | `com.adl.shareflow.tier_20` |
-| 25 | `com.adl.shareflow.tier_25` |
-| 30 | `com.adl.shareflow.tier_30` |
-| 35 | `com.adl.shareflow.tier_35` |
-| 45 | `com.adl.shareflow.tier_45` |
-| 49 | `com.adl.shareflow.tier_49` |
-| 69 | `com.adl.shareflow.tier_69` |
-| 79 | `com.adl.shareflow.tier_79` |
-| 89 | `com.adl.shareflow.tier_89` |
-
-סוג: **Consumable**.  
-סודות שרת: `APPLE_SHARED_SECRET` ✅ קיים · `GOOGLE_PLAY_CREDENTIALS_JSON` ✅ קיים.
-
-### 4. בניית אפליקציה (פעם אחת)
-```bash
-# אחרי deploy + מוצרי IAP מוכנים
-cd mobile
-flutter build ipa --release --dart-define=FLAVOR=prod
-flutter build appbundle --release --dart-define=FLAVOR=prod
-```
-
-### 5. בדיקות Smoke אחרי בילד
-- [ ] יצירת קבוצה + הזמנה + אורח + קישור אורח
-- [ ] >30 הוצאות מוצגות במלואן
-- [ ] תשלום IAP sandbox (הפעלה)
-- [ ] פוש iOS בהוצאה חדשה
-- [ ] הסדר תשלום עם אגורות (`33.33 ₪`)
-- [ ] אנדרואיד — אין חפיפת ניווט
+1. לוודא מוצרי IAP בחנויות (כולל `tier_5` / `tier_10` / `tier_25` אם חסרים)
+2. `PAYMENTS_ENABLED=true` + `PILOT_MODE_ENABLED=false` בדשבורד
+3. בניה אחת: IPA + App Bundle מ־`1.0.9+65` (או bump אם יהיו שינויים נוספים)
+4. Submit ל־App Store / Play
 
 ---
 
 ## פקודות אימות
 
 ```bash
-git rev-parse --short HEAD
 curl -s https://adlshareflow-production.up.railway.app/api/config/public
 grep '^version:' mobile/pubspec.yaml
+git rev-parse --short HEAD
 ```

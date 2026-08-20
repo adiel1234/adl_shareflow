@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 21 אוגוסט 2026 — מוכנות חנויות 1.0.9+65 (תשלומים, תיקוני כסף, FCM, אורחים)
+> עודכן לאחרונה: 21 אוגוסט 2026 — קוד 1.0.9+65 מוכן; ייצור עדיין בפיילוט (תשלומים כבויים)
 
 ---
 
@@ -355,7 +355,7 @@ flutter install --release
 | `RESEND_API_KEY` | מפתח Resend לשליחת מיילים | ✅ | מוגדר ב-Railway |
 | `RESEND_FROM_EMAIL` | כתובת שולח המיילים | ✅ | `noreply@adl-studio.com` |
 | `SMTP_SENDER_NAME` | שם השולח בכותרת המייל | 🟡 | `ADL ShareFlow` (ברירת מחדל) |
-| _(DB: `feature_flags`)_ | `PAYMENTS_ENABLED` — גביית תשלום אמיתי (לא משתנה סביבה) | 🟢 מוכן לחנויות | ניהול: Control → `/shareflow`; דורש מוצרי IAP בחנויות |
+| _(DB: `feature_flags`)_ | `PAYMENTS_ENABLED` — גביית תשלום אמיתי (לא משתנה סביבה) | 🔴 כבוי בפיילוט | `false` עד ההעלאה לחנויות; ניהול: Control → `/shareflow` |
 | _(DB: `feature_flags`)_ | `PILOT_STARTED_AT` — חותמת זמן לתחילת הפיילוט | ✅ פעיל | סינון `scope=pilot`; מתעדכן ב-`POST /api/adl/pilot/reset` |
 | _(DB: `feature_flags`)_ | `PILOT_MODE_ENABLED` — מצב פיילוט פתוח/סגור | ✅ פעיל בפיילוט | `true`/`false`; ניהול: Control → `/shareflow/pilot` |
 | _(DB: `users.account_mode`)_ | `pilot` / `active` — סוג חשבון | ✅ | הרשמה בפיילוט → `pilot`; אחרי כיבוי + הרשמה מחדש → `active` |
@@ -448,7 +448,7 @@ flutter install --release
 | Google Postmaster Tools | ✅ דומיין מאומת — ניטור מוניטין |
 | DMARC Policy | ✅ `p=quarantine` — מוגן מזיוף |
 | Guest Member Feature | ✅ הוספה / קישור / הסרה / חיוב / settlement |
-| PAYMENTS_ENABLED | 🟢 לחנויות — `true` אחרי אימות מוצרי IAP |
+| PAYMENTS_ENABLED | 🔴 כבוי (פיילוט חינמי) — מופעל רק בהעלאה לחנויות |
 | Firebase App Distribution | 🟡 מתוכנן — טרם הוגדר |
 
 ---
