@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 11 אוגוסט 2026 - פיילוט build 64: הודעת הרשאות אורח + my_role ביצירה/שכפול/פתיחה מחדש
+> עודכן לאחרונה: 20 אוגוסט 2026 - טעינת כל הוצאות + סה״כ הוצאות בכותרת הקבוצה (`total_expenses_amount`)
 
 ---
 
@@ -527,7 +527,7 @@ flutter install --release
 - **Event Summary Notifications** (build 24): גוף התראה רב-שורתי (`סה"כ` / `משתתפים` / `עלות ממוצעת`) ב-`notifications/service.py`; רשימת in-app מציגה `event_summary` במלואו.
 - **Guest Member UI**: תג סגול "אורח" + avatar סגול + כפתורי 🔗 ו-🗑️ ברשימת חברים; Banner למנהל; Sheet "קשר אורח לחשבון"; "שולם" סגול ביתרות.
 - **Close Buttons**: נוסף `IconButton(Icons.close)` ל-`_InviteSheet` ו-`_JoinGroupSheet` כדי לאפשר יציאה מפורשת מ-modal bottom sheets.
-- **Group Detail Freshness**: `GroupCard.onTap` מנווט דרך `/group-detail` עם `groupId` בלבד — `_GroupDetailLoader` שולף נתוני קבוצה עדכניים מהשרת בכל ניווט.
+- **Group Detail Freshness**: `GroupCard.onTap` מנווט דרך `/group-detail` עם `groupId` בלבד — `_GroupDetailLoader` שולף נתוני קבוצה עדכניים מהשרת בכל ניווט. `Group.to_dict()` כולל `total_expenses_amount` (סכום `converted_amount` במטבע הבסיס). הלקוח טוען את **כל** עמודי `/groups/<id>/expenses` (לא רק 30 הראשונים).
 
 ### Backend
 - **Guest Endpoints** (`groups/routes.py`):

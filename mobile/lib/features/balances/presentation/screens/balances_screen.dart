@@ -1585,10 +1585,16 @@ class _TotalExpensesCard extends ConsumerWidget {
         final count = currentExpenses.length;
 
         final currencyTotals = <String, double>{};
-        for (final e in currentExpenses) {
-          final c = e.originalCurrency;
-          final a = double.tryParse(e.originalAmount) ?? 0;
-          currencyTotals[c] = (currencyTotals[c] ?? 0) + a;
+        if (!group.isPeriodic) {
+          // Authoritative total: all expenses in group base currency.
+          currencyTotals[group.baseCurrency] =
+              double.tryParse(group.totalExpensesAmount) ?? 0;
+        } else {
+          for (final e in currentExpenses) {
+            final c = e.originalCurrency;
+            final a = double.tryParse(e.originalAmount) ?? 0;
+            currencyTotals[c] = (currencyTotals[c] ?? 0) + a;
+          }
         }
 
         return Container(

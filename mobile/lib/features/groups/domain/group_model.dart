@@ -9,6 +9,8 @@ class Group {
   final bool isClosed;
   final int memberCount;
   final int expenseCount;
+  /// Sum of all expense converted_amount values in [baseCurrency].
+  final String totalExpensesAmount;
   final String? myRole;
   final String? adminName;
   final DateTime? createdAt;
@@ -40,6 +42,7 @@ class Group {
     this.isClosed = false,
     this.memberCount = 0,
     this.expenseCount = 0,
+    this.totalExpensesAmount = '0.00',
     this.myRole,
     this.adminName,
     this.createdAt,
@@ -69,6 +72,7 @@ class Group {
         isClosed: json['is_closed'] as bool? ?? false,
         memberCount: json['member_count'] as int? ?? 0,
         expenseCount: json['expense_count'] as int? ?? 0,
+        totalExpensesAmount: json['total_expenses_amount'] as String? ?? '0.00',
         myRole: json['my_role'] as String?,
         adminName: json['admin_name'] as String?,
         createdAt: json['created_at'] != null

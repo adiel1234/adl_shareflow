@@ -186,6 +186,12 @@ class Group(db.Model):
                                   order_by='PeriodReport.period_end.desc()')
 
     def to_dict(self):
+        from decimal import Decimal, ROUND_HALF_UP
+        expenses = list(self.expenses) if self.expenses is not None else []
+        total_expenses_amount = sum(
+            (Decimal(str(e.converted_amount)) for e in expenses),
+            Decimal('0'),
+        ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         return {
             'id': self.id,
             'name': self.name,
@@ -199,7 +205,8 @@ class Group(db.Model):
             'group_type': self.group_type,
             'group_state': self.group_state,
             'invite_split_mode': self.invite_split_mode,
-            'expense_count': len(self.expenses) if self.expenses is not None else 0,
+            'expense_count': len(expenses),
+            'total_expenses_amount': str(total_expenses_amount),
             'pricing_tier': self.pricing_tier,
             'activated_at': self.activated_at.isoformat() if self.activated_at else None,
             'expiry_date': self.expiry_date.isoformat() if self.expiry_date else None,

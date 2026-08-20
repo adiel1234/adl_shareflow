@@ -65,7 +65,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
       body: NestedScrollView(
         headerSliverBuilder: (context, _) => [
           SliverAppBar(
-            expandedHeight: 130,
+            expandedHeight: 148,
             floating: false,
             pinned: true,
             backgroundColor: AppColors.primary,
@@ -100,6 +100,16 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${AppLocalizations.of(context)!.groupTotalExpenses}: '
+                              '${_formatGroupTotal(group)} ${group.baseCurrency}',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             if (group.isClosed)
                               Container(
@@ -547,6 +557,14 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
         },
       ),
     );
+  }
+
+  String _formatGroupTotal(Group group) {
+    final value = double.tryParse(group.totalExpensesAmount) ?? 0;
+    if (value == value.roundToDouble()) {
+      return value.round().toString();
+    }
+    return value.toStringAsFixed(2);
   }
 
   void _showInvite(BuildContext context, Group group) {

@@ -5,14 +5,26 @@ class ExpenseRepository {
   final _api = ApiClient.instance;
 
   Future<List<Expense>> fetchExpenses(String groupId, {int page = 1}) async {
-    final response = await _api.get(
-      '/groups/$groupId/expenses',
-      params: {'page': page, 'per_page': 30},
-    );
-    final list = response.data['data']['expenses'] as List<dynamic>;
-    return list
-        .map((j) => Expense.fromJson(j as Map<String, dynamic>))
-        .toList();
+    // Load every page so lists/totals stay correct beyond the first page.
+    const perPage = 100;
+    final all = <Expense>[];
+    var currentPage = page;
+    while (true) {
+      final response = await _api.get(
+        '/groups/$groupId/expenses',
+        params: {'page': currentPage, 'per_page': perPage},
+      );
+      final data = response.data['data'] as Map<String, dynamic>;
+      final list = data['expenses'] as List<dynamic>;
+      all.addAll(
+        list.map((j) => Expense.fromJson(j as Map<String, dynamic>)),
+      );
+      final pagination = data['pagination'] as Map<String, dynamic>?;
+      final total = (pagination?['total'] as num?)?.toInt() ?? all.length;
+      if (all.length >= total || list.length < perPage) break;
+      currentPage++;
+    }
+    return all;
   }
 
   Future<Expense> createExpense({
