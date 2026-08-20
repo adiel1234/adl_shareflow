@@ -481,6 +481,8 @@ def adl_user_detail(user_id):
         return error_response('User not found', 404)
 
     platforms = _platform_map([user.id])
+    from app.models import FCMToken
+    tokens = FCMToken.query.filter_by(user_id=user.id).all()
     memberships = GroupMember.query.filter_by(user_id=user.id).all()
     group_ids = [m.group_id for m in memberships]
     groups = Group.query.filter(Group.id.in_(group_ids)).all() if group_ids else []
@@ -502,6 +504,15 @@ def adl_user_detail(user_id):
     group_map = {g.id: g.name for g in groups}
     return success_response(data={
         'user': _user_admin_dict(user, platforms.get(user.id)),
+        'fcm_tokens': [
+            {
+                'id': t.id,
+                'platform': t.platform,
+                'created_at': t.created_at.isoformat() if t.created_at else None,
+                'token_prefix': (t.token or '')[:16],
+            }
+            for t in tokens
+        ],
         'groups': [
             {
                 'id': g.id,
@@ -529,6 +540,42 @@ def adl_user_detail(user_id):
             }
             for s in settlements
         ],
+    })
+
+
+@dashboard_bp.post('/users/<user_id>/test-push')
+def adl_user_test_push(user_id):
+    """Admin: send a test FCM push to a specific user (sync)."""
+    err = _require_adl_admin()
+    if err:
+        return err
+
+    user = db.session.get(User, user_id)
+    if not user:
+        return error_response('User not found', 404)
+
+    from app.models import FCMToken
+    from app.notifications import fcm_service
+
+    tokens = FCMToken.query.filter_by(user_id=user_id).all()
+    app = fcm_service._get_app()
+    firebase_ok = app is not None
+    sent = 0
+    if firebase_ok:
+        sent = fcm_service._send_to_user_impl(
+            user_id,
+            'בדיקת פוש — ADL ShareFlow',
+            f'היי {user.display_name}, אם אתה רואה את זה — הפושים עובדים',
+            {'type': 'test'},
+        )
+
+    return success_response(data={
+        'user_id': user_id,
+        'display_name': user.display_name,
+        'firebase_initialized': firebase_ok,
+        'token_count': len(tokens),
+        'platforms': sorted({t.platform for t in tokens}),
+        'sent': sent,
     })
 
 

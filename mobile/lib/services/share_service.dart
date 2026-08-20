@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../core/utils/currency_format.dart';
 
 class ShareService {
   /// שיתוף לינק הזמנה לקבוצה
@@ -116,8 +117,9 @@ $summary
     required String currency,
     required String paidBy,
   }) async {
+    final money = formatAmountWithCurrency(amount, currency);
     final text =
-        '$paidBy שילם $amount $currency עבור "$expenseTitle" בקבוצה $groupName (ADL ShareFlow)';
+        '$paidBy שילם $money עבור "$expenseTitle" בקבוצה $groupName (ADL ShareFlow)';
     await _share(text);
   }
 

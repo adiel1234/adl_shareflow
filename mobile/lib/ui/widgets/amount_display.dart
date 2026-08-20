@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/utils/currency_format.dart';
 import '../../theme/app_colors.dart';
 
 /// Large money display widget — the hero element of the app
@@ -32,7 +33,7 @@ class AmountDisplay extends StatelessWidget {
       textBaseline: TextBaseline.alphabetic,
       children: [
         Text(
-          currency,
+          currencySymbol(currency),
           style: TextStyle(
             fontSize: fontSize * 0.5,
             fontWeight: FontWeight.w600,

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Group {
   final String id;
   final String name;
@@ -103,14 +105,43 @@ class Group {
 
   String get categoryEmoji {
     switch (category) {
-      case 'wedding': return '💒';
-      case 'party': return '🎉';
-      case 'birthday': return '🎂';
-      case 'apartment': return '🏠';
-      case 'trip': return '✈️';
-      case 'vehicle': return '🚗';
-      case 'event': return '🎉';
-      default: return '👥';
+      case 'wedding':
+        return '💒';
+      case 'party':
+        return '🎉';
+      case 'birthday':
+        return '🎂';
+      case 'apartment':
+        return '🏠';
+      case 'trip':
+        return '✈️';
+      case 'vehicle':
+        return '🚗';
+      case 'event':
+        return '🎉';
+      default:
+        return '👥';
+    }
+  }
+
+  IconData get categoryIcon {
+    switch (category) {
+      case 'wedding':
+        return Icons.favorite_outline;
+      case 'party':
+        return Icons.celebration_outlined;
+      case 'birthday':
+        return Icons.cake_outlined;
+      case 'apartment':
+        return Icons.home_outlined;
+      case 'trip':
+        return Icons.flight_outlined;
+      case 'vehicle':
+        return Icons.directions_car_outlined;
+      case 'event':
+        return Icons.event_outlined;
+      default:
+        return Icons.group_outlined;
     }
   }
 

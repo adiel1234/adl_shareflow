@@ -298,14 +298,16 @@ class _WelcomePage extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           _FeatureRow(
-              icon: '📷', text: 'תמונת פרופיל שתזוהה בקבוצות'),
+              icon: Icons.photo_camera_outlined,
+              text: 'תמונת פרופיל שתזוהה בקבוצות'),
           const SizedBox(height: 12),
           _FeatureRow(
-              icon: '💳',
+              icon: Icons.account_balance_wallet_outlined,
               text: 'פרטי תשלום: Bit, PayBox, העברה בנקאית'),
           const SizedBox(height: 12),
           _FeatureRow(
-              icon: '⚡', text: 'חברים יוכלו לשלם לך ישירות מהאפליקציה'),
+              icon: Icons.bolt_outlined,
+              text: 'חברים יוכלו לשלם לך ישירות מהאפליקציה'),
         ],
       ),
     );
@@ -313,14 +315,14 @@ class _WelcomePage extends StatelessWidget {
 }
 
 class _FeatureRow extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String text;
   const _FeatureRow({required this.icon, required this.text});
 
   @override
   Widget build(BuildContext context) => Row(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 20)),
+          Icon(icon, size: 22, color: AppColors.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Text(text,
@@ -498,7 +500,8 @@ class _PaymentPage extends StatelessWidget {
 
           // Bit / PayBox
           _SectionHeader(
-              icon: '💙', title: 'Bit / PayBox: מספר טלפון'),
+              icon: Icons.account_balance_wallet_outlined,
+              title: 'Bit / PayBox: מספר טלפון'),
           const SizedBox(height: 8),
           _Field(
             controller: phoneCtrl,
@@ -512,7 +515,8 @@ class _PaymentPage extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Bank
-          _SectionHeader(icon: '🏦', title: 'העברה בנקאית'),
+          _SectionHeader(
+              icon: Icons.account_balance_outlined, title: 'העברה בנקאית'),
           const SizedBox(height: 8),
           _Field(
             controller: bankNameCtrl,
@@ -553,7 +557,7 @@ class _PaymentPage extends StatelessWidget {
             child: const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('ℹ️', style: TextStyle(fontSize: 14)),
+                Icon(Icons.info_outline, size: 18, color: AppColors.info),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -574,14 +578,14 @@ class _PaymentPage extends StatelessWidget {
 }
 
 class _SectionHeader extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String title;
   const _SectionHeader({required this.icon, required this.title});
 
   @override
   Widget build(BuildContext context) => Row(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 20)),
+          Icon(icon, size: 20, color: AppColors.primary),
           const SizedBox(width: 8),
           Text(title,
               style: const TextStyle(

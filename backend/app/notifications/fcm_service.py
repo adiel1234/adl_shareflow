@@ -87,6 +87,7 @@ def _build_message(title: str, body: str, payload_data: dict, token: str):
                 sound='default',
                 channel_id=_ANDROID_CHANNEL_ID,
                 default_sound=True,
+                default_vibrate_timings=True,
             ),
         ),
         # Custom apns.payload OVERRIDES notification.title/body on the APNs
@@ -101,8 +102,11 @@ def _build_message(title: str, body: str, payload_data: dict, token: str):
             payload=messaging.APNSPayload(
                 aps=messaging.Aps(
                     alert=messaging.ApsAlert(title=title, body=body),
+                    # Explicit system sound — required for audible alerts on iOS.
                     sound='default',
                     badge=1,
+                    # Prefer audible delivery over quiet/grouped delivery.
+                    custom_data={'interruption-level': 'time-sensitive'},
                 ),
             ),
         ),

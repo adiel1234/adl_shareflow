@@ -118,7 +118,8 @@ class ShareFlowApp extends ConsumerStatefulWidget {
   ConsumerState<ShareFlowApp> createState() => _ShareFlowAppState();
 }
 
-class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
+class _ShareFlowAppState extends ConsumerState<ShareFlowApp>
+    with WidgetsBindingObserver {
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _messengerKey = GlobalKey<ScaffoldMessengerState>();
   bool _isOffline = false;
@@ -128,6 +129,7 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     // Register API-level callbacks
     ApiClient.onSessionExpired = _handleSessionExpired;
@@ -164,6 +166,22 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp> {
       });
 
       WidgetsBinding.instance.addPostFrameCallback((_) => _startFcmIfReady());
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        !kIsWeb &&
+        ref.read(authProvider).isLoggedIn) {
+      // Re-register after unlock / permission change / APNs delayed grant.
+      FcmService.instance.registerToken();
     }
   }
 

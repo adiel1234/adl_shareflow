@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 20 אוגוסט 2026 - טעינת כל הוצאות + סה״כ הוצאות בכותרת הקבוצה (`total_expenses_amount`)
+> עודכן לאחרונה: 21 אוגוסט 2026 — מוכנות חנויות 1.0.9+65 (תשלומים, תיקוני כסף, FCM, אורחים)
 
 ---
 
@@ -355,7 +355,7 @@ flutter install --release
 | `RESEND_API_KEY` | מפתח Resend לשליחת מיילים | ✅ | מוגדר ב-Railway |
 | `RESEND_FROM_EMAIL` | כתובת שולח המיילים | ✅ | `noreply@adl-studio.com` |
 | `SMTP_SENDER_NAME` | שם השולח בכותרת המייל | 🟡 | `ADL ShareFlow` (ברירת מחדל) |
-| _(DB: `feature_flags`)_ | `PAYMENTS_ENABLED` — גביית תשלום אמיתי (לא משתנה סביבה) | 🔴 כבוי בפיילוט | `false` ב-PostgreSQL; ניהול: Control → `/shareflow` |
+| _(DB: `feature_flags`)_ | `PAYMENTS_ENABLED` — גביית תשלום אמיתי (לא משתנה סביבה) | 🟢 מוכן לחנויות | ניהול: Control → `/shareflow`; דורש מוצרי IAP בחנויות |
 | _(DB: `feature_flags`)_ | `PILOT_STARTED_AT` — חותמת זמן לתחילת הפיילוט | ✅ פעיל | סינון `scope=pilot`; מתעדכן ב-`POST /api/adl/pilot/reset` |
 | _(DB: `feature_flags`)_ | `PILOT_MODE_ENABLED` — מצב פיילוט פתוח/סגור | ✅ פעיל בפיילוט | `true`/`false`; ניהול: Control → `/shareflow/pilot` |
 | _(DB: `users.account_mode`)_ | `pilot` / `active` — סוג חשבון | ✅ | הרשמה בפיילוט → `pilot`; אחרי כיבוי + הרשמה מחדש → `active` |
@@ -448,7 +448,7 @@ flutter install --release
 | Google Postmaster Tools | ✅ דומיין מאומת — ניטור מוניטין |
 | DMARC Policy | ✅ `p=quarantine` — מוגן מזיוף |
 | Guest Member Feature | ✅ הוספה / קישור / הסרה / חיוב / settlement |
-| PAYMENTS_ENABLED | 🔴 כבוי (פיילוט חינמי) |
+| PAYMENTS_ENABLED | 🟢 לחנויות — `true` אחרי אימות מוצרי IAP |
 | Firebase App Distribution | 🟡 מתוכנן — טרם הוגדר |
 
 ---
@@ -528,8 +528,14 @@ flutter install --release
 - **Guest Member UI**: תג סגול "אורח" + avatar סגול + כפתורי 🔗 ו-🗑️ ברשימת חברים; Banner למנהל; Sheet "קשר אורח לחשבון"; "שולם" סגול ביתרות.
 - **Close Buttons**: נוסף `IconButton(Icons.close)` ל-`_InviteSheet` ו-`_JoinGroupSheet` כדי לאפשר יציאה מפורשת מ-modal bottom sheets.
 - **Group Detail Freshness**: `GroupCard.onTap` מנווט דרך `/group-detail` עם `groupId` בלבד — `_GroupDetailLoader` שולף נתוני קבוצה עדכניים מהשרת בכל ניווט. `Group.to_dict()` כולל `total_expenses_amount` (סכום `converted_amount` במטבע הבסיס). הלקוח טוען את **כל** עמודי `/groups/<id>/expenses` (לא רק 30 הראשונים).
+- **Deep links להזמנה (תיקון 404):** קישורי `/join/<code>` ו-`shareflow://join/<code>` מטופלים רק ב-`app_links` → `pendingInviteCodeProvider`. Deep linking המובנה של Flutter **כבוי** (`flutter_deeplinking_enabled=false` ב-Android, `FlutterDeepLinkingEnabled=false` ב-iOS) כדי שלא יידחף נתיב `/join/...` ל-Navigator ויציג `_NotFoundScreen`. ב-`AppRouter` נתיבי join מופנים ל-Splash במקום 404 (הגנה משנית).
+- **FCM / פושים:** ב־iOS חובה `registerForRemoteNotifications` + העברת `apnsToken` ל־Firebase (`AppDelegate`); רישום טוקן עם המתנה/retry ל־APNs; רישום מחדש ב־`AppLifecycleState.resumed`. הוצאה חדשה: פוש לכל חבר אמיתי שאינו `paid_by` (אורחים מדולגים). `POST /api/adl/users/<id>/test-push` — פוש בדיקה מאדמין. שגיאות `notify_new_expense` נרשמות בלוג (לא נבלעות בשקט).
+- **סיור תהליך + howto:** סיור בית (`home_coach_done_v4`: יצירה → הצטרפות → QR → התראות → פרופיל) ואז howto. סיור קבוצה (`group_coach_done_v2`) עם סגירה חזרה למסך הראשי. עזרה רק מפרופיל (בלי `?` במסך קבוצות). אחרי יצירת קבוצה — מעבר לקבוצה + הזמנה; תמחור גלוי ביצירה, כפתור «צור קבוצה» בלי מחיר.
+- **יתרות / מטבע:** בטאב «מי חייב למי» סה״כ הוצאות לפי מטבע מקור; הודעות WhatsApp ותצוגות סכום עם סמל (`149 ₪`) דרך `currency_format.dart`.
+- **אנדרואיד Safe Area:** `WindowCompat.setDecorFitsSystemWindows(true)` ב-`MainActivity` + `SafeArea` ב-`MainShell` — מניעת חפיפת שורת ניווט מערכת עם התוכן.
 
 ### Backend
+- **בדיקת עומס:** `backend/scripts/load_probe_50x100.py` — יוצר קבוצה עם ~50 חברים (אורחים) ו־100 הוצאות, מודד זמני כתיבה/קריאה. דורש `ADL_ADMIN_KEY` להפעלה מעבר למגבלת חינם (7 חברים).
 - **Guest Endpoints** (`groups/routes.py`):
   - `POST /groups/<id>/guests` — הוסף אורח לקבוצה (`name`, אופציונלי `split_mode`: `forward` | `full`)
   - `PUT /groups/<id>/guests/<guest_id>/link` — קשר אורח לחשבון קיים

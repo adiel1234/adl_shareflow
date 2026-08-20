@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 iap_bp = Blueprint('iap', __name__, url_prefix='/api/iap')
 
 APPLE_BUNDLE_ID = 'com.adl.shareflow'
+ANDROID_PACKAGE_NAME = 'com.adl.shareflow'
 APPLE_VERIFY_URL_PROD = 'https://buy.itunes.apple.com/verifyReceipt'
 APPLE_VERIFY_URL_SANDBOX = 'https://sandbox.itunes.apple.com/verifyReceipt'
 
@@ -115,7 +116,7 @@ def verify_google_receipt(purchase_token: str, product_id: str) -> dict:
         )
         service = build('androidpublisher', 'v3', credentials=credentials)
         result = service.purchases().products().get(
-            packageName=APPLE_BUNDLE_ID,
+            packageName=ANDROID_PACKAGE_NAME,
             productId=product_id,
             token=purchase_token,
         ).execute()

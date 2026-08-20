@@ -156,24 +156,60 @@ class FcmService {
 
   /// Get the FCM token and register it with our backend.
   /// Call this after login to ensure the token is registered when auth is ready.
+  /// Retries when APNs is slow (common on iOS cold start / wireless debug).
   Future<void> registerToken() async {
     try {
       // On iOS, FCM token may be null until APNs token is available.
       if (!kIsWeb && Platform.isIOS) {
         String? apns = await _messaging.getAPNSToken();
-        for (var i = 0; i < 10 && apns == null; i++) {
+        for (var i = 0; i < 30 && apns == null; i++) {
           await Future<void>.delayed(const Duration(milliseconds: 500));
           apns = await _messaging.getAPNSToken();
         }
         if (apns == null) {
-          debugPrint('[FCM] APNs token not ready yet; will retry on refresh');
+          debugPrint('[FCM] APNs token not ready after wait; scheduling retries');
+          _scheduleRegisterRetries();
+          return;
         }
+        debugPrint('[FCM] APNs token ready');
       }
-      final token = await _messaging.getToken();
-      if (token != null) await _sendTokenToBackend(token);
+
+      String? token;
+      for (var i = 0; i < 5; i++) {
+        try {
+          token = await _messaging.getToken();
+        } catch (e) {
+          debugPrint('[FCM] getToken attempt ${i + 1} failed: $e');
+        }
+        if (token != null) break;
+        await Future<void>.delayed(Duration(milliseconds: 400 * (i + 1)));
+      }
+
+      if (token != null) {
+        await _sendTokenToBackend(token);
+      } else {
+        debugPrint('[FCM] FCM token still null; scheduling retries');
+        _scheduleRegisterRetries();
+      }
     } catch (e) {
       debugPrint('[FCM] Failed to get token: $e');
+      _scheduleRegisterRetries();
     }
+  }
+
+  int _registerRetryAttempt = 0;
+
+  void _scheduleRegisterRetries() {
+    if (_registerRetryAttempt >= 5) return;
+    _registerRetryAttempt += 1;
+    final delay = Duration(seconds: 2 * _registerRetryAttempt);
+    Future<void>.delayed(delay, () async {
+      final access =
+          await AppSecureStorage.read(AppConstants.accessTokenKey);
+      if (access == null) return;
+      debugPrint('[FCM] Retry registerToken (#$_registerRetryAttempt)');
+      await registerToken();
+    });
   }
 
   Future<void> _sendTokenToBackend(String token) async {
@@ -183,7 +219,8 @@ class FcmService {
         'token': token,
         'platform': platform,
       });
-      debugPrint('[FCM] Token registered with backend');
+      _registerRetryAttempt = 0;
+      debugPrint('[FCM] Token registered with backend ($platform)');
     } catch (e) {
       debugPrint('[FCM] Failed to register token: $e');
     }

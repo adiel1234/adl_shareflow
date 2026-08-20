@@ -117,10 +117,17 @@ class GroupRepository {
     return response.data['data'] as Map<String, dynamic>;
   }
 
-  Future<Group> joinGroup(String inviteCode, {String splitMode = 'forward'}) async {
+  Future<Group> joinGroup(
+    String inviteCode, {
+    String splitMode = 'forward',
+    String? linkGuestUserId,
+  }) async {
     final response = await _api.post(
       '/groups/join/$inviteCode',
-      data: {'split_mode': splitMode},
+      data: {
+        'split_mode': splitMode,
+        if (linkGuestUserId != null) 'link_guest_user_id': linkGuestUserId,
+      },
     );
     return Group.fromJson(response.data['data'] as Map<String, dynamic>);
   }

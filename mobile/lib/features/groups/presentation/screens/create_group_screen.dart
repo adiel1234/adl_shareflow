@@ -198,7 +198,15 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
           ),
         );
       } else {
-        Navigator.pop(context);
+        ref.invalidate(groupsProvider);
+        if (!mounted) return;
+        await Navigator.of(context).pushReplacementNamed(
+          '/group-detail',
+          arguments: {
+            'groupId': group.id,
+            'openInvite': true,
+          },
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -288,6 +296,26 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                 ),
               ),
 
+              _FieldSection(
+                title: l.groupName,
+                required: true,
+                child: TextFormField(
+                  controller: _nameCtrl,
+                  decoration: InputDecoration(
+                    hintText: l.groupNameHint,
+                    filled: true,
+                    fillColor: AppColors.background,
+                  ),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return l.groupNameRequired;
+                    }
+                    return null;
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 4),
               _FieldSection(
                 title: l.pricingSection,
                 required: true,
@@ -432,6 +460,21 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                 ),
               ),
 
+              Theme(
+                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  initiallyExpanded: false,
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: EdgeInsets.zero,
+                  title: Text(
+                    l.createGroupMoreOptions,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  children: [
               if (_groupType == 'ongoing') ...[
                 _FieldSection(
                   title: l.periodicSettlement,
@@ -582,25 +625,6 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
               ),
 
               _FieldSection(
-                title: l.groupName,
-                required: true,
-                child: TextFormField(
-                  controller: _nameCtrl,
-                  decoration: InputDecoration(
-                    hintText: l.groupNameHint,
-                    filled: true,
-                    fillColor: AppColors.background,
-                  ),
-                  validator: (v) {
-                    if (v == null || v.trim().isEmpty) {
-                      return l.groupNameRequired;
-                    }
-                    return null;
-                  },
-                ),
-              ),
-
-              _FieldSection(
                 title: l.groupDescription,
                 required: false,
                 child: TextFormField(
@@ -629,6 +653,9 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                   onChanged: (v) => setState(() => _currency = v ?? 'ILS'),
                 ),
               ),
+                  ],
+                ),
+              ),
 
               const SizedBox(height: 8),
               Builder(
@@ -643,11 +670,6 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                           ? l.tipCreateGroupNoCharge
                           : l.tipCreateGroupLive)
                       : null;
-                  final label = isFreeEffective
-                      ? l.createGroupFree
-                      : (pilotMode
-                          ? l.createGroupPaidPilot(effectivePrice)
-                          : l.createGroupPaid(effectivePrice));
                   return Column(
                     children: [
                       if (tip != null) ...[
@@ -663,7 +685,7 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                         const SizedBox(height: 12),
                       ],
                       GradientButton(
-                        label: label,
+                        label: l.createGroupSubmit,
                         onPressed: _loading ? null : () => _create(l),
                         isLoading: _loading,
                       ),

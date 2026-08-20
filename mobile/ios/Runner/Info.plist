@@ -60,6 +60,10 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<!-- Disable Flutter's built-in deep linking so only app_links
+	     handles invite URLs. Otherwise /join/<code> hits the 404 route. -->
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

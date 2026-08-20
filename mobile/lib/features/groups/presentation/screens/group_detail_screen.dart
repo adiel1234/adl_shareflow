@@ -10,8 +10,11 @@ import '../../domain/group_model.dart';
 import '../../../../providers/expenses_provider.dart';
 import '../../../../providers/balances_provider.dart';
 import '../../../../providers/groups_provider.dart';
+import '../../../../providers/auth_provider.dart';
+import '../../../../providers/currency_provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/amount_display.dart';
+import '../../../../core/utils/currency_format.dart';
 import '../../../../services/share_service.dart';
 import '../../../expenses/presentation/screens/expenses_list_screen.dart';
 import '../../../expenses/presentation/screens/add_expense_screen.dart';
@@ -20,14 +23,23 @@ import '../widgets/group_state_banner.dart';
 import '../widgets/invite_sheet.dart';
 import 'members_tab_screen.dart';
 import 'activation_screen.dart';
+import '../../../home/presentation/widgets/group_coach.dart';
 
 class GroupDetailScreen extends ConsumerStatefulWidget {
   final Group group;
   final int initialTabIndex;
+  final bool openInviteOnStart;
+  /// Re-run group button tour even if already completed.
+  final bool forceCoach;
+  /// After the tour ends (close/done), pop back to the previous screen (home).
+  final bool popOnCoachEnd;
   const GroupDetailScreen({
     super.key,
     required this.group,
     this.initialTabIndex = 0,
+    this.openInviteOnStart = false,
+    this.forceCoach = false,
+    this.popOnCoachEnd = false,
   });
 
   @override
@@ -37,6 +49,14 @@ class GroupDetailScreen extends ConsumerStatefulWidget {
 class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  final _inviteKey = GlobalKey();
+  final _expensesTabKey = GlobalKey();
+  final _balancesTabKey = GlobalKey();
+  final _membersTabKey = GlobalKey();
+  final _fabKey = GlobalKey();
+  bool _groupCoachStarted = false;
+  bool _inviteOpened = false;
+  int _tabIndex = 0;
 
   @override
   void initState() {
@@ -47,6 +67,65 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
       vsync: this,
       initialIndex: initialIndex,
     );
+    _tabIndex = initialIndex;
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging && mounted) {
+        setState(() => _tabIndex = _tabController.index);
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _maybeShowGroupCoach();
+      await _maybeOpenInvite();
+    });
+  }
+
+  Future<void> _maybeOpenInvite() async {
+    if (_inviteOpened || !widget.openInviteOnStart || !mounted) return;
+    _inviteOpened = true;
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    if (!mounted) return;
+    final group = ref.read(groupDetailProvider(widget.group.id)).maybeWhen(
+          data: (g) => g,
+          orElse: () => widget.group,
+        );
+    if (group.isClosed || !group.isOperational) return;
+    _showInvite(context, group);
+  }
+
+  Future<void> _maybeShowGroupCoach() async {
+    if (_groupCoachStarted || !mounted) return;
+    _groupCoachStarted = true;
+    if (!widget.forceCoach && await isGroupCoachDone()) return;
+    // Let header + FAB layout settle.
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    if (!mounted) return;
+
+    final group = ref.read(groupDetailProvider(widget.group.id)).maybeWhen(
+          data: (g) => g,
+          orElse: () => widget.group,
+        );
+    if (group.isClosed || !group.isOperational) {
+      if (!widget.forceCoach) await markGroupCoachDone();
+      return;
+    }
+
+    final l = AppLocalizations.of(context)!;
+    await showGroupCoach(
+      context,
+      markDone: !widget.forceCoach,
+      targets: buildGroupCoachTargets(
+        l: l,
+        inviteKey: _inviteKey,
+        expensesTabKey: _expensesTabKey,
+        fabKey: _fabKey,
+        balancesTabKey: _balancesTabKey,
+        membersTabKey: _membersTabKey,
+        tabController: _tabController,
+      ),
+    );
+    if (widget.popOnCoachEnd && mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -65,82 +144,74 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
       body: NestedScrollView(
         headerSliverBuilder: (context, _) => [
           SliverAppBar(
-            expandedHeight: 148,
+            // Tall header: hero title, gap, totals, then tabs — no overlap.
+            expandedHeight: 300,
             floating: false,
             pinned: true,
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
+            // Name is laid out explicitly below (not FlexibleSpaceBar.title),
+            // so it cannot collide with the totals card.
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: AppColors.brandGradient,
                 ),
                 child: SafeArea(
+                  bottom: false,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(56, 12, 16, 0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 52),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        // Clear the toolbar icon row (back + actions).
+                        const SizedBox(height: 44),
                         Text(
-                          group.categoryEmoji,
-                          style: const TextStyle(fontSize: 30),
+                          '${group.categoryEmoji} ${group.name}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                            height: 1.2,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-              child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              group.name,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700,
+                        const SizedBox(height: 18),
+                        _buildGroupTotalsBar(context, group),
+                        if (group.isClosed) ...[
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(6),
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${AppLocalizations.of(context)!.groupTotalExpenses}: '
-                              '${_formatGroupTotal(group)} ${group.baseCurrency}',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.9),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            if (group.isClosed)
-                              Container(
-                                margin: const EdgeInsets.only(top: 4),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: const Text(
-                                  '🔒 סגורה',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600),
+                              child: Text(
+                                '🔒 סגורה',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                          ],
-                        ),
-                        ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
                 ),
               ),
-              title: null,
-              titlePadding: EdgeInsetsDirectional.zero,
             ),
             actions: [
               IconButton(
+                key: _inviteKey,
                 icon: const Icon(Icons.person_add_rounded, color: Colors.white),
                 tooltip: AppLocalizations.of(context)!.inviteFriends,
                 onPressed: () => _showInvite(context, group),
@@ -181,9 +252,9 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
               labelStyle: const TextStyle(
                   fontWeight: FontWeight.w600, fontSize: 14),
               tabs: [
-                Tab(text: AppLocalizations.of(context)!.expenses),
-                Tab(text: AppLocalizations.of(context)!.balances),
-                Tab(text: AppLocalizations.of(context)!.members),
+                Tab(key: _expensesTabKey, text: AppLocalizations.of(context)!.expenses),
+                Tab(key: _balancesTabKey, text: AppLocalizations.of(context)!.balances),
+                Tab(key: _membersTabKey, text: AppLocalizations.of(context)!.members),
               ],
             ),
           ),
@@ -216,23 +287,26 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
           ],
         ),
       ),
-      floatingActionButton: (group.isClosed || !group.isOperational)
+      floatingActionButton: (group.isClosed || !group.isOperational || _tabIndex != 0)
           ? null
-          : _NewExpenseFab(
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => AddExpenseScreen(group: group),
-                  ),
-                ).then((_) {
-                  ref.invalidate(expensesProvider(group.id));
-                  ref.invalidate(balancesProvider(group.id));
-                  ref.invalidate(groupDetailProvider(group.id));
-                  ref.invalidate(groupsProvider);
-                });
-              },
+          : KeyedSubtree(
+              key: _fabKey,
+              child: _NewExpenseFab(
+                onPressed: () {
+                  HapticFeedback.mediumImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddExpenseScreen(group: group),
+                    ),
+                  ).then((_) {
+                    ref.invalidate(expensesProvider(group.id));
+                    ref.invalidate(balancesProvider(group.id));
+                    ref.invalidate(groupDetailProvider(group.id));
+                    ref.invalidate(groupsProvider);
+                  });
+                },
+              ),
             ),
     );
   }
@@ -559,12 +633,139 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
     );
   }
 
-  String _formatGroupTotal(Group group) {
-    final value = double.tryParse(group.totalExpensesAmount) ?? 0;
-    if (value == value.roundToDouble()) {
-      return value.round().toString();
+  Widget _buildGroupTotalsBar(BuildContext context, Group group) {
+    final l = AppLocalizations.of(context)!;
+    final auth = ref.watch(authProvider);
+    final prefCurrency = auth.preferredCurrency;
+    final expenses =
+        ref.watch(expensesProvider(group.id)).valueOrNull ?? const [];
+
+    final currentExpenses =
+        expenses.where((e) => e.periodReportId == null).toList();
+
+    // Periodic groups: header total = current period only (not lifetime).
+    var displayTotal = group.isPeriodic
+        ? currentExpenses.fold<double>(
+            0,
+            (sum, e) => sum + (double.tryParse(e.convertedAmount) ?? 0),
+          )
+        : (double.tryParse(group.totalExpensesAmount) ?? 0);
+    var displayCurrency = group.baseCurrency;
+    if (prefCurrency != group.baseCurrency) {
+      final convAsync = ref.watch(conversionProvider(
+        conversionParams(
+          from: group.baseCurrency,
+          to: prefCurrency,
+          amount: displayTotal,
+        ),
+      ));
+      final conv = convAsync.valueOrNull;
+      if (conv != null) {
+        displayTotal = conv.convertedAmount;
+        displayCurrency = prefCurrency;
+      }
+    } else {
+      displayCurrency = prefCurrency;
     }
-    return value.toStringAsFixed(2);
+
+    final currencyTotals = <String, double>{};
+    for (final e in currentExpenses) {
+      final a = double.tryParse(e.originalAmount) ?? 0;
+      if (a == 0) continue;
+      currencyTotals[e.originalCurrency] =
+          (currencyTotals[e.originalCurrency] ?? 0) + a;
+    }
+    if (currencyTotals.isEmpty && displayTotal > 0 && !group.isPeriodic) {
+      currencyTotals[displayCurrency] = displayTotal;
+    }
+    final breakdown = currencyTotals.entries
+        .map((e) => formatAmountWithCurrency(e.value, e.key))
+        .join(' · ');
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l.groupTotalExpenses,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.78),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  formatAmountWithCurrency(displayTotal, displayCurrency),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    height: 1.2,
+                  ),
+                ),
+                if (breakdown.isNotEmpty &&
+                    (currencyTotals.length > 1 ||
+                        currencyTotals.keys.first != displayCurrency)) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    breakdown,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.72),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          Container(
+            width: 1,
+            height: 40,
+            margin: const EdgeInsets.symmetric(horizontal: 14),
+            color: Colors.white.withValues(alpha: 0.25),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '${group.expenseCount}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  height: 1.2,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                l.expensesCountLabel,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.78),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   void _showInvite(BuildContext context, Group group) {

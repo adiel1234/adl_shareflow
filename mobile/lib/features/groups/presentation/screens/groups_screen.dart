@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/groups_provider.dart';
@@ -142,6 +143,8 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                       MaterialPageRoute(
                           builder: (_) => const CreateGroupScreen()),
                     ).then((_) => ref.invalidate(groupsProvider)),
+                    onJoin: () => _showJoinSheet(context, ref),
+                    onScanQr: () => _scanQr(context, ref),
                   ),
                 );
               }
@@ -210,6 +213,9 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
   String? _error;
   final _repo = GroupRepository();
 
+  /// Sentinel: user dismissed the guest-match dialog — abort join.
+  static const _kJoinCancelled = '__cancelled__';
+
   @override
   void initState() {
     super.initState();
@@ -232,7 +238,7 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
     setState(() { _loading = true; _error = null; });
 
     try {
-      // Step 1 — בדיקת קוד ההזמנה + קבלת split_mode שנבחר ע"י המזמין
+      // Step 1 — בדיקת קוד ההזמנה + אורחים דומים לשם המצטרף
       final info = await _repo.checkInvite(code);
 
       if (info['already_member'] == true) {
@@ -240,22 +246,129 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
         return;
       }
 
-      // השתמש ב-split_mode שהמנהל הגדיר בעת יצירת קישור ההזמנה.
-      // הג'וינר לא רואה דיאלוג — ההחלטה שייכת למזמין בלבד.
       final groupData = info['group'] as Map<String, dynamic>?;
       final splitMode = (groupData?['invite_split_mode'] as String?) ?? 'forward';
+      final joinerName = (info['joiner_display_name'] as String?) ?? '';
+      final similarRaw = info['similar_guests'] as List<dynamic>? ?? const [];
+      final similarGuests = similarRaw
+          .whereType<Map>()
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
 
-      // Step 2 — הצטרפות עם ה-split_mode שנקבע ע"י המזמין
-      await _repo.joinGroup(code, splitMode: splitMode);
+      // Step 1b — אם יש אורח עם שם דומה: האם זה אותו אדם או משתמש חדש?
+      String? linkGuestId;
+      if (similarGuests.isNotEmpty && mounted) {
+        linkGuestId = await _askIfJoinerIsGuest(
+          similarGuests: similarGuests,
+          joinerName: joinerName,
+        );
+        if (!mounted) return;
+        // null from dialog dismiss → cancel join
+        if (linkGuestId == _kJoinCancelled) {
+          setState(() => _loading = false);
+          return;
+        }
+      }
+
+      // Step 2 — הצטרפות (+ קישור אורח אם נבחר)
+      await _repo.joinGroup(
+        code,
+        splitMode: splitMode,
+        linkGuestUserId: linkGuestId,
+      );
       widget.onJoined();
       if (mounted) Navigator.pop(context);
 
     } catch (e) {
+      String msg = AppLocalizations.of(context)!.invalidCode;
+      if (e is DioException) {
+        final server = e.response?.data?['message'] as String?;
+        if (server != null && server.trim().isNotEmpty) msg = server;
+      } else {
+        final raw = e.toString();
+        if (raw.isNotEmpty && !raw.startsWith('Exception:')) {
+          msg = raw;
+        }
+      }
       setState(() {
-        _error = AppLocalizations.of(context)!.invalidCode;
+        _error = msg;
         _loading = false;
       });
     }
+  }
+
+  /// Returns guest user_id to link, null for "new member", or [_kJoinCancelled].
+  Future<String?> _askIfJoinerIsGuest({
+    required List<Map<String, dynamic>> similarGuests,
+    required String joinerName,
+  }) async {
+    final l = AppLocalizations.of(context)!;
+    Map<String, dynamic> guest = similarGuests.first;
+
+    if (similarGuests.length > 1) {
+      final picked = await showModalBottomSheet<Map<String, dynamic>>(
+        context: context,
+        builder: (ctx) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: Text(
+                  l.joinGuestPickTitle,
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                ),
+              ),
+              ...similarGuests.map((g) {
+                final name = (g['display_name'] as String?) ?? '';
+                return ListTile(
+                  leading: const Icon(Icons.person_outline),
+                  title: Text(name),
+                  onTap: () => Navigator.pop(ctx, g),
+                );
+              }),
+              ListTile(
+                leading: const Icon(Icons.person_add_alt_1),
+                title: Text(l.joinGuestMatchNo),
+                onTap: () => Navigator.pop(ctx, <String, dynamic>{}),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      );
+      if (picked == null) return _kJoinCancelled;
+      if (picked.isEmpty) return null; // new member
+      guest = picked;
+    }
+
+    final guestName = (guest['display_name'] as String?) ?? '';
+    final guestId = guest['user_id'] as String?;
+    if (guestId == null || guestId.isEmpty) return null;
+    if (!mounted) return _kJoinCancelled;
+
+    final choice = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.joinGuestMatchTitle),
+        content: Text(l.joinGuestMatchBody(guestName, joinerName)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, 'new'),
+            child: Text(l.joinGuestMatchNo),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, 'link'),
+            child: Text(l.joinGuestMatchYes),
+          ),
+        ],
+      ),
+    );
+
+    if (choice == null) return _kJoinCancelled;
+    if (choice == 'link') return guestId;
+    return null;
   }
 
   @override
@@ -346,10 +459,17 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
 
 class _EmptyState extends ConsumerWidget {
   final VoidCallback onCreateGroup;
-  const _EmptyState({required this.onCreateGroup});
+  final VoidCallback onJoin;
+  final VoidCallback onScanQr;
+  const _EmptyState({
+    required this.onCreateGroup,
+    required this.onJoin,
+    required this.onScanQr,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -367,7 +487,7 @@ class _EmptyState extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              AppLocalizations.of(context)!.noGroups,
+              l.noGroups,
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
@@ -376,25 +496,47 @@ class _EmptyState extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(context)!.noGroupsDescription,
+              l.noGroupsDescription,
               style: const TextStyle(color: AppColors.textSecondary, height: 1.5),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 18),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                l.emptyGroupsChecklistTitle,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            _ChecklistLine(text: l.emptyGroupsStep1),
+            _ChecklistLine(text: l.emptyGroupsStep2),
+            _ChecklistLine(text: l.emptyGroupsStep3),
+            const SizedBox(height: 22),
             ElevatedButton.icon(
               onPressed: onCreateGroup,
               icon: const Icon(Icons.add),
-              label: Text(AppLocalizations.of(context)!.createGroup),
+              label: Text(l.createGroup),
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
-              onPressed: () => _showJoinSheet(context, ref),
+              onPressed: onJoin,
               icon: const Icon(Icons.group_add_outlined),
-              label: Text(AppLocalizations.of(context)!.joinWithCode),
+              label: Text(l.joinWithCode),
             ),
             const SizedBox(height: 10),
+            TextButton.icon(
+              onPressed: onScanQr,
+              icon: const Icon(Icons.qr_code_scanner, size: 18),
+              label: Text(l.scanQrCta),
+            ),
+            const SizedBox(height: 6),
             Text(
-              AppLocalizations.of(context)!.tipJoinWithCode,
+              l.tipJoinWithCode,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 12,
@@ -404,6 +546,36 @@ class _EmptyState extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ChecklistLine extends StatelessWidget {
+  final String text;
+  const _ChecklistLine({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.check_circle_outline, size: 18, color: AppColors.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 13,
+                height: 1.35,
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

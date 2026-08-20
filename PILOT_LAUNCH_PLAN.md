@@ -2,6 +2,8 @@
 
 עודכן: 11 אוגוסט 2026 · גרסת פיילוט: **1.0.9** · **`pubspec`:** `1.0.9+64` · **build 64 נבנה** · הודעת הרשאות אורח (מנהל בלבד) + תיקון `my_role` · IPA + APK מוכנים להפצה
 
+> תיקונים שנבדקו מקומית וממתינים ל־build הבא: [`PENDING_RELEASE.md`](PENDING_RELEASE.md)
+
 > **מסמכים קשורים:** [`PILOT_TEST_CHECKLIST.md`](PILOT_TEST_CHECKLIST.md) · [`docs/PILOT_ONBOARDING_GUIDE.md`](docs/PILOT_ONBOARDING_GUIDE.md)
 
 ---

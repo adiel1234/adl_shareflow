@@ -10,9 +10,73 @@ from app.common.errors import success_response, error_response
 from app.common.decorators import require_group_member, require_group_admin
 from app.common.utils import generate_invite_code
 from app.groups.lifecycle_service import GroupLifecycleService, check_tier_upgrade
+from app.groups.name_match import names_similar
 from app.notifications import service as notif_service
 
 groups_bp = Blueprint('groups', __name__)
+
+
+def _similar_guests_for_user(group_id: str, display_name: str | None) -> list[dict]:
+    """Active guests in the group whose name is similar to display_name."""
+    members = (
+        GroupMember.query
+        .filter_by(group_id=group_id)
+        .all()
+    )
+    result = []
+    for m in members:
+        user = m.user or db.session.get(User, m.user_id)
+        if not user or not user.is_guest:
+            continue
+        if names_similar(display_name, user.display_name):
+            result.append({
+                'user_id': user.id,
+                'display_name': user.display_name,
+            })
+    return result
+
+
+def _transfer_guest_to_real_user(group_id: str, guest_user_id: str, real_user_id: str) -> None:
+    """
+    Move expense / settlement history from a ghost guest onto a real user,
+    then remove the guest from the group and delete the ghost User.
+    Caller must commit.
+    """
+    from app.models import Expense, ExpenseParticipant, Settlement
+
+    Expense.query.filter_by(group_id=group_id, paid_by=guest_user_id).update(
+        {'paid_by': real_user_id}
+    )
+
+    for split in ExpenseParticipant.query.filter_by(user_id=guest_user_id).all():
+        expense = db.session.get(Expense, split.expense_id)
+        if not expense or expense.group_id != group_id:
+            continue
+        existing = ExpenseParticipant.query.filter_by(
+            expense_id=split.expense_id, user_id=real_user_id
+        ).first()
+        if existing:
+            existing.share_amount += split.share_amount
+            db.session.delete(split)
+        else:
+            split.user_id = real_user_id
+
+    Settlement.query.filter_by(group_id=group_id, from_user_id=guest_user_id).update(
+        {'from_user_id': real_user_id}
+    )
+    Settlement.query.filter_by(group_id=group_id, to_user_id=guest_user_id).update(
+        {'to_user_id': real_user_id}
+    )
+
+    ghost_member = GroupMember.query.filter_by(
+        group_id=group_id, user_id=guest_user_id
+    ).first()
+    if ghost_member:
+        db.session.delete(ghost_member)
+
+    ghost = db.session.get(User, guest_user_id)
+    if ghost:
+        db.session.delete(ghost)
 
 
 def _validate_iap(data: dict):
@@ -694,12 +758,19 @@ def check_invite(invite_code):
     expense_count = Expense.query.filter_by(group_id=group.id).count()
     member_count = GroupMember.query.filter_by(group_id=group.id).count()
 
+    me = db.session.get(User, user_id)
+    similar_guests = []
+    if me and not already_member:
+        similar_guests = _similar_guests_for_user(group.id, me.display_name)
+
     return success_response(data={
         'group': group.to_dict(),
         'already_member': already_member,
         'expense_count': expense_count,
         'member_count': member_count,
         'has_expenses': expense_count > 0,
+        'similar_guests': similar_guests,
+        'joiner_display_name': me.display_name if me else None,
     })
 
 
@@ -950,6 +1021,9 @@ def join_group(invite_code):
     but the inviter's choice stored on the group is used as the default.
       'forward' (default) - new member participates only in future expenses
       'full'              - retroactively add member to all existing expenses
+
+    Optional body field link_guest_user_id: when the joiner confirms they are an
+    existing guest (similar name), transfer that guest's history onto them.
     """
     from app.models import Expense  # needed for expense_count after commit
 
@@ -967,6 +1041,19 @@ def join_group(invite_code):
     if split_mode not in ('forward', 'full'):
         split_mode = 'forward'
 
+    link_guest_user_id = (data.get('link_guest_user_id') or '').strip() or None
+    me = db.session.get(User, user_id)
+
+    if link_guest_user_id:
+        ghost = db.session.get(User, link_guest_user_id)
+        ghost_member = GroupMember.query.filter_by(
+            group_id=group.id, user_id=link_guest_user_id
+        ).first()
+        if not ghost or not ghost.is_guest or not ghost_member:
+            return error_response('האורח לקישור לא נמצא בקבוצה', 404)
+        if not me or not names_similar(me.display_name, ghost.display_name):
+            return error_response('שם המשתמש אינו תואם לאורח שנבחר')
+
     # Add the new member
     member = GroupMember(group_id=group.id, user_id=user_id, role='member')
     db.session.add(member)
@@ -978,7 +1065,13 @@ def join_group(invite_code):
     )
     add_member_to_group_split_expenses(group.id, user_id)
 
-    if split_mode == 'full':
+    linked_guest = False
+    if link_guest_user_id:
+        # History moves from guest → joiner; skip retroactive full split
+        # (would double-count after the transfer).
+        _transfer_guest_to_real_user(group.id, link_guest_user_id, user_id)
+        linked_guest = True
+    elif split_mode == 'full':
         retroactively_add_member_to_expenses(group.id, user_id)
 
     db.session.commit()
@@ -986,7 +1079,10 @@ def join_group(invite_code):
     expense_count = Expense.query.filter_by(group_id=group.id).count()
     result = group.to_dict()
     result['split_mode'] = split_mode
-    result['retroactive_expenses'] = expense_count if split_mode == 'full' else 0
+    result['retroactive_expenses'] = (
+        expense_count if (split_mode == 'full' and not linked_guest) else 0
+    )
+    result['linked_guest'] = linked_guest
 
     # Notify about tier upgrade if member count crossed a boundary
     if group.group_state == 'active':
@@ -1155,8 +1251,6 @@ def add_guest_member(group_id, **kwargs):
 @require_group_admin
 def link_guest_member(group_id, guest_user_id, **kwargs):
     """Admin links a guest placeholder to a real registered member of the group."""
-    from app.models import Expense, ExpenseParticipant, Settlement
-
     group = db.session.get(Group, group_id)
     if not group or not group.is_active:
         return error_response('Group not found', 404)
@@ -1183,32 +1277,7 @@ def link_guest_member(group_id, guest_user_id, **kwargs):
     if not real_user or real_user.is_guest:
         return error_response('משתמש לא תקין')
 
-    # Transfer all expenses paid by ghost
-    Expense.query.filter_by(group_id=group_id, paid_by=guest_user_id).update({'paid_by': real_user_id})
-
-    # Transfer all expense splits.
-    # If the real user is already a participant in the same expense, merge the
-    # share amounts instead of creating a duplicate participant record.
-    for split in ExpenseParticipant.query.filter_by(user_id=guest_user_id).all():
-        expense = db.session.get(Expense, split.expense_id)
-        if not expense or expense.group_id != group_id:
-            continue
-        existing = ExpenseParticipant.query.filter_by(
-            expense_id=split.expense_id, user_id=real_user_id
-        ).first()
-        if existing:
-            existing.share_amount += split.share_amount
-            db.session.delete(split)
-        else:
-            split.user_id = real_user_id
-
-    # Transfer settlements (from / to)
-    Settlement.query.filter_by(group_id=group_id, from_user_id=guest_user_id).update({'from_user_id': real_user_id})
-    Settlement.query.filter_by(group_id=group_id, to_user_id=guest_user_id).update({'to_user_id': real_user_id})
-
-    # Remove ghost from group and delete ghost user
-    db.session.delete(ghost_member)
-    db.session.delete(ghost)
+    _transfer_guest_to_real_user(group_id, guest_user_id, real_user_id)
     db.session.commit()
 
     return success_response(message=f'האורח שויך בהצלחה ל-{real_user.display_name}')

@@ -103,7 +103,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get notes => 'הערות';
 
   @override
-  String get balances => 'חשבון';
+  String get balances => 'מי חייב למי';
 
   @override
   String get settlements => 'הסדרות';
@@ -276,7 +276,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get closeGroupShortHint => 'עוצר הוצאות חדשות, לא מסדיר חובות';
 
   @override
-  String get groupClosedSuccess => 'הקבוצה נסגרה בהצלחה 🔒';
+  String get groupClosedSuccess => 'הקבוצה נסגרה בהצלחה';
 
   @override
   String get errorClosingGroup => 'שגיאה בסגירת הקבוצה';
@@ -330,7 +330,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String inviteSentTo(String email) {
-    return 'הזמנה נשלחה ל-$email ✉️';
+    return 'הזמנה נשלחה ל-$email';
   }
 
   @override
@@ -478,7 +478,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get inviteWithAppSubtitle =>
-      'לחבר שכבר יש לו אפליקציה, או שירצה להוריד';
+      'לחבר עם אפליקציה, או בלי: בקישור אפשר גם להוריד';
 
   @override
   String get addNotesHint => 'הוסף הערה...';
@@ -635,7 +635,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get noNotificationsHint =>
-      'כשחברי הקבוצה יוסיפו הוצאות\nתקבל התראה כאן';
+      'כאן תראו הוצאות חדשות, הזמנות ותזכורות, וגם אישור שקיבלתם תשלום';
 
   @override
   String get errorLoadingNotifications => 'שגיאה בטעינת התראות';
@@ -990,7 +990,7 @@ class AppLocalizationsHe extends AppLocalizations {
       'החשבונות לא מאוזנים - ייתכן שחלוקת הוצאות ישנה שגויה. ערכו הוצאות ושמרו מחדש, או פנו למנהל.';
 
   @override
-  String get sendSummary => '📤 שלח סיכום';
+  String get sendSummary => 'שלח סיכום';
 
   @override
   String get sendPushToAll => 'שלח התראה לכל החברים';
@@ -1327,7 +1327,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get pricingSection => 'תמחור';
 
   @override
-  String get estimatedCost => 'עלות משוערת';
+  String get estimatedCost => 'עלות';
 
   @override
   String upToParticipants(int count) {
@@ -1748,7 +1748,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get guestExplainBody =>
-      'אורח = חבר בלי אפליקציה. הוא נכלל בחלוקה, ואתם מנהלים בשמו עד שיוריד ויתחבר לחשבון.';
+      'אורח הוא חבר שלא יכול או לא רוצה להוריד את האפליקציה. הוא נכלל בחלוקה, ואתם מנהלים בשמו. אם בהמשך יוריד ויתחבר, אפשר לקשר אותו לחשבון.';
 
   @override
   String get guestReminderTitle => 'אורחים ללא חשבון';
@@ -1761,7 +1761,7 @@ class AppLocalizationsHe extends AppLocalizations {
       other: '$count חברים',
       one: 'חבר אחד',
     );
-    return '$_temp0 מסומנים כאורחים.\nכשיורידו את האפליקציה, קשר אותם לחשבון שלהם דרך לחצן הקישור.';
+    return '$_temp0 מסומנים כאורחים.\nאם יורידו את האפליקציה בהמשך, קשרו אותם לחשבון דרך לחצן הקישור.';
   }
 
   @override
@@ -1777,11 +1777,11 @@ class AppLocalizationsHe extends AppLocalizations {
   String get inviteEmailOption => 'שלח גם במייל';
 
   @override
-  String get addGuestOption => 'אין אפליקציה? הוסיפו כאורח';
+  String get addGuestOption => 'לא יכול / לא מעוניין באפליקציה? הוסיפו כאורח';
 
   @override
   String get tipMembersActions =>
-      'הזמן עם קישור: זה הנתיב הרגיל. אורח רק למי שבלי אפליקציה.';
+      'הזמן עם קישור (כולל אפשרות הורדה). אורח רק למי שלא יכול או לא רוצה להוריד.';
 
   @override
   String get guestAdminOnlyHint =>
@@ -1809,6 +1809,23 @@ class AppLocalizationsHe extends AppLocalizations {
   String get linkGuestSuccess => 'האורח שויך בהצלחה';
 
   @override
+  String get joinGuestMatchTitle => 'מצאנו אורח דומה';
+
+  @override
+  String joinGuestMatchBody(String guestName, String joinerName) {
+    return 'בקבוצה יש אורח בשם \"$guestName\".\nהשם שלך באפליקציה: \"$joinerName\".\n\nהאם זה אותו אדם שמתחבר עכשיו לאפליקציה, או משתמש חדש?';
+  }
+
+  @override
+  String get joinGuestMatchYes => 'זה האורח, שייכו אליי';
+
+  @override
+  String get joinGuestMatchNo => 'משתמש חדש בקבוצה';
+
+  @override
+  String get joinGuestPickTitle => 'איזה אורח זה אתה?';
+
+  @override
   String get removeGuest => 'הסר אורח';
 
   @override
@@ -1825,7 +1842,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get markGuestPaid => 'סמן שולם (עבור אורח)';
 
   @override
-  String get guestNoApp => 'עבור חברים שעדיין לא הורידו את האפליקציה';
+  String get guestNoApp =>
+      'לחבר שאין באפשרותו או לא מעוניין להוריד את האפליקציה';
 
   @override
   String perParticipant(String amount) {
@@ -1921,7 +1939,7 @@ class AppLocalizationsHe extends AppLocalizations {
       'צילום או גלריה, לצפייה בלבד, ללא מילוי אוטומטי';
 
   @override
-  String get coachSkip => 'דלג';
+  String get coachSkip => 'סגור';
 
   @override
   String get coachNext => 'הבא';
@@ -1930,42 +1948,215 @@ class AppLocalizationsHe extends AppLocalizations {
   String get coachDone => 'סיום';
 
   @override
-  String get coachCreateGroupTitle => 'יצירת קבוצה';
+  String get coachCloseTooltip => 'סגור וחזרה';
+
+  @override
+  String get coachCreateGroupTitle => 'צעד 1: יצירת קבוצה';
 
   @override
   String get coachCreateGroupBody =>
-      'כאן יוצרים קבוצה חדשה לחלוקת הוצאות עם חברים.';
+      'מתחילים כאן: פותחים קבוצה חדשה לטיול, דירה או כל שיתוף הוצאות.';
 
   @override
-  String get coachJoinGroupTitle => 'הצטרפות לקבוצה';
+  String get coachJoinGroupTitle => 'או הצטרפות לקבוצה';
 
   @override
-  String get coachJoinGroupBody =>
-      'קיבלתם קוד הזמנה מחבר? לחצו כאן והקלידו את הקוד.';
+  String get coachJoinGroupBody => 'קיבלתם קוד מחבר? מזינים אותו כאן.';
 
   @override
   String get coachScanQrTitle => 'סריקת QR';
 
   @override
   String get coachScanQrBody =>
-      'אפשר גם לסרוק את קוד ה-QR של החבר במקום להקליד.';
+      'חלופה מהירה: סורקים את ה-QR של החבר ומצטרפים מיד.';
 
   @override
   String get coachNotificationsTitle => 'התראות';
 
   @override
   String get coachNotificationsBody =>
-      'כאן מופיעות הזמנות, עדכוני הוצאות ותזכורות תשלום.';
+      'כאן תראו הוצאות חדשות, הזמנות ותזכורות תשלום, בלי לפספס.';
 
   @override
-  String get coachProfileTitle => 'פרופיל';
+  String get coachProfileTitle => 'פרופיל ותשלום';
 
   @override
-  String get coachProfileBody => 'כאן מעדכנים פרטי תשלום, שפה והגדרות אישיות.';
+  String get coachProfileBody =>
+      'מעדכנים פרטי תשלום ושפה כדי שסגירת חובות תהיה פשוטה.';
+
+  @override
+  String get groupCoachInviteTitle => 'הזמנת חברים';
+
+  @override
+  String get groupCoachInviteBody =>
+      'כאן שולחים קישור הזמנה (עם אפשרות הורדה) או מוסיפים אורח.';
+
+  @override
+  String get groupCoachExpensesTabTitle => 'טאב הוצאות';
+
+  @override
+  String get groupCoachExpensesTabBody => 'כאן רואים את כל ההוצאות של הקבוצה.';
+
+  @override
+  String get groupCoachExpenseTitle => 'הוצאה חדשה';
+
+  @override
+  String get groupCoachExpenseBody =>
+      'לוחצים כאן כדי להוסיף הוצאה. האפליקציה מחלקת את הסכום בין החברים.';
+
+  @override
+  String get groupCoachBalancesTitle => 'מי חייב למי';
+
+  @override
+  String get groupCoachBalancesBody => 'כאן רואים מי חייב למי וסוגרים תשלומים.';
+
+  @override
+  String get groupCoachMembersTitle => 'חברים';
+
+  @override
+  String get groupCoachMembersBody =>
+      'כאן מנהלים חברים ואורחים, ומקשרים אורח לחשבון כשמתחבר.';
+
+  @override
+  String get emptyGroupsChecklistTitle => 'איך מתחילים?';
+
+  @override
+  String get emptyGroupsStep1 => '1. צרו קבוצה חדשה';
+
+  @override
+  String get emptyGroupsStep2 => '2. או הצטרפו עם קוד הזמנה';
+
+  @override
+  String get emptyGroupsStep3 => '3. הזמינו חברים מתוך הקבוצה';
+
+  @override
+  String get emptyExpensesInviteCta => 'הזמן חברים';
+
+  @override
+  String get emptyExpensesAddCta => 'הוצאה חדשה';
+
+  @override
+  String get emptyExpensesProcessHint =>
+      'קודם חברים בקבוצה, אחר כך מוסיפים הוצאות ומתחלקים.';
+
+  @override
+  String get profileHowToTitle => 'איך עובדים עם ShareFlow';
+
+  @override
+  String get profileHowToSubtitle => 'תזכורת קצרה לתהליך השימוש';
+
+  @override
+  String get howToTitle => 'איך עובדים עם ShareFlow';
+
+  @override
+  String get howToSubtitle => 'חמישה שלבים קצרים ואתם מסודרים.';
+
+  @override
+  String get howToStep1 => 'יוצרים קבוצה או מצטרפים עם קוד / QR';
+
+  @override
+  String get howToStep2 =>
+      'מזמינים חברים בקישור (אפשר גם להוריד), או מוסיפים אורח למי שלא מוריד';
+
+  @override
+  String get howToStep3 => 'מוסיפים הוצאות. האפליקציה מחלקת את הסכומים';
+
+  @override
+  String get howToStep4 => 'בטאב חשבון רואים מי חייב למי וסוגרים תשלומים';
+
+  @override
+  String get howToStep5 => 'מקבלים התראה כשנוספת הוצאה או שיש מה לאשר';
+
+  @override
+  String get howToGotIt => 'הבנתי, בואו נתחיל';
+
+  @override
+  String get homeHelpTooltip => 'עזרה';
+
+  @override
+  String get homeHelpAfterTour => 'אפשר לחזור להסבר או לסיור בכל רגע מפרופיל';
+
+  @override
+  String get createGroupMoreOptions => 'אפשרויות נוספות (קטגוריה, מטבע ועוד)';
+
+  @override
+  String get createGroupSubmit => 'צור קבוצה';
+
+  @override
+  String get coachHelpTitle => 'עזרה בכל רגע';
+
+  @override
+  String get coachHelpBody =>
+      'לחיצה כאן פותחת שוב את ההסבר הקצר על איך עובדים עם האפליקציה.';
+
+  @override
+  String get profileTourTitle => 'סיור על הכפתורים';
+
+  @override
+  String get profileTourSubtitle => 'הדגמה חיה של הכפתורים במסך הראשי';
+
+  @override
+  String get scanQrCta => 'סרוק QR';
+
+  @override
+  String get paymentMissingBannerTitle => 'חסרים פרטי תשלום';
+
+  @override
+  String get paymentMissingBannerBody =>
+      'הוסיפו טלפון ל־Bit/PayBox כדי שחברים יוכלו לשלם לכם בקלות';
+
+  @override
+  String get paymentMissingBannerCta => 'הוספת פרטים';
+
+  @override
+  String get balancesNextConfirmTitle => 'מה לעשות עכשיו';
+
+  @override
+  String get balancesNextConfirmBody => 'ממתינים לאישור קבלה שלכם. אשרו למטה';
+
+  @override
+  String get balancesNextPayTitle => 'מה לעשות עכשיו';
+
+  @override
+  String get balancesNextPayBody => 'יש לכם חוב לסגור. לחצו «הסדר תשלום» למטה';
+
+  @override
+  String get balancesNextWaitTitle => 'מה לעשות עכשיו';
+
+  @override
+  String get balancesNextWaitBody => 'ממתינים שאישרו שקיבלו את התשלום שלכם';
+
+  @override
+  String get balancesNextClearTitle => 'הכול מסודר';
+
+  @override
+  String get balancesNextClearBody =>
+      'אין פעולה דחופה. כאן רואים מי חייב למי כשיופיעו חובות';
+
+  @override
+  String get addExpenseMoreOptions => 'עוד אפשרויות (הערות)';
 
   @override
   String get fieldRequiredBadge => 'חובה';
 
   @override
   String get fieldOptionalBadge => 'רשות';
+
+  @override
+  String expensesShowingCount(int count) {
+    return 'מציג $count הוצאות';
+  }
+
+  @override
+  String expensesShowingFilteredCount(int shown, int total) {
+    return 'מציג $shown הוצאות מתוך $total';
+  }
+
+  @override
+  String get iapCancelledOrFailed => 'התשלום בוטל או לא הושלם. נסו שוב.';
+
+  @override
+  String iapProductMissing(int price) {
+    return 'לא נמצא מוצר תשלום למחיר $price ₪. בדקו את הגדרות החנות.';
+  }
 }

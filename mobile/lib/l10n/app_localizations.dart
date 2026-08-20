@@ -287,7 +287,7 @@ abstract class AppLocalizations {
   /// No description provided for @balances.
   ///
   /// In he, this message translates to:
-  /// **'חשבון'**
+  /// **'מי חייב למי'**
   String get balances;
 
   /// No description provided for @settlements.
@@ -623,7 +623,7 @@ abstract class AppLocalizations {
   /// No description provided for @groupClosedSuccess.
   ///
   /// In he, this message translates to:
-  /// **'הקבוצה נסגרה בהצלחה 🔒'**
+  /// **'הקבוצה נסגרה בהצלחה'**
   String get groupClosedSuccess;
 
   /// No description provided for @errorClosingGroup.
@@ -725,7 +725,7 @@ abstract class AppLocalizations {
   /// No description provided for @inviteSentTo.
   ///
   /// In he, this message translates to:
-  /// **'הזמנה נשלחה ל-{email} ✉️'**
+  /// **'הזמנה נשלחה ל-{email}'**
   String inviteSentTo(String email);
 
   /// No description provided for @errorSendingInvite.
@@ -1007,7 +1007,7 @@ abstract class AppLocalizations {
   /// No description provided for @inviteWithAppSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'לחבר שכבר יש לו אפליקציה, או שירצה להוריד'**
+  /// **'לחבר עם אפליקציה, או בלי: בקישור אפשר גם להוריד'**
   String get inviteWithAppSubtitle;
 
   /// No description provided for @addNotesHint.
@@ -1289,7 +1289,7 @@ abstract class AppLocalizations {
   /// No description provided for @noNotificationsHint.
   ///
   /// In he, this message translates to:
-  /// **'כשחברי הקבוצה יוסיפו הוצאות\nתקבל התראה כאן'**
+  /// **'כאן תראו הוצאות חדשות, הזמנות ותזכורות, וגם אישור שקיבלתם תשלום'**
   String get noNotificationsHint;
 
   /// No description provided for @errorLoadingNotifications.
@@ -1931,7 +1931,7 @@ abstract class AppLocalizations {
   /// No description provided for @sendSummary.
   ///
   /// In he, this message translates to:
-  /// **'📤 שלח סיכום'**
+  /// **'שלח סיכום'**
   String get sendSummary;
 
   /// No description provided for @sendPushToAll.
@@ -2561,7 +2561,7 @@ abstract class AppLocalizations {
   /// No description provided for @estimatedCost.
   ///
   /// In he, this message translates to:
-  /// **'עלות משוערת'**
+  /// **'עלות'**
   String get estimatedCost;
 
   /// No description provided for @upToParticipants.
@@ -3267,7 +3267,7 @@ abstract class AppLocalizations {
   /// No description provided for @guestExplainBody.
   ///
   /// In he, this message translates to:
-  /// **'אורח = חבר בלי אפליקציה. הוא נכלל בחלוקה, ואתם מנהלים בשמו עד שיוריד ויתחבר לחשבון.'**
+  /// **'אורח הוא חבר שלא יכול או לא רוצה להוריד את האפליקציה. הוא נכלל בחלוקה, ואתם מנהלים בשמו. אם בהמשך יוריד ויתחבר, אפשר לקשר אותו לחשבון.'**
   String get guestExplainBody;
 
   /// No description provided for @guestReminderTitle.
@@ -3279,7 +3279,7 @@ abstract class AppLocalizations {
   /// No description provided for @guestReminderBody.
   ///
   /// In he, this message translates to:
-  /// **'{count, plural, one{חבר אחד} other{{count} חברים}} מסומנים כאורחים.\nכשיורידו את האפליקציה, קשר אותם לחשבון שלהם דרך לחצן הקישור.'**
+  /// **'{count, plural, one{חבר אחד} other{{count} חברים}} מסומנים כאורחים.\nאם יורידו את האפליקציה בהמשך, קשרו אותם לחשבון דרך לחצן הקישור.'**
   String guestReminderBody(int count);
 
   /// No description provided for @guestReminderAction.
@@ -3309,13 +3309,13 @@ abstract class AppLocalizations {
   /// No description provided for @addGuestOption.
   ///
   /// In he, this message translates to:
-  /// **'אין אפליקציה? הוסיפו כאורח'**
+  /// **'לא יכול / לא מעוניין באפליקציה? הוסיפו כאורח'**
   String get addGuestOption;
 
   /// No description provided for @tipMembersActions.
   ///
   /// In he, this message translates to:
-  /// **'הזמן עם קישור: זה הנתיב הרגיל. אורח רק למי שבלי אפליקציה.'**
+  /// **'הזמן עם קישור (כולל אפשרות הורדה). אורח רק למי שלא יכול או לא רוצה להוריד.'**
   String get tipMembersActions;
 
   /// No description provided for @guestAdminOnlyHint.
@@ -3360,6 +3360,36 @@ abstract class AppLocalizations {
   /// **'האורח שויך בהצלחה'**
   String get linkGuestSuccess;
 
+  /// No description provided for @joinGuestMatchTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'מצאנו אורח דומה'**
+  String get joinGuestMatchTitle;
+
+  /// No description provided for @joinGuestMatchBody.
+  ///
+  /// In he, this message translates to:
+  /// **'בקבוצה יש אורח בשם \"{guestName}\".\nהשם שלך באפליקציה: \"{joinerName}\".\n\nהאם זה אותו אדם שמתחבר עכשיו לאפליקציה, או משתמש חדש?'**
+  String joinGuestMatchBody(String guestName, String joinerName);
+
+  /// No description provided for @joinGuestMatchYes.
+  ///
+  /// In he, this message translates to:
+  /// **'זה האורח, שייכו אליי'**
+  String get joinGuestMatchYes;
+
+  /// No description provided for @joinGuestMatchNo.
+  ///
+  /// In he, this message translates to:
+  /// **'משתמש חדש בקבוצה'**
+  String get joinGuestMatchNo;
+
+  /// No description provided for @joinGuestPickTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'איזה אורח זה אתה?'**
+  String get joinGuestPickTitle;
+
   /// No description provided for @removeGuest.
   ///
   /// In he, this message translates to:
@@ -3387,7 +3417,7 @@ abstract class AppLocalizations {
   /// No description provided for @guestNoApp.
   ///
   /// In he, this message translates to:
-  /// **'עבור חברים שעדיין לא הורידו את האפליקציה'**
+  /// **'לחבר שאין באפשרותו או לא מעוניין להוריד את האפליקציה'**
   String get guestNoApp;
 
   /// No description provided for @perParticipant.
@@ -3543,7 +3573,7 @@ abstract class AppLocalizations {
   /// No description provided for @coachSkip.
   ///
   /// In he, this message translates to:
-  /// **'דלג'**
+  /// **'סגור'**
   String get coachSkip;
 
   /// No description provided for @coachNext.
@@ -3558,28 +3588,34 @@ abstract class AppLocalizations {
   /// **'סיום'**
   String get coachDone;
 
+  /// No description provided for @coachCloseTooltip.
+  ///
+  /// In he, this message translates to:
+  /// **'סגור וחזרה'**
+  String get coachCloseTooltip;
+
   /// No description provided for @coachCreateGroupTitle.
   ///
   /// In he, this message translates to:
-  /// **'יצירת קבוצה'**
+  /// **'צעד 1: יצירת קבוצה'**
   String get coachCreateGroupTitle;
 
   /// No description provided for @coachCreateGroupBody.
   ///
   /// In he, this message translates to:
-  /// **'כאן יוצרים קבוצה חדשה לחלוקת הוצאות עם חברים.'**
+  /// **'מתחילים כאן: פותחים קבוצה חדשה לטיול, דירה או כל שיתוף הוצאות.'**
   String get coachCreateGroupBody;
 
   /// No description provided for @coachJoinGroupTitle.
   ///
   /// In he, this message translates to:
-  /// **'הצטרפות לקבוצה'**
+  /// **'או הצטרפות לקבוצה'**
   String get coachJoinGroupTitle;
 
   /// No description provided for @coachJoinGroupBody.
   ///
   /// In he, this message translates to:
-  /// **'קיבלתם קוד הזמנה מחבר? לחצו כאן והקלידו את הקוד.'**
+  /// **'קיבלתם קוד מחבר? מזינים אותו כאן.'**
   String get coachJoinGroupBody;
 
   /// No description provided for @coachScanQrTitle.
@@ -3591,7 +3627,7 @@ abstract class AppLocalizations {
   /// No description provided for @coachScanQrBody.
   ///
   /// In he, this message translates to:
-  /// **'אפשר גם לסרוק את קוד ה-QR של החבר במקום להקליד.'**
+  /// **'חלופה מהירה: סורקים את ה-QR של החבר ומצטרפים מיד.'**
   String get coachScanQrBody;
 
   /// No description provided for @coachNotificationsTitle.
@@ -3603,20 +3639,308 @@ abstract class AppLocalizations {
   /// No description provided for @coachNotificationsBody.
   ///
   /// In he, this message translates to:
-  /// **'כאן מופיעות הזמנות, עדכוני הוצאות ותזכורות תשלום.'**
+  /// **'כאן תראו הוצאות חדשות, הזמנות ותזכורות תשלום, בלי לפספס.'**
   String get coachNotificationsBody;
 
   /// No description provided for @coachProfileTitle.
   ///
   /// In he, this message translates to:
-  /// **'פרופיל'**
+  /// **'פרופיל ותשלום'**
   String get coachProfileTitle;
 
   /// No description provided for @coachProfileBody.
   ///
   /// In he, this message translates to:
-  /// **'כאן מעדכנים פרטי תשלום, שפה והגדרות אישיות.'**
+  /// **'מעדכנים פרטי תשלום ושפה כדי שסגירת חובות תהיה פשוטה.'**
   String get coachProfileBody;
+
+  /// No description provided for @groupCoachInviteTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הזמנת חברים'**
+  String get groupCoachInviteTitle;
+
+  /// No description provided for @groupCoachInviteBody.
+  ///
+  /// In he, this message translates to:
+  /// **'כאן שולחים קישור הזמנה (עם אפשרות הורדה) או מוסיפים אורח.'**
+  String get groupCoachInviteBody;
+
+  /// No description provided for @groupCoachExpensesTabTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'טאב הוצאות'**
+  String get groupCoachExpensesTabTitle;
+
+  /// No description provided for @groupCoachExpensesTabBody.
+  ///
+  /// In he, this message translates to:
+  /// **'כאן רואים את כל ההוצאות של הקבוצה.'**
+  String get groupCoachExpensesTabBody;
+
+  /// No description provided for @groupCoachExpenseTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הוצאה חדשה'**
+  String get groupCoachExpenseTitle;
+
+  /// No description provided for @groupCoachExpenseBody.
+  ///
+  /// In he, this message translates to:
+  /// **'לוחצים כאן כדי להוסיף הוצאה. האפליקציה מחלקת את הסכום בין החברים.'**
+  String get groupCoachExpenseBody;
+
+  /// No description provided for @groupCoachBalancesTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'מי חייב למי'**
+  String get groupCoachBalancesTitle;
+
+  /// No description provided for @groupCoachBalancesBody.
+  ///
+  /// In he, this message translates to:
+  /// **'כאן רואים מי חייב למי וסוגרים תשלומים.'**
+  String get groupCoachBalancesBody;
+
+  /// No description provided for @groupCoachMembersTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'חברים'**
+  String get groupCoachMembersTitle;
+
+  /// No description provided for @groupCoachMembersBody.
+  ///
+  /// In he, this message translates to:
+  /// **'כאן מנהלים חברים ואורחים, ומקשרים אורח לחשבון כשמתחבר.'**
+  String get groupCoachMembersBody;
+
+  /// No description provided for @emptyGroupsChecklistTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'איך מתחילים?'**
+  String get emptyGroupsChecklistTitle;
+
+  /// No description provided for @emptyGroupsStep1.
+  ///
+  /// In he, this message translates to:
+  /// **'1. צרו קבוצה חדשה'**
+  String get emptyGroupsStep1;
+
+  /// No description provided for @emptyGroupsStep2.
+  ///
+  /// In he, this message translates to:
+  /// **'2. או הצטרפו עם קוד הזמנה'**
+  String get emptyGroupsStep2;
+
+  /// No description provided for @emptyGroupsStep3.
+  ///
+  /// In he, this message translates to:
+  /// **'3. הזמינו חברים מתוך הקבוצה'**
+  String get emptyGroupsStep3;
+
+  /// No description provided for @emptyExpensesInviteCta.
+  ///
+  /// In he, this message translates to:
+  /// **'הזמן חברים'**
+  String get emptyExpensesInviteCta;
+
+  /// No description provided for @emptyExpensesAddCta.
+  ///
+  /// In he, this message translates to:
+  /// **'הוצאה חדשה'**
+  String get emptyExpensesAddCta;
+
+  /// No description provided for @emptyExpensesProcessHint.
+  ///
+  /// In he, this message translates to:
+  /// **'קודם חברים בקבוצה, אחר כך מוסיפים הוצאות ומתחלקים.'**
+  String get emptyExpensesProcessHint;
+
+  /// No description provided for @profileHowToTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'איך עובדים עם ShareFlow'**
+  String get profileHowToTitle;
+
+  /// No description provided for @profileHowToSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'תזכורת קצרה לתהליך השימוש'**
+  String get profileHowToSubtitle;
+
+  /// No description provided for @howToTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'איך עובדים עם ShareFlow'**
+  String get howToTitle;
+
+  /// No description provided for @howToSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'חמישה שלבים קצרים ואתם מסודרים.'**
+  String get howToSubtitle;
+
+  /// No description provided for @howToStep1.
+  ///
+  /// In he, this message translates to:
+  /// **'יוצרים קבוצה או מצטרפים עם קוד / QR'**
+  String get howToStep1;
+
+  /// No description provided for @howToStep2.
+  ///
+  /// In he, this message translates to:
+  /// **'מזמינים חברים בקישור (אפשר גם להוריד), או מוסיפים אורח למי שלא מוריד'**
+  String get howToStep2;
+
+  /// No description provided for @howToStep3.
+  ///
+  /// In he, this message translates to:
+  /// **'מוסיפים הוצאות. האפליקציה מחלקת את הסכומים'**
+  String get howToStep3;
+
+  /// No description provided for @howToStep4.
+  ///
+  /// In he, this message translates to:
+  /// **'בטאב חשבון רואים מי חייב למי וסוגרים תשלומים'**
+  String get howToStep4;
+
+  /// No description provided for @howToStep5.
+  ///
+  /// In he, this message translates to:
+  /// **'מקבלים התראה כשנוספת הוצאה או שיש מה לאשר'**
+  String get howToStep5;
+
+  /// No description provided for @howToGotIt.
+  ///
+  /// In he, this message translates to:
+  /// **'הבנתי, בואו נתחיל'**
+  String get howToGotIt;
+
+  /// No description provided for @homeHelpTooltip.
+  ///
+  /// In he, this message translates to:
+  /// **'עזרה'**
+  String get homeHelpTooltip;
+
+  /// No description provided for @homeHelpAfterTour.
+  ///
+  /// In he, this message translates to:
+  /// **'אפשר לחזור להסבר או לסיור בכל רגע מפרופיל'**
+  String get homeHelpAfterTour;
+
+  /// No description provided for @createGroupMoreOptions.
+  ///
+  /// In he, this message translates to:
+  /// **'אפשרויות נוספות (קטגוריה, מטבע ועוד)'**
+  String get createGroupMoreOptions;
+
+  /// No description provided for @createGroupSubmit.
+  ///
+  /// In he, this message translates to:
+  /// **'צור קבוצה'**
+  String get createGroupSubmit;
+
+  /// No description provided for @coachHelpTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'עזרה בכל רגע'**
+  String get coachHelpTitle;
+
+  /// No description provided for @coachHelpBody.
+  ///
+  /// In he, this message translates to:
+  /// **'לחיצה כאן פותחת שוב את ההסבר הקצר על איך עובדים עם האפליקציה.'**
+  String get coachHelpBody;
+
+  /// No description provided for @profileTourTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'סיור על הכפתורים'**
+  String get profileTourTitle;
+
+  /// No description provided for @profileTourSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הדגמה חיה של הכפתורים במסך הראשי'**
+  String get profileTourSubtitle;
+
+  /// No description provided for @scanQrCta.
+  ///
+  /// In he, this message translates to:
+  /// **'סרוק QR'**
+  String get scanQrCta;
+
+  /// No description provided for @paymentMissingBannerTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'חסרים פרטי תשלום'**
+  String get paymentMissingBannerTitle;
+
+  /// No description provided for @paymentMissingBannerBody.
+  ///
+  /// In he, this message translates to:
+  /// **'הוסיפו טלפון ל־Bit/PayBox כדי שחברים יוכלו לשלם לכם בקלות'**
+  String get paymentMissingBannerBody;
+
+  /// No description provided for @paymentMissingBannerCta.
+  ///
+  /// In he, this message translates to:
+  /// **'הוספת פרטים'**
+  String get paymentMissingBannerCta;
+
+  /// No description provided for @balancesNextConfirmTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'מה לעשות עכשיו'**
+  String get balancesNextConfirmTitle;
+
+  /// No description provided for @balancesNextConfirmBody.
+  ///
+  /// In he, this message translates to:
+  /// **'ממתינים לאישור קבלה שלכם. אשרו למטה'**
+  String get balancesNextConfirmBody;
+
+  /// No description provided for @balancesNextPayTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'מה לעשות עכשיו'**
+  String get balancesNextPayTitle;
+
+  /// No description provided for @balancesNextPayBody.
+  ///
+  /// In he, this message translates to:
+  /// **'יש לכם חוב לסגור. לחצו «הסדר תשלום» למטה'**
+  String get balancesNextPayBody;
+
+  /// No description provided for @balancesNextWaitTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'מה לעשות עכשיו'**
+  String get balancesNextWaitTitle;
+
+  /// No description provided for @balancesNextWaitBody.
+  ///
+  /// In he, this message translates to:
+  /// **'ממתינים שאישרו שקיבלו את התשלום שלכם'**
+  String get balancesNextWaitBody;
+
+  /// No description provided for @balancesNextClearTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'הכול מסודר'**
+  String get balancesNextClearTitle;
+
+  /// No description provided for @balancesNextClearBody.
+  ///
+  /// In he, this message translates to:
+  /// **'אין פעולה דחופה. כאן רואים מי חייב למי כשיופיעו חובות'**
+  String get balancesNextClearBody;
+
+  /// No description provided for @addExpenseMoreOptions.
+  ///
+  /// In he, this message translates to:
+  /// **'עוד אפשרויות (הערות)'**
+  String get addExpenseMoreOptions;
 
   /// No description provided for @fieldRequiredBadge.
   ///
@@ -3629,6 +3953,30 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'רשות'**
   String get fieldOptionalBadge;
+
+  /// No description provided for @expensesShowingCount.
+  ///
+  /// In he, this message translates to:
+  /// **'מציג {count} הוצאות'**
+  String expensesShowingCount(int count);
+
+  /// No description provided for @expensesShowingFilteredCount.
+  ///
+  /// In he, this message translates to:
+  /// **'מציג {shown} הוצאות מתוך {total}'**
+  String expensesShowingFilteredCount(int shown, int total);
+
+  /// No description provided for @iapCancelledOrFailed.
+  ///
+  /// In he, this message translates to:
+  /// **'התשלום בוטל או לא הושלם. נסו שוב.'**
+  String get iapCancelledOrFailed;
+
+  /// No description provided for @iapProductMissing.
+  ///
+  /// In he, this message translates to:
+  /// **'לא נמצא מוצר תשלום למחיר {price} ₪. בדקו את הגדרות החנות.'**
+  String iapProductMissing(int price);
 }
 
 class _AppLocalizationsDelegate

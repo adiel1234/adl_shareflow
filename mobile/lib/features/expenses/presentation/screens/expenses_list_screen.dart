@@ -10,8 +10,11 @@ import '../../domain/expense_model.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/media_url.dart';
+import '../../../../core/utils/currency_format.dart';
 import '../widgets/receipt_viewer.dart';
 import 'edit_expense_screen.dart';
+import 'add_expense_screen.dart';
+import '../../../groups/presentation/widgets/invite_sheet.dart';
 
 // iOS-style category icon helpers (same palette as GroupCard)
 const _kExpBlue   = Color(0xFF1D4ED8);
@@ -144,7 +147,39 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
                           .contains(_query.toLowerCase()))
                       .toList();
 
-              if (allExpenses.isEmpty) return _EmptyExpenses();
+              if (allExpenses.isEmpty) {
+                return _EmptyExpenses(
+                  onInvite: () {
+                    openInviteFlow(
+                      context,
+                      groupId: widget.group.id,
+                      groupName: widget.group.name,
+                      isAdmin: widget.group.isAdmin,
+                      expenseCountHint: widget.group.expenseCount,
+                      onGuestAdded: () {
+                        ref.invalidate(groupMembersProvider(widget.group.id));
+                        ref.invalidate(balancesProvider(widget.group.id));
+                        ref.invalidate(expensesProvider(widget.group.id));
+                        ref.invalidate(groupDetailProvider(widget.group.id));
+                        ref.invalidate(groupsProvider);
+                      },
+                    );
+                  },
+                  onAddExpense: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddExpenseScreen(group: widget.group),
+                      ),
+                    ).then((_) {
+                      ref.invalidate(expensesProvider(widget.group.id));
+                      ref.invalidate(balancesProvider(widget.group.id));
+                      ref.invalidate(groupDetailProvider(widget.group.id));
+                      ref.invalidate(groupsProvider);
+                    });
+                  },
+                );
+              }
               if (expenses.isEmpty) {
                 return Center(
                   child: Text('לא נמצאו הוצאות עבור "$_query"',
@@ -164,9 +199,28 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
                         ref.invalidate(expensesProvider(widget.group.id)),
                     child: ListView.builder(
                       padding: const EdgeInsets.only(bottom: 100),
-                      itemCount: expenses.length,
+                      itemCount: expenses.length + 1,
                       itemBuilder: (context, i) {
-                        final expense = expenses[i];
+                        if (i == 0) {
+                          return Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+                            child: Text(
+                              _query.isNotEmpty &&
+                                      expenses.length != allExpenses.length
+                                  ? AppLocalizations.of(context)!
+                                      .expensesShowingFilteredCount(
+                                          expenses.length, allExpenses.length)
+                                  : AppLocalizations.of(context)!
+                                      .expensesShowingCount(expenses.length),
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          );
+                        }
+                        final expense = expenses[i - 1];
                         return _ExpenseItem(
                           expense: expense,
                           currentUserId: auth.userId,
@@ -438,7 +492,10 @@ class _ExpenseItem extends StatelessWidget {
                   children: [
                     // PRIMARY — original amount (what was actually paid)
                     Text(
-                      '${expense.originalAmount} ${expense.originalCurrency}',
+                      formatAmountWithCurrency(
+                        expense.amountDouble,
+                        expense.originalCurrency,
+                      ),
                       style: const TextStyle(
                           fontWeight: FontWeight.w700, fontSize: 16),
                     ),
@@ -446,12 +503,14 @@ class _ExpenseItem extends StatelessWidget {
                     // SECONDARY — conversion to preferred + user's share
                     if (showConversion)
                       Text(
-                        '≈ ${prefTotal.round()} $prefCurrency',
+                        '≈ ${formatAmountWithCurrency(prefTotal, prefCurrency)}',
                         style: const TextStyle(
                             fontSize: 11, color: AppColors.textDisabled),
                       ),
                     Text(
-                      '${AppLocalizations.of(context)!.yourShare} ${isPositive ? '+' : ''}${prefNet.round()} $prefCurrency',
+                      '${AppLocalizations.of(context)!.yourShare} '
+                      '${isPositive ? '+' : '-'}'
+                      '${formatAmountWithCurrency(prefNet.abs(), prefCurrency)}',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -482,53 +541,69 @@ String _formatDateTime(DateTime dt) {
 }
 
 class _EmptyExpenses extends StatelessWidget {
+  final VoidCallback onInvite;
+  final VoidCallback onAddExpense;
+
+  const _EmptyExpenses({
+    required this.onInvite,
+    required this.onAddExpense,
+  });
+
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: AppColors.surfaceVariant,
-              borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: AppColors.surfaceVariant,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(
+                Icons.receipt_long_outlined,
+                size: 32,
+                color: AppColors.textDisabled,
+              ),
             ),
-            child: const Icon(
-              Icons.receipt_long_outlined,
-              size: 32,
-              color: AppColors.textDisabled,
+            const SizedBox(height: 16),
+            Text(
+              l.noExpenses,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            AppLocalizations.of(context)!.noExpenses,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            AppLocalizations.of(context)!.noExpensesHint,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              AppLocalizations.of(context)!.tipEmptyExpensesInvite,
+            const SizedBox(height: 6),
+            Text(
+              l.emptyExpensesProcessHint,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 color: AppColors.textSecondary,
-                fontSize: 12,
+                fontSize: 13,
                 height: 1.4,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: onInvite,
+              icon: const Icon(Icons.person_add_rounded, size: 18),
+              label: Text(l.emptyExpensesInviteCta),
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: onAddExpense,
+              icon: const Icon(Icons.add, size: 18),
+              label: Text(l.emptyExpensesAddCta),
+            ),
+          ],
+        ),
       ),
     );
   }

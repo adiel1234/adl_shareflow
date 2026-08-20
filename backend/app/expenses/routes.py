@@ -202,12 +202,12 @@ def create_expense(group_id, **kwargs):
     # Build participants
     participants_data = data.get('participants')
     if not participants_data:
-        # Default: split equally among all group members
+        # Default: split equally among all group members (remainder on last share)
         members = GroupMember.query.filter_by(group_id=group_id).all()
         if not members:
             return error_response('No members in group')
-        share = (converted_amount / len(members)).quantize(Decimal('0.01'))
-        for m in members:
+        shares = _equal_participant_shares(converted_amount, len(members))
+        for m, share in zip(members, shares):
             p = ExpenseParticipant(
                 expense_id=expense.id,
                 user_id=m.user_id,
@@ -250,11 +250,14 @@ def create_expense(group_id, **kwargs):
     try:
         from app.models import User
         from app.notifications.service import notify_new_expense
+        import logging
         actor = db.session.get(User, user_id)
         actor_name = actor.display_name if actor else 'מישהו'
         notify_new_expense(expense, actor_name)
     except Exception:
-        pass  # Never block expense creation due to notification failure
+        logging.getLogger(__name__).exception(
+            'notify_new_expense failed for expense %s', expense.id
+        )
 
     return success_response(data=expense.to_dict(), status_code=201)
 

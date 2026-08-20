@@ -271,8 +271,7 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                             color: AppColors.textSecondary,
                           ),
                         ),
-                        secondary: const Text('💬',
-                            style: TextStyle(fontSize: 22)),
+                        secondary: const Icon(Icons.chat_outlined),
                         activeColor: AppColors.primary,
                         contentPadding: EdgeInsets.zero,
                       ),
@@ -293,7 +292,8 @@ class _ReminderSettingsScreenState extends State<ReminderSettingsScreen> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('ℹ️', style: TextStyle(fontSize: 16)),
+                      const Icon(Icons.info_outline,
+                          size: 18, color: AppColors.info),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(

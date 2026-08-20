@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
@@ -28,13 +29,34 @@ class AppRouter {
         final args = settings.arguments as Map<String, dynamic>?;
         final groupId = args?['groupId'] as String? ?? '';
         final initialTab = args?['initialTab'] as int? ?? 0;
+        final openInvite = args?['openInvite'] as bool? ?? false;
+        final forceCoach = args?['forceCoach'] as bool? ?? false;
+        final popOnCoachEnd = args?['popOnCoachEnd'] as bool? ?? false;
         return _fade(_GroupDetailLoader(
           groupId: groupId,
           initialTabIndex: initialTab,
+          openInviteOnStart: openInvite,
+          forceCoach: forceCoach,
+          popOnCoachEnd: popOnCoachEnd,
         ));
       default:
+        // Invite deep links (/join/<code>, shareflow://join/...) are handled by
+        // app_links → pendingInviteCodeProvider. Never show the 404 screen.
+        final name = settings.name ?? '';
+        if (isJoinDeepLinkRoute(name)) {
+          return _fade(const SplashScreen());
+        }
         return _fade(const _NotFoundScreen());
     }
+  }
+
+  /// True for Navigator routes that come from invite deep links.
+  @visibleForTesting
+  static bool isJoinDeepLinkRoute(String name) {
+    final normalized = name.startsWith('/') ? name.substring(1) : name;
+    return normalized == 'join' ||
+        normalized.startsWith('join/') ||
+        name.contains('/join/');
   }
 
   static PageRouteBuilder _fade(Widget page) => PageRouteBuilder(
@@ -61,9 +83,15 @@ class AppRouter {
 class _GroupDetailLoader extends ConsumerWidget {
   final String groupId;
   final int initialTabIndex;
+  final bool openInviteOnStart;
+  final bool forceCoach;
+  final bool popOnCoachEnd;
   const _GroupDetailLoader({
     required this.groupId,
     this.initialTabIndex = 0,
+    this.openInviteOnStart = false,
+    this.forceCoach = false,
+    this.popOnCoachEnd = false,
   });
 
   @override
@@ -79,6 +107,9 @@ class _GroupDetailLoader extends ConsumerWidget {
       data: (group) => GroupDetailScreen(
         group: group,
         initialTabIndex: initialTabIndex,
+        openInviteOnStart: openInviteOnStart,
+        forceCoach: forceCoach,
+        popOnCoachEnd: popOnCoachEnd,
       ),
     );
   }

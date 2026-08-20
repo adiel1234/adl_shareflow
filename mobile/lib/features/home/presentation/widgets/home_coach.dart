@@ -4,18 +4,21 @@ import '../../../../core/storage/secure_storage.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
 
-/// Bumped so users who saw the broken coach get the fixed tour once.
-const kHomeCoachDoneKey = 'home_coach_done_v2';
+/// Bumped for process-oriented first-run tour.
+const kHomeCoachDoneKey = 'home_coach_done_v4';
 
 class CoachTarget {
   final GlobalKey key;
   final String title;
   final String body;
+  /// Called when this step becomes active (e.g. switch tabs first).
+  final Future<void> Function()? onEnter;
 
   const CoachTarget({
     required this.key,
     required this.title,
     required this.body,
+    this.onEnter,
   });
 }
 
@@ -27,18 +30,24 @@ Future<void> markHomeCoachDone() async {
   await AppSecureStorage.write(kHomeCoachDoneKey, 'true');
 }
 
-/// First-run spotlight tour over the main buttons.
+/// First-run spotlight tour over the main home buttons.
 Future<void> showHomeCoach(
+  BuildContext context, {
+  required List<CoachTarget> targets,
+}) async {
+  await showSpotlightCoach(context, targets: targets);
+  await markHomeCoachDone();
+}
+
+/// Reusable spotlight coach (home + group tours).
+Future<void> showSpotlightCoach(
   BuildContext context, {
   required List<CoachTarget> targets,
 }) async {
   final usable = targets
       .where((t) => t.key.currentContext?.findRenderObject() != null)
       .toList();
-  if (usable.isEmpty) {
-    await markHomeCoachDone();
-    return;
-  }
+  if (usable.isEmpty) return;
 
   await showGeneralDialog<void>(
     context: context,
@@ -48,26 +57,45 @@ Future<void> showHomeCoach(
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (ctx, _, __) {
       return SizedBox.expand(
-        child: _HomeCoachDialog(targets: usable),
+        child: _SpotlightCoachDialog(targets: usable),
       );
     },
   );
-  await markHomeCoachDone();
 }
 
-class _HomeCoachDialog extends StatefulWidget {
+class _SpotlightCoachDialog extends StatefulWidget {
   final List<CoachTarget> targets;
-  const _HomeCoachDialog({required this.targets});
+  const _SpotlightCoachDialog({required this.targets});
 
   @override
-  State<_HomeCoachDialog> createState() => _HomeCoachDialogState();
+  State<_SpotlightCoachDialog> createState() => _SpotlightCoachDialogState();
 }
 
-class _HomeCoachDialogState extends State<_HomeCoachDialog> {
+class _SpotlightCoachDialogState extends State<_SpotlightCoachDialog> {
   int _step = 0;
+  bool _entering = false;
 
   static const _cardH = 150.0;
   static const _gap = 10.0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _runOnEnter());
+  }
+
+  Future<void> _runOnEnter() async {
+    final enter = widget.targets[_step].onEnter;
+    if (enter == null) return;
+    setState(() => _entering = true);
+    try {
+      await enter();
+      // Allow layout after tab switch / scroll.
+      await Future<void>.delayed(const Duration(milliseconds: 350));
+    } finally {
+      if (mounted) setState(() => _entering = false);
+    }
+  }
 
   Rect? _targetRect() {
     final ctx = widget.targets[_step].key.currentContext;
@@ -82,7 +110,6 @@ class _HomeCoachDialogState extends State<_HomeCoachDialog> {
     );
   }
 
-  /// Place the card next to the target without covering it.
   double _cardTop(Size screen, EdgeInsets pad, Rect? rect) {
     final minTop = pad.top + 8;
     final maxTop = screen.height - pad.bottom - _cardH - 8;
@@ -108,19 +135,20 @@ class _HomeCoachDialogState extends State<_HomeCoachDialog> {
 
   void _close() => Navigator.of(context).pop();
 
-  void _next() {
+  Future<void> _next() async {
     if (_step >= widget.targets.length - 1) {
       _close();
-    } else {
-      setState(() => _step++);
+      return;
     }
+    setState(() => _step++);
+    await _runOnEnter();
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final target = widget.targets[_step];
-    final rect = _targetRect();
+    final rect = _entering ? null : _targetRect();
     final isLast = _step >= widget.targets.length - 1;
     final size = MediaQuery.sizeOf(context);
     final pad = MediaQuery.paddingOf(context);
@@ -155,7 +183,7 @@ class _HomeCoachDialogState extends State<_HomeCoachDialog> {
                 ),
               ),
             ),
-          Positioned(
+            Positioned(
             left: 16,
             right: 16,
             top: cardTop,
@@ -165,9 +193,12 @@ class _HomeCoachDialogState extends State<_HomeCoachDialog> {
               title: target.title,
               body: target.body,
               primaryLabel: isLast ? l.coachDone : l.coachNext,
-              skipLabel: l.coachSkip,
-              onSkip: _close,
-              onPrimary: _next,
+              closeLabel: l.coachSkip,
+              closeTooltip: l.coachCloseTooltip,
+              onClose: _close,
+              onPrimary: () {
+                _next();
+              },
             ),
           ),
         ],
@@ -182,8 +213,9 @@ class _CoachCard extends StatelessWidget {
   final String title;
   final String body;
   final String primaryLabel;
-  final String skipLabel;
-  final VoidCallback onSkip;
+  final String closeLabel;
+  final String closeTooltip;
+  final VoidCallback onClose;
   final VoidCallback onPrimary;
 
   const _CoachCard({
@@ -192,8 +224,9 @@ class _CoachCard extends StatelessWidget {
     required this.title,
     required this.body,
     required this.primaryLabel,
-    required this.skipLabel,
-    required this.onSkip,
+    required this.closeLabel,
+    required this.closeTooltip,
+    required this.onClose,
     required this.onPrimary,
   });
 
@@ -204,76 +237,97 @@ class _CoachCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(14),
       color: AppColors.surface,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+        padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              '$step / $total',
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              body,
-              style: const TextStyle(
-                fontSize: 12,
-                height: 1.35,
-                color: AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(height: 10),
             Row(
               children: [
-                TextButton(
-                  onPressed: onSkip,
-                  style: TextButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                  ),
-                  child: Text(
-                    skipLabel,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                Text(
+                  '$step / $total',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
                   ),
                 ),
                 const Spacer(),
-                ElevatedButton(
-                  onPressed: onPrimary,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(96, 36),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    primaryLabel,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                IconButton(
+                  tooltip: closeTooltip,
+                  onPressed: onClose,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                  icon: const Icon(Icons.close, size: 20),
+                  color: AppColors.textSecondary,
                 ),
               ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    body,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      height: 1.35,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: onClose,
+                        style: TextButton.styleFrom(
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                        child: Text(
+                          closeLabel,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: onPrimary,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(96, 36),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          primaryLabel,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),

@@ -103,7 +103,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notes => 'Notes';
 
   @override
-  String get balances => 'Ledger';
+  String get balances => 'Who owes whom';
 
   @override
   String get settlements => 'Settlements';
@@ -277,7 +277,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closeGroupShortHint => 'Stops new expenses, does not settle debts';
 
   @override
-  String get groupClosedSuccess => 'Group closed successfully 🔒';
+  String get groupClosedSuccess => 'Group closed successfully';
 
   @override
   String get errorClosingGroup => 'Error closing group';
@@ -331,7 +331,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String inviteSentTo(String email) {
-    return 'Invite sent to $email ✉️';
+    return 'Invite sent to $email';
   }
 
   @override
@@ -479,7 +479,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inviteWithAppSubtitle =>
-      'For someone who has the app, or will download it';
+      'For someone with the app, or without: the link also lets them download';
 
   @override
   String get addNotesHint => 'Add a note...';
@@ -637,7 +637,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noNotificationsHint =>
-      'When group members add expenses\nyou\'ll get a notification here';
+      'New expenses, invites, reminders, and payment confirmations show up here';
 
   @override
   String get errorLoadingNotifications => 'Error loading notifications';
@@ -1337,7 +1337,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pricingSection => 'Pricing';
 
   @override
-  String get estimatedCost => 'Estimated cost';
+  String get estimatedCost => 'Cost';
 
   @override
   String upToParticipants(int count) {
@@ -1760,7 +1760,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guestExplainBody =>
-      'A guest is a member without the app. They\'re included in the split, and you manage payments for them until they install and link their account.';
+      'A guest is a member who can\'t or prefers not to download the app. They\'re included in the split, and you manage for them. If they install later, you can link them to their account.';
 
   @override
   String get guestReminderTitle => 'Guests without an account';
@@ -1773,7 +1773,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$count members',
       one: '1 member',
     );
-    return '$_temp0 are marked as guests.\nOnce they download the app, link them to their account using the link button.';
+    return '$_temp0 are marked as guests.\nIf they download the app later, link them to their account using the link button.';
   }
 
   @override
@@ -1789,11 +1789,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inviteEmailOption => 'Also send by email';
 
   @override
-  String get addGuestOption => 'No app? Add as guest';
+  String get addGuestOption =>
+      'Can\'t or prefer not to use the app? Add as guest';
 
   @override
   String get tipMembersActions =>
-      'Invite with a link: the usual path. Guests only if they don\'t have the app.';
+      'Invite with a link (includes download). Guests only for those who can\'t or prefer not to install.';
 
   @override
   String get guestAdminOnlyHint =>
@@ -1821,6 +1822,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkGuestSuccess => 'Guest linked successfully';
 
   @override
+  String get joinGuestMatchTitle => 'Matching guest found';
+
+  @override
+  String joinGuestMatchBody(String guestName, String joinerName) {
+    return 'This group has a guest named \"$guestName\".\nYour app name: \"$joinerName\".\n\nIs this the same person signing into the app, or a new member?';
+  }
+
+  @override
+  String get joinGuestMatchYes => 'That\'s me, link the guest';
+
+  @override
+  String get joinGuestMatchNo => 'I\'m a new member';
+
+  @override
+  String get joinGuestPickTitle => 'Which guest are you?';
+
+  @override
   String get removeGuest => 'Remove Guest';
 
   @override
@@ -1837,7 +1855,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markGuestPaid => 'Mark as paid (on behalf of guest)';
 
   @override
-  String get guestNoApp => 'For members who haven\'t downloaded the app yet';
+  String get guestNoApp =>
+      'For members who can\'t or prefer not to download the app';
 
   @override
   String perParticipant(String amount) {
@@ -1933,7 +1952,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Camera or gallery, view only, no auto-fill';
 
   @override
-  String get coachSkip => 'Skip';
+  String get coachSkip => 'Close';
 
   @override
   String get coachNext => 'Next';
@@ -1942,43 +1961,225 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coachDone => 'Done';
 
   @override
-  String get coachCreateGroupTitle => 'Create a group';
+  String get coachCloseTooltip => 'Close and go back';
+
+  @override
+  String get coachCreateGroupTitle => 'Step 1: Create a group';
 
   @override
   String get coachCreateGroupBody =>
-      'Tap here to start a new group for splitting expenses with friends.';
+      'Start here: open a new group for a trip, flat, or any shared expenses.';
 
   @override
-  String get coachJoinGroupTitle => 'Join a group';
+  String get coachJoinGroupTitle => 'Or join a group';
 
   @override
   String get coachJoinGroupBody =>
-      'Got an invite code from a friend? Tap here and enter it.';
+      'Got a code from a friend? Enter it here. You can also scan their QR nearby.';
 
   @override
   String get coachScanQrTitle => 'Scan QR';
 
   @override
   String get coachScanQrBody =>
-      'You can also scan a friend\'s QR code instead of typing.';
+      'A fast alternative to typing: scan a friend\'s QR and join instantly.';
 
   @override
-  String get coachNotificationsTitle => 'Notifications';
+  String get coachNotificationsTitle => 'Step 3: Notifications';
 
   @override
   String get coachNotificationsBody =>
-      'Invites, expense updates, and payment reminders show up here.';
+      'New expenses, invites, and payment reminders show up here.';
 
   @override
-  String get coachProfileTitle => 'Profile';
+  String get coachProfileTitle => 'Step 4: Profile & payments';
 
   @override
   String get coachProfileBody =>
-      'Update payment details, language, and personal settings here.';
+      'Update payment details and language so settling up is easy.';
+
+  @override
+  String get groupCoachInviteTitle => 'Invite friends';
+
+  @override
+  String get groupCoachInviteBody =>
+      'Send an invite link (with download option) or add a guest.';
+
+  @override
+  String get groupCoachExpensesTabTitle => 'Expenses tab';
+
+  @override
+  String get groupCoachExpensesTabBody => 'See all group expenses here.';
+
+  @override
+  String get groupCoachExpenseTitle => 'New expense';
+
+  @override
+  String get groupCoachExpenseBody =>
+      'Tap here to add an expense. The app splits the amount.';
+
+  @override
+  String get groupCoachBalancesTitle => 'Who owes whom';
+
+  @override
+  String get groupCoachBalancesBody =>
+      'See who owes whom and settle payments here.';
+
+  @override
+  String get groupCoachMembersTitle => 'Members';
+
+  @override
+  String get groupCoachMembersBody =>
+      'Manage members and guests, and link a guest when they join.';
+
+  @override
+  String get emptyGroupsChecklistTitle => 'How to start?';
+
+  @override
+  String get emptyGroupsStep1 => '1. Create a new group';
+
+  @override
+  String get emptyGroupsStep2 => '2. Or join with an invite code';
+
+  @override
+  String get emptyGroupsStep3 => '3. Invite friends from inside the group';
+
+  @override
+  String get emptyExpensesInviteCta => 'Invite friends';
+
+  @override
+  String get emptyExpensesAddCta => 'New expense';
+
+  @override
+  String get emptyExpensesProcessHint =>
+      'Add friends first, then log expenses and split.';
+
+  @override
+  String get profileHowToTitle => 'How ShareFlow works';
+
+  @override
+  String get profileHowToSubtitle => 'A short reminder of the flow';
+
+  @override
+  String get howToTitle => 'How ShareFlow works';
+
+  @override
+  String get howToSubtitle => 'Five short steps and you\'re set.';
+
+  @override
+  String get howToStep1 => 'Create a group or join with a code / QR';
+
+  @override
+  String get howToStep2 =>
+      'Invite friends with a link (they can also download), or add a guest if they won\'t install';
+
+  @override
+  String get howToStep3 => 'Add expenses. The app splits the amounts';
+
+  @override
+  String get howToStep4 => 'In Balances see who owes whom and settle up';
+
+  @override
+  String get howToStep5 =>
+      'Get notified when an expense is added or something needs approval';
+
+  @override
+  String get howToGotIt => 'Got it, let\'s go';
+
+  @override
+  String get homeHelpTooltip => 'Help';
+
+  @override
+  String get homeHelpAfterTour =>
+      'You can reopen the guide or button tour anytime from Profile';
+
+  @override
+  String get createGroupMoreOptions =>
+      'More options (category, currency, etc.)';
+
+  @override
+  String get createGroupSubmit => 'Create group';
+
+  @override
+  String get coachHelpTitle => 'Help anytime';
+
+  @override
+  String get coachHelpBody =>
+      'Tap here to open the short guide on how ShareFlow works.';
+
+  @override
+  String get profileTourTitle => 'Button tour';
+
+  @override
+  String get profileTourSubtitle =>
+      'Live walkthrough of the main screen buttons';
+
+  @override
+  String get scanQrCta => 'Scan QR';
+
+  @override
+  String get paymentMissingBannerTitle => 'Payment details missing';
+
+  @override
+  String get paymentMissingBannerBody =>
+      'Add a phone for Bit/PayBox so friends can pay you easily';
+
+  @override
+  String get paymentMissingBannerCta => 'Add details';
+
+  @override
+  String get balancesNextConfirmTitle => 'What to do now';
+
+  @override
+  String get balancesNextConfirmBody =>
+      'A payment is waiting for your confirmation. Approve below';
+
+  @override
+  String get balancesNextPayTitle => 'What to do now';
+
+  @override
+  String get balancesNextPayBody =>
+      'You have a debt to settle. Tap Settle up below';
+
+  @override
+  String get balancesNextWaitTitle => 'What to do now';
+
+  @override
+  String get balancesNextWaitBody =>
+      'Waiting for them to confirm they received your payment';
+
+  @override
+  String get balancesNextClearTitle => 'All clear';
+
+  @override
+  String get balancesNextClearBody =>
+      'Nothing urgent. You\'ll see who owes whom when debts appear';
+
+  @override
+  String get addExpenseMoreOptions => 'More options (notes)';
 
   @override
   String get fieldRequiredBadge => 'Required';
 
   @override
   String get fieldOptionalBadge => 'Optional';
+
+  @override
+  String expensesShowingCount(int count) {
+    return 'Showing $count expenses';
+  }
+
+  @override
+  String expensesShowingFilteredCount(int shown, int total) {
+    return 'Showing $shown of $total expenses';
+  }
+
+  @override
+  String get iapCancelledOrFailed =>
+      'Payment was cancelled or could not be completed. Try again.';
+
+  @override
+  String iapProductMissing(int price) {
+    return 'No store product for $price. Check in-app purchase setup.';
+  }
 }

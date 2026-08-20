@@ -33,7 +33,10 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
 
   int get _price {
     if (_isUpgrade) return widget.group.upgradePriceDiff ?? 0;
-    if (_isExtend) return 15;
+    if (_isExtend) {
+      return widget.group.requiredPriceAmount ??
+          widget.group.estimatedPrice().clamp(15, 45);
+    }
     return widget.group.estimatedPrice();
   }
 
@@ -66,11 +69,30 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
 
       IapPurchaseResult? iapResult;
       if (paymentsEnabled) {
-        // Trigger in-app purchase before calling backend
+        final productId = IapService.instance.productIdForPrice(_price);
+        if (productId == null || _price <= 0) {
+          if (mounted) {
+            setState(() => _loading = false);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  AppLocalizations.of(context)!.iapProductMissing(_price),
+                ),
+              ),
+            );
+          }
+          return;
+        }
         iapResult = await IapService.instance.purchase(priceIls: _price);
         if (iapResult == null) {
-          // User cancelled or IAP unavailable
-          if (mounted) setState(() => _loading = false);
+          if (mounted) {
+            setState(() => _loading = false);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.iapCancelledOrFailed),
+              ),
+            );
+          }
           return;
         }
       }

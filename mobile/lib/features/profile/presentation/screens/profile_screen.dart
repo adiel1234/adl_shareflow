@@ -15,9 +15,12 @@ import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import 'reminder_settings_screen.dart';
 import 'payment_details_screen.dart';
+import '../../../home/presentation/widgets/home_howto.dart';
+import '../../../home/presentation/screens/main_shell.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback? onReplayTour;
+  const ProfileScreen({super.key, this.onReplayTour});
 
   @override
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
@@ -271,6 +274,63 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
           const SizedBox(height: 32),
 
+          if (ref.watch(profileIncompleteProvider)) ...[
+            Material(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(14),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const PaymentDetailsScreen()),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    children: [
+                      Icon(Icons.account_balance_wallet_outlined,
+                          color: Colors.orange.shade800),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l.paymentMissingBannerTitle,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.orange.shade900,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              l.paymentMissingBannerBody,
+                              style: TextStyle(
+                                fontSize: 12,
+                                height: 1.35,
+                                color: Colors.orange.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        l.paymentMissingBannerCta,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.orange.shade900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+
           // Settings section
           _SectionHeader(label: l.appSection),
           _LanguageTile(),
@@ -299,6 +359,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               MaterialPageRoute(
                   builder: (_) => const PaymentDetailsScreen()),
             ),
+          ),
+          _SettingsTile(
+            icon: Icons.touch_app_outlined,
+            title: l.profileTourTitle,
+            subtitle: l.profileTourSubtitle,
+            onTap: () {
+              if (widget.onReplayTour != null) {
+                widget.onReplayTour!();
+              }
+            },
+          ),
+          _SettingsTile(
+            icon: Icons.menu_book_outlined,
+            title: l.profileHowToTitle,
+            subtitle: l.profileHowToSubtitle,
+            onTap: () => showHomeHowTo(context, markDone: false),
           ),
 
           const SizedBox(height: 20),

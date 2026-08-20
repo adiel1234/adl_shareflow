@@ -63,7 +63,13 @@ def register_fcm_token():
         plat = 'ios'
 
     existing = FCMToken.query.filter_by(user_id=user_id, token=token).first()
-    if not existing:
+    if existing:
+        if existing.platform != plat:
+            existing.platform = plat
+            db.session.commit()
+    else:
+        # Drop stale duplicate rows for the same physical token under another user
+        FCMToken.query.filter_by(token=token).delete()
         ft = FCMToken(user_id=user_id, token=token, platform=plat)
         db.session.add(ft)
         db.session.commit()
@@ -114,7 +120,10 @@ def test_push():
     firebase_ok = app is not None
 
     sent = fcm_service._send_to_user_impl(
-        user_id, 'בדיקה מ-Railway', 'Firebase עובד על השרת ✅', {'type': 'test'}
+        user_id,
+        'בדיקת פוש — ADL ShareFlow',
+        'אם אתה רואה את זה — הפושים עובדים',
+        {'type': 'test'},
     ) if firebase_ok else 0
 
     return success_response(data={

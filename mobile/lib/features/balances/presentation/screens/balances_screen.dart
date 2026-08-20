@@ -9,6 +9,7 @@ import '../../../../features/balances/data/balance_repository.dart';
 import '../../../../providers/balances_provider.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/expenses_provider.dart';
+import '../../../../providers/currency_provider.dart';
 import '../../../groups/domain/group_model.dart';
 import '../../../groups/domain/period_report_model.dart';
 import '../../../../providers/groups_provider.dart';
@@ -18,6 +19,7 @@ import '../../domain/payment_scenario_labels.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/amount_display.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/currency_format.dart';
 import 'event_summary_screen.dart';
 import '../../../groups/presentation/screens/payment_options_screen.dart';
 import '../../../../services/share_service.dart';
@@ -138,6 +140,10 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen>
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
         children: [
+          // Next action — one clear thing to do
+          _BalancesNextActionCard(groupId: group.id),
+          const SizedBox(height: 12),
+
           // Total expenses summary card
           _TotalExpensesCard(group: group),
           const SizedBox(height: 12),
@@ -373,6 +379,95 @@ class _BalancesScreenState extends ConsumerState<BalancesScreen>
 
   static String _fmtDate(DateTime dt) =>
       '${dt.day}/${dt.month}/${dt.year}';
+}
+
+// ── Next action card ─────────────────────────────────────────────────────────
+
+class _BalancesNextActionCard extends ConsumerWidget {
+  final String groupId;
+  const _BalancesNextActionCard({required this.groupId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
+    final auth = ref.watch(authProvider);
+    final me = auth.userId ?? '';
+    final pendingAsync = ref.watch(pendingSettlementsProvider(groupId));
+    final planAsync = ref.watch(settlementPlanProvider(groupId));
+
+    final pending = pendingAsync.maybeWhen(data: (r) => r, orElse: () => null);
+    final plan = planAsync.maybeWhen(data: (s) => s, orElse: () => null);
+    if (pending == null || plan == null) return const SizedBox.shrink();
+
+    String title;
+    String body;
+    Color accent;
+
+    final toConfirm = pending.where((r) => r.canConfirm).toList();
+    final myPendingAsDebtor = pending
+        .where((r) => r.fromUserId == me && r.status == 'pending')
+        .toList();
+    final iOwe = plan.where((s) => s.fromUserId == me).toList();
+
+    if (toConfirm.isNotEmpty) {
+      title = l.balancesNextConfirmTitle;
+      body = l.balancesNextConfirmBody;
+      accent = const Color(0xFF059669);
+    } else if (iOwe.isNotEmpty && myPendingAsDebtor.isEmpty) {
+      title = l.balancesNextPayTitle;
+      body = l.balancesNextPayBody;
+      accent = AppColors.primary;
+    } else if (myPendingAsDebtor.isNotEmpty) {
+      title = l.balancesNextWaitTitle;
+      body = l.balancesNextWaitBody;
+      accent = Colors.orange.shade700;
+    } else {
+      title = l.balancesNextClearTitle;
+      body = l.balancesNextClearBody;
+      accent = AppColors.textSecondary;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: accent.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.flag_outlined, color: accent, size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: accent,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  body,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    height: 1.35,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // ── Period reports history ───────────────────────────────────────────────────
@@ -741,8 +836,9 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
 
   void _shareGuestDebtWhatsApp(BuildContext context, SettlementSuggestion s) {
     final amount = s.amountDouble.round();
+    final money = formatAmountWithCurrency(amount, s.currency);
     final text =
-        'היי ${s.fromDisplayName}, יש לשלם ${amount} ${s.currency} ל-${s.toDisplayName} '
+        'היי ${s.fromDisplayName}, יש לשלם $money ל-${s.toDisplayName} '
         '(קבוצה: ${widget.group.name} ב-ADL ShareFlow)';
     ShareService.shareDebtReminder(text: text, phone: s.fromPhone);
   }
@@ -750,8 +846,9 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
   Future<void> _remindViaWhatsApp(
       BuildContext context, SettlementSuggestion s) async {
     final amount = s.amountDouble.round();
+    final money = formatAmountWithCurrency(amount, s.currency);
     final text =
-        'היי ${s.fromDisplayName}, יש לשלם $amount ${s.currency} ל-${s.toDisplayName} '
+        'היי ${s.fromDisplayName}, יש לשלם $money ל-${s.toDisplayName} '
         '(קבוצה: ${widget.group.name} ב-ADL ShareFlow)';
     await ShareService.shareDebtReminder(text: text, phone: s.fromPhone);
   }
@@ -1494,6 +1591,13 @@ class _MemberBalanceRow extends StatelessWidget {
             ? AppColors.positive
             : AppColors.negative;
 
+    final money = formatAmountWithCurrency(net.abs(), currency);
+    final signedMoney = net < 0
+        ? '-$money'
+        : isPos
+            ? '+$money'
+            : money;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -1526,7 +1630,7 @@ class _MemberBalanceRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${isPos ? '+' : ''}${net.round()} $currency',
+                signedMoney,
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
@@ -1574,6 +1678,8 @@ class _TotalExpensesCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final expensesAsync = ref.watch(expensesProvider(group.id));
+    final auth = ref.watch(authProvider);
+    final prefCurrency = auth.preferredCurrency;
 
     return expensesAsync.when(
       loading: () => const _LoadingCard(),
@@ -1584,17 +1690,37 @@ class _TotalExpensesCard extends ConsumerWidget {
             expenses.where((e) => e.periodReportId == null).toList();
         final count = currentExpenses.length;
 
-        final currencyTotals = <String, double>{};
+        var displayTotal = double.tryParse(group.totalExpensesAmount) ?? 0;
+        var displayCurrency = group.baseCurrency;
         if (!group.isPeriodic) {
-          // Authoritative total: all expenses in group base currency.
-          currencyTotals[group.baseCurrency] =
-              double.tryParse(group.totalExpensesAmount) ?? 0;
-        } else {
-          for (final e in currentExpenses) {
-            final c = e.originalCurrency;
-            final a = double.tryParse(e.originalAmount) ?? 0;
-            currencyTotals[c] = (currencyTotals[c] ?? 0) + a;
+          if (prefCurrency != group.baseCurrency) {
+            final conv = ref
+                .watch(conversionProvider(conversionParams(
+                  from: group.baseCurrency,
+                  to: prefCurrency,
+                  amount: displayTotal,
+                )))
+                .valueOrNull;
+            if (conv != null) {
+              displayTotal = conv.convertedAmount;
+              displayCurrency = prefCurrency;
+            }
+          } else {
+            displayCurrency = prefCurrency;
           }
+        }
+
+        final currencyTotals = <String, double>{};
+        for (final e in currentExpenses) {
+          final c = e.originalCurrency;
+          final a = double.tryParse(e.originalAmount) ?? 0;
+          if (a == 0) continue;
+          currencyTotals[c] = (currencyTotals[c] ?? 0) + a;
+        }
+        // Fallback when expenses list empty but group has a known total.
+        // Never use lifetime total under a "current period" label.
+        if (currencyTotals.isEmpty && displayTotal > 0 && !group.isPeriodic) {
+          currencyTotals[displayCurrency] = displayTotal;
         }
 
         return Container(
@@ -1608,7 +1734,8 @@ class _TotalExpensesCard extends ConsumerWidget {
             children: [
               const Padding(
                 padding: EdgeInsets.only(top: 2),
-                child: Text('💳', style: TextStyle(fontSize: 26)),
+                child: Icon(Icons.receipt_long_rounded,
+                    color: Colors.white, size: 26),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -1637,7 +1764,7 @@ class _TotalExpensesCard extends ConsumerWidget {
                       ...currencyTotals.entries.map((entry) => Padding(
                             padding: const EdgeInsets.only(bottom: 2),
                             child: Text(
-                              '${entry.value.round()} ${entry.key}',
+                              formatAmountWithCurrency(entry.value, entry.key),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 22,

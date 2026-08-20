@@ -4,10 +4,12 @@ import '../../../groups/presentation/screens/groups_screen.dart';
 import '../../../notifications/presentation/screens/notifications_screen.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../../providers/auth_provider.dart';
+import '../../../../providers/groups_provider.dart';
 import '../../../../providers/notifications_provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../widgets/home_coach.dart';
+import '../widgets/home_howto.dart';
 
 final _navIndexProvider = StateProvider<int>((_) => 0);
 
@@ -42,18 +44,7 @@ class _MainShellState extends ConsumerState<MainShell> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowCoach());
   }
 
-  Future<void> _maybeShowCoach() async {
-    if (_coachStarted || !mounted) return;
-    _coachStarted = true;
-    if (await isHomeCoachDone()) return;
-    // Let the first frame settle so GlobalKeys have render boxes.
-    await Future<void>.delayed(const Duration(milliseconds: 700));
-    if (!mounted) return;
-
-    final l = AppLocalizations.of(context)!;
-    await showHomeCoach(
-      context,
-      targets: [
+  List<CoachTarget> _homeCoachTargets(AppLocalizations l) => [
         CoachTarget(
           key: _createKey,
           title: l.coachCreateGroupTitle,
@@ -79,8 +70,77 @@ class _MainShellState extends ConsumerState<MainShell> {
           title: l.coachProfileTitle,
           body: l.coachProfileBody,
         ),
-      ],
+      ];
+
+  Future<void> _openGroupButtonTour({required bool force}) async {
+    if (!mounted) return;
+    try {
+      final groups = await ref.read(groupsProvider.future);
+      final operational = groups.where((g) => g.isOperational && !g.isClosed);
+      if (operational.isEmpty || !mounted) return;
+      final group = operational.first;
+      await Navigator.of(context).pushNamed(
+        '/group-detail',
+        arguments: {
+          'groupId': group.id,
+          'forceCoach': force,
+          'popOnCoachEnd': true,
+        },
+      );
+    } catch (_) {
+      // No groups loaded — skip group tour.
+    }
+  }
+
+  Future<void> _replayTour() async {
+    if (!mounted) return;
+    ref.read(_navIndexProvider.notifier).state = 0;
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    if (!mounted) return;
+    final l = AppLocalizations.of(context)!;
+    await showHomeCoach(context, targets: _homeCoachTargets(l));
+    if (!mounted) return;
+    await _openGroupButtonTour(force: true);
+  }
+
+  void _showHelpHintSnack() {
+    if (!mounted) return;
+    final l = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l.homeHelpAfterTour),
+        duration: const Duration(seconds: 4),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
+  }
+
+  Future<void> _maybeShowCoach() async {
+    if (_coachStarted || !mounted) return;
+    _coachStarted = true;
+
+    var showedTour = false;
+
+    if (!await isHomeCoachDone()) {
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      if (!mounted) return;
+      final l = AppLocalizations.of(context)!;
+      showedTour = true;
+      await showHomeCoach(context, targets: _homeCoachTargets(l));
+      if (!mounted) return;
+      await _openGroupButtonTour(force: false);
+    }
+
+    if (!mounted) return;
+    if (!await isHomeHowToDone()) {
+      if (!mounted) return;
+      showedTour = true;
+      await showHomeHowTo(context);
+    }
+
+    if (showedTour && mounted) {
+      _showHelpHintSnack();
+    }
   }
 
   @override
@@ -96,11 +156,18 @@ class _MainShellState extends ConsumerState<MainShell> {
         coachCreateKey: _createKey,
       ),
       const NotificationsScreen(),
-      const ProfileScreen(),
+      ProfileScreen(
+        onReplayTour: _replayTour,
+      ),
     ];
 
     return Scaffold(
-      body: IndexedStack(index: index, children: screens),
+      // Keep body above the bottom nav; avoid edge-to-edge overlap on Android.
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        bottom: false,
+        child: IndexedStack(index: index, children: screens),
+      ),
       bottomNavigationBar: _BottomNav(
         currentIndex: index,
         unreadCount: unread,

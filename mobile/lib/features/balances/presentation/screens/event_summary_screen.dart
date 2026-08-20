@@ -13,6 +13,7 @@ import '../../data/balance_repository.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../services/share_service.dart';
+import '../../../../core/utils/currency_format.dart';
 
 class EventSummaryScreen extends ConsumerStatefulWidget {
   final Group group;
@@ -509,7 +510,8 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
             ),
             child: Column(
               children: [
-                const Text('💳', style: TextStyle(fontSize: 36)),
+                const Icon(Icons.receipt_long_rounded,
+                    color: Colors.white, size: 36),
                 const SizedBox(height: 8),
                 Text(
                   widget.group.name,
@@ -523,18 +525,18 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _StatChip(
-                      icon: '👥',
+                      icon: Icons.people_outline,
                       label: l.participants,
                       value: '${s['member_count']}',
                     ),
                     _StatChip(
-                      icon: '📊',
+                      icon: Icons.bar_chart_rounded,
                       label: l.costPerParticipant,
                       value: s['avg_per_member'] as String? ?? '0',
                     ),
                     if (s['top_payer'] != null)
                       _StatChip(
-                        icon: '🏆',
+                        icon: Icons.emoji_events_outlined,
                         label: 'שילם הכי הרבה',
                         value: (s['top_payer'] as Map)['display_name'] as String? ?? '',
                       ),
@@ -550,7 +552,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '🏆 ${(s['top_payer'] as Map)['display_name']} שילם/ה '
+                      '${(s['top_payer'] as Map)['display_name']} שילם/ה '
                       '${(s['top_payer'] as Map)['total_paid']}',
                       style: const TextStyle(
                           color: Colors.white,
@@ -618,7 +620,8 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
               ),
               child: Row(
                 children: [
-                  const Text('⚠️', style: TextStyle(fontSize: 22)),
+                  const Icon(Icons.warning_amber_rounded,
+                      size: 24, color: AppColors.negative),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -757,18 +760,18 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
   Future<void> _remindViaWhatsApp(Map t) async {
     final fromName = t['from_name'] as String? ?? '';
     final toName = t['to_name'] as String? ?? '';
-    final amount = _formatAmount(t['amount']);
+    final amount = double.tryParse(t['amount']?.toString() ?? '0') ?? 0;
     final currency = t['currency'] as String? ?? '';
     final phone = t['from_phone'] as String?;
     final text =
-        'היי $fromName, יש לשלם $amount $currency ל-$toName '
+        'היי $fromName, יש לשלם ${formatAmountWithCurrency(amount, currency)} ל-$toName '
         '(קבוצה: ${widget.group.name} ב-ADL ShareFlow)';
     await ShareService.shareDebtReminder(text: text, phone: phone);
   }
 }
 
 class _StatChip extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String label;
   final String value;
   const _StatChip(
@@ -778,7 +781,7 @@ class _StatChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(icon, style: const TextStyle(fontSize: 20)),
+        Icon(icon, color: Colors.white, size: 22),
         const SizedBox(height: 4),
         Text(value,
             style: const TextStyle(
@@ -1110,13 +1113,7 @@ class _TotalAmountsDisplay extends StatelessWidget {
     );
   }
 
-  String _currencySymbol(String code) {
-    const symbols = {
-      'ILS': '₪', 'USD': '\$', 'EUR': '€',
-      'GBP': '£', 'JPY': '¥', 'CHF': 'Fr',
-    };
-    return symbols[code.toUpperCase()] ?? code;
-  }
+  String _currencySymbol(String code) => currencySymbol(code);
 
   String _formatNumber(int n) {
     final s = n.toString();

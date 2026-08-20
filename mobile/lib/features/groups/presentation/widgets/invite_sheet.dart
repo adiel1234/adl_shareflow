@@ -384,6 +384,7 @@ Future<void> openInviteFlow(
         expenseCount: expenseCount,
         isAdmin: isAdmin,
         onGuestAdded: onGuestAdded,
+        showGuestSection: false,
       ),
     );
   } catch (e) {
@@ -453,6 +454,8 @@ class InviteSheet extends StatefulWidget {
   final int expenseCount;
   final bool isAdmin;
   final VoidCallback? onGuestAdded;
+  /// When false, hide the in-sheet guest form (guest was a separate flow).
+  final bool showGuestSection;
 
   const InviteSheet({
     super.key,
@@ -464,6 +467,7 @@ class InviteSheet extends StatefulWidget {
     this.expenseCount = 0,
     this.isAdmin = false,
     this.onGuestAdded,
+    this.showGuestSection = true,
   });
 
   @override
@@ -655,8 +659,8 @@ class _InviteSheetState extends State<InviteSheet> {
           ),
           const SizedBox(height: 16),
 
-          // Guest without app — admins get the form; others get a clear hint
-          if (widget.isAdmin) ...[
+          // Guest without app — only when this sheet is the guest entry point
+          if (widget.isAdmin && widget.showGuestSection) ...[
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
@@ -760,7 +764,7 @@ class _InviteSheetState extends State<InviteSheet> {
               ),
             ),
             const SizedBox(height: 10),
-          ] else ...[
+          ] else if (!widget.isAdmin) ...[
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

@@ -545,17 +545,34 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 },
               ),
 
-              _FieldSection(
-                title: AppLocalizations.of(context)!.optionalNotes,
-                required: false,
-                child: TextFormField(
-                  controller: _notesCtrl,
-                  maxLines: 2,
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.addNotesHint,
-                    filled: true,
-                    fillColor: AppColors.background,
+              Theme(
+                data: Theme.of(context)
+                    .copyWith(dividerColor: Colors.transparent),
+                child: ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  title: Text(
+                    AppLocalizations.of(context)!.addExpenseMoreOptions,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
                   ),
+                  children: [
+                    _FieldSection(
+                      title: AppLocalizations.of(context)!.optionalNotes,
+                      required: false,
+                      child: TextFormField(
+                        controller: _notesCtrl,
+                        maxLines: 2,
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(context)!.addNotesHint,
+                          filled: true,
+                          fillColor: AppColors.background,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 

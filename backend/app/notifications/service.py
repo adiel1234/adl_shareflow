@@ -49,18 +49,25 @@ def _guest_display(user_id: str) -> str | None:
 
 def notify_new_expense(expense, actor_name: str):
     """Notify all group members when a new expense is added."""
-    from app.models import Group
+    from sqlalchemy.orm import joinedload
+    from app.models import Group, User
     group = db.session.get(Group, expense.group_id)
     group_name = group.name if group else ''
-    members = GroupMember.query.filter_by(group_id=expense.group_id).all()
+    members = (
+        GroupMember.query
+        .options(joinedload(GroupMember.user))
+        .filter_by(group_id=expense.group_id)
+        .all()
+    )
     title = f'הוצאה חדשה - {group_name}' if group_name else 'הוצאה חדשה נוספה'
     body = f'{actor_name} הוסיף: {expense.title} - {expense.original_amount} {expense.original_currency}'
 
     for member in members:
         if member.user_id == expense.paid_by:
-            continue  # Don't notify the one who added it
-        # Skip guests — admin is already in the loop and will be notified
-        if member.user and member.user.is_guest:
+            continue  # Don't notify the payer
+        user = member.user or db.session.get(User, member.user_id)
+        # Skip guests — they have no app / FCM token
+        if user and user.is_guest:
             continue
         notif = Notification(
             user_id=member.user_id,
@@ -76,11 +83,16 @@ def notify_new_expense(expense, actor_name: str):
 
     db.session.commit()
 
-    # FCM — skip guests (admin already in list)
-    recipient_ids = [
-        m.user_id for m in members
-        if m.user_id != expense.paid_by and not (m.user and m.user.is_guest)
-    ]
+    # FCM — skip guests and the payer
+    recipient_ids = []
+    for m in members:
+        if m.user_id == expense.paid_by:
+            continue
+        user = m.user or db.session.get(User, m.user_id)
+        if user and user.is_guest:
+            continue
+        recipient_ids.append(m.user_id)
+
     fcm_service.send_to_users(recipient_ids, title, body, {
         'type': 'new_expense',
         'group_id': expense.group_id,

@@ -8,11 +8,17 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 ///   • App Store Connect → Your App → In-App Purchases
 ///   • Google Play Console → Monetize → In-app products
 const Map<int, String> kPriceToProductId = {
+  // Tier upgrades (price diffs)
+  5: 'com.adl.shareflow.tier_5',
+  10: 'com.adl.shareflow.tier_10',
+  // Event activation / extension
   15: 'com.adl.shareflow.tier_15',
   20: 'com.adl.shareflow.tier_20',
+  25: 'com.adl.shareflow.tier_25',
   30: 'com.adl.shareflow.tier_30',
   35: 'com.adl.shareflow.tier_35',
   45: 'com.adl.shareflow.tier_45',
+  // Ongoing
   49: 'com.adl.shareflow.tier_49',
   69: 'com.adl.shareflow.tier_69',
   79: 'com.adl.shareflow.tier_79',

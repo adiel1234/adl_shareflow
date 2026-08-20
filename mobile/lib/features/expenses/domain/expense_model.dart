@@ -86,20 +86,6 @@ class Expense {
     );
   }
 
-  String get categoryEmoji {
-    switch (category) {
-      case 'food': return '🍔';
-      case 'travel': return '✈️';
-      case 'housing': return '🏠';
-      case 'transport': return '🚌';
-      case 'entertainment': return '🎬';
-      case 'shopping': return '🛍️';
-      case 'health': return '💊';
-      case 'utilities': return '💡';
-      default: return '💳';
-    }
-  }
-
   double get amountDouble => double.tryParse(originalAmount) ?? 0;
 }
 

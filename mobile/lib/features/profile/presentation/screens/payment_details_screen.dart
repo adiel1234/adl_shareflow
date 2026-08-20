@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../providers/auth_provider.dart';
 import '../../../../theme/app_colors.dart';
 
-class PaymentDetailsScreen extends StatefulWidget {
+class PaymentDetailsScreen extends ConsumerStatefulWidget {
   const PaymentDetailsScreen({super.key});
 
   @override
-  State<PaymentDetailsScreen> createState() =>
+  ConsumerState<PaymentDetailsScreen> createState() =>
       _PaymentDetailsScreenState();
 }
 
-class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
+class _PaymentDetailsScreenState extends ConsumerState<PaymentDetailsScreen> {
   final _phoneCtrl = TextEditingController();
   final _payboxLinkCtrl = TextEditingController();
   final _bankNameCtrl = TextEditingController();
@@ -54,6 +56,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
         'bank_branch': _branchCtrl.text.trim(),
         'bank_account_number': _accountCtrl.text.trim(),
       });
+      await ref.read(authProvider.notifier).refresh();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l.paymentDetailsSaved)),
@@ -103,7 +106,8 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.info.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.info.withOpacity(0.25)),
+                      border:
+                          Border.all(color: AppColors.info.withOpacity(0.25)),
                     ),
                     child: Text(
                       l.tipPaymentDetailsScreen,
@@ -116,7 +120,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                   ),
                   const SizedBox(height: 20),
                   _SectionHeader(
-                      icon: '💙',
+                      icon: Icons.account_balance_wallet_outlined,
                       title: 'Bit / PayBox',
                       subtitle: l.bitPayboxSubtitle),
                   const SizedBox(height: 10),
@@ -140,15 +144,12 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                       labelText: 'קישור PayBox אישי',
                     ),
                   ),
-
                   const SizedBox(height: 28),
-
                   _SectionHeader(
-                      icon: '🏦',
+                      icon: Icons.account_balance_outlined,
                       title: l.bankTransfer,
                       subtitle: l.bankTransferSubtitle),
                   const SizedBox(height: 10),
-
                   TextFormField(
                     controller: _bankNameCtrl,
                     decoration: InputDecoration(
@@ -186,9 +187,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 12),
-
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -212,9 +211,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 32),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -228,7 +225,8 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                       ),
                       child: _saving
                           ? const SizedBox(
-                              width: 22, height: 22,
+                              width: 22,
+                              height: 22,
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: Colors.white))
                           : Text(l.saveDetails,
@@ -244,7 +242,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
 }
 
 class _SectionHeader extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String title;
   final String subtitle;
   const _SectionHeader(
@@ -253,7 +251,7 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
         children: [
-          Text(icon, style: const TextStyle(fontSize: 22)),
+          Icon(icon, size: 22, color: AppColors.primary),
           const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

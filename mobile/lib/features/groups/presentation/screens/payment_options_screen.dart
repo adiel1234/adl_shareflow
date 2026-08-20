@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/utils/currency_format.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../balances/data/balance_repository.dart';
@@ -43,7 +44,15 @@ class PaymentOptionsScreen extends StatefulWidget {
 class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
   bool _markingPaid = false;
 
-  int get _roundedAmount => widget.amount.round();
+  String get _amountLabel =>
+      formatAmountWithCurrency(widget.amount, widget.currency);
+
+  /// Numeric amount for payment-app deep links (keeps agorot).
+  String get _amountValue {
+    final d = widget.amount;
+    if (d == d.roundToDouble()) return d.round().toString();
+    return d.toStringAsFixed(2);
+  }
 
   bool get _canMarkPaid =>
       widget.groupId != null &&
@@ -151,7 +160,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
               child: Column(
                 children: [
                   Text(
-                    '$_roundedAmount ${widget.currency}',
+                    _amountLabel,
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w800,
@@ -184,7 +193,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
               child: OutlinedButton.icon(
                 onPressed: () {
                   Clipboard.setData(ClipboardData(
-                    text: '$_roundedAmount ${widget.currency}',
+                    text: _amountLabel,
                   ));
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -258,7 +267,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
               child: Column(
                 children: [
                   Text(
-                    '$_roundedAmount ${widget.currency}',
+                    _amountLabel,
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w800,
@@ -280,7 +289,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
               child: OutlinedButton.icon(
                 onPressed: () {
                   Clipboard.setData(ClipboardData(
-                    text: '$_roundedAmount ${widget.currency}',
+                    text: _amountLabel,
                   ));
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -352,7 +361,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                 border: Border.all(color: AppColors.primary.withOpacity(0.2)),
               ),
               child: Text(
-                '$_roundedAmount ${widget.currency}',
+                _amountLabel,
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
@@ -366,7 +375,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
               child: OutlinedButton.icon(
                 onPressed: () {
                   Clipboard.setData(ClipboardData(
-                    text: '$_roundedAmount ${widget.currency}',
+                    text: _amountLabel,
                   ));
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -461,7 +470,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                     child: Column(
                       children: [
                         Text(
-                          '$_roundedAmount ${widget.currency}',
+                          _amountLabel,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 36,
@@ -490,7 +499,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                   const SizedBox(height: 14),
 
                   _PaymentTile(
-                    emoji: '💙',
+                    icon: Icons.account_balance_wallet_outlined,
                     title: 'Bit',
                     subtitle: phone != null
                         ? phone
@@ -506,7 +515,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                   ),
 
                   _PaymentTile(
-                    emoji: '🟢',
+                    icon: Icons.link_outlined,
                     title: 'PayBox',
                     subtitle: payboxLink != null
                         ? 'קישור אישי מוגדר'
@@ -528,12 +537,12 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                           bankName: widget.bankName,
                           bankBranch: widget.bankBranch,
                           bankAccountNumber: widget.bankAccountNumber!,
-                          amount: _roundedAmount,
+                          amount: widget.amount,
                           currency: widget.currency,
                           recipientName: widget.recipientName,
                         )
                       : _PaymentTile(
-                          emoji: '🏦',
+                          icon: Icons.account_balance_outlined,
                           title: l.bankTransfer,
                           subtitle: 'המקבל לא הגדיר פרטי בנק',
                           hasDetails: false,
@@ -560,7 +569,8 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('ℹ️', style: TextStyle(fontSize: 14)),
+                        const Icon(Icons.info_outline,
+                            size: 18, color: AppColors.info),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -648,14 +658,14 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
 }
 
 class _PaymentTile extends StatelessWidget {
-  final String emoji;
+  final IconData icon;
   final String title;
   final String subtitle;
   final bool hasDetails;
   final VoidCallback onTap;
 
   const _PaymentTile({
-    required this.emoji,
+    required this.icon,
     required this.title,
     required this.subtitle,
     required this.hasDetails,
@@ -684,10 +694,13 @@ class _PaymentTile extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Text(emoji,
-                      style: TextStyle(
-                          fontSize: 26,
-                          color: hasDetails ? null : Colors.grey)),
+                  Icon(
+                    icon,
+                    size: 26,
+                    color: hasDetails
+                        ? AppColors.primary
+                        : AppColors.textDisabled,
+                  ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -730,7 +743,7 @@ class _BankTransferTile extends StatelessWidget {
   final String? bankName;
   final String? bankBranch;
   final String bankAccountNumber;
-  final int amount;
+  final double amount;
   final String currency;
   final String recipientName;
 
@@ -745,14 +758,14 @@ class _BankTransferTile extends StatelessWidget {
 
   void _copyAll(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final text = [
-      if (bankName != null) '${l.bankLabel}: $bankName',
-      if (bankBranch != null) '${l.branchLabel}: $bankBranch',
-      '${l.accountLabel}: $bankAccountNumber',
-      '${l.amountLabel}: $amount $currency',
-      '${l.forCredit}: $recipientName',
-    ].join('\n');
-    Clipboard.setData(ClipboardData(text: text));
+    final money = formatAmountWithCurrency(amount, currency);
+    final buf = StringBuffer()
+      ..writeln('${l.bankLabel}: ${bankName ?? ''}')
+      ..writeln('${l.branchLabel}: ${bankBranch ?? ''}')
+      ..writeln('${l.accountLabel}: $bankAccountNumber')
+      ..writeln('${l.amountLabel}: $money')
+      ..writeln('${l.forCredit}: $recipientName');
+    Clipboard.setData(ClipboardData(text: buf.toString()));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(l.bankDetailsCopied)),
     );
@@ -775,7 +788,8 @@ class _BankTransferTile extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Text('🏦', style: TextStyle(fontSize: 22)),
+                const Icon(Icons.account_balance_outlined,
+                    color: AppColors.primary, size: 22),
                 const SizedBox(width: 10),
                 Text(l.bankTransfer,
                     style: const TextStyle(
@@ -786,7 +800,7 @@ class _BankTransferTile extends StatelessWidget {
             if (bankName != null) _BankRow(l.bankLabel, bankName!),
             if (bankBranch != null) _BankRow(l.branchLabel, bankBranch!),
             _BankRow(l.accountLabel, bankAccountNumber),
-            _BankRow(l.amountLabel, '$amount $currency'),
+            _BankRow(l.amountLabel, formatAmountWithCurrency(amount, currency)),
             _BankRow(l.forCredit, recipientName),
             const SizedBox(height: 10),
             SizedBox(
