@@ -641,7 +641,7 @@ abstract class AppLocalizations {
   /// No description provided for @closeGroupConfirm.
   ///
   /// In he, this message translates to:
-  /// **'לסגור את הקבוצה?\nלאחר הסגירה לא ניתן להוסיף הוצאות חדשות.\nלהסדרת חובות השתמשו בטאב «חשבון» לפני הסגירה.'**
+  /// **'לסגור את הקבוצה?\nלאחר הסגירה לא ניתן להוסיף הוצאות חדשות.\nלהסדר חוב השתמשו בטאב חשבון לפני הסגירה.'**
   String get closeGroupConfirm;
 
   /// No description provided for @unsettledDebtsTitle.
@@ -1955,7 +1955,7 @@ abstract class AppLocalizations {
   /// No description provided for @shareWhatsAppSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'יפתח WhatsApp לכל משתתף - יש ללחוץ «שלח» בכל שיחה'**
+  /// **'יפתח WhatsApp לכל משתתף - יש ללחוץ שלח בכל שיחה'**
   String get shareWhatsAppSubtitle;
 
   /// No description provided for @reminderSent.
@@ -2357,7 +2357,7 @@ abstract class AppLocalizations {
   /// No description provided for @balancesHowItWorks.
   ///
   /// In he, this message translates to:
-  /// **'איך מסדירים? החייב לוחץ «הסדר תשלום» → מסמן «שילמתי» → המקבל לוחץ «אשר קבלה».'**
+  /// **'איך מסדירים? החייב לוחץ הסדר חוב → מסמן שילמתי → המקבל לוחץ אשר קבלה.'**
   String get balancesHowItWorks;
 
   /// No description provided for @periodSettleHint.
@@ -2977,7 +2977,7 @@ abstract class AppLocalizations {
   /// No description provided for @transferHintMemberToMember.
   ///
   /// In he, this message translates to:
-  /// **'החייב: «הסדר תשלום» → «שילמתי» · המקבל: «אשר קבלה»'**
+  /// **'החייב: הסדר חוב → שילמתי · המקבל: אשר קבלה'**
   String get transferHintMemberToMember;
 
   /// No description provided for @transferHintMemberToGuest.
@@ -2989,7 +2989,7 @@ abstract class AppLocalizations {
   /// No description provided for @transferHintGuestToMember.
   ///
   /// In he, this message translates to:
-  /// **'המנהל: «סמן שאורח שילם» · המקבל: «אשר קבלה»'**
+  /// **'המנהל: סמן שאורח שילם · המקבל: אשר קבלה'**
   String get transferHintGuestToMember;
 
   /// No description provided for @transferHintGuestToGuest.
@@ -3315,7 +3315,7 @@ abstract class AppLocalizations {
   /// No description provided for @tipMembersActions.
   ///
   /// In he, this message translates to:
-  /// **'הזמן עם קישור (כולל אפשרות הורדה). אורח רק למי שלא יכול או לא רוצה להוריד.'**
+  /// **'בלי אפליקציה — אתם מנהלים בשמו.'**
   String get tipMembersActions;
 
   /// No description provided for @guestAdminOnlyHint.
@@ -3369,7 +3369,7 @@ abstract class AppLocalizations {
   /// No description provided for @joinGuestMatchBody.
   ///
   /// In he, this message translates to:
-  /// **'בקבוצה יש אורח בשם \"{guestName}\".\nהשם שלך באפליקציה: \"{joinerName}\".\n\nהאם זה אותו אדם שמתחבר עכשיו לאפליקציה, או משתמש חדש?'**
+  /// **'בקבוצה יש אורח בשם {guestName}.\nהשם שלך באפליקציה: {joinerName}.\n\nהאם זה אותו אדם שמתחבר עכשיו לאפליקציה, או משתמש חדש?'**
   String joinGuestMatchBody(String guestName, String joinerName);
 
   /// No description provided for @joinGuestMatchYes.
@@ -3501,7 +3501,7 @@ abstract class AppLocalizations {
   /// No description provided for @tipBalancesBeforeDebts.
   ///
   /// In he, this message translates to:
-  /// **'כאן רואים מי חייב למי. כשיהיו חובות יופיעו «הסדר תשלום» ו«אשר קבלה».'**
+  /// **'כאן רואים מי חייב למי. כשיהיו חובות יופיעו הסדר חוב ואשר קבלה.'**
   String get tipBalancesBeforeDebts;
 
   /// No description provided for @tipParticipantsEqualSplit.
@@ -3519,7 +3519,7 @@ abstract class AppLocalizations {
   /// No description provided for @tipScanVsAttach.
   ///
   /// In he, this message translates to:
-  /// **'הסורק למעלה ממלא סכום ותיאור אוטומטית. «צרף קבלה» רק שומר תמונה לצפייה.'**
+  /// **'הסורק למעלה ממלא סכום ותיאור אוטומטית. צרף קבלה רק שומר תמונה לצפייה.'**
   String get tipScanVsAttach;
 
   /// No description provided for @tipWhatsAppInvite.
@@ -3531,13 +3531,13 @@ abstract class AppLocalizations {
   /// No description provided for @tipAddGuestNoApp.
   ///
   /// In he, this message translates to:
-  /// **'רק אם אין להם אפליקציה. אתם מנהלים בשמם עד שירשמו.'**
+  /// **'בלי אפליקציה — אתם מנהלים בשמו.'**
   String get tipAddGuestNoApp;
 
   /// No description provided for @tipMemberBalanceLegend.
   ///
   /// In he, this message translates to:
-  /// **'פלוס = מגיע לו כסף מהקבוצה · מינוס = הוא חייב.'**
+  /// **'+ מגיע לו כסף · − הוא חייב.'**
   String get tipMemberBalanceLegend;
 
   /// No description provided for @tipPeriodicSettlement.
@@ -3597,13 +3597,13 @@ abstract class AppLocalizations {
   /// No description provided for @coachCreateGroupTitle.
   ///
   /// In he, this message translates to:
-  /// **'צעד 1: יצירת קבוצה'**
+  /// **'יצירת קבוצה — אירוע או שוטף'**
   String get coachCreateGroupTitle;
 
   /// No description provided for @coachCreateGroupBody.
   ///
   /// In he, this message translates to:
-  /// **'מתחילים כאן: פותחים קבוצה חדשה לטיול, דירה או כל שיתוף הוצאות.'**
+  /// **'אירוע = חד־פעמי (טיול, מסיבה, מפגש). שוטף = מתמשך (דירה, משרד) עם חיוב לפי תקופה. בוחרים סוג ביצירה, ואז מזמינים חברים.'**
   String get coachCreateGroupBody;
 
   /// No description provided for @coachJoinGroupTitle.
@@ -3639,7 +3639,7 @@ abstract class AppLocalizations {
   /// No description provided for @coachNotificationsBody.
   ///
   /// In he, this message translates to:
-  /// **'כאן תראו הוצאות חדשות, הזמנות ותזכורות תשלום, בלי לפספס.'**
+  /// **'כאן הוצאות חדשות (מידע) ובקשות תשלום / שדרוג (דורשים פעולה).'**
   String get coachNotificationsBody;
 
   /// No description provided for @coachProfileTitle.
@@ -3651,7 +3651,7 @@ abstract class AppLocalizations {
   /// No description provided for @coachProfileBody.
   ///
   /// In he, this message translates to:
-  /// **'מעדכנים פרטי תשלום ושפה כדי שסגירת חובות תהיה פשוטה.'**
+  /// **'מעדכנים פרטי תשלום ושפה כדי שהסדר חוב יהיה פשוט.'**
   String get coachProfileBody;
 
   /// No description provided for @groupCoachInviteTitle.
@@ -3699,7 +3699,7 @@ abstract class AppLocalizations {
   /// No description provided for @groupCoachBalancesBody.
   ///
   /// In he, this message translates to:
-  /// **'כאן רואים מי חייב למי וסוגרים תשלומים.'**
+  /// **'כאן רואים מי חייב למי ומבצעים הסדר חוב.'**
   String get groupCoachBalancesBody;
 
   /// No description provided for @groupCoachMembersTitle.
@@ -3783,7 +3783,7 @@ abstract class AppLocalizations {
   /// No description provided for @howToStep1.
   ///
   /// In he, this message translates to:
-  /// **'יוצרים קבוצה או מצטרפים עם קוד / QR'**
+  /// **'יוצרים קבוצה: אירוע חד־פעמי או שוטף מתמשך — או מצטרפים עם קוד / QR'**
   String get howToStep1;
 
   /// No description provided for @howToStep2.
@@ -3801,7 +3801,7 @@ abstract class AppLocalizations {
   /// No description provided for @howToStep4.
   ///
   /// In he, this message translates to:
-  /// **'בטאב חשבון רואים מי חייב למי וסוגרים תשלומים'**
+  /// **'בטאב חשבון רואים מי חייב למי ומבצעים הסדר חוב'**
   String get howToStep4;
 
   /// No description provided for @howToStep5.
@@ -3861,7 +3861,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileTourSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'הדגמה חיה של הכפתורים במסך הראשי'**
+  /// **'סיור אחד על כל הכפתורים — בית וקבוצה'**
   String get profileTourSubtitle;
 
   /// No description provided for @scanQrCta.
@@ -3909,7 +3909,7 @@ abstract class AppLocalizations {
   /// No description provided for @balancesNextPayBody.
   ///
   /// In he, this message translates to:
-  /// **'יש לכם חוב לסגור. לחצו «הסדר תשלום» למטה'**
+  /// **'יש לכם חוב לסגור. לחצו הסדר חוב למטה'**
   String get balancesNextPayBody;
 
   /// No description provided for @balancesNextWaitTitle.

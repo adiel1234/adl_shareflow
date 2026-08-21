@@ -32,12 +32,16 @@ class AppRouter {
         final openInvite = args?['openInvite'] as bool? ?? false;
         final forceCoach = args?['forceCoach'] as bool? ?? false;
         final popOnCoachEnd = args?['popOnCoachEnd'] as bool? ?? false;
+        final coachStepOffset = args?['coachStepOffset'] as int? ?? 0;
+        final coachTotalSteps = args?['coachTotalSteps'] as int?;
         return _fade(_GroupDetailLoader(
           groupId: groupId,
           initialTabIndex: initialTab,
           openInviteOnStart: openInvite,
           forceCoach: forceCoach,
           popOnCoachEnd: popOnCoachEnd,
+          coachStepOffset: coachStepOffset,
+          coachTotalSteps: coachTotalSteps,
         ));
       default:
         // Invite deep links (/join/<code>, shareflow://join/...) are handled by
@@ -86,12 +90,16 @@ class _GroupDetailLoader extends ConsumerWidget {
   final bool openInviteOnStart;
   final bool forceCoach;
   final bool popOnCoachEnd;
+  final int coachStepOffset;
+  final int? coachTotalSteps;
   const _GroupDetailLoader({
     required this.groupId,
     this.initialTabIndex = 0,
     this.openInviteOnStart = false,
     this.forceCoach = false,
     this.popOnCoachEnd = false,
+    this.coachStepOffset = 0,
+    this.coachTotalSteps,
   });
 
   @override
@@ -110,6 +118,8 @@ class _GroupDetailLoader extends ConsumerWidget {
         openInviteOnStart: openInviteOnStart,
         forceCoach: forceCoach,
         popOnCoachEnd: popOnCoachEnd,
+        coachStepOffset: coachStepOffset,
+        coachTotalSteps: coachTotalSteps,
       ),
     );
   }

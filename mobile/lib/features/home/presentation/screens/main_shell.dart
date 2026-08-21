@@ -72,7 +72,11 @@ class _MainShellState extends ConsumerState<MainShell> {
         ),
       ];
 
-  Future<void> _openGroupButtonTour({required bool force}) async {
+  Future<void> _openGroupButtonTour({
+    required bool force,
+    required int stepOffset,
+    required int totalSteps,
+  }) async {
     if (!mounted) return;
     try {
       final groups = await ref.read(groupsProvider.future);
@@ -85,6 +89,8 @@ class _MainShellState extends ConsumerState<MainShell> {
           'groupId': group.id,
           'forceCoach': force,
           'popOnCoachEnd': true,
+          'coachStepOffset': stepOffset,
+          'coachTotalSteps': totalSteps,
         },
       );
     } catch (_) {
@@ -98,9 +104,20 @@ class _MainShellState extends ConsumerState<MainShell> {
     await Future<void>.delayed(const Duration(milliseconds: 350));
     if (!mounted) return;
     final l = AppLocalizations.of(context)!;
-    await showHomeCoach(context, targets: _homeCoachTargets(l));
+    const total = kUnifiedCoachTotalSteps;
+    await showHomeCoach(
+      context,
+      targets: _homeCoachTargets(l),
+      stepOffset: 0,
+      totalSteps: total,
+      markDone: true,
+    );
     if (!mounted) return;
-    await _openGroupButtonTour(force: true);
+    await _openGroupButtonTour(
+      force: true,
+      stepOffset: kUnifiedCoachHomeSteps,
+      totalSteps: total,
+    );
   }
 
   void _showHelpHintSnack() {
@@ -126,9 +143,19 @@ class _MainShellState extends ConsumerState<MainShell> {
       if (!mounted) return;
       final l = AppLocalizations.of(context)!;
       showedTour = true;
-      await showHomeCoach(context, targets: _homeCoachTargets(l));
+      const total = kUnifiedCoachTotalSteps;
+      await showHomeCoach(
+        context,
+        targets: _homeCoachTargets(l),
+        stepOffset: 0,
+        totalSteps: total,
+      );
       if (!mounted) return;
-      await _openGroupButtonTour(force: false);
+      await _openGroupButtonTour(
+        force: false,
+        stepOffset: kUnifiedCoachHomeSteps,
+        totalSteps: total,
+      );
     }
 
     if (!mounted) return;

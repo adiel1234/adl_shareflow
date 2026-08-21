@@ -4,7 +4,7 @@ import '../../../../core/storage/secure_storage.dart';
 import '../../../../l10n/app_localizations.dart';
 import 'home_coach.dart';
 
-const kGroupCoachDoneKey = 'group_coach_done_v2';
+const kGroupCoachDoneKey = 'group_coach_done_v3';
 
 Future<bool> isGroupCoachDone() async {
   return await AppSecureStorage.read(kGroupCoachDoneKey) == 'true';
@@ -19,8 +19,15 @@ Future<void> showGroupCoach(
   BuildContext context, {
   required List<CoachTarget> targets,
   bool markDone = true,
+  int stepOffset = 0,
+  int? totalSteps,
 }) async {
-  await showSpotlightCoach(context, targets: targets);
+  await showSpotlightCoach(
+    context,
+    targets: targets,
+    stepOffset: stepOffset,
+    totalSteps: totalSteps,
+  );
   if (markDone) await markGroupCoachDone();
 }
 

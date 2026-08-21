@@ -38,39 +38,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final saved = await _authService.loadRememberedCredentials();
     if (!mounted || !saved.rememberMe || saved.email == null) return;
 
-    setState(() => _rememberMe = true);
-
+    // Silent autofill — no confusing dialog after a dropped session.
     if (_offerShown) return;
     _offerShown = true;
 
-    final l = AppLocalizations.of(context)!;
-    final use = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.useSavedCredentialsTitle),
-        content: Text(l.useSavedCredentialsBody(saved.email!)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l.useSavedCredentialsNo),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l.useSavedCredentialsYes),
-          ),
-        ],
-      ),
-    );
-
-    if (!mounted) return;
-    if (use == true) {
-      setState(() {
-        _emailCtrl.text = saved.email!;
-        if (saved.password != null) {
-          _passwordCtrl.text = saved.password!;
-        }
-      });
-    }
+    setState(() {
+      _rememberMe = true;
+      _emailCtrl.text = saved.email!;
+      if (saved.password != null) {
+        _passwordCtrl.text = saved.password!;
+      }
+    });
   }
 
   @override

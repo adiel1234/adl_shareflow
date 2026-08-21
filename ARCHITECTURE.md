@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 21 אוגוסט 2026 — קוד 1.0.9+65 מוכן; ייצור עדיין בפיילוט (תשלומים כבויים)
+> עודכן לאחרונה: 27 יולי 2026 — build 1.0.9+66: תג FCM לפי unread, התראות פעולה/מידע, חיזוק סשן, ניסוח הסדר חוב
 
 ---
 
@@ -530,6 +530,7 @@ flutter install --release
 - **Group Detail Freshness**: `GroupCard.onTap` מנווט דרך `/group-detail` עם `groupId` בלבד — `_GroupDetailLoader` שולף נתוני קבוצה עדכניים מהשרת בכל ניווט. `Group.to_dict()` כולל `total_expenses_amount` (סכום `converted_amount` במטבע הבסיס). הלקוח טוען את **כל** עמודי `/groups/<id>/expenses` (לא רק 30 הראשונים).
 - **Deep links להזמנה (תיקון 404):** קישורי `/join/<code>` ו-`shareflow://join/<code>` מטופלים רק ב-`app_links` → `pendingInviteCodeProvider`. Deep linking המובנה של Flutter **כבוי** (`flutter_deeplinking_enabled=false` ב-Android, `FlutterDeepLinkingEnabled=false` ב-iOS) כדי שלא יידחף נתיב `/join/...` ל-Navigator ויציג `_NotFoundScreen`. ב-`AppRouter` נתיבי join מופנים ל-Splash במקום 404 (הגנה משנית).
 - **FCM / פושים:** ב־iOS חובה `registerForRemoteNotifications` + העברת `apnsToken` ל־Firebase (`AppDelegate`); רישום טוקן עם המתנה/retry ל־APNs; רישום מחדש ב־`AppLifecycleState.resumed`. הוצאה חדשה: פוש לכל חבר אמיתי שאינו `paid_by` (אורחים מדולגים). `POST /api/adl/users/<id>/test-push` — פוש בדיקה מאדמין. שגיאות `notify_new_expense` נרשמות בלוג (לא נבלעות בשקט).
+- **תג אייקון (build 66):** `fcm_service.py` שולח `badge` = מספר התראות שלא נקראו (לא קבוע 1). הלקוח מסנכרן תג ב־`AppBadgeService` בפתיחה / סימון נקרא / יציאה. התראות שדורשות פעולה (תשלום, שדרוג, תפוגה) מוצגות בכתום/אדום; שאר המידע בכחול/נייטרלי. רשימת התראות טוענת את כל העמודים.
 - **סיור תהליך + howto:** סיור בית (`home_coach_done_v4`: יצירה → הצטרפות → QR → התראות → פרופיל) ואז howto. סיור קבוצה (`group_coach_done_v2`) עם סגירה חזרה למסך הראשי. עזרה רק מפרופיל (בלי `?` במסך קבוצות). אחרי יצירת קבוצה — מעבר לקבוצה + הזמנה; תמחור גלוי ביצירה, כפתור «צור קבוצה» בלי מחיר.
 - **יתרות / מטבע:** בטאב «מי חייב למי» סה״כ הוצאות לפי מטבע מקור; הודעות WhatsApp ותצוגות סכום עם סמל (`149 ₪`) דרך `currency_format.dart`.
 - **אנדרואיד Safe Area:** `WindowCompat.setDecorFitsSystemWindows(true)` ב-`MainActivity` + `SafeArea` ב-`MainShell` — מניעת חפיפת שורת ניווט מערכת עם התוכן.

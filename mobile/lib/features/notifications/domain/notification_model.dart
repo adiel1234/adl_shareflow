@@ -41,6 +41,20 @@ class AppNotification {
         data: data,
       );
 
+  /// Types that need the user to act (pay / confirm / upgrade).
+  /// Shown in red/orange in the notifications list.
+  bool get requiresAction {
+    switch (type) {
+      case 'settlement_requested':
+      case 'payment_reminder':
+      case 'tier_upgrade_required':
+      case 'group_expiring_soon':
+        return true;
+      default:
+        return false;
+    }
+  }
+
   String timeAgoLocalized(AppLocalizations l) {
     final diff = DateTime.now().difference(createdAt);
     if (diff.inMinutes < 1) return l.justNow;

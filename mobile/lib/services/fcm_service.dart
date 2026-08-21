@@ -8,6 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../core/constants/app_constants.dart';
 import '../core/network/api_client.dart';
 import '../core/storage/secure_storage.dart';
+import 'app_badge_service.dart';
 import 'feedback_service.dart';
 
 /// Background message handler — must be a top-level function and registered
@@ -86,6 +87,7 @@ class NotificationTapInfo {
   final String? groupId;
   final String? settlementId;
   final String type;
+  final int? badge;
 
   const NotificationTapInfo({
     required this.title,
@@ -93,6 +95,7 @@ class NotificationTapInfo {
     this.groupId,
     this.settlementId,
     this.type = '',
+    this.badge,
   });
 }
 
@@ -283,6 +286,10 @@ class FcmService {
     final info = _tapInfoFromMessage(message);
     FeedbackService.notification();
 
+    if (info.badge != null) {
+      AppBadgeService.sync(info.badge!);
+    }
+
     // Always show local notification (iOS may omit message.notification in foreground).
     if (info.title.isNotEmpty || info.body.isNotEmpty) {
       _localNotifications.show(
@@ -299,12 +306,14 @@ class FcmService {
             icon: '@mipmap/ic_launcher',
             playSound: true,
             enableVibration: true,
+            number: info.badge,
           ),
-          iOS: const DarwinNotificationDetails(
+          iOS: DarwinNotificationDetails(
             presentAlert: true,
             presentBadge: true,
             presentSound: true,
             sound: 'default',
+            badgeNumber: info.badge,
           ),
         ),
         payload: _payloadFromInfo(info),
@@ -374,6 +383,8 @@ class FcmService {
   NotificationTapInfo _tapInfoFromMessage(RemoteMessage message) {
     final data = message.data;
     final notification = message.notification;
+    final badgeRaw = data['badge'];
+    final badge = badgeRaw == null ? null : int.tryParse('$badgeRaw');
     // Prefer data payload — notification.body may be truncated by the OS.
     return NotificationTapInfo(
       title: data['title'] as String? ?? notification?.title ?? '',
@@ -381,6 +392,7 @@ class FcmService {
       groupId: data['group_id'] as String?,
       settlementId: data['settlement_id'] as String?,
       type: data['type'] as String? ?? '',
+      badge: badge,
     );
   }
 
@@ -391,18 +403,22 @@ class FcmService {
       if (info.groupId != null) 'group_id': info.groupId,
       if (info.settlementId != null) 'settlement_id': info.settlementId,
       'type': info.type,
+      if (info.badge != null) 'badge': info.badge,
     });
   }
 
   NotificationTapInfo? _infoFromPayload(String payload) {
     try {
       final map = jsonDecode(payload) as Map<String, dynamic>;
+      final badgeRaw = map['badge'];
+      final badge = badgeRaw == null ? null : int.tryParse('$badgeRaw');
       return NotificationTapInfo(
         title: map['title'] as String? ?? '',
         body: map['body'] as String? ?? '',
         groupId: map['group_id'] as String?,
         settlementId: map['settlement_id'] as String?,
         type: map['type'] as String? ?? '',
+        badge: badge,
       );
     } catch (_) {
       // Legacy payload: "group_id:<id>"

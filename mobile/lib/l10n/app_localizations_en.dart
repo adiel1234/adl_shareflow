@@ -1229,7 +1229,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get balancesHowItWorks =>
-      'How to settle? Debtor taps «Settle» → «I paid» → recipient taps «Confirm receipt».';
+      'How to settle? Debtor taps Settle up → I paid → recipient taps Confirm receipt.';
 
   @override
   String get periodSettleHint =>
@@ -1591,7 +1591,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transferHintMemberToMember =>
-      'Debtor: «Settle» → «I paid» · Creditor: «Confirm receipt»';
+      'Debtor: Settle up → I paid · Creditor: Confirm receipt';
 
   @override
   String get transferHintMemberToGuest =>
@@ -1599,7 +1599,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transferHintGuestToMember =>
-      'Admin: «Mark guest paid» · Creditor: «Confirm receipt»';
+      'Admin: Mark guest paid · Creditor: Confirm receipt';
 
   @override
   String get transferHintGuestToGuest => 'Admin closes the debt in one action';
@@ -1793,8 +1793,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Can\'t or prefer not to use the app? Add as guest';
 
   @override
-  String get tipMembersActions =>
-      'Invite with a link (includes download). Guests only for those who can\'t or prefer not to install.';
+  String get tipMembersActions => 'No app — you manage on their behalf.';
 
   @override
   String get guestAdminOnlyHint =>
@@ -1826,7 +1825,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String joinGuestMatchBody(String guestName, String joinerName) {
-    return 'This group has a guest named \"$guestName\".\nYour app name: \"$joinerName\".\n\nIs this the same person signing into the app, or a new member?';
+    return 'This group has a guest named $guestName.\nYour app name: $joinerName.\n\nIs this the same person signing into the app, or a new member?';
   }
 
   @override
@@ -1908,7 +1907,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipBalancesBeforeDebts =>
-      'Here you\'ll see who owes whom. «I paid» / «Confirm receipt» appear when there are debts.';
+      'Here you will see who owes whom. Settle up and Confirm receipt appear when there are debts.';
 
   @override
   String get tipParticipantsEqualSplit =>
@@ -1920,18 +1919,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipScanVsAttach =>
-      'The scanner above auto-fills amount and title. «Attach receipt» only saves an image to view.';
+      'The scanner above auto-fills amount and title. Attach receipt only saves an image to view.';
 
   @override
   String get tipWhatsAppInvite => 'WhatsApp opens. Pick who to send to.';
 
   @override
-  String get tipAddGuestNoApp =>
-      'Only if they don\'t have the app. You manage for them until they sign up.';
+  String get tipAddGuestNoApp => 'No app — you manage on their behalf.';
 
   @override
-  String get tipMemberBalanceLegend =>
-      'Plus = they\'re owed money · Minus = they owe.';
+  String get tipMemberBalanceLegend => '+ they are owed · − they owe.';
 
   @override
   String get tipPeriodicSettlement =>
@@ -1964,11 +1961,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coachCloseTooltip => 'Close and go back';
 
   @override
-  String get coachCreateGroupTitle => 'Step 1: Create a group';
+  String get coachCreateGroupTitle => 'Create a group — event or ongoing';
 
   @override
   String get coachCreateGroupBody =>
-      'Start here: open a new group for a trip, flat, or any shared expenses.';
+      'Event = one-time (trip, party). Ongoing = continuous (flat, office) billed by period. Pick the type when creating, then invite friends.';
 
   @override
   String get coachJoinGroupTitle => 'Or join a group';
@@ -1989,14 +1986,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get coachNotificationsBody =>
-      'New expenses, invites, and payment reminders show up here.';
+      'New expenses (info) and payment / upgrade requests (action required) show up here.';
 
   @override
   String get coachProfileTitle => 'Step 4: Profile & payments';
 
   @override
   String get coachProfileBody =>
-      'Update payment details and language so settling up is easy.';
+      'Update payment details and language so settling debts is easy.';
 
   @override
   String get groupCoachInviteTitle => 'Invite friends';
@@ -2023,7 +2020,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupCoachBalancesBody =>
-      'See who owes whom and settle payments here.';
+      'See who owes whom and settle debts here.';
 
   @override
   String get groupCoachMembersTitle => 'Members';
@@ -2067,7 +2064,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howToSubtitle => 'Five short steps and you\'re set.';
 
   @override
-  String get howToStep1 => 'Create a group or join with a code / QR';
+  String get howToStep1 =>
+      'Create a group: one-time event or ongoing — or join with a code / QR';
 
   @override
   String get howToStep2 =>
@@ -2077,7 +2075,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howToStep3 => 'Add expenses. The app splits the amounts';
 
   @override
-  String get howToStep4 => 'In Balances see who owes whom and settle up';
+  String get howToStep4 => 'On Balances see who owes whom and settle debts';
 
   @override
   String get howToStep5 =>
@@ -2111,8 +2109,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileTourTitle => 'Button tour';
 
   @override
-  String get profileTourSubtitle =>
-      'Live walkthrough of the main screen buttons';
+  String get profileTourSubtitle => 'One tour of all buttons — home and group';
 
   @override
   String get scanQrCta => 'Scan QR';

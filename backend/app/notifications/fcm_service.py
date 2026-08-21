@@ -74,8 +74,38 @@ def _get_app():
     return _firebase_app
 
 
-def _build_message(title: str, body: str, payload_data: dict, token: str):
+def _unread_badge_count(user_id: str) -> int:
+    """Real unread in-app notifications — never hardcode a fake badge."""
+    try:
+        from app.models import Notification
+        return Notification.query.filter_by(
+            user_id=user_id, is_read=False
+        ).count()
+    except Exception as e:
+        logger.warning(f'unread badge count failed: {e}')
+        return 0
+
+
+def _build_message(
+    title: str,
+    body: str,
+    payload_data: dict,
+    token: str,
+    *,
+    badge: int = 0,
+):
     from firebase_admin import messaging
+
+    badge_count = max(0, int(badge or 0))
+
+    android_notification_kwargs = dict(
+        sound='default',
+        channel_id=_ANDROID_CHANNEL_ID,
+        default_sound=True,
+        default_vibrate_timings=True,
+    )
+    if badge_count > 0:
+        android_notification_kwargs['notification_count'] = badge_count
 
     return messaging.Message(
         notification=messaging.Notification(title=title, body=body),
@@ -84,10 +114,7 @@ def _build_message(title: str, body: str, payload_data: dict, token: str):
         android=messaging.AndroidConfig(
             priority='high',
             notification=messaging.AndroidNotification(
-                sound='default',
-                channel_id=_ANDROID_CHANNEL_ID,
-                default_sound=True,
-                default_vibrate_timings=True,
+                **android_notification_kwargs,
             ),
         ),
         # Custom apns.payload OVERRIDES notification.title/body on the APNs
@@ -104,7 +131,8 @@ def _build_message(title: str, body: str, payload_data: dict, token: str):
                     alert=messaging.ApsAlert(title=title, body=body),
                     # Explicit system sound — required for audible alerts on iOS.
                     sound='default',
-                    badge=1,
+                    # Real unread count only (0 clears the home-screen badge).
+                    badge=badge_count,
                     # Prefer audible delivery over quiet/grouped delivery.
                     custom_data={'interruption-level': 'time-sensitive'},
                 ),
@@ -128,13 +156,17 @@ def _send_to_user_impl(user_id: str, title: str, body: str, data: Optional[dict]
         from firebase_admin import messaging
         from app import db
 
+        badge = _unread_badge_count(user_id)
         sent = 0
         for token_row in tokens:
             try:
                 payload_data = {k: str(v) for k, v in (data or {}).items()}
                 payload_data['title'] = title
                 payload_data['body'] = body
-                message = _build_message(title, body, payload_data, token_row.token)
+                payload_data['badge'] = str(badge)
+                message = _build_message(
+                    title, body, payload_data, token_row.token, badge=badge,
+                )
                 messaging.send(message, app=app)
                 sent += 1
             except messaging.UnregisteredError:

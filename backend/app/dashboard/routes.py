@@ -579,6 +579,139 @@ def adl_user_test_push(user_id):
     })
 
 
+@dashboard_bp.post('/users/<user_id>/demo-notifications')
+def adl_user_demo_notifications(user_id):
+    """Admin: create one in-app (+ push) sample for each notification UX type."""
+    err = _require_adl_admin()
+    if err:
+        return err
+
+    user = db.session.get(User, user_id)
+    if not user:
+        return error_response('User not found', 404)
+
+    from app.models import Notification
+    from app.notifications import fcm_service
+
+    samples = [
+        {
+            'type': 'settlement_requested',
+            'title': 'בקשת הסדר חוב',
+            'body': 'דוגמה: דני ביקש לסגור חוב של 50.00 ILS — דורש אישור שלך',
+            'data': {'group_id': '', 'settlement_id': ''},
+        },
+        {
+            'type': 'payment_reminder',
+            'title': 'תזכורת תשלום',
+            'body': 'דוגמה: יש לך חוב פתוח בקבוצה — מומלץ להסדיר',
+            'data': {'group_id': ''},
+        },
+        {
+            'type': 'tier_upgrade_required',
+            'title': 'נדרש שדרוג',
+            'body': 'דוגמה: הקבוצה עברה את מגבלת החינם — נדרשת הפעלה',
+            'data': {'group_id': ''},
+        },
+        {
+            'type': 'group_expiring_soon',
+            'title': 'הקבוצה עומדת לפוג',
+            'body': 'דוגמה: נותרו 3 ימים עד סיום התקופה',
+            'data': {'group_id': ''},
+        },
+        {
+            'type': 'new_expense',
+            'title': 'הוצאה חדשה',
+            'body': 'דוגמה: מיכל הוסיפה הוצאה של 120.00 ILS — סופרמרקט',
+            'data': {'group_id': ''},
+        },
+        {
+            'type': 'settlement_confirmed',
+            'title': 'תשלום אושר',
+            'body': 'דוגמה: יוסי אישר קבלת תשלום של 50.00 ILS',
+            'data': {'group_id': ''},
+        },
+        {
+            'type': 'member_joined',
+            'title': 'חבר חדש',
+            'body': 'דוגמה: נועה הצטרפה לקבוצה',
+            'data': {'group_id': ''},
+        },
+        {
+            'type': 'event_summary',
+            'title': 'סיכום אירוע',
+            'body': 'דוגמה: סיכום האירוע מוכן לצפייה',
+            'data': {'group_id': ''},
+        },
+        {
+            'type': 'group_activated',
+            'title': 'הקבוצה הופעלה',
+            'body': 'דוגמה: הקבוצה הופעלה בהצלחה',
+            'data': {'group_id': ''},
+        },
+    ]
+
+    created = []
+    for sample in samples:
+        notif = Notification(
+            user_id=user_id,
+            type=sample['type'],
+            title=sample['title'],
+            body=sample['body'],
+            data=sample['data'],
+        )
+        db.session.add(notif)
+        created.append(sample['type'])
+    db.session.commit()
+
+    # One push after all rows exist — badge = real unread count.
+    sent = fcm_service._send_to_user_impl(
+        user_id,
+        'התראות לדוגמה',
+        f'נוספו {len(created)} התראות לבדיקה (פעולה + מידע)',
+        {'type': 'demo_batch'},
+    )
+
+    unread = Notification.query.filter_by(user_id=user_id, is_read=False).count()
+    return success_response(data={
+        'user_id': user_id,
+        'created_types': created,
+        'unread_count': unread,
+        'push_sent': sent,
+    })
+
+
+@dashboard_bp.post('/users/<user_id>/clear-badge')
+def adl_user_clear_badge(user_id):
+    """Admin: mark all notifications read and push badge=0 to clear home-screen badge."""
+    err = _require_adl_admin()
+    if err:
+        return err
+
+    user = db.session.get(User, user_id)
+    if not user:
+        return error_response('User not found', 404)
+
+    from app.models import Notification
+    from app.notifications import fcm_service
+
+    Notification.query.filter_by(user_id=user_id, is_read=False).update(
+        {'is_read': True}
+    )
+    db.session.commit()
+
+    sent = fcm_service._send_to_user_impl(
+        user_id,
+        'תג עודכן',
+        'התראות סומנו כנקראו — התג אמור להתאפס',
+        {'type': 'badge_clear'},
+    )
+    return success_response(data={
+        'user_id': user_id,
+        'unread_count': 0,
+        'push_sent': sent,
+    })
+
+
 @dashboard_bp.put('/users/<user_id>/suspend')
 def suspend_user(user_id):
     err = _require_adl_admin()

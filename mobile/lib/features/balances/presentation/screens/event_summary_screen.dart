@@ -175,7 +175,7 @@ class _EventSummaryScreenState extends ConsumerState<EventSummaryScreen> {
             title: Text('${i + 1} / ${withPhone.length}'),
             content: Text(
               'נפתח WhatsApp עבור $name.\n'
-              'לחץ «שלח» בתוך WhatsApp, ואז חזור לכאן להמשך.',
+              'לחץ שלח בתוך WhatsApp, ואז חזור לכאן להמשך.',
             ),
             actions: [
               TextButton(

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_constants.dart';
 import '../core/storage/secure_storage.dart';
 import '../core/network/api_client.dart';
+import '../services/app_badge_service.dart';
 import '../services/fcm_service.dart';
 
 // Current user state
@@ -99,7 +100,34 @@ class AuthNotifier extends StateNotifier<AuthState> {
       FcmService.instance.registerToken();
     } on DioException catch (e) {
       final status = e.response?.statusCode ?? 0;
-      if (status == 401 || status == 403) {
+      // Only hard-logout when the access token is rejected after refresh
+      // already failed. 403 (e.g. pilot / plan gate) must keep the session.
+      if (status == 401) {
+        final refresh =
+            await AppSecureStorage.read(AppConstants.refreshTokenKey);
+        if (refresh != null) {
+          final result = await ApiClient.tryRefreshToken();
+          if (result == RefreshResult.success) {
+            try {
+              final retry = await ApiClient.instance.get('/users/me');
+              state = AuthState(
+                isLoggedIn: true,
+                user: retry.data['data'] as Map<String, dynamic>,
+                isLoading: false,
+                preferredCurrency: currency,
+              );
+              FcmService.instance.registerToken();
+              return;
+            } catch (_) {}
+          } else if (result == RefreshResult.networkError) {
+            state = AuthState(
+              isLoggedIn: true,
+              isLoading: false,
+              preferredCurrency: currency,
+            );
+            return;
+          }
+        }
         await AppSecureStorage.clearSessionTokens();
         state = AuthState(
           isLoggedIn: false,
@@ -107,7 +135,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           preferredCurrency: currency,
         );
       } else {
-        // Network error — keep session; user data may load later.
+        // Network / 403 / 5xx — keep session; user data may load later.
         state = AuthState(
           isLoggedIn: true,
           isLoading: false,
@@ -137,6 +165,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // Clear session only — keep remembered login credentials if user opted in.
     try {
       await AppSecureStorage.clearSessionTokens();
+    } catch (_) {}
+    try {
+      await AppBadgeService.clear();
     } catch (_) {}
     final currency =
         await AppSecureStorage.read(AppConstants.preferredCurrencyKey) ??

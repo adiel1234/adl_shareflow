@@ -182,6 +182,8 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp>
         ref.read(authProvider).isLoggedIn) {
       // Re-register after unlock / permission change / APNs delayed grant.
       FcmService.instance.registerToken();
+      // Sync home-screen badge with real unread count.
+      ref.read(notificationsProvider.notifier).load();
     }
   }
 
@@ -238,7 +240,7 @@ class _ShareFlowAppState extends ConsumerState<ShareFlowApp>
     _messengerKey.currentState?.showSnackBar(
       const SnackBar(
         content: Text(
-            'החיבור הסתיים. ניתן להשלים התחברות עם הפרטים השמורים.'),
+            'החיבור הסתיים. הפרטים השמורים ממולאים — אפשר להתחבר מחדש.'),
         duration: Duration(seconds: 4),
       ),
     );

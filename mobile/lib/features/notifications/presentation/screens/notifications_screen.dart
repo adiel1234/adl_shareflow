@@ -176,22 +176,47 @@ class _NotificationTile extends StatelessWidget {
 
   IconData _icon() {
     switch (notification.type) {
-      case 'new_expense':        return Icons.receipt_outlined;
-      case 'settlement_requested': return Icons.payment_outlined;
-      case 'settlement_confirmed': return Icons.check_circle_outline;
-      case 'member_joined':       return Icons.person_add_outlined;
-      case 'event_summary':       return Icons.summarize_outlined;
-      default:                    return Icons.notifications_outlined;
+      case 'new_expense':
+        return Icons.receipt_outlined;
+      case 'settlement_requested':
+      case 'payment_reminder':
+        return Icons.payment_outlined;
+      case 'settlement_confirmed':
+        return Icons.check_circle_outline;
+      case 'member_joined':
+        return Icons.person_add_outlined;
+      case 'event_summary':
+        return Icons.summarize_outlined;
+      case 'tier_upgrade_required':
+      case 'group_expiring_soon':
+        return Icons.trending_up;
+      case 'group_activated':
+        return Icons.verified_outlined;
+      default:
+        return Icons.notifications_outlined;
     }
   }
 
   Color _iconColor() {
+    // Action-required → red/orange; informational → blue/neutral.
+    if (notification.requiresAction) {
+      return notification.type == 'tier_upgrade_required' ||
+              notification.type == 'group_expiring_soon'
+          ? AppColors.error
+          : AppColors.warning;
+    }
     switch (notification.type) {
-      case 'new_expense':        return AppColors.primary;
-      case 'settlement_requested': return AppColors.warning;
-      case 'settlement_confirmed': return AppColors.positive;
-      case 'member_joined':       return AppColors.secondary;
-      default:                    return AppColors.textSecondary;
+      case 'new_expense':
+        return AppColors.primary;
+      case 'settlement_confirmed':
+      case 'group_activated':
+        return AppColors.positive;
+      case 'member_joined':
+        return AppColors.secondary;
+      case 'event_summary':
+        return AppColors.primary;
+      default:
+        return AppColors.textSecondary;
     }
   }
 
@@ -199,12 +224,18 @@ class _NotificationTile extends StatelessWidget {
   /// Falls back to the server-provided title if no match.
   String _localizedTitle(AppLocalizations l) {
     switch (notification.type) {
-      case 'new_expense':         return l.notifNewExpenseTitle;
-      case 'settlement_requested': return l.notifSettlementRequestedTitle;
-      case 'settlement_confirmed': return l.notifSettlementConfirmedTitle;
-      case 'member_joined':        return l.notifMemberJoinedTitle;
-      case 'event_summary':        return l.notifEventSummaryTitle;
-      default:                     return l.notifGeneralTitle;
+      case 'new_expense':
+        return l.notifNewExpenseTitle;
+      case 'settlement_requested':
+        return l.notifSettlementRequestedTitle;
+      case 'settlement_confirmed':
+        return l.notifSettlementConfirmedTitle;
+      case 'member_joined':
+        return l.notifMemberJoinedTitle;
+      case 'event_summary':
+        return l.notifEventSummaryTitle;
+      default:
+        return l.notifGeneralTitle;
     }
   }
 
@@ -213,12 +244,15 @@ class _NotificationTile extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final unread = !notification.isRead;
     final iconColor = _iconColor();
+    final isAction = notification.requiresAction;
 
     return InkWell(
       onTap: onTap,
       child: Container(
         color: unread
-            ? AppColors.primary.withOpacity(0.04)
+            ? (isAction
+                ? AppColors.warning.withOpacity(0.08)
+                : AppColors.primary.withOpacity(0.04))
             : Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
@@ -229,8 +263,11 @@ class _NotificationTile extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
+                color: iconColor.withOpacity(0.12),
                 shape: BoxShape.circle,
+                border: isAction && unread
+                    ? Border.all(color: iconColor.withOpacity(0.45), width: 1.5)
+                    : null,
               ),
               child: Icon(_icon(), color: iconColor, size: 22),
             ),
@@ -248,9 +285,12 @@ class _NotificationTile extends StatelessWidget {
                         child: Text(
                           _localizedTitle(l),
                           style: TextStyle(
-                            fontWeight: unread ? FontWeight.w700 : FontWeight.w500,
+                            fontWeight:
+                                unread ? FontWeight.w700 : FontWeight.w500,
                             fontSize: 14,
-                            color: AppColors.textPrimary,
+                            color: isAction && unread
+                                ? AppColors.error
+                                : AppColors.textPrimary,
                           ),
                         ),
                       ),
@@ -287,8 +327,8 @@ class _NotificationTile extends StatelessWidget {
                 width: 8,
                 height: 8,
                 margin: const EdgeInsets.only(right: 4, top: 4),
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
+                decoration: BoxDecoration(
+                  color: isAction ? AppColors.error : AppColors.primary,
                   shape: BoxShape.circle,
                 ),
               ),

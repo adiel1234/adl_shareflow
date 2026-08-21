@@ -62,11 +62,12 @@
   "categoryOtherHint": "Custom category name",
   "free": "Free",
   "pro": "Pro",
-
   "helloUser": "Hello, {name} 👋",
   "@helloUser": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "joinGroup": "Join Group",
@@ -87,7 +88,9 @@
   "memberCount": "{count} members",
   "@memberCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "stateActive": "Active",
@@ -118,7 +121,9 @@
   "inviteSentTo": "Invite sent to {email}",
   "@inviteSentTo": {
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "errorSendingInvite": "Error sending invite",
@@ -152,15 +157,21 @@
   "groupExpensesCount": "Group \"{name}\" already has {count} expenses.",
   "@groupExpensesCount": {
     "placeholders": {
-      "name": {"type": "String"},
-      "count": {"type": "int"}
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "youPaid": "You paid",
   "paidByPerson": "Paid by {name}",
   "@paidByPerson": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "yourShare": "Your share:",
@@ -186,7 +197,6 @@
   "rescan": "Rescan",
   "groupTypeOngoing": "Ongoing",
   "groupTypeEvent": "Event",
-
   "newGroup": "New Group",
   "activityType": "Activity Type",
   "sevenDays": "7 days",
@@ -199,53 +209,102 @@
   "groupDescriptionHint": "Add a short description...",
   "errorCreatingGroup": "Error creating group",
   "createGroupBtn": "Create Group",
-
   "bannerLimitedTitle": "Activation required",
   "bannerLimitedSubtitle": "Group reached free limit. Activation cost: ₪{price}",
-  "@bannerLimitedSubtitle": {"placeholders": {"price": {"type": "int"}}},
+  "@bannerLimitedSubtitle": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "bannerActivate": "Activate",
   "bannerExpiredTitle": "Group expired",
   "bannerExpiredSubtitle": "Cannot add expenses. Extension: ₪15 for 7 more days.",
   "bannerExtend": "Extend",
   "bannerReadOnlyTitle": "Read only",
   "bannerReadOnlySubtitle": "Paid period ended. Renewal: ₪{price}",
-  "@bannerReadOnlySubtitle": {"placeholders": {"price": {"type": "int"}}},
+  "@bannerReadOnlySubtitle": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "bannerRenew": "Renew",
   "bannerClosedTitle": "Group closed",
   "bannerClosedSubtitle": "Restore with all data, or duplicate to a new group with the same members",
   "bannerFreeTitle": "Free mode",
   "bannerFreeSubtitle": "Up to 7 participants and 7 days free. After that, or above 7 members, paid activation is required.",
-
   "justNow": "now",
   "minutesAgo": "{count}m ago",
-  "@minutesAgo": {"placeholders": {"count": {"type": "int"}}},
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "hoursAgo": "{count}h ago",
-  "@hoursAgo": {"placeholders": {"count": {"type": "int"}}},
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "daysAgo": "{count}d ago",
-  "@daysAgo": {"placeholders": {"count": {"type": "int"}}},
-
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notifNewExpenseTitle": "New expense",
   "notifNewExpenseBody": "{payer} added an expense in {group}",
-  "@notifNewExpenseBody": {"placeholders": {"payer": {"type": "String"}, "group": {"type": "String"}}},
+  "@notifNewExpenseBody": {
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
   "notifSettlementRequestedTitle": "Payment request",
   "notifSettlementConfirmedTitle": "Payment confirmed",
   "notifMemberJoinedTitle": "New member",
   "notifEventSummaryTitle": "Event summary",
   "notifClose": "Close",
   "notifGeneralTitle": "Notification",
-
   "markAllRead": "Mark all as read",
   "noNotifications": "No notifications yet",
-  "noNotificationsHint": "When group members add expenses\nyou'll get a notification here",
+  "noNotificationsHint": "New expenses, invites, reminders, and payment confirmations show up here",
   "errorLoadingNotifications": "Error loading notifications",
-
   "youLabel": "You",
   "adminLabel": "Admin",
   "removeMember": "Remove member",
   "removeMemberTitle": "Remove {name}",
-  "@removeMemberTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@removeMemberTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "memberHasBalance": "{name} has an open balance of {amount} - it will remain visible until manually settled.",
-  "@memberHasBalance": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@memberHasBalance": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "settleDebt": "Settle the debt",
   "settleDebtDesc": "Balance will be reset and recorded as settlement",
   "redistributeDebt": "Distribute among other members",
@@ -254,23 +313,61 @@
   "removeMemberExplain": "Existing expenses remain.\nIf there is an open debt - it will continue to appear in settlements until manually resolved.\nThis action cannot be undone.",
   "remove": "Remove",
   "memberRemovedSuccess": "{name} was removed. Open debts will remain visible until settled.",
-  "@memberRemovedSuccess": {"placeholders": {"name": {"type": "String"}}},
+  "@memberRemovedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "errorRemovingMember": "Error removing member",
   "removeMemberDebtQuestion": "What should happen with the debt?",
   "removeMemberDebtPay": "Will pay their share ({amount})",
-  "@removeMemberDebtPay": {"placeholders": {"amount": {"type": "String"}}},
+  "@removeMemberDebtPay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "removeMemberDebtForgive": "Forgive the debt",
   "memberRemovedForgiven": "{name} was removed and their debt was forgiven.",
-  "@memberRemovedForgiven": {"placeholders": {"name": {"type": "String"}}},
+  "@memberRemovedForgiven": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "removeMemberBlockedCreditor": "Cannot remove - others owe {name}. Settle debts first.",
-  "@removeMemberBlockedCreditor": {"placeholders": {"name": {"type": "String"}}},
+  "@removeMemberBlockedCreditor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "removeMemberRedistributeTitle": "Remove and redistribute",
   "removeMemberRedistributeBody": "{name} owes {amount}. Their share will be redistributed among remaining participants.",
-  "@removeMemberRedistributeBody": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@removeMemberRedistributeBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "memberRemovedRedistributed": "{name} removed. Expense shares were redistributed.",
-  "@memberRemovedRedistributed": {"placeholders": {"name": {"type": "String"}}},
+  "@memberRemovedRedistributed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "formerMember": "Former",
-
   "extendGroupTitle": "Extend Group",
   "renewGroupTitle": "Renew Group",
   "activateGroupTitle": "Activate Group",
@@ -289,14 +386,31 @@
   "activatedSuccess": "Group activated successfully",
   "errorTryAgain": "Error - try again",
   "extendBtnLabel": "Extend 7 days - ₪{price}",
-  "@extendBtnLabel": {"placeholders": {"price": {"type": "int"}}},
+  "@extendBtnLabel": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "renewBtnLabel": "Renew for a month - ₪{price}",
-  "@renewBtnLabel": {"placeholders": {"price": {"type": "int"}}},
+  "@renewBtnLabel": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "activateBtnLabel": "Activate group - ₪{price}",
-  "@activateBtnLabel": {"placeholders": {"price": {"type": "int"}}},
+  "@activateBtnLabel": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "sevenDaysPlus": "+7 days",
   "thirtyDays": "30 days",
-
   "expenseHint": "e.g. Dinner",
   "expenseTitleRequired": "Description is required",
   "notesHint": "Add a note...",
@@ -305,7 +419,13 @@
   "deleteExpense": "Delete Expense",
   "deleteExpenseDialogTitle": "Delete Expense",
   "deleteExpenseConfirm": "Delete expense \"{title}\"?\n\nBalances will be updated accordingly.",
-  "@deleteExpenseConfirm": {"placeholders": {"title": {"type": "String"}}},
+  "@deleteExpenseConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "expenseDeletedSuccess": "Expense deleted successfully",
   "errorDeletingExpense": "Error deleting expense",
   "saveChanges": "Save Changes",
@@ -325,7 +445,9 @@
   "useSavedCredentialsBody": "Saved credentials were found for {email}. Fill them in?",
   "@useSavedCredentialsBody": {
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "useSavedCredentialsYes": "Yes, fill in",
@@ -345,7 +467,6 @@
   "resetPasswordBtn": "Update password",
   "passwordResetSuccess": "Password updated. You can sign in now",
   "resetEmailSendError": "Could not send email right now. Please try again later",
-
   "fullName": "Full Name",
   "createAccount": "Create a new account",
   "fillDetails": "Fill in the details to continue",
@@ -356,10 +477,8 @@
   "passwordMismatch": "Passwords do not match",
   "emailAlreadyRegistered": "This email is already registered",
   "registerError": "Registration error, please try again",
-
   "calculating": "Calculating...",
   "exchangeRateLabel": "Rate:",
-
   "eventSummary": "Event Summary",
   "participants": "Participants",
   "costPerParticipant": "Cost per participant",
@@ -372,7 +491,13 @@
   "shareViaWhatsApp": "Share via WhatsApp",
   "shareWhatsAppSubtitle": "Opens WhatsApp per participant - tap Send in each chat",
   "reminderSent": "Reminder sent to {name} ✓",
-  "@reminderSent": {"placeholders": {"name": {"type": "String"}}},
+  "@reminderSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "errorSendingReminder": "Error sending reminder",
   "errorLoadingSummary": "Error loading summary",
   "notificationSentToAll": "Notification sent to all group members ✓",
@@ -380,19 +505,22 @@
   "sendExpenseSplit": "Join our group \"{groupName}\" on ADL ShareFlow!\nInvite code: {code}\nLink: {link}",
   "@sendExpenseSplit": {
     "placeholders": {
-      "groupName": {"type": "String"},
-      "code": {"type": "String"},
-      "link": {"type": "String"}
+      "groupName": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
     }
   },
-
   "freeGroupLimitReachedTitle": "Free group limit reached",
   "freeGroupLimitReachedBody": "You can create up to 3 groups for free. Your group has been created, but you need to activate it before you can use it.",
   "activateGroupBtn": "Activate Group",
   "laterBtn": "Later",
-
   "comingSoon": "Coming soon",
-
   "settingsSaved": "Settings saved ✓",
   "settingsSaveError": "Error saving settings",
   "enableReminders": "Enable automatic reminders",
@@ -428,7 +556,13 @@
   "errorOpeningApp": "Error opening the app",
   "sendPayment": "Send Payment",
   "payTo": "Pay to {name}",
-  "@payTo": {"placeholders": {"name": {"type": "String"}}},
+  "@payTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "choosePaymentMethod": "Choose payment method",
   "noPaymentDetails": "The recipient hasn't set up payment details yet.",
   "noPaymentDetailsHint": "Ask them to add a Bit/PayBox phone number or bank details in their profile.",
@@ -448,14 +582,18 @@
   "wizardStepOf": "Step {current} of {total}",
   "@wizardStepOf": {
     "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "yesConfirm": "Yes",
   "paidSendForApproval": "I paid, send for approval",
   "paidSendForApprovalHint": "After paying in the external app, tap here so the recipient can confirm.",
-  "balancesHowItWorks": "How to settle? Debtor taps «Settle» → «I paid» → recipient taps «Confirm receipt».",
+  "balancesHowItWorks": "How to settle? Debtor taps Settle up → I paid → recipient taps Confirm receipt.",
   "periodSettleHint": "Creates a report for members. Does not auto-mark debts as paid.",
   "shareGuestDebtWhatsApp": "Share reminder via WhatsApp",
   "bankDetailsCopied": "Bank details copied",
@@ -467,8 +605,13 @@
   "pickFromGallery": "Pick from gallery",
   "takePhoto": "Take photo",
   "sendReminderTo": "Send reminder to {name}",
-  "@sendReminderTo": {"placeholders": {"name": {"type": "String"}}},
-
+  "@sendReminderTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "qrCodeTitle": "QR Code",
   "qrCodeSubtitle": "Show this to a friend to scan",
   "scanQrCode": "Scan QR",
@@ -478,10 +621,15 @@
   "noCameraPermission": "Camera permission is required",
   "openSettings": "Open Settings",
   "showQrCode": "Show QR",
-
   "aboutTitle": "About ADL ShareFlow",
   "aboutVersion": "Version {version}",
-  "@aboutVersion": {"placeholders": {"version": {"type": "String"}}},
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "contactUs": "Contact Us",
   "contactSubtitle": "Questions, issues and more",
   "adlProjects": "ADL Projects",
@@ -492,38 +640,76 @@
   "proPlanSubtitle": "Coming soon - analytics, stats and more",
   "appSection": "App",
   "paymentMethodSubtitle": "Bit / PayBox / bank. Without this, friends can't send you money from the app",
-
   "pricingSection": "Pricing",
   "estimatedCost": "Cost",
   "upToParticipants": "Up to {count} members",
-  "@upToParticipants": {"placeholders": {"count": {"type": "int"}}},
+  "@upToParticipants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "aboveParticipants": "{count}+ members",
-  "@aboveParticipants": {"placeholders": {"count": {"type": "int"}}},
+  "@aboveParticipants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "freeTierLabel": "Free - up to 7 members",
   "freeIncluded": "Free: up to 7 members, 7 days, and up to 3 free groups per user",
   "freeTierDetails": "The free plan is limited to 7 days, up to 7 members per group, and up to 3 free groups per user.",
   "createGroupFree": "Create Group - Free",
-  "createGroupBtn": "Create Group",
   "createGroupPaid": "Create Group - ₪{price}",
-  "@createGroupPaid": {"placeholders": {"price": {"type": "int"}}},
+  "@createGroupPaid": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "createGroupPaidPilot": "Create group · no charge now (₪{price} for later activation)",
-  "@createGroupPaidPilot": {"placeholders": {"price": {"type": "int"}}},
+  "@createGroupPaidPilot": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "tipCreateGroupLive": "The price is for activating the group. After creating, you can activate when ready.",
   "durationDays": "{days} days",
-  "@durationDays": {"placeholders": {"days": {"type": "int"}}},
+  "@durationDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "durationMonth": "Month",
-
   "tierUpgradeRequired": "Plan Upgrade Required",
   "tierUpgradeSubtitle": "Group has grown - upgrade payment of ₪{price} required",
-  "@tierUpgradeSubtitle": {"placeholders": {"price": {"type": "int"}}},
+  "@tierUpgradeSubtitle": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "tierUpgradeBtn": "Upgrade Now",
   "upgradeTierTitle": "Upgrade Plan",
   "upgradeTierDesc": "Member count has grown to a higher tier. Pay the difference to continue.",
   "upgradeBtnLabel": "Upgrade - ₪{price}",
-  "@upgradeBtnLabel": {"placeholders": {"price": {"type": "int"}}},
+  "@upgradeBtnLabel": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "upgradedSuccess": "Plan upgraded successfully",
   "errorUpgradingTier": "Error upgrading plan",
-
   "periodicSettlement": "Periodic Settlement",
   "manualSettlement": "Manual / One-time",
   "manualSettlementDesc": "Close accounts whenever you want",
@@ -537,10 +723,15 @@
   "periodQuarterly": "Quarterly",
   "periodSemiannual": "Semiannual",
   "periodAnnual": "Annual",
-
   "settlePeriodBtn": "Settle Period",
   "settlePeriodNext": "Next: {date}",
-  "@settlePeriodNext": {"placeholders": {"date": {"type": "String"}}},
+  "@settlePeriodNext": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "settlePeriodCreateReport": "Close period and create report",
   "settlePeriodDialogTitle": "Period Summary",
   "settlePeriodConfirmMsg": "Would you like to settle the current period?\n\nA report will be sent to all group members and the period will reset.",
@@ -548,36 +739,119 @@
   "errorSettlingPeriod": "Error settling period",
   "previousPeriodReports": "Previous Period Reports",
   "periodLabel": "Period #{number}",
-  "@periodLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@periodLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "allDebtsPaid": "All debts paid ✓",
   "openDebtsCount": "{count} open debts",
-  "@openDebtsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@openDebtsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "openDebtCount": "1 open debt",
   "noDebtsBalanced": "All balanced - no debts",
   "markAsPaid": "Paid ✓",
   "paidDirectly": "I paid",
   "confirmDirectPayment": "Confirm you paid {name}?\nWe'll ask them to confirm receipt.",
-  "@confirmDirectPayment": {"placeholders": {"name": {"type": "String"}}},
+  "@confirmDirectPayment": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "confirmPaymentReceived": "Are you confirming you received payment from {name}?",
-  "@confirmPaymentReceived": {"placeholders": {"name": {"type": "String"}}},
+  "@confirmPaymentReceived": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "waitingForConfirmation": "Waiting for {name}'s confirmation",
-  "@waitingForConfirmation": {"placeholders": {"name": {"type": "String"}}},
+  "@waitingForConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "confirmMarkDebtPaid": "Mark this debt as paid?",
   "confirmMarkDebtPaidBody": "Did {fromName} pay {toName} {amount} {currency}?",
-  "@confirmMarkDebtPaidBody": {"placeholders": {"fromName": {"type": "String"}, "toName": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
+  "@confirmMarkDebtPaidBody": {
+    "placeholders": {
+      "fromName": {
+        "type": "String"
+      },
+      "toName": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "currentPeriodExpenses": "Current period expenses",
   "periodSince": "Since {date}",
-  "@periodSince": {"placeholders": {"date": {"type": "String"}}},
-
+  "@periodSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "openDebtsGroupClosed": "Open debts - group is closed",
   "groupClosedUnpaidDebts": "The group is closed but there are unpaid debts",
   "requiredTransfersTitle": "Required transfers",
   "transferNeeded": "{from} needs to transfer to {to}",
-  "@transferNeeded": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "@transferNeeded": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "debtOwesAmount": "{debtor} owes {creditor} {amount} {currency}",
-  "@debtOwesAmount": {"placeholders": {"debtor": {"type": "String"}, "creditor": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
+  "@debtOwesAmount": {
+    "placeholders": {
+      "debtor": {
+        "type": "String"
+      },
+      "creditor": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "debtPaidTo": "{debtor} paid {creditor}",
-  "@debtPaidTo": {"placeholders": {"debtor": {"type": "String"}, "creditor": {"type": "String"}}},
+  "@debtPaidTo": {
+    "placeholders": {
+      "debtor": {
+        "type": "String"
+      },
+      "creditor": {
+        "type": "String"
+      }
+    }
+  },
   "paymentScenarioMemberToMember": "Member payment",
   "paymentScenarioMemberToGuest": "Payment to guest",
   "paymentScenarioGuestToMember": "Guest pays debt",
@@ -586,21 +860,42 @@
   "pendingCardTitleDebtor": "Awaiting recipient approval",
   "pendingCardTitleAdmin": "Admin action required",
   "pendingCardTitleMixed": "Pending payments",
-  "transferHintMemberToMember": "Debtor: «Settle» → «I paid» · Creditor: «Confirm receipt»",
+  "transferHintMemberToMember": "Debtor: Settle up → I paid · Creditor: Confirm receipt",
   "transferHintMemberToGuest": "Member pays the guest · Admin confirms guest received",
-  "transferHintGuestToMember": "Admin: «Mark guest paid» · Creditor: «Confirm receipt»",
+  "transferHintGuestToMember": "Admin: Mark guest paid · Creditor: Confirm receipt",
   "transferHintGuestToGuest": "Admin closes the debt in one action",
   "markGuestPaidShort": "Mark guest paid",
   "tipScanPrimary": "Scan a receipt to auto-fill amount and title. You can also attach an image for viewing only.",
   "transferPendingBadge": "Awaiting approval - no further action",
   "pendingHintMemberPaid": "{debtor} paid {creditor} - awaiting approval",
-  "@pendingHintMemberPaid": {"placeholders": {"debtor": {"type": "String"}, "creditor": {"type": "String"}}},
+  "@pendingHintMemberPaid": {
+    "placeholders": {
+      "debtor": {
+        "type": "String"
+      },
+      "creditor": {
+        "type": "String"
+      }
+    }
+  },
   "pendingHintMemberToGuestDebtor": "You paid - waiting for admin to confirm guest received",
   "pendingHintMemberToGuestAdmin": "Member paid - confirm guest {guest} received",
-  "@pendingHintMemberToGuestAdmin": {"placeholders": {"guest": {"type": "String"}}},
+  "@pendingHintMemberToGuestAdmin": {
+    "placeholders": {
+      "guest": {
+        "type": "String"
+      }
+    }
+  },
   "pendingHintGuestToMemberCreditor": "Guest paid - confirm you received the money",
   "pendingHintGuestToMemberWaiting": "Waiting for {member} to confirm receipt",
-  "@pendingHintGuestToMemberWaiting": {"placeholders": {"member": {"type": "String"}}},
+  "@pendingHintGuestToMemberWaiting": {
+    "placeholders": {
+      "member": {
+        "type": "String"
+      }
+    }
+  },
   "confirmReceipt": "Confirm receipt",
   "goToConfirmPayment": "Go to confirm payment",
   "rejectPayment": "Reject",
@@ -608,10 +903,39 @@
   "confirmGuestTransfer": "Confirm guest transfer",
   "closeDebt": "Close debt",
   "markGuestPaidConfirmGuestToGuest": "Mark guest {from} paid {amount} {currency} to guest {to}?",
-  "@markGuestPaidConfirmGuestToGuest": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
+  "@markGuestPaidConfirmGuestToGuest": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "markGuestPaidConfirmGuestToMember": "Mark guest {from} paid {amount} {currency} to {to}? Recipient will confirm receipt.",
-  "@markGuestPaidConfirmGuestToMember": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
-
+  "@markGuestPaidConfirmGuestToMember": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "restoreGroupMenu": "Restore / Continue Group",
   "restoreGroupDialogTitle": "Restore or Continue Group",
   "restoreGroupOptionReopen": "Restore the original group with all data",
@@ -620,7 +944,6 @@
   "restoreGroupOptionDuplicateSubtitle": "A new empty group with the same members",
   "reopenGroupSuccess": "Group reopened successfully",
   "errorReopeningGroup": "Error reopening group",
-
   "duplicateGroup": "Duplicate Group",
   "duplicateGroupDialogTitle": "Duplicate Closed Group",
   "duplicateGroupDialogBody": "A new empty group will be created with the same members.\nExpenses, balances and history from the closed group will not be copied.",
@@ -628,15 +951,19 @@
   "duplicateGroupBtn": "Create New Group",
   "duplicateGroupSuccess": "New group created successfully",
   "errorDuplicatingGroup": "Error duplicating group",
-
   "deleteGroup": "Delete Group",
   "deleteGroupDialogTitle": "Delete Group",
   "deleteGroupConfirm": "Permanently delete group \"{name}\"?\n\nAll expenses, balances and history will be deleted and cannot be recovered.",
-  "@deleteGroupConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@deleteGroupConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "deleteGroupPermanently": "Delete Permanently",
   "groupDeletedSuccess": "Group deleted successfully",
   "errorDeletingGroup": "Error deleting group",
-
   "addGuest": "Add Guest",
   "addGuestTitle": "Add member without the app",
   "addGuestHint": "Member name (e.g. John Smith)",
@@ -648,27 +975,43 @@
   "guestExplainBody": "A guest is a member who can't or prefers not to download the app. They're included in the split, and you manage for them. If they install later, you can link them to their account.",
   "guestReminderTitle": "Guests without an account",
   "guestReminderBody": "{count, plural, one{1 member} other{{count} members}} are marked as guests.\nIf they download the app later, link them to their account using the link button.",
-  "@guestReminderBody": {"placeholders": {"count": {"type": "int"}}},
+  "@guestReminderBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "guestReminderAction": "Add guest",
   "tipInvitePrimary": "Send a link. They join through the app",
   "showQrAndCode": "Show QR and invite code",
   "inviteEmailOption": "Also send by email",
   "addGuestOption": "Can't or prefer not to use the app? Add as guest",
-  "tipMembersActions": "Invite with a link (includes download). Guests only for those who can't or prefer not to install.",
+  "tipMembersActions": "No app — you manage on their behalf.",
   "guestAdminOnlyHint": "Only the group admin can add and manage members without the app",
   "inviteViaApp": "Invite with a link",
   "linkGuestTitle": "Link guest to account",
   "linkGuestSubtitle": "Select the registered member to link {name} to",
-  "@linkGuestSubtitle": {"placeholders": {"name": {"type": "String"}}},
+  "@linkGuestSubtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "linkGuestExplain": "All of the guest's expenses and balances will be transferred to the selected account.",
   "linkGuestBtn": "Link",
   "linkGuestSuccess": "Guest linked successfully",
   "joinGuestMatchTitle": "Matching guest found",
-  "joinGuestMatchBody": "This group has a guest named \"{guestName}\".\nYour app name: \"{joinerName}\".\n\nIs this the same person signing into the app, or a new member?",
+  "joinGuestMatchBody": "This group has a guest named {guestName}.\nYour app name: {joinerName}.\n\nIs this the same person signing into the app, or a new member?",
   "@joinGuestMatchBody": {
     "placeholders": {
-      "guestName": {"type": "String"},
-      "joinerName": {"type": "String"}
+      "guestName": {
+        "type": "String"
+      },
+      "joinerName": {
+        "type": "String"
+      }
     }
   },
   "joinGuestMatchYes": "That's me, link the guest",
@@ -676,60 +1019,82 @@
   "joinGuestPickTitle": "Which guest are you?",
   "removeGuest": "Remove Guest",
   "removeGuestConfirm": "Guest {name} will be removed from the active members list.\nExisting expenses remain.\nIf there is an open debt - it will continue to appear in settlements until manually resolved.\nThis action cannot be undone.",
-  "@removeGuestConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@removeGuestConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "guestRemovedSuccess": "{name} removed. Open debt will remain visible until settled.",
-  "@guestRemovedSuccess": {"placeholders": {"name": {"type": "String"}}},
+  "@guestRemovedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "markGuestPaid": "Mark as paid (on behalf of guest)",
   "guestNoApp": "For members who can't or prefer not to download the app",
-
   "perParticipant": "{amount} per participant",
   "@perParticipant": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "notParticipating": "Not participating",
   "atLeastOneParticipant": "At least one participant required",
-
   "inviteSubject": "Invitation to {groupName}",
-  "@inviteSubject": {"placeholders": {"groupName": {"type": "String"}}},
+  "@inviteSubject": {
+    "placeholders": {
+      "groupName": {
+        "type": "String"
+      }
+    }
+  },
   "errorAddingGuest": "Error adding guest",
   "invitedCount": "Invited {count}",
-  "@invitedCount": {"placeholders": {"count": {"type": "int"}}},
+  "@invitedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "sendToAnotherWhatsApp": "Send to another via WhatsApp",
   "whatsappOpenHint": "Opens WhatsApp - select a contact and tap Send, then return here",
   "shareOtherWay": "Share another way",
   "gotIt": "Got it",
   "doneBtn": "Done",
-
   "tipCreateGroupNoCharge": "You only create the group now. Payment, if any, happens later at activation.",
   "tipEmptyExpensesInvite": "Start by inviting friends (person icon above). Alone there's no one to split with.",
-  "tipBalancesBeforeDebts": "Here you'll see who owes whom. «I paid» / «Confirm receipt» appear when there are debts.",
+  "tipBalancesBeforeDebts": "Here you will see who owes whom. Settle up and Confirm receipt appear when there are debts.",
   "tipParticipantsEqualSplit": "Select only who truly shared this expense. The amount splits equally among selected.",
   "tipJoinWithCode": "The invite code comes from a friend who already created a group, or from scanning their QR.",
-  "tipScanVsAttach": "The scanner above auto-fills amount and title. «Attach receipt» only saves an image to view.",
+  "tipScanVsAttach": "The scanner above auto-fills amount and title. Attach receipt only saves an image to view.",
   "tipWhatsAppInvite": "WhatsApp opens. Pick who to send to.",
-  "tipAddGuestNoApp": "Only if they don't have the app. You manage for them until they sign up.",
-  "tipMemberBalanceLegend": "Plus = they're owed money · Minus = they owe.",
+  "tipAddGuestNoApp": "No app — you manage on their behalf.",
+  "tipMemberBalanceLegend": "+ they are owed · − they owe.",
   "tipPeriodicSettlement": "With periodic settlement you close a period on Balances and send a report, without auto-paying debts.",
   "tipPaymentDetailsScreen": "Add at least a Bit/PayBox phone or bank details so friends can pay you easily.",
   "attachReceiptTitle": "Attach receipt",
   "attachReceiptSubtitle": "Camera or gallery, view only, no auto-fill",
-
   "coachSkip": "Close",
   "coachNext": "Next",
   "coachDone": "Done",
   "coachCloseTooltip": "Close and go back",
-  "coachCreateGroupTitle": "Step 1: Create a group",
-  "coachCreateGroupBody": "Start here: open a new group for a trip, flat, or any shared expenses.",
+  "coachCreateGroupTitle": "Create a group — event or ongoing",
+  "coachCreateGroupBody": "Event = one-time (trip, party). Ongoing = continuous (flat, office) billed by period. Pick the type when creating, then invite friends.",
   "coachJoinGroupTitle": "Or join a group",
   "coachJoinGroupBody": "Got a code from a friend? Enter it here. You can also scan their QR nearby.",
   "coachScanQrTitle": "Scan QR",
   "coachScanQrBody": "A fast alternative to typing: scan a friend's QR and join instantly.",
   "coachNotificationsTitle": "Step 3: Notifications",
-  "coachNotificationsBody": "New expenses, invites, and payment reminders show up here.",
+  "coachNotificationsBody": "New expenses (info) and payment / upgrade requests (action required) show up here.",
   "coachProfileTitle": "Step 4: Profile & payments",
-  "coachProfileBody": "Update payment details and language so settling up is easy.",
+  "coachProfileBody": "Update payment details and language so settling debts is easy.",
   "groupCoachInviteTitle": "Invite friends",
   "groupCoachInviteBody": "Send an invite link (with download option) or add a guest.",
   "groupCoachExpensesTabTitle": "Expenses tab",
@@ -737,7 +1102,7 @@
   "groupCoachExpenseTitle": "New expense",
   "groupCoachExpenseBody": "Tap here to add an expense. The app splits the amount.",
   "groupCoachBalancesTitle": "Who owes whom",
-  "groupCoachBalancesBody": "See who owes whom and settle payments here.",
+  "groupCoachBalancesBody": "See who owes whom and settle debts here.",
   "groupCoachMembersTitle": "Members",
   "groupCoachMembersBody": "Manage members and guests, and link a guest when they join.",
   "emptyGroupsChecklistTitle": "How to start?",
@@ -751,10 +1116,10 @@
   "profileHowToSubtitle": "A short reminder of the flow",
   "howToTitle": "How ShareFlow works",
   "howToSubtitle": "Five short steps and you're set.",
-  "howToStep1": "Create a group or join with a code / QR",
+  "howToStep1": "Create a group: one-time event or ongoing — or join with a code / QR",
   "howToStep2": "Invite friends with a link (they can also download), or add a guest if they won't install",
   "howToStep3": "Add expenses. The app splits the amounts",
-  "howToStep4": "In Balances see who owes whom and settle up",
+  "howToStep4": "On Balances see who owes whom and settle debts",
   "howToStep5": "Get notified when an expense is added or something needs approval",
   "howToGotIt": "Got it, let's go",
   "homeHelpTooltip": "Help",
@@ -764,7 +1129,7 @@
   "coachHelpTitle": "Help anytime",
   "coachHelpBody": "Tap here to open the short guide on how ShareFlow works.",
   "profileTourTitle": "Button tour",
-  "profileTourSubtitle": "Live walkthrough of the main screen buttons",
+  "profileTourSubtitle": "One tour of all buttons — home and group",
   "scanQrCta": "Scan QR",
   "paymentMissingBannerTitle": "Payment details missing",
   "paymentMissingBannerBody": "Add a phone for Bit/PayBox so friends can pay you easily",
@@ -777,29 +1142,35 @@
   "balancesNextWaitBody": "Waiting for them to confirm they received your payment",
   "balancesNextClearTitle": "All clear",
   "balancesNextClearBody": "Nothing urgent. You'll see who owes whom when debts appear",
-  "noNotificationsHint": "New expenses, invites, reminders, and payment confirmations show up here",
   "addExpenseMoreOptions": "More options (notes)",
   "fieldRequiredBadge": "Required",
   "fieldOptionalBadge": "Optional",
-
   "expensesShowingCount": "Showing {count} expenses",
   "@expensesShowingCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "expensesShowingFilteredCount": "Showing {shown} of {total} expenses",
   "@expensesShowingFilteredCount": {
     "placeholders": {
-      "shown": {"type": "int"},
-      "total": {"type": "int"}
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "iapCancelledOrFailed": "Payment was cancelled or could not be completed. Try again.",
   "iapProductMissing": "No store product for {price}. Check in-app purchase setup.",
   "@iapProductMissing": {
     "placeholders": {
-      "price": {"type": "int"}
+      "price": {
+        "type": "int"
+      }
     }
   }
 }

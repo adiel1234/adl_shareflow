@@ -286,7 +286,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get closeGroupConfirm =>
-      'לסגור את הקבוצה?\nלאחר הסגירה לא ניתן להוסיף הוצאות חדשות.\nלהסדרת חובות השתמשו בטאב «חשבון» לפני הסגירה.';
+      'לסגור את הקבוצה?\nלאחר הסגירה לא ניתן להוסיף הוצאות חדשות.\nלהסדר חוב השתמשו בטאב חשבון לפני הסגירה.';
 
   @override
   String get unsettledDebtsTitle => 'טרם הוסדרו כלל החובות בקבוצה:';
@@ -1003,7 +1003,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get shareWhatsAppSubtitle =>
-      'יפתח WhatsApp לכל משתתף - יש ללחוץ «שלח» בכל שיחה';
+      'יפתח WhatsApp לכל משתתף - יש ללחוץ שלח בכל שיחה';
 
   @override
   String reminderSent(String name) {
@@ -1219,7 +1219,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get balancesHowItWorks =>
-      'איך מסדירים? החייב לוחץ «הסדר תשלום» → מסמן «שילמתי» → המקבל לוחץ «אשר קבלה».';
+      'איך מסדירים? החייב לוחץ הסדר חוב → מסמן שילמתי → המקבל לוחץ אשר קבלה.';
 
   @override
   String get periodSettleHint =>
@@ -1580,7 +1580,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get transferHintMemberToMember =>
-      'החייב: «הסדר תשלום» → «שילמתי» · המקבל: «אשר קבלה»';
+      'החייב: הסדר חוב → שילמתי · המקבל: אשר קבלה';
 
   @override
   String get transferHintMemberToGuest =>
@@ -1588,7 +1588,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get transferHintGuestToMember =>
-      'המנהל: «סמן שאורח שילם» · המקבל: «אשר קבלה»';
+      'המנהל: סמן שאורח שילם · המקבל: אשר קבלה';
 
   @override
   String get transferHintGuestToGuest => 'המנהל סוגר את החוב בפעולה אחת';
@@ -1780,8 +1780,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get addGuestOption => 'לא יכול / לא מעוניין באפליקציה? הוסיפו כאורח';
 
   @override
-  String get tipMembersActions =>
-      'הזמן עם קישור (כולל אפשרות הורדה). אורח רק למי שלא יכול או לא רוצה להוריד.';
+  String get tipMembersActions => 'בלי אפליקציה — אתם מנהלים בשמו.';
 
   @override
   String get guestAdminOnlyHint =>
@@ -1813,7 +1812,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String joinGuestMatchBody(String guestName, String joinerName) {
-    return 'בקבוצה יש אורח בשם \"$guestName\".\nהשם שלך באפליקציה: \"$joinerName\".\n\nהאם זה אותו אדם שמתחבר עכשיו לאפליקציה, או משתמש חדש?';
+    return 'בקבוצה יש אורח בשם $guestName.\nהשם שלך באפליקציה: $joinerName.\n\nהאם זה אותו אדם שמתחבר עכשיו לאפליקציה, או משתמש חדש?';
   }
 
   @override
@@ -1895,7 +1894,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipBalancesBeforeDebts =>
-      'כאן רואים מי חייב למי. כשיהיו חובות יופיעו «הסדר תשלום» ו«אשר קבלה».';
+      'כאן רואים מי חייב למי. כשיהיו חובות יופיעו הסדר חוב ואשר קבלה.';
 
   @override
   String get tipParticipantsEqualSplit =>
@@ -1907,18 +1906,16 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipScanVsAttach =>
-      'הסורק למעלה ממלא סכום ותיאור אוטומטית. «צרף קבלה» רק שומר תמונה לצפייה.';
+      'הסורק למעלה ממלא סכום ותיאור אוטומטית. צרף קבלה רק שומר תמונה לצפייה.';
 
   @override
   String get tipWhatsAppInvite => 'נפתח WhatsApp. בחרו למי לשלוח.';
 
   @override
-  String get tipAddGuestNoApp =>
-      'רק אם אין להם אפליקציה. אתם מנהלים בשמם עד שירשמו.';
+  String get tipAddGuestNoApp => 'בלי אפליקציה — אתם מנהלים בשמו.';
 
   @override
-  String get tipMemberBalanceLegend =>
-      'פלוס = מגיע לו כסף מהקבוצה · מינוס = הוא חייב.';
+  String get tipMemberBalanceLegend => '+ מגיע לו כסף · − הוא חייב.';
 
   @override
   String get tipPeriodicSettlement =>
@@ -1951,11 +1948,11 @@ class AppLocalizationsHe extends AppLocalizations {
   String get coachCloseTooltip => 'סגור וחזרה';
 
   @override
-  String get coachCreateGroupTitle => 'צעד 1: יצירת קבוצה';
+  String get coachCreateGroupTitle => 'יצירת קבוצה — אירוע או שוטף';
 
   @override
   String get coachCreateGroupBody =>
-      'מתחילים כאן: פותחים קבוצה חדשה לטיול, דירה או כל שיתוף הוצאות.';
+      'אירוע = חד־פעמי (טיול, מסיבה, מפגש). שוטף = מתמשך (דירה, משרד) עם חיוב לפי תקופה. בוחרים סוג ביצירה, ואז מזמינים חברים.';
 
   @override
   String get coachJoinGroupTitle => 'או הצטרפות לקבוצה';
@@ -1975,14 +1972,14 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get coachNotificationsBody =>
-      'כאן תראו הוצאות חדשות, הזמנות ותזכורות תשלום, בלי לפספס.';
+      'כאן הוצאות חדשות (מידע) ובקשות תשלום / שדרוג (דורשים פעולה).';
 
   @override
   String get coachProfileTitle => 'פרופיל ותשלום';
 
   @override
   String get coachProfileBody =>
-      'מעדכנים פרטי תשלום ושפה כדי שסגירת חובות תהיה פשוטה.';
+      'מעדכנים פרטי תשלום ושפה כדי שהסדר חוב יהיה פשוט.';
 
   @override
   String get groupCoachInviteTitle => 'הזמנת חברים';
@@ -2008,7 +2005,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get groupCoachBalancesTitle => 'מי חייב למי';
 
   @override
-  String get groupCoachBalancesBody => 'כאן רואים מי חייב למי וסוגרים תשלומים.';
+  String get groupCoachBalancesBody =>
+      'כאן רואים מי חייב למי ומבצעים הסדר חוב.';
 
   @override
   String get groupCoachMembersTitle => 'חברים';
@@ -2052,7 +2050,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get howToSubtitle => 'חמישה שלבים קצרים ואתם מסודרים.';
 
   @override
-  String get howToStep1 => 'יוצרים קבוצה או מצטרפים עם קוד / QR';
+  String get howToStep1 =>
+      'יוצרים קבוצה: אירוע חד־פעמי או שוטף מתמשך — או מצטרפים עם קוד / QR';
 
   @override
   String get howToStep2 =>
@@ -2062,7 +2061,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get howToStep3 => 'מוסיפים הוצאות. האפליקציה מחלקת את הסכומים';
 
   @override
-  String get howToStep4 => 'בטאב חשבון רואים מי חייב למי וסוגרים תשלומים';
+  String get howToStep4 => 'בטאב חשבון רואים מי חייב למי ומבצעים הסדר חוב';
 
   @override
   String get howToStep5 => 'מקבלים התראה כשנוספת הוצאה או שיש מה לאשר';
@@ -2093,7 +2092,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get profileTourTitle => 'סיור על הכפתורים';
 
   @override
-  String get profileTourSubtitle => 'הדגמה חיה של הכפתורים במסך הראשי';
+  String get profileTourSubtitle => 'סיור אחד על כל הכפתורים — בית וקבוצה';
 
   @override
   String get scanQrCta => 'סרוק QR';
@@ -2118,7 +2117,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get balancesNextPayTitle => 'מה לעשות עכשיו';
 
   @override
-  String get balancesNextPayBody => 'יש לכם חוב לסגור. לחצו «הסדר תשלום» למטה';
+  String get balancesNextPayBody => 'יש לכם חוב לסגור. לחצו הסדר חוב למטה';
 
   @override
   String get balancesNextWaitTitle => 'מה לעשות עכשיו';

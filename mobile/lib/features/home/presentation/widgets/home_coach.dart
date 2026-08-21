@@ -4,8 +4,12 @@ import '../../../../core/storage/secure_storage.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../theme/app_colors.dart';
 
-/// Bumped for process-oriented first-run tour.
-const kHomeCoachDoneKey = 'home_coach_done_v4';
+/// Bumped: one continuous home+group tour with event/ongoing explanation.
+const kHomeCoachDoneKey = 'home_coach_done_v5';
+const kUnifiedCoachHomeSteps = 5;
+const kUnifiedCoachGroupSteps = 5;
+const kUnifiedCoachTotalSteps =
+    kUnifiedCoachHomeSteps + kUnifiedCoachGroupSteps;
 
 class CoachTarget {
   final GlobalKey key;
@@ -30,19 +34,29 @@ Future<void> markHomeCoachDone() async {
   await AppSecureStorage.write(kHomeCoachDoneKey, 'true');
 }
 
-/// First-run spotlight tour over the main home buttons.
+/// First-run / replay spotlight over the main home buttons.
 Future<void> showHomeCoach(
   BuildContext context, {
   required List<CoachTarget> targets,
+  int stepOffset = 0,
+  int? totalSteps,
+  bool markDone = true,
 }) async {
-  await showSpotlightCoach(context, targets: targets);
-  await markHomeCoachDone();
+  await showSpotlightCoach(
+    context,
+    targets: targets,
+    stepOffset: stepOffset,
+    totalSteps: totalSteps,
+  );
+  if (markDone) await markHomeCoachDone();
 }
 
 /// Reusable spotlight coach (home + group tours).
 Future<void> showSpotlightCoach(
   BuildContext context, {
   required List<CoachTarget> targets,
+  int stepOffset = 0,
+  int? totalSteps,
 }) async {
   final usable = targets
       .where((t) => t.key.currentContext?.findRenderObject() != null)
@@ -57,7 +71,11 @@ Future<void> showSpotlightCoach(
     transitionDuration: const Duration(milliseconds: 200),
     pageBuilder: (ctx, _, __) {
       return SizedBox.expand(
-        child: _SpotlightCoachDialog(targets: usable),
+        child: _SpotlightCoachDialog(
+          targets: usable,
+          stepOffset: stepOffset,
+          totalSteps: totalSteps ?? usable.length,
+        ),
       );
     },
   );
@@ -65,7 +83,13 @@ Future<void> showSpotlightCoach(
 
 class _SpotlightCoachDialog extends StatefulWidget {
   final List<CoachTarget> targets;
-  const _SpotlightCoachDialog({required this.targets});
+  final int stepOffset;
+  final int totalSteps;
+  const _SpotlightCoachDialog({
+    required this.targets,
+    this.stepOffset = 0,
+    required this.totalSteps,
+  });
 
   @override
   State<_SpotlightCoachDialog> createState() => _SpotlightCoachDialogState();
@@ -150,6 +174,8 @@ class _SpotlightCoachDialogState extends State<_SpotlightCoachDialog> {
     final target = widget.targets[_step];
     final rect = _entering ? null : _targetRect();
     final isLast = _step >= widget.targets.length - 1;
+    final isTourComplete =
+        isLast && (widget.stepOffset + widget.targets.length >= widget.totalSteps);
     final size = MediaQuery.sizeOf(context);
     final pad = MediaQuery.paddingOf(context);
     final cardTop = _cardTop(size, pad, rect);
@@ -188,11 +214,11 @@ class _SpotlightCoachDialogState extends State<_SpotlightCoachDialog> {
             right: 16,
             top: cardTop,
             child: _CoachCard(
-              step: _step + 1,
-              total: widget.targets.length,
+              step: widget.stepOffset + _step + 1,
+              total: widget.totalSteps,
               title: target.title,
               body: target.body,
-              primaryLabel: isLast ? l.coachDone : l.coachNext,
+              primaryLabel: isTourComplete ? l.coachDone : l.coachNext,
               closeLabel: l.coachSkip,
               closeTooltip: l.coachCloseTooltip,
               onClose: _close,

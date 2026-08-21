@@ -62,11 +62,12 @@
   "categoryOtherHint": "שם קטגוריה חופשי",
   "free": "חינמי",
   "pro": "Pro",
-
   "helloUser": "שלום, {name} 👋",
   "@helloUser": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "joinGroup": "הצטרף לקבוצה",
@@ -87,7 +88,9 @@
   "memberCount": "{count} חברים",
   "@memberCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "stateActive": "פעיל",
@@ -101,7 +104,7 @@
   "groupClosedSuccess": "הקבוצה נסגרה בהצלחה",
   "errorClosingGroup": "שגיאה בסגירת הקבוצה",
   "unsettledDebts": "חובות שטרם הוסדרו",
-  "closeGroupConfirm": "לסגור את הקבוצה?\nלאחר הסגירה לא ניתן להוסיף הוצאות חדשות.\nלהסדרת חובות השתמשו בטאב «חשבון» לפני הסגירה.",
+  "closeGroupConfirm": "לסגור את הקבוצה?\nלאחר הסגירה לא ניתן להוסיף הוצאות חדשות.\nלהסדר חוב השתמשו בטאב חשבון לפני הסגירה.",
   "unsettledDebtsTitle": "טרם הוסדרו כלל החובות בקבוצה:",
   "closeAnywayNote": "ניתן לסגור בכל זאת, אך החובות יישארו ללא הסדרה.",
   "closeAnywayBtn": "סגור בכל זאת",
@@ -118,7 +121,9 @@
   "inviteSentTo": "הזמנה נשלחה ל-{email}",
   "@inviteSentTo": {
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "errorSendingInvite": "שגיאה בשליחת ההזמנה",
@@ -152,15 +157,21 @@
   "groupExpensesCount": "בקבוצה \"{name}\" יש כבר {count} הוצאות.",
   "@groupExpensesCount": {
     "placeholders": {
-      "name": {"type": "String"},
-      "count": {"type": "int"}
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
     }
   },
   "youPaid": "שילמת",
   "paidByPerson": "שילם {name}",
   "@paidByPerson": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "yourShare": "החלק שלך:",
@@ -186,7 +197,6 @@
   "rescan": "סרוק שוב",
   "groupTypeOngoing": "שוטף",
   "groupTypeEvent": "אירוע",
-
   "newGroup": "קבוצה חדשה",
   "activityType": "סוג פעילות",
   "sevenDays": "7 ימים",
@@ -199,53 +209,102 @@
   "groupDescriptionHint": "הוסף תיאור קצר...",
   "errorCreatingGroup": "שגיאה ביצירת הקבוצה",
   "createGroupBtn": "צור קבוצה",
-
   "bannerLimitedTitle": "נדרשת הפעלה",
   "bannerLimitedSubtitle": "הקבוצה הגיעה למגבלת החינם. עלות הפעלה: {price} ₪",
-  "@bannerLimitedSubtitle": {"placeholders": {"price": {"type": "int"}}},
+  "@bannerLimitedSubtitle": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "bannerActivate": "הפעל",
   "bannerExpiredTitle": "פג תוקף הקבוצה",
   "bannerExpiredSubtitle": "לא ניתן להוסיף הוצאות. הארכה: 15 ₪ ל-7 ימים נוספים.",
   "bannerExtend": "הארך",
   "bannerReadOnlyTitle": "קריאה בלבד",
   "bannerReadOnlySubtitle": "פרק הזמן שבתשלום הסתיים. חידוש: {price} ₪",
-  "@bannerReadOnlySubtitle": {"placeholders": {"price": {"type": "int"}}},
+  "@bannerReadOnlySubtitle": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "bannerRenew": "חדש",
   "bannerClosedTitle": "קבוצה סגורה",
   "bannerClosedSubtitle": "ניתן לשחזר את הקבוצה עם כל הנתונים, או לשכפל לקבוצה חדשה עם אותם חברים",
   "bannerFreeTitle": "מצב חינמי",
   "bannerFreeSubtitle": "עד 7 משתתפים ו-7 ימים ללא עלות. אחרי מכן, או מעל 7 חברים, תידרש הפעלה בתשלום.",
-
   "justNow": "עכשיו",
   "minutesAgo": "לפני {count} דק׳",
-  "@minutesAgo": {"placeholders": {"count": {"type": "int"}}},
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "hoursAgo": "לפני {count} שע׳",
-  "@hoursAgo": {"placeholders": {"count": {"type": "int"}}},
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "daysAgo": "לפני {count} ימים",
-  "@daysAgo": {"placeholders": {"count": {"type": "int"}}},
-
+  "@daysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notifNewExpenseTitle": "הוצאה חדשה",
   "notifNewExpenseBody": "{payer} הוסיף הוצאה ב{group}",
-  "@notifNewExpenseBody": {"placeholders": {"payer": {"type": "String"}, "group": {"type": "String"}}},
+  "@notifNewExpenseBody": {
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      },
+      "group": {
+        "type": "String"
+      }
+    }
+  },
   "notifSettlementRequestedTitle": "בקשת תשלום",
   "notifSettlementConfirmedTitle": "תשלום אושר",
   "notifMemberJoinedTitle": "חבר חדש",
   "notifEventSummaryTitle": "סיכום אירוע",
   "notifClose": "סגור",
   "notifGeneralTitle": "התראה",
-
   "markAllRead": "סמן הכל כנקרא",
   "noNotifications": "אין התראות עדיין",
-  "noNotificationsHint": "כשחברי הקבוצה יוסיפו הוצאות\nתקבל התראה כאן",
+  "noNotificationsHint": "כאן תראו הוצאות חדשות, הזמנות ותזכורות, וגם אישור שקיבלתם תשלום",
   "errorLoadingNotifications": "שגיאה בטעינת התראות",
-
   "youLabel": "אתה",
   "adminLabel": "מנהל",
   "removeMember": "הסר חבר",
   "removeMemberTitle": "הסרת {name}",
-  "@removeMemberTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@removeMemberTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "memberHasBalance": "ל{name} יש יתרה פתוחה של {amount} - תישאר מוצגת עד להסדרה ידנית.",
-  "@memberHasBalance": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@memberHasBalance": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "settleDebt": "מסדיר את החוב",
   "settleDebtDesc": "יתרה תאופס ותרשם כהסדרה",
   "redistributeDebt": "חלק בין שאר החברים",
@@ -254,23 +313,61 @@
   "removeMemberExplain": "ההוצאות הקיימות נשארות.\nאם יש חוב פתוח - ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.",
   "remove": "הסר",
   "memberRemovedSuccess": "{name} הוסר מהקבוצה. חובות פתוחים ימשיכו להופיע עד הסדרה.",
-  "@memberRemovedSuccess": {"placeholders": {"name": {"type": "String"}}},
+  "@memberRemovedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "errorRemovingMember": "שגיאה בהסרת החבר",
   "removeMemberDebtQuestion": "מה לעשות עם החוב?",
   "removeMemberDebtPay": "ישלם את חלקו ({amount})",
-  "@removeMemberDebtPay": {"placeholders": {"amount": {"type": "String"}}},
+  "@removeMemberDebtPay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "removeMemberDebtForgive": "מחל על החוב",
   "memberRemovedForgiven": "{name} הוסר והחוב נמחל.",
-  "@memberRemovedForgiven": {"placeholders": {"name": {"type": "String"}}},
+  "@memberRemovedForgiven": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "removeMemberBlockedCreditor": "לא ניתן להסיר - יש חוב כלפי {name}. יש לסגור את החוב לפני ההסרה.",
-  "@removeMemberBlockedCreditor": {"placeholders": {"name": {"type": "String"}}},
+  "@removeMemberBlockedCreditor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "removeMemberRedistributeTitle": "הסרה וחלוקה מחדש",
   "removeMemberRedistributeBody": "ל{name} יש חוב של {amount}. ההסרה תחלק מחדש את חלקו בהוצאות בין שאר המשתתפים.",
-  "@removeMemberRedistributeBody": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@removeMemberRedistributeBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "memberRemovedRedistributed": "{name} הוסר מהקבוצה. ההוצאות חולקו מחדש.",
-  "@memberRemovedRedistributed": {"placeholders": {"name": {"type": "String"}}},
+  "@memberRemovedRedistributed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "formerMember": "לשעבר",
-
   "extendGroupTitle": "הארכת הקבוצה",
   "renewGroupTitle": "חידוש הקבוצה",
   "activateGroupTitle": "הפעלת הקבוצה",
@@ -289,14 +386,31 @@
   "activatedSuccess": "הקבוצה הופעלה בהצלחה",
   "errorTryAgain": "שגיאה - נסה שוב",
   "extendBtnLabel": "הארך ב-7 ימים - {price} ₪",
-  "@extendBtnLabel": {"placeholders": {"price": {"type": "int"}}},
+  "@extendBtnLabel": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "renewBtnLabel": "חדש לחודש - {price} ₪",
-  "@renewBtnLabel": {"placeholders": {"price": {"type": "int"}}},
+  "@renewBtnLabel": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "activateBtnLabel": "הפעל קבוצה - {price} ₪",
-  "@activateBtnLabel": {"placeholders": {"price": {"type": "int"}}},
+  "@activateBtnLabel": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "sevenDaysPlus": "+7 ימים",
   "thirtyDays": "30 יום",
-
   "expenseHint": "לדוגמה: ארוחת ערב",
   "expenseTitleRequired": "נדרש תיאור",
   "notesHint": "הוסף הערה...",
@@ -305,7 +419,13 @@
   "deleteExpense": "מחק הוצאה",
   "deleteExpenseDialogTitle": "מחיקת הוצאה",
   "deleteExpenseConfirm": "האם למחוק את ההוצאה \"{title}\"?\n\nהיתרות יתעדכנו בהתאם.",
-  "@deleteExpenseConfirm": {"placeholders": {"title": {"type": "String"}}},
+  "@deleteExpenseConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "expenseDeletedSuccess": "ההוצאה נמחקה בהצלחה",
   "errorDeletingExpense": "שגיאה במחיקת ההוצאה",
   "saveChanges": "שמור שינויים",
@@ -325,7 +445,9 @@
   "useSavedCredentialsBody": "נמצאו פרטי התחברות שמורים עבור {email}. למלא אותם?",
   "@useSavedCredentialsBody": {
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "useSavedCredentialsYes": "כן, מלא פרטים",
@@ -345,7 +467,6 @@
   "resetPasswordBtn": "עדכן סיסמה",
   "passwordResetSuccess": "הסיסמה עודכנה בהצלחה. אפשר להתחבר",
   "resetEmailSendError": "לא ניתן לשלוח מייל כרגע. נסה שוב מאוחר יותר",
-
   "fullName": "שם מלא",
   "createAccount": "צור חשבון חדש",
   "fillDetails": "מלא את הפרטים להמשך",
@@ -356,10 +477,8 @@
   "passwordMismatch": "הסיסמאות אינן תואמות",
   "emailAlreadyRegistered": "אימייל זה כבר רשום",
   "registerError": "שגיאה בהרשמה, נסה שוב",
-
   "calculating": "מחשב...",
   "exchangeRateLabel": "שער:",
-
   "eventSummary": "סיכום אירוע",
   "participants": "משתתפים",
   "costPerParticipant": "עלות לכל משתתף",
@@ -370,9 +489,15 @@
   "sendPushToAll": "שלח התראה לכל החברים",
   "sendPushSubtitle": "Push notification לכל משתמשי הקבוצה",
   "shareViaWhatsApp": "שלח ב-WhatsApp",
-  "shareWhatsAppSubtitle": "יפתח WhatsApp לכל משתתף - יש ללחוץ «שלח» בכל שיחה",
+  "shareWhatsAppSubtitle": "יפתח WhatsApp לכל משתתף - יש ללחוץ שלח בכל שיחה",
   "reminderSent": "תזכורת נשלחה ל-{name} ✓",
-  "@reminderSent": {"placeholders": {"name": {"type": "String"}}},
+  "@reminderSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "errorSendingReminder": "שגיאה בשליחת תזכורת",
   "errorLoadingSummary": "שגיאה בטעינת הסיכום",
   "notificationSentToAll": "התראה נשלחה לכל חברי הקבוצה ✓",
@@ -380,19 +505,22 @@
   "sendExpenseSplit": "הצטרף לקבוצה שלנו \"{groupName}\" ב-ADL ShareFlow!\nקוד הזמנה: {code}\nלינק: {link}",
   "@sendExpenseSplit": {
     "placeholders": {
-      "groupName": {"type": "String"},
-      "code": {"type": "String"},
-      "link": {"type": "String"}
+      "groupName": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
     }
   },
-
   "freeGroupLimitReachedTitle": "הגעת למגבלת הקבוצות החינמיות",
   "freeGroupLimitReachedBody": "ניתן ליצור עד 3 קבוצות ללא תשלום. הקבוצה נוצרה, אך כדי להתחיל לעבוד בה יש להפעיל אותה.",
   "activateGroupBtn": "הפעל קבוצה",
   "laterBtn": "אחר כך",
-
   "comingSoon": "בקרוב",
-
   "settingsSaved": "הגדרות נשמרו ✓",
   "settingsSaveError": "שגיאה בשמירת ההגדרות",
   "enableReminders": "הפעל תזכורות אוטומטיות",
@@ -428,7 +556,13 @@
   "errorOpeningApp": "שגיאה בפתיחת האפליקציה",
   "sendPayment": "שלח תשלום",
   "payTo": "לתשלום ל{name}",
-  "@payTo": {"placeholders": {"name": {"type": "String"}}},
+  "@payTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "choosePaymentMethod": "בחר אמצעי תשלום",
   "noPaymentDetails": "המקבל עדיין לא הגדיר פרטי תשלום.",
   "noPaymentDetailsHint": "בקש ממנו להוסיף מספר טלפון לBit/PayBox או פרטי בנק בפרופיל שלו.",
@@ -448,14 +582,18 @@
   "wizardStepOf": "שלב {current} מתוך {total}",
   "@wizardStepOf": {
     "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "yesConfirm": "כן",
   "paidSendForApproval": "שילמתי, שלח לאישור",
   "paidSendForApprovalHint": "אחרי ששילמתם באפליקציה החיצונית, לחצו כאן כדי שהמקבל יאשר.",
-  "balancesHowItWorks": "איך מסדירים? החייב לוחץ «הסדר תשלום» → מסמן «שילמתי» → המקבל לוחץ «אשר קבלה».",
+  "balancesHowItWorks": "איך מסדירים? החייב לוחץ הסדר חוב → מסמן שילמתי → המקבל לוחץ אשר קבלה.",
   "periodSettleHint": "יוצר דוח לחברים. לא מסמן חובות כשולמו אוטומטית.",
   "shareGuestDebtWhatsApp": "שתף תזכורת ב-WhatsApp",
   "bankDetailsCopied": "פרטי הבנק הועתקו",
@@ -467,8 +605,13 @@
   "pickFromGallery": "בחר מהגלריה",
   "takePhoto": "צלם קבלה",
   "sendReminderTo": "שלח תזכורת ל{name}",
-  "@sendReminderTo": {"placeholders": {"name": {"type": "String"}}},
-
+  "@sendReminderTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "qrCodeTitle": "קוד QR",
   "qrCodeSubtitle": "הראה לחבר לסרוק",
   "scanQrCode": "סרוק QR",
@@ -478,10 +621,15 @@
   "noCameraPermission": "נדרשת הרשאת מצלמה",
   "openSettings": "פתח הגדרות",
   "showQrCode": "הצג QR",
-
   "aboutTitle": "אודות ADL ShareFlow",
   "aboutVersion": "גרסה {version}",
-  "@aboutVersion": {"placeholders": {"version": {"type": "String"}}},
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "contactUs": "צור קשר",
   "contactSubtitle": "שאלות, בעיות וכל שאר",
   "adlProjects": "ADL Projects",
@@ -492,38 +640,76 @@
   "proPlanSubtitle": "בקרוב - ניתוחים, סטטיסטיקות ועוד",
   "appSection": "אפליקציה",
   "paymentMethodSubtitle": "Bit / PayBox / בנק. בלי זה חברים לא יוכלו לשלוח לכם כסף מהאפליקציה",
-
   "pricingSection": "תמחור",
   "estimatedCost": "עלות",
   "upToParticipants": "עד {count} חברים",
-  "@upToParticipants": {"placeholders": {"count": {"type": "int"}}},
+  "@upToParticipants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "aboveParticipants": "{count}+ חברים",
-  "@aboveParticipants": {"placeholders": {"count": {"type": "int"}}},
+  "@aboveParticipants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "freeTierLabel": "חינם - עד 7 חברים",
   "freeIncluded": "חינמי: עד 7 חברים, ל-7 ימים, ועד 3 קבוצות חינמיות למשתמש",
   "freeTierDetails": "המסלול החינמי מוגבל ל-7 ימים, עד 7 חברים בקבוצה, ועד 3 קבוצות חינמיות למשתמש.",
   "createGroupFree": "צור קבוצה - חינם",
-  "createGroupBtn": "צור קבוצה",
   "createGroupPaid": "צור קבוצה - {price} ₪",
-  "@createGroupPaid": {"placeholders": {"price": {"type": "int"}}},
+  "@createGroupPaid": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "createGroupPaidPilot": "צור קבוצה · ללא חיוב עכשיו ({price} ₪ להפעלה בהמשך)",
-  "@createGroupPaidPilot": {"placeholders": {"price": {"type": "int"}}},
+  "@createGroupPaidPilot": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "tipCreateGroupLive": "המחיר הוא להפעלת הקבוצה. אחרי היצירה תוכלו להפעיל כשתהיו מוכנים.",
   "durationDays": "{days} ימים",
-  "@durationDays": {"placeholders": {"days": {"type": "int"}}},
+  "@durationDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
   "durationMonth": "חודש",
-
   "tierUpgradeRequired": "נדרש שדרוג תוכנית",
   "tierUpgradeSubtitle": "הקבוצה גדלה - נדרש תשלום של {price} ₪ לשדרוג",
-  "@tierUpgradeSubtitle": {"placeholders": {"price": {"type": "int"}}},
+  "@tierUpgradeSubtitle": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "tierUpgradeBtn": "שדרג עכשיו",
   "upgradeTierTitle": "שדרוג תוכנית",
   "upgradeTierDesc": "מספר המשתתפים עלה לרמה גבוהה יותר. יש לשלם את ההפרש כדי להמשיך.",
   "upgradeBtnLabel": "שדרג - {price} ₪",
-  "@upgradeBtnLabel": {"placeholders": {"price": {"type": "int"}}},
+  "@upgradeBtnLabel": {
+    "placeholders": {
+      "price": {
+        "type": "int"
+      }
+    }
+  },
   "upgradedSuccess": "התוכנית שודרגה בהצלחה",
   "errorUpgradingTier": "שגיאה בשדרוג התוכנית",
-
   "periodicSettlement": "התחשבנות תקופית",
   "manualSettlement": "ידנית / אקראית",
   "manualSettlementDesc": "סוגרים חשבון כשרוצים",
@@ -537,10 +723,15 @@
   "periodQuarterly": "רבעוני",
   "periodSemiannual": "חצי-שנתי",
   "periodAnnual": "שנתי",
-
   "settlePeriodBtn": "סכם תקופה",
   "settlePeriodNext": "הבא: {date}",
-  "@settlePeriodNext": {"placeholders": {"date": {"type": "String"}}},
+  "@settlePeriodNext": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "settlePeriodCreateReport": "סגור תקופה וצור דוח",
   "settlePeriodDialogTitle": "סיכום תקופה",
   "settlePeriodConfirmMsg": "האם לסכם את התקופה הנוכחית?\n\nדוח יישלח לכל חברי הקבוצה והתקופה תתאפס.",
@@ -548,36 +739,119 @@
   "errorSettlingPeriod": "שגיאה בסיכום תקופה",
   "previousPeriodReports": "דוחות תקופות קודמות",
   "periodLabel": "תקופה #{number}",
-  "@periodLabel": {"placeholders": {"number": {"type": "int"}}},
+  "@periodLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
   "allDebtsPaid": "כל החובות שולמו ✓",
   "openDebtsCount": "{count} חובות פתוחים",
-  "@openDebtsCount": {"placeholders": {"count": {"type": "int"}}},
+  "@openDebtsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "openDebtCount": "חוב פתוח 1",
   "noDebtsBalanced": "כל החשבונות מאוזנים - אין חובות",
   "markAsPaid": "שולם ✓",
   "paidDirectly": "שילמתי",
   "confirmDirectPayment": "לאשר ששילמת ל{name}?\nנשלח למקבל לאישור קבלה.",
-  "@confirmDirectPayment": {"placeholders": {"name": {"type": "String"}}},
+  "@confirmDirectPayment": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "confirmPaymentReceived": "האם אתה מאשר שקיבלת את התשלום מ{name}?",
-  "@confirmPaymentReceived": {"placeholders": {"name": {"type": "String"}}},
+  "@confirmPaymentReceived": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "waitingForConfirmation": "ממתין לאישור {name}",
-  "@waitingForConfirmation": {"placeholders": {"name": {"type": "String"}}},
+  "@waitingForConfirmation": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "confirmMarkDebtPaid": "לסמן שחוב זה שולם?",
   "confirmMarkDebtPaidBody": "{fromName} שילם ל{toName} את הסכום {amount} {currency}?",
-  "@confirmMarkDebtPaidBody": {"placeholders": {"fromName": {"type": "String"}, "toName": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
+  "@confirmMarkDebtPaidBody": {
+    "placeholders": {
+      "fromName": {
+        "type": "String"
+      },
+      "toName": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "currentPeriodExpenses": "הוצאות תקופה נוכחית",
   "periodSince": "מתאריך {date}",
-  "@periodSince": {"placeholders": {"date": {"type": "String"}}},
-
+  "@periodSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "openDebtsGroupClosed": "חובות פתוחים - הקבוצה סגורה",
   "groupClosedUnpaidDebts": "הקבוצה סגורה אך יש חובות שטרם שולמו",
   "requiredTransfersTitle": "העברות נדרשות",
   "transferNeeded": "{from} צריך להעביר ל-{to}",
-  "@transferNeeded": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "@transferNeeded": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "debtOwesAmount": "{debtor} חייב ל-{creditor} {amount} {currency}",
-  "@debtOwesAmount": {"placeholders": {"debtor": {"type": "String"}, "creditor": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
+  "@debtOwesAmount": {
+    "placeholders": {
+      "debtor": {
+        "type": "String"
+      },
+      "creditor": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "debtPaidTo": "{debtor} שילם ל-{creditor}",
-  "@debtPaidTo": {"placeholders": {"debtor": {"type": "String"}, "creditor": {"type": "String"}}},
+  "@debtPaidTo": {
+    "placeholders": {
+      "debtor": {
+        "type": "String"
+      },
+      "creditor": {
+        "type": "String"
+      }
+    }
+  },
   "paymentScenarioMemberToMember": "תשלום בין חברים",
   "paymentScenarioMemberToGuest": "תשלום לאורח",
   "paymentScenarioGuestToMember": "אורח משלם חוב",
@@ -586,20 +860,41 @@
   "pendingCardTitleDebtor": "ממתין לאישור המקבל",
   "pendingCardTitleAdmin": "נדרשת פעולת מנהל",
   "pendingCardTitleMixed": "תשלומים בהמתנה",
-  "transferHintMemberToMember": "החייב: «הסדר תשלום» → «שילמתי» · המקבל: «אשר קבלה»",
+  "transferHintMemberToMember": "החייב: הסדר חוב → שילמתי · המקבל: אשר קבלה",
   "transferHintMemberToGuest": "החבר משלם לאורח · המנהל מאשר שהאורח קיבל",
-  "transferHintGuestToMember": "המנהל: «סמן שאורח שילם» · המקבל: «אשר קבלה»",
+  "transferHintGuestToMember": "המנהל: סמן שאורח שילם · המקבל: אשר קבלה",
   "transferHintGuestToGuest": "המנהל סוגר את החוב בפעולה אחת",
   "tipScanPrimary": "מומלץ לסרוק קבלה: ממלא סכום ותיאור אוטומטית. אפשר גם לצרף תמונה לצפייה בלבד.",
   "transferPendingBadge": "ממתין לאישור - אין פעולה נוספת",
   "pendingHintMemberPaid": "{debtor} שילם ל-{creditor} - ממתין לאישור",
-  "@pendingHintMemberPaid": {"placeholders": {"debtor": {"type": "String"}, "creditor": {"type": "String"}}},
+  "@pendingHintMemberPaid": {
+    "placeholders": {
+      "debtor": {
+        "type": "String"
+      },
+      "creditor": {
+        "type": "String"
+      }
+    }
+  },
   "pendingHintMemberToGuestDebtor": "שילמת - ממתין לאישור מנהל שהאורח קיבל",
   "pendingHintMemberToGuestAdmin": "החבר שילם - אשר שהאורח {guest} קיבל",
-  "@pendingHintMemberToGuestAdmin": {"placeholders": {"guest": {"type": "String"}}},
+  "@pendingHintMemberToGuestAdmin": {
+    "placeholders": {
+      "guest": {
+        "type": "String"
+      }
+    }
+  },
   "pendingHintGuestToMemberCreditor": "האורח שילם - אשר שקיבלת את הכסף",
   "pendingHintGuestToMemberWaiting": "ממתין לאישור {member} שקיבל",
-  "@pendingHintGuestToMemberWaiting": {"placeholders": {"member": {"type": "String"}}},
+  "@pendingHintGuestToMemberWaiting": {
+    "placeholders": {
+      "member": {
+        "type": "String"
+      }
+    }
+  },
   "confirmReceipt": "אשר קבלה",
   "goToConfirmPayment": "עבור לאישור התשלום",
   "rejectPayment": "דחה",
@@ -607,10 +902,39 @@
   "confirmGuestTransfer": "אשר העברת אורח",
   "closeDebt": "סגור חוב",
   "markGuestPaidConfirmGuestToGuest": "סמן שהאורח {from} שילם {amount} {currency} לאורח {to}?",
-  "@markGuestPaidConfirmGuestToGuest": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
+  "@markGuestPaidConfirmGuestToGuest": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "markGuestPaidConfirmGuestToMember": "סמן שהאורח {from} שילם {amount} {currency} ל-{to}? המקבל יאשר קבלה.",
-  "@markGuestPaidConfirmGuestToMember": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}, "amount": {"type": "String"}, "currency": {"type": "String"}}},
-
+  "@markGuestPaidConfirmGuestToMember": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
   "restoreGroupMenu": "שחזור / המשך קבוצה",
   "restoreGroupDialogTitle": "שחזור או המשך קבוצה",
   "restoreGroupOptionReopen": "שחזור הקבוצה הישנה עם כל הנתונים",
@@ -619,7 +943,6 @@
   "restoreGroupOptionDuplicateSubtitle": "קבוצה חדשה וריקה עם אותם חברים",
   "reopenGroupSuccess": "הקבוצה נפתחה מחדש בהצלחה",
   "errorReopeningGroup": "שגיאה בפתיחת הקבוצה מחדש",
-
   "duplicateGroup": "שכפל קבוצה",
   "duplicateGroupDialogTitle": "שכפול קבוצה סגורה",
   "duplicateGroupDialogBody": "תיווצר קבוצה חדשה וריקה עם אותם חברים.\nההוצאות, היתרות וההיסטוריה של הקבוצה הסגורה לא יועתקו.",
@@ -627,15 +950,19 @@
   "duplicateGroupBtn": "צור קבוצה חדשה",
   "duplicateGroupSuccess": "הקבוצה החדשה נוצרה בהצלחה",
   "errorDuplicatingGroup": "שגיאה בשכפול הקבוצה",
-
   "deleteGroup": "מחק קבוצה",
   "deleteGroupDialogTitle": "מחיקת קבוצה",
   "deleteGroupConfirm": "האם למחוק לצמיתות את הקבוצה \"{name}\"?\n\nכל ההוצאות, היתרות וההיסטוריה יימחקו ולא ניתן יהיה לשחזרם.",
-  "@deleteGroupConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@deleteGroupConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "deleteGroupPermanently": "מחק לצמיתות",
   "groupDeletedSuccess": "הקבוצה נמחקה בהצלחה",
   "errorDeletingGroup": "שגיאה במחיקת הקבוצה",
-
   "addGuest": "הוסף אורח",
   "addGuestTitle": "הוסף חבר ללא אפליקציה",
   "addGuestHint": "שם החבר (לדוגמה: ישי כהן)",
@@ -647,27 +974,43 @@
   "guestExplainBody": "אורח הוא חבר שלא יכול או לא רוצה להוריד את האפליקציה. הוא נכלל בחלוקה, ואתם מנהלים בשמו. אם בהמשך יוריד ויתחבר, אפשר לקשר אותו לחשבון.",
   "guestReminderTitle": "אורחים ללא חשבון",
   "guestReminderBody": "{count, plural, one{חבר אחד} other{{count} חברים}} מסומנים כאורחים.\nאם יורידו את האפליקציה בהמשך, קשרו אותם לחשבון דרך לחצן הקישור.",
-  "@guestReminderBody": {"placeholders": {"count": {"type": "int"}}},
+  "@guestReminderBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "guestReminderAction": "הוסף אורח",
   "tipInvitePrimary": "שלחו קישור. החבר מצטרף דרך האפליקציה",
   "showQrAndCode": "הצג קוד QR וקוד להקלדה",
   "inviteEmailOption": "שלח גם במייל",
   "addGuestOption": "לא יכול / לא מעוניין באפליקציה? הוסיפו כאורח",
-  "tipMembersActions": "הזמן עם קישור (כולל אפשרות הורדה). אורח רק למי שלא יכול או לא רוצה להוריד.",
+  "tipMembersActions": "בלי אפליקציה — אתם מנהלים בשמו.",
   "guestAdminOnlyHint": "רק מנהל הקבוצה יכול להוסיף ולנהל חברים ללא אפליקציה",
   "inviteViaApp": "הזמן עם קישור",
   "linkGuestTitle": "קשר אורח לחשבון",
   "linkGuestSubtitle": "בחר את החבר הרשום שאליו תרצה לשייך את {name}",
-  "@linkGuestSubtitle": {"placeholders": {"name": {"type": "String"}}},
+  "@linkGuestSubtitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "linkGuestExplain": "כל ההוצאות והיתרות של האורח יועברו לחשבון הנבחר.",
   "linkGuestBtn": "קשר",
   "linkGuestSuccess": "האורח שויך בהצלחה",
   "joinGuestMatchTitle": "מצאנו אורח דומה",
-  "joinGuestMatchBody": "בקבוצה יש אורח בשם \"{guestName}\".\nהשם שלך באפליקציה: \"{joinerName}\".\n\nהאם זה אותו אדם שמתחבר עכשיו לאפליקציה, או משתמש חדש?",
+  "joinGuestMatchBody": "בקבוצה יש אורח בשם {guestName}.\nהשם שלך באפליקציה: {joinerName}.\n\nהאם זה אותו אדם שמתחבר עכשיו לאפליקציה, או משתמש חדש?",
   "@joinGuestMatchBody": {
     "placeholders": {
-      "guestName": {"type": "String"},
-      "joinerName": {"type": "String"}
+      "guestName": {
+        "type": "String"
+      },
+      "joinerName": {
+        "type": "String"
+      }
     }
   },
   "joinGuestMatchYes": "זה האורח, שייכו אליי",
@@ -675,61 +1018,83 @@
   "joinGuestPickTitle": "איזה אורח זה אתה?",
   "removeGuest": "הסר אורח",
   "removeGuestConfirm": "האורח {name} יוסר מרשימת החברים הפעילים.\nההוצאות הקיימות נשארות.\nאם יש חוב פתוח - ימשיך להיות מוצג בהתחשבנות עד שיסודר ידנית.\nלא ניתן לבטל פעולה זו.",
-  "@removeGuestConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "@removeGuestConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "guestRemovedSuccess": "{name} הוסר. חוב פתוח ימשיך להופיע עד הסדרה.",
-  "@guestRemovedSuccess": {"placeholders": {"name": {"type": "String"}}},
+  "@guestRemovedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "markGuestPaid": "סמן שולם (עבור אורח)",
   "guestNoApp": "לחבר שאין באפשרותו או לא מעוניין להוריד את האפליקציה",
-
   "perParticipant": "{amount} לכל משתתף",
   "@perParticipant": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "notParticipating": "לא שותף",
   "atLeastOneParticipant": "יש לבחור לפחות משתתף אחד",
-
   "inviteSubject": "הזמנה לקבוצה {groupName}",
-  "@inviteSubject": {"placeholders": {"groupName": {"type": "String"}}},
+  "@inviteSubject": {
+    "placeholders": {
+      "groupName": {
+        "type": "String"
+      }
+    }
+  },
   "errorAddingGuest": "שגיאה בהוספת האורח",
   "invitedCount": "הוזמנו {count}",
-  "@invitedCount": {"placeholders": {"count": {"type": "int"}}},
+  "@invitedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "sendToAnotherWhatsApp": "שלח לאדם נוסף ב-WhatsApp",
   "whatsappOpenHint": "יפתח WhatsApp - בחר איש קשר ולחץ שלח, ואז חזור לכאן",
   "shareOtherWay": "שתף בדרך אחרת",
   "gotIt": "הבנתי",
   "doneBtn": "סיום",
-
   "tipCreateGroupNoCharge": "רק יוצרים את הקבוצה עכשיו. התשלום, אם בכלל, רק בהפעלה בהמשך.",
   "tipEmptyExpensesInvite": "התחילו בהזמנת חברים (אייקון האדם למעלה). לבד אין עם מי להתחלק.",
-  "tipBalancesBeforeDebts": "כאן רואים מי חייב למי. כשיהיו חובות יופיעו «הסדר תשלום» ו«אשר קבלה».",
+  "tipBalancesBeforeDebts": "כאן רואים מי חייב למי. כשיהיו חובות יופיעו הסדר חוב ואשר קבלה.",
   "tipParticipantsEqualSplit": "סמנו רק מי באמת חלק בהוצאה. הסכום מתחלק שווה בין המסומנים.",
   "tipJoinWithCode": "קוד ההזמנה מגיע מחבר שכבר יצר קבוצה, או מסריקת ה-QR שלו.",
-  "tipScanVsAttach": "הסורק למעלה ממלא סכום ותיאור אוטומטית. «צרף קבלה» רק שומר תמונה לצפייה.",
+  "tipScanVsAttach": "הסורק למעלה ממלא סכום ותיאור אוטומטית. צרף קבלה רק שומר תמונה לצפייה.",
   "tipWhatsAppInvite": "נפתח WhatsApp. בחרו למי לשלוח.",
-  "tipAddGuestNoApp": "רק אם אין להם אפליקציה. אתם מנהלים בשמם עד שירשמו.",
-  "tipMemberBalanceLegend": "פלוס = מגיע לו כסף מהקבוצה · מינוס = הוא חייב.",
+  "tipAddGuestNoApp": "בלי אפליקציה — אתם מנהלים בשמו.",
+  "tipMemberBalanceLegend": "+ מגיע לו כסף · − הוא חייב.",
   "tipPeriodicSettlement": "בסליקה תקופתית סוגרים תקופה בטאב חשבון ושולחים דוח, בלי תשלום אוטומטי של חובות.",
   "markGuestPaidShort": "סמן שאורח שילם",
   "tipPaymentDetailsScreen": "מלאו לפחות טלפון ל-Bit/PayBox או פרטי בנק כדי שחברים יוכלו לשלם לכם בקלות.",
   "attachReceiptTitle": "צרף קבלה",
   "attachReceiptSubtitle": "צילום או גלריה, לצפייה בלבד, ללא מילוי אוטומטי",
-
   "coachSkip": "סגור",
   "coachNext": "הבא",
   "coachDone": "סיום",
   "coachCloseTooltip": "סגור וחזרה",
-  "coachCreateGroupTitle": "צעד 1: יצירת קבוצה",
-  "coachCreateGroupBody": "מתחילים כאן: פותחים קבוצה חדשה לטיול, דירה או כל שיתוף הוצאות.",
+  "coachCreateGroupTitle": "יצירת קבוצה — אירוע או שוטף",
+  "coachCreateGroupBody": "אירוע = חד־פעמי (טיול, מסיבה, מפגש). שוטף = מתמשך (דירה, משרד) עם חיוב לפי תקופה. בוחרים סוג ביצירה, ואז מזמינים חברים.",
   "coachJoinGroupTitle": "או הצטרפות לקבוצה",
   "coachJoinGroupBody": "קיבלתם קוד מחבר? מזינים אותו כאן.",
   "coachScanQrTitle": "סריקת QR",
   "coachScanQrBody": "חלופה מהירה: סורקים את ה-QR של החבר ומצטרפים מיד.",
   "coachNotificationsTitle": "התראות",
-  "coachNotificationsBody": "כאן תראו הוצאות חדשות, הזמנות ותזכורות תשלום, בלי לפספס.",
+  "coachNotificationsBody": "כאן הוצאות חדשות (מידע) ובקשות תשלום / שדרוג (דורשים פעולה).",
   "coachProfileTitle": "פרופיל ותשלום",
-  "coachProfileBody": "מעדכנים פרטי תשלום ושפה כדי שסגירת חובות תהיה פשוטה.",
+  "coachProfileBody": "מעדכנים פרטי תשלום ושפה כדי שהסדר חוב יהיה פשוט.",
   "groupCoachInviteTitle": "הזמנת חברים",
   "groupCoachInviteBody": "כאן שולחים קישור הזמנה (עם אפשרות הורדה) או מוסיפים אורח.",
   "groupCoachExpensesTabTitle": "טאב הוצאות",
@@ -737,7 +1102,7 @@
   "groupCoachExpenseTitle": "הוצאה חדשה",
   "groupCoachExpenseBody": "לוחצים כאן כדי להוסיף הוצאה. האפליקציה מחלקת את הסכום בין החברים.",
   "groupCoachBalancesTitle": "מי חייב למי",
-  "groupCoachBalancesBody": "כאן רואים מי חייב למי וסוגרים תשלומים.",
+  "groupCoachBalancesBody": "כאן רואים מי חייב למי ומבצעים הסדר חוב.",
   "groupCoachMembersTitle": "חברים",
   "groupCoachMembersBody": "כאן מנהלים חברים ואורחים, ומקשרים אורח לחשבון כשמתחבר.",
   "emptyGroupsChecklistTitle": "איך מתחילים?",
@@ -751,10 +1116,10 @@
   "profileHowToSubtitle": "תזכורת קצרה לתהליך השימוש",
   "howToTitle": "איך עובדים עם ShareFlow",
   "howToSubtitle": "חמישה שלבים קצרים ואתם מסודרים.",
-  "howToStep1": "יוצרים קבוצה או מצטרפים עם קוד / QR",
+  "howToStep1": "יוצרים קבוצה: אירוע חד־פעמי או שוטף מתמשך — או מצטרפים עם קוד / QR",
   "howToStep2": "מזמינים חברים בקישור (אפשר גם להוריד), או מוסיפים אורח למי שלא מוריד",
   "howToStep3": "מוסיפים הוצאות. האפליקציה מחלקת את הסכומים",
-  "howToStep4": "בטאב חשבון רואים מי חייב למי וסוגרים תשלומים",
+  "howToStep4": "בטאב חשבון רואים מי חייב למי ומבצעים הסדר חוב",
   "howToStep5": "מקבלים התראה כשנוספת הוצאה או שיש מה לאשר",
   "howToGotIt": "הבנתי, בואו נתחיל",
   "homeHelpTooltip": "עזרה",
@@ -764,7 +1129,7 @@
   "coachHelpTitle": "עזרה בכל רגע",
   "coachHelpBody": "לחיצה כאן פותחת שוב את ההסבר הקצר על איך עובדים עם האפליקציה.",
   "profileTourTitle": "סיור על הכפתורים",
-  "profileTourSubtitle": "הדגמה חיה של הכפתורים במסך הראשי",
+  "profileTourSubtitle": "סיור אחד על כל הכפתורים — בית וקבוצה",
   "scanQrCta": "סרוק QR",
   "paymentMissingBannerTitle": "חסרים פרטי תשלום",
   "paymentMissingBannerBody": "הוסיפו טלפון ל־Bit/PayBox כדי שחברים יוכלו לשלם לכם בקלות",
@@ -772,34 +1137,40 @@
   "balancesNextConfirmTitle": "מה לעשות עכשיו",
   "balancesNextConfirmBody": "ממתינים לאישור קבלה שלכם. אשרו למטה",
   "balancesNextPayTitle": "מה לעשות עכשיו",
-  "balancesNextPayBody": "יש לכם חוב לסגור. לחצו «הסדר תשלום» למטה",
+  "balancesNextPayBody": "יש לכם חוב לסגור. לחצו הסדר חוב למטה",
   "balancesNextWaitTitle": "מה לעשות עכשיו",
   "balancesNextWaitBody": "ממתינים שאישרו שקיבלו את התשלום שלכם",
   "balancesNextClearTitle": "הכול מסודר",
   "balancesNextClearBody": "אין פעולה דחופה. כאן רואים מי חייב למי כשיופיעו חובות",
-  "noNotificationsHint": "כאן תראו הוצאות חדשות, הזמנות ותזכורות, וגם אישור שקיבלתם תשלום",
   "addExpenseMoreOptions": "עוד אפשרויות (הערות)",
   "fieldRequiredBadge": "חובה",
   "fieldOptionalBadge": "רשות",
-
   "expensesShowingCount": "מציג {count} הוצאות",
   "@expensesShowingCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "expensesShowingFilteredCount": "מציג {shown} הוצאות מתוך {total}",
   "@expensesShowingFilteredCount": {
     "placeholders": {
-      "shown": {"type": "int"},
-      "total": {"type": "int"}
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "iapCancelledOrFailed": "התשלום בוטל או לא הושלם. נסו שוב.",
   "iapProductMissing": "לא נמצא מוצר תשלום למחיר {price} ₪. בדקו את הגדרות החנות.",
   "@iapProductMissing": {
     "placeholders": {
-      "price": {"type": "int"}
+      "price": {
+        "type": "int"
+      }
     }
   }
 }

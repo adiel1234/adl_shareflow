@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/notifications/data/notifications_repository.dart';
 import '../features/notifications/domain/notification_model.dart';
+import '../services/app_badge_service.dart';
 
 final notificationsRepositoryProvider =
     Provider((_) => NotificationsRepository());
@@ -39,6 +40,8 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
     load();
   }
 
+  Future<void> _syncBadge(int unread) => AppBadgeService.sync(unread);
+
   Future<void> load() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
@@ -48,6 +51,7 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
         unreadCount: result.unreadCount,
         isLoading: false,
       );
+      await _syncBadge(result.unreadCount);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -56,12 +60,14 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
   Future<void> markRead(String id) async {
     try {
       await _repo.markRead(id);
+      final nextUnread = (state.unreadCount - 1).clamp(0, 9999);
       state = state.copyWith(
         items: state.items
             .map((n) => n.id == id ? n.copyWith(isRead: true) : n)
             .toList(),
-        unreadCount: (state.unreadCount - 1).clamp(0, 9999),
+        unreadCount: nextUnread,
       );
+      await _syncBadge(nextUnread);
     } catch (_) {}
   }
 
@@ -72,6 +78,7 @@ class NotificationsNotifier extends StateNotifier<NotificationsState> {
         items: state.items.map((n) => n.copyWith(isRead: true)).toList(),
         unreadCount: 0,
       );
+      await _syncBadge(0);
     } catch (_) {}
   }
 }

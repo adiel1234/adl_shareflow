@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../config/app_config.dart';
 import '../constants/app_constants.dart';
 import '../storage/secure_storage.dart';
 
-/// Callbacks registered by the app layer to react to auth/error events.
-typedef VoidCallback = void Function();
 typedef MessageCallback = void Function(String message);
 
 enum RefreshResult { success, invalid, networkError }
@@ -18,6 +19,9 @@ class ApiClient {
 
   /// Called for unhandled server errors (5xx) with a human-readable message.
   static MessageCallback? onServerError;
+
+  /// Single-flight refresh so concurrent 401s share one refresh call.
+  static Completer<RefreshResult>? _refreshCompleter;
 
   ApiClient._() {
     _dio = Dio(BaseOptions(
@@ -57,11 +61,33 @@ class ApiClient {
   Future<Response> postFormData(String path, FormData formData) =>
       _dio.post(path, data: formData);
 
-  /// Attempts to refresh the access token. Used by auth init and interceptor.
+  /// Shared refresh: concurrent callers wait for the same attempt.
   static Future<RefreshResult> tryRefreshToken() async {
+    final inFlight = _refreshCompleter;
+    if (inFlight != null) return inFlight.future;
+
+    final completer = Completer<RefreshResult>();
+    _refreshCompleter = completer;
+
+    try {
+      final result = await _refreshTokenOnce();
+      completer.complete(result);
+      return result;
+    } catch (e, st) {
+      debugPrint('[Auth] refresh unexpected error: $e\n$st');
+      completer.complete(RefreshResult.networkError);
+      return RefreshResult.networkError;
+    } finally {
+      _refreshCompleter = null;
+    }
+  }
+
+  static Future<RefreshResult> _refreshTokenOnce() async {
     final refreshToken =
         await AppSecureStorage.read(AppConstants.refreshTokenKey);
-    if (refreshToken == null) return RefreshResult.invalid;
+    if (refreshToken == null || refreshToken.isEmpty) {
+      return RefreshResult.invalid;
+    }
 
     try {
       final plainDio = Dio(BaseOptions(
@@ -79,10 +105,12 @@ class ApiClient {
       return RefreshResult.success;
     } on DioException catch (e) {
       final status = e.response?.statusCode ?? 0;
-      if (status == 401 || status == 403) {
+      // Only treat explicit auth rejection as invalid session.
+      if (status == 401) {
         await AppSecureStorage.clearSessionTokens();
         return RefreshResult.invalid;
       }
+      // 403 / 5xx / timeouts → keep tokens; UI stays logged in and retries.
       return RefreshResult.networkError;
     } catch (_) {
       return RefreshResult.networkError;
@@ -92,7 +120,6 @@ class ApiClient {
 
 class _AuthInterceptor extends Interceptor {
   final Dio _dio;
-  bool _refreshing = false;
 
   _AuthInterceptor(this._dio);
 
@@ -124,10 +151,8 @@ class _AuthInterceptor extends Interceptor {
           await AppSecureStorage.read(AppConstants.refreshTokenKey);
       final hadSession = hadAuth || refreshToken != null;
 
-      if (hadSession && !_refreshing) {
-        _refreshing = true;
+      if (hadSession) {
         final result = await ApiClient.tryRefreshToken();
-        _refreshing = false;
 
         if (result == RefreshResult.success) {
           final token =
@@ -139,12 +164,10 @@ class _AuthInterceptor extends Interceptor {
             return;
           } catch (_) {}
         } else if (result == RefreshResult.invalid) {
-          // Only hard-logout when the refresh token itself is rejected.
+          // Refresh token truly rejected — user must sign in again.
           ApiClient.onSessionExpired?.call();
         }
-        // networkError → do not logout; let the original error bubble up.
-      } else if (hadSession && refreshToken == null) {
-        ApiClient.onSessionExpired?.call();
+        // networkError → stay logged in; bubble the original error.
       }
     } else if (statusCode >= 500) {
       final msg = (err.response?.data?['message'] as String?)

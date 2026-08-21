@@ -33,6 +33,9 @@ class GroupDetailScreen extends ConsumerStatefulWidget {
   final bool forceCoach;
   /// After the tour ends (close/done), pop back to the previous screen (home).
   final bool popOnCoachEnd;
+  /// Continues a unified home+group tour counter (e.g. steps 6–10 of 10).
+  final int coachStepOffset;
+  final int? coachTotalSteps;
   const GroupDetailScreen({
     super.key,
     required this.group,
@@ -40,6 +43,8 @@ class GroupDetailScreen extends ConsumerStatefulWidget {
     this.openInviteOnStart = false,
     this.forceCoach = false,
     this.popOnCoachEnd = false,
+    this.coachStepOffset = 0,
+    this.coachTotalSteps,
   });
 
   @override
@@ -110,18 +115,21 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
     }
 
     final l = AppLocalizations.of(context)!;
+    final groupTargets = buildGroupCoachTargets(
+      l: l,
+      inviteKey: _inviteKey,
+      expensesTabKey: _expensesTabKey,
+      fabKey: _fabKey,
+      balancesTabKey: _balancesTabKey,
+      membersTabKey: _membersTabKey,
+      tabController: _tabController,
+    );
     await showGroupCoach(
       context,
       markDone: !widget.forceCoach,
-      targets: buildGroupCoachTargets(
-        l: l,
-        inviteKey: _inviteKey,
-        expensesTabKey: _expensesTabKey,
-        fabKey: _fabKey,
-        balancesTabKey: _balancesTabKey,
-        membersTabKey: _membersTabKey,
-        tabController: _tabController,
-      ),
+      stepOffset: widget.coachStepOffset,
+      totalSteps: widget.coachTotalSteps ?? groupTargets.length,
+      targets: groupTargets,
     );
     if (widget.popOnCoachEnd && mounted) {
       Navigator.of(context).pop();
