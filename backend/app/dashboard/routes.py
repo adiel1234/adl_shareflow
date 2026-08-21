@@ -699,12 +699,7 @@ def adl_user_clear_badge(user_id):
     )
     db.session.commit()
 
-    sent = fcm_service._send_to_user_impl(
-        user_id,
-        'תג עודכן',
-        'התראות סומנו כנקראו — התג אמור להתאפס',
-        {'type': 'badge_clear'},
-    )
+    sent = fcm_service._sync_badge_impl(user_id, 0)
     return success_response(data={
         'user_id': user_id,
         'unread_count': 0,

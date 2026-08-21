@@ -515,8 +515,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get monthly => 'Monthly';
 
   @override
-  String get eventTypeDesc =>
-      'Event = one-time (trip, party, meetup). Up to 25 participants.';
+  String get eventTypeDesc => 'Event = one-time (trip, party, meetup).';
 
   @override
   String get ongoingTypeDesc =>

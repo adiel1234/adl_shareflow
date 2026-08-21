@@ -214,3 +214,63 @@ def send_to_group(group_id: str, exclude_user_id: Optional[str], title: str, bod
     except Exception as e:
         logger.error(f'FCM send_to_group error: {e}')
         return 0
+
+
+def _sync_badge_impl(user_id: str, badge: Optional[int] = None) -> int:
+    """Push only an APNs/Android badge update — no banner text."""
+    app = _get_app()
+    if not app:
+        return 0
+    try:
+        from app.models import FCMToken
+        from firebase_admin import messaging
+        from app import db
+
+        badge_count = max(
+            0,
+            int(badge if badge is not None else _unread_badge_count(user_id)),
+        )
+        tokens = FCMToken.query.filter_by(user_id=user_id).all()
+        sent = 0
+        for token_row in tokens:
+            try:
+                android_cfg = messaging.AndroidConfig(priority='high')
+                if badge_count > 0:
+                    android_cfg = messaging.AndroidConfig(
+                        priority='high',
+                        notification=messaging.AndroidNotification(
+                            channel_id=_ANDROID_CHANNEL_ID,
+                            notification_count=badge_count,
+                        ),
+                    )
+                message = messaging.Message(
+                    token=token_row.token,
+                    data={'type': 'badge_sync', 'badge': str(badge_count)},
+                    android=android_cfg,
+                    apns=messaging.APNSConfig(
+                        headers={
+                            'apns-priority': '10',
+                            'apns-push-type': 'alert',
+                        },
+                        payload=messaging.APNSPayload(
+                            aps=messaging.Aps(badge=badge_count),
+                        ),
+                    ),
+                )
+                messaging.send(message, app=app)
+                sent += 1
+            except messaging.UnregisteredError:
+                db.session.delete(token_row)
+                db.session.commit()
+            except Exception as e:
+                logger.error(f'FCM badge sync failed: {e}')
+        return sent
+    except Exception as e:
+        logger.error(f'FCM sync_badge error: {e}')
+        return 0
+
+
+def sync_badge(user_id: str, badge: Optional[int] = None) -> int:
+    """Queue a badge-only sync (clears icon when unread is 0)."""
+    run_in_background(_sync_badge_impl, user_id, badge)
+    return 0

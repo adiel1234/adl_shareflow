@@ -284,11 +284,16 @@ class FcmService {
 
   void _handleForeground(RemoteMessage message) {
     final info = _tapInfoFromMessage(message);
-    FeedbackService.notification();
 
     if (info.badge != null) {
       AppBadgeService.sync(info.badge!);
     }
+    // Badge-only sync from server — no sound / banner.
+    if (info.type == 'badge_sync') {
+      return;
+    }
+
+    FeedbackService.notification();
 
     // Always show local notification (iOS may omit message.notification in foreground).
     if (info.title.isNotEmpty || info.body.isNotEmpty) {

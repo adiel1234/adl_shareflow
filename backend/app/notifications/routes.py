@@ -37,6 +37,11 @@ def mark_read(notification_id):
 
     notif.is_read = True
     db.session.commit()
+
+    from app.notifications import fcm_service
+    unread = Notification.query.filter_by(user_id=user_id, is_read=False).count()
+    fcm_service.sync_badge(user_id, unread)
+
     return success_response(data=notif.to_dict())
 
 
@@ -46,6 +51,10 @@ def mark_all_read():
     user_id = get_jwt_identity()
     Notification.query.filter_by(user_id=user_id, is_read=False).update({'is_read': True})
     db.session.commit()
+
+    from app.notifications import fcm_service
+    fcm_service.sync_badge(user_id, 0)
+
     return success_response(message='All notifications marked as read')
 
 

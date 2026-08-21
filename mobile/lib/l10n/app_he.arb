@@ -201,7 +201,7 @@
   "activityType": "סוג פעילות",
   "sevenDays": "7 ימים",
   "monthly": "חודשי",
-  "eventTypeDesc": "אירוע = חד־פעמי (טיול, מסיבה, מפגש). עד 25 משתתפים.",
+  "eventTypeDesc": "אירוע = חד־פעמי (טיול, מסיבה, מפגש).",
   "ongoingTypeDesc": "שוטף = מתמשך (דירה, משרד). חיוב לפי תקופה.",
   "groupNameHint": "לדוגמה: דירה ברחוב הרצל",
   "groupNameRequired": "נדרש שם לקבוצה",

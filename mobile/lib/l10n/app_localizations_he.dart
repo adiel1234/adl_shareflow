@@ -514,8 +514,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get monthly => 'חודשי';
 
   @override
-  String get eventTypeDesc =>
-      'אירוע = חד־פעמי (טיול, מסיבה, מפגש). עד 25 משתתפים.';
+  String get eventTypeDesc => 'אירוע = חד־פעמי (טיול, מסיבה, מפגש).';
 
   @override
   String get ongoingTypeDesc => 'שוטף = מתמשך (דירה, משרד). חיוב לפי תקופה.';

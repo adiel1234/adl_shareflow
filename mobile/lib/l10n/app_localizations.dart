@@ -1079,7 +1079,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventTypeDesc.
   ///
   /// In he, this message translates to:
-  /// **'אירוע = חד־פעמי (טיול, מסיבה, מפגש). עד 25 משתתפים.'**
+  /// **'אירוע = חד־פעמי (טיול, מסיבה, מפגש).'**
   String get eventTypeDesc;
 
   /// No description provided for @ongoingTypeDesc.

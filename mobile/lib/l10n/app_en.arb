@@ -201,7 +201,7 @@
   "activityType": "Activity Type",
   "sevenDays": "7 days",
   "monthly": "Monthly",
-  "eventTypeDesc": "Event = one-time (trip, party, meetup). Up to 25 participants.",
+  "eventTypeDesc": "Event = one-time (trip, party, meetup).",
   "ongoingTypeDesc": "Ongoing = continuous (flat, office). Billed by period.",
   "groupNameHint": "e.g. Apartment on Main St",
   "groupNameRequired": "Group name is required",
