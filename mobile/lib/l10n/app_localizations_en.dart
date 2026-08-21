@@ -516,10 +516,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventTypeDesc =>
-      'For trips, events & gatherings - up to 25 participants';
+      'Event = one-time (trip, party, meetup). Up to 25 participants.';
 
   @override
-  String get ongoingTypeDesc => 'For roommates, offices - monthly billing';
+  String get ongoingTypeDesc =>
+      'Ongoing = continuous (flat, office). Billed by period.';
 
   @override
   String get groupNameHint => 'e.g. Apartment on Main St';
@@ -1961,11 +1962,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coachCloseTooltip => 'Close and go back';
 
   @override
-  String get coachCreateGroupTitle => 'Create a group — event or ongoing';
+  String get coachCreateGroupTitle => 'Step 1: Create a group';
 
   @override
   String get coachCreateGroupBody =>
-      'Event = one-time (trip, party). Ongoing = continuous (flat, office) billed by period. Pick the type when creating, then invite friends.';
+      'Open a new group here to share expenses with friends.';
 
   @override
   String get coachJoinGroupTitle => 'Or join a group';
@@ -2065,7 +2066,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get howToStep1 =>
-      'Create a group: one-time event or ongoing — or join with a code / QR';
+      'Create a group (pick one-time event or ongoing) or join with a code / QR';
 
   @override
   String get howToStep2 =>

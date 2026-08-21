@@ -1079,13 +1079,13 @@ abstract class AppLocalizations {
   /// No description provided for @eventTypeDesc.
   ///
   /// In he, this message translates to:
-  /// **'מתאים לטיולים, אירועים, ומפגשים - עד 25 משתתפים'**
+  /// **'אירוע = חד־פעמי (טיול, מסיבה, מפגש). עד 25 משתתפים.'**
   String get eventTypeDesc;
 
   /// No description provided for @ongoingTypeDesc.
   ///
   /// In he, this message translates to:
-  /// **'מתאים לדירות שותפים, משרדים - חיוב חודשי'**
+  /// **'שוטף = מתמשך (דירה, משרד). חיוב לפי תקופה.'**
   String get ongoingTypeDesc;
 
   /// No description provided for @groupNameHint.
@@ -3597,13 +3597,13 @@ abstract class AppLocalizations {
   /// No description provided for @coachCreateGroupTitle.
   ///
   /// In he, this message translates to:
-  /// **'יצירת קבוצה — אירוע או שוטף'**
+  /// **'צעד 1: יצירת קבוצה'**
   String get coachCreateGroupTitle;
 
   /// No description provided for @coachCreateGroupBody.
   ///
   /// In he, this message translates to:
-  /// **'אירוע = חד־פעמי (טיול, מסיבה, מפגש). שוטף = מתמשך (דירה, משרד) עם חיוב לפי תקופה. בוחרים סוג ביצירה, ואז מזמינים חברים.'**
+  /// **'כאן פותחים קבוצה חדשה לשיתוף הוצאות עם חברים.'**
   String get coachCreateGroupBody;
 
   /// No description provided for @coachJoinGroupTitle.
@@ -3783,7 +3783,7 @@ abstract class AppLocalizations {
   /// No description provided for @howToStep1.
   ///
   /// In he, this message translates to:
-  /// **'יוצרים קבוצה: אירוע חד־פעמי או שוטף מתמשך — או מצטרפים עם קוד / QR'**
+  /// **'יוצרים קבוצה (בוחרים אירוע חד־פעמי או שוטף מתמשך) או מצטרפים עם קוד / QR'**
   String get howToStep1;
 
   /// No description provided for @howToStep2.

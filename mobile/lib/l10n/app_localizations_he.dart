@@ -514,10 +514,11 @@ class AppLocalizationsHe extends AppLocalizations {
   String get monthly => 'חודשי';
 
   @override
-  String get eventTypeDesc => 'מתאים לטיולים, אירועים, ומפגשים - עד 25 משתתפים';
+  String get eventTypeDesc =>
+      'אירוע = חד־פעמי (טיול, מסיבה, מפגש). עד 25 משתתפים.';
 
   @override
-  String get ongoingTypeDesc => 'מתאים לדירות שותפים, משרדים - חיוב חודשי';
+  String get ongoingTypeDesc => 'שוטף = מתמשך (דירה, משרד). חיוב לפי תקופה.';
 
   @override
   String get groupNameHint => 'לדוגמה: דירה ברחוב הרצל';
@@ -1948,11 +1949,11 @@ class AppLocalizationsHe extends AppLocalizations {
   String get coachCloseTooltip => 'סגור וחזרה';
 
   @override
-  String get coachCreateGroupTitle => 'יצירת קבוצה — אירוע או שוטף';
+  String get coachCreateGroupTitle => 'צעד 1: יצירת קבוצה';
 
   @override
   String get coachCreateGroupBody =>
-      'אירוע = חד־פעמי (טיול, מסיבה, מפגש). שוטף = מתמשך (דירה, משרד) עם חיוב לפי תקופה. בוחרים סוג ביצירה, ואז מזמינים חברים.';
+      'כאן פותחים קבוצה חדשה לשיתוף הוצאות עם חברים.';
 
   @override
   String get coachJoinGroupTitle => 'או הצטרפות לקבוצה';
@@ -2051,7 +2052,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get howToStep1 =>
-      'יוצרים קבוצה: אירוע חד־פעמי או שוטף מתמשך — או מצטרפים עם קוד / QR';
+      'יוצרים קבוצה (בוחרים אירוע חד־פעמי או שוטף מתמשך) או מצטרפים עם קוד / QR';
 
   @override
   String get howToStep2 =>
