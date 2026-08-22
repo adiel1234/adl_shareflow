@@ -46,7 +46,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginRegisterFirstHint =>
-      'Don\'t have an account yet? Register first, then you can sign in.';
+      'To get started, create an account with email and password. Already have one? Sign in below.';
 
   @override
   String get alreadyHaveAccount => 'Already have an account?';
@@ -847,7 +847,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeTitle => 'Welcome to ADL ShareFlow';
 
   @override
-  String get loginSubtitle => 'Sign in to your account';
+  String get loginSubtitle => 'Create an account or sign in';
 
   @override
   String get emailRequired => 'Email is required';

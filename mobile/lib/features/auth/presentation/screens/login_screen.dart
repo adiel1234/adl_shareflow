@@ -285,18 +285,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 12),
               ],
 
-              // Login button
+              // Register first (primary) — new users after download
               GradientButton(
-                label: l.loginBtn,
-                onPressed: _loading ? null : _loginEmail,
-                isLoading: _loading,
+                label: '${l.dontHaveAccount} ${l.register}',
+                onPressed: _loading
+                    ? null
+                    : () => Navigator.pushNamed(context, '/register'),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
-              // Register CTA
+              // Login secondary
               OutlinedButton(
-                onPressed: () => Navigator.pushNamed(context, '/register'),
+                onPressed: _loading ? null : _loginEmail,
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 48),
                   side: BorderSide(
@@ -306,13 +307,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: Text(
-                  '${l.dontHaveAccount} ${l.register}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.primary,
-                  ),
-                ),
+                child: _loading
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        l.loginBtn,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
+                        ),
+                      ),
               ),
               const SizedBox(height: 24),
             ],

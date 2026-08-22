@@ -141,6 +141,31 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
     }
     setState(() => _loading = true);
 
+    var rate = _exchangeRate;
+    if (_currency != widget.group.baseCurrency) {
+      try {
+        final result = await CurrencyRepository().convert(
+          from: _currency,
+          to: widget.group.baseCurrency,
+          amount: 1.0,
+        );
+        rate = result.rate;
+        if (mounted) setState(() => _exchangeRate = rate);
+      } catch (_) {
+        if (mounted) {
+          setState(() => _loading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('לא ניתן להמיר מטבע כרגע. נסו שוב.'),
+            ),
+          );
+        }
+        return;
+      }
+    } else {
+      rate = 1.0;
+    }
+
     final participants = _selectedParticipantIds
         .map((uid) => {'user_id': uid})
         .toList();
@@ -152,7 +177,7 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
             amount: double.parse(_amountCtrl.text),
             currency: _currency,
             paidBy: _paidBy,
-            exchangeRate: _exchangeRate,
+            exchangeRate: rate,
             category: _category,
             notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
             expenseDate: _expenseDate,

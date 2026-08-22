@@ -249,3 +249,69 @@ def _get_best_rate(from_currency: str, to_currency: str) -> Decimal | None:
             return (Decimal('1') / inv).quantize(Decimal('0.000001'))
 
     return FALLBACK_RATES.get((from_currency, to_currency))
+
+
+def _fetch_historical_rate(from_currency: str, to_currency: str, on_date) -> Decimal | None:
+    """Frankfurter historical rates (ECB). Falls back to None on failure."""
+    if from_currency == to_currency:
+        return Decimal('1')
+    try:
+        import urllib.request
+        import json
+        day = on_date.isoformat() if hasattr(on_date, 'isoformat') else str(on_date)
+        url = (
+            f'https://api.frankfurter.app/{day}'
+            f'?from={from_currency}&to={to_currency}'
+        )
+        with urllib.request.urlopen(url, timeout=8) as resp:
+            data = json.loads(resp.read())
+        rates = data.get('rates') or {}
+        if to_currency in rates:
+            return Decimal(str(rates[to_currency]))
+        # Try inverse
+        url_inv = (
+            f'https://api.frankfurter.app/{day}'
+            f'?from={to_currency}&to={from_currency}'
+        )
+        with urllib.request.urlopen(url_inv, timeout=8) as resp:
+            data = json.loads(resp.read())
+        rates = data.get('rates') or {}
+        if from_currency in rates:
+            inv = Decimal(str(rates[from_currency]))
+            if inv > 0:
+                return (Decimal('1') / inv).quantize(Decimal('0.000001'))
+    except Exception as e:
+        try:
+            current_app.logger.warning(
+                f'Historical rate fetch failed {from_currency}->{to_currency} @{on_date}: {e}'
+            )
+        except Exception:
+            pass
+    return None
+
+
+def resolve_exchange_rate(
+    from_currency: str,
+    to_currency: str,
+    *,
+    on_date=None,
+) -> Decimal:
+    """Resolve FX rate for expense writes. Prefer historical date when given."""
+    from_currency = (from_currency or '').upper()
+    to_currency = (to_currency or '').upper()
+    if not from_currency or not to_currency or from_currency == to_currency:
+        return Decimal('1')
+
+    if on_date is not None:
+        hist = _fetch_historical_rate(from_currency, to_currency, on_date)
+        if hist is not None and hist > 0:
+            return hist
+
+    rate = _get_best_rate(from_currency, to_currency)
+    if rate is not None and rate > 0:
+        return rate
+
+    fb = FALLBACK_RATES.get((from_currency, to_currency))
+    if fb is not None:
+        return fb
+    raise ValueError(f'No rate available for {from_currency} → {to_currency}')

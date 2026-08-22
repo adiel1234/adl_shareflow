@@ -173,7 +173,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginRegisterFirstHint.
   ///
   /// In he, this message translates to:
-  /// **'אין לך משתמש עדיין? קודם הירשמו לאפליקציה, ואז תוכלו להתחבר.'**
+  /// **'להתחיל צריך ליצור חשבון: אימייל וסיסמה. אם כבר יש לך חשבון — התחבר למטה.'**
   String get loginRegisterFirstHint;
 
   /// No description provided for @alreadyHaveAccount.
@@ -1655,7 +1655,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'כנס לחשבון שלך'**
+  /// **'יצירת חשבון או התחברות'**
   String get loginSubtitle;
 
   /// No description provided for @emailRequired.

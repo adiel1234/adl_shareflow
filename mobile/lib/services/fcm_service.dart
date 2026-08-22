@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -116,9 +117,15 @@ class FcmService {
     playSound: true,
   );
 
+  bool _initialized = false;
+  StreamSubscription<RemoteMessage>? _foregroundSub;
+
   /// Called once from main() after auth is ready.
   /// Background handler must already be registered in [main] before [runApp].
   Future<void> initialize() async {
+    if (_initialized) return;
+    _initialized = true;
+
     // Init local notifications (needed for foreground on Android + all iOS)
     await _initLocalNotifications();
 
@@ -133,8 +140,9 @@ class FcmService {
       if (access != null) await _sendTokenToBackend(token);
     });
 
-    // Foreground message display
-    FirebaseMessaging.onMessage.listen(_handleForeground);
+    // Foreground message display — single subscription only.
+    await _foregroundSub?.cancel();
+    _foregroundSub = FirebaseMessaging.onMessage.listen(_handleForeground);
   }
 
   /// Request notification permission (iOS + Android 13+).
@@ -271,10 +279,12 @@ class FcmService {
         ?.createNotificationChannel(_androidChannel);
 
     // On iOS, tell FCM to show foreground notifications via local plugin
+    // Foreground banners come from local notifications only — avoid double
+    // system+local alerts (was causing 2–3 trays per push).
     await _messaging.setForegroundNotificationPresentationOptions(
-      alert: true,
+      alert: false,
       badge: true,
-      sound: true,
+      sound: false,
     );
   }
 

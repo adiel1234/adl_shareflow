@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -501,26 +500,12 @@ class _InviteSheetState extends State<InviteSheet> {
     if (mounted) setState(() => _invitedCount++);
   }
 
-  Future<void> _shareGeneric() async {
-    await Share.share(
-      _inviteText,
-      subject: AppLocalizations.of(context)!.inviteSubject(widget.groupName),
-    );
-  }
 
   Future<void> _copyLink() async {
     await Clipboard.setData(ClipboardData(text: widget.link));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(AppLocalizations.of(context)!.linkCopied)),
-    );
-  }
-
-  Future<void> _copyCode() async {
-    await Clipboard.setData(ClipboardData(text: widget.code));
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.codeCopied)),
     );
   }
 
@@ -809,7 +794,7 @@ class _InviteSheetState extends State<InviteSheet> {
           ),
           const SizedBox(height: 10),
 
-          // Secondary: copy + share
+          // Copy link + QR (no generic share sheet)
           Row(
             children: [
               Expanded(
@@ -828,9 +813,35 @@ class _InviteSheetState extends State<InviteSheet> {
               const SizedBox(width: 10),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: _shareGeneric,
-                  icon: const Icon(Icons.share_outlined, size: 18),
-                  label: Text(l.shareOtherWay),
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: AppColors.surface,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(20)),
+                      ),
+                      builder: (_) => Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l.showQrAndCode,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            InviteQrCard(code: widget.code, link: widget.link),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.qr_code_2, size: 18),
+                  label: const Text('QR'),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(0, 44),
                     shape: RoundedRectangleBorder(
@@ -841,118 +852,48 @@ class _InviteSheetState extends State<InviteSheet> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
-          // Collapsed: QR + code
-          Theme(
-            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-            child: ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              childrenPadding: const EdgeInsets.only(bottom: 8),
-              title: Text(
-                l.showQrAndCode,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              children: [
-                InviteQrCard(code: widget.code, link: widget.link),
-                const SizedBox(height: 12),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        l.inviteCode,
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 12,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.code,
-                        style: const TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 3,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
+          // Email invite (visible)
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  textDirection: TextDirection.ltr,
+                  decoration: InputDecoration(
+                    hintText: 'example@email.com',
+                    filled: true,
+                    fillColor: AppColors.surfaceVariant,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                TextButton.icon(
-                  onPressed: _copyCode,
-                  icon: const Icon(Icons.copy, size: 16),
-                  label: Text(l.copyCode),
-                ),
-              ],
-            ),
-          ),
-
-          // Collapsed: email
-          Theme(
-            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-            child: ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              childrenPadding: const EdgeInsets.only(bottom: 8),
-              title: Text(
-                l.inviteEmailOption,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
               ),
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        textDirection: TextDirection.ltr,
-                        decoration: InputDecoration(
-                          hintText: 'example@email.com',
-                          filled: true,
-                          fillColor: AppColors.surfaceVariant,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                        ),
+              const SizedBox(width: 10),
+              _sendingEmail
+                  ? const SizedBox(
+                      width: 42,
+                      height: 42,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : IconButton.filled(
+                      onPressed: _sendEmailInvite,
+                      icon: const Icon(Icons.email_outlined),
+                      tooltip: l.inviteEmailOption,
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    _sendingEmail
-                        ? const SizedBox(
-                            width: 42,
-                            height: 42,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : IconButton.filled(
-                            onPressed: _sendEmailInvite,
-                            icon: const Icon(Icons.send),
-                            style: IconButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                            ),
-                          ),
-                  ],
-                ),
-              ],
-            ),
+            ],
           ),
 
           const SizedBox(height: 8),

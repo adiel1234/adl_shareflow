@@ -10,7 +10,7 @@ from sqlalchemy import func, text
 
 from app import db
 from app.models import (
-    User, Group, GroupMember, Expense, Receipt, Settlement,
+    User, Group, GroupMember, Expense, ExpenseParticipant, Receipt, Settlement,
     Notification, FeatureFlag, GroupPayment, FCMToken, PilotFunnelEvent,
 )
 from app.common.errors import success_response, error_response
@@ -576,6 +576,101 @@ def adl_user_test_push(user_id):
         'token_count': len(tokens),
         'platforms': sorted({t.platform for t in tokens}),
         'sent': sent,
+    })
+
+
+@dashboard_bp.post('/expenses/repair-fx')
+def adl_repair_expense_fx():
+    """Admin: fix foreign expenses stored with exchange_rate≈1 using historical rates."""
+    err = _require_adl_admin()
+    if err:
+        return err
+
+    from decimal import Decimal, ROUND_HALF_UP
+    from app.currency.routes import resolve_exchange_rate
+
+    data = request.get_json(silent=True) or {}
+    group_id = (data.get('group_id') or '').strip() or None
+
+    q = (
+        db.session.query(Expense, Group)
+        .join(Group, Group.id == Expense.group_id)
+        .filter(Expense.is_system_expense.is_(False))
+    )
+    if group_id:
+        q = q.filter(Expense.group_id == group_id)
+
+    repaired = []
+    skipped = []
+    for expense, group in q.all():
+        base = (group.base_currency or 'ILS').upper()
+        orig = (expense.original_currency or '').upper()
+        if not orig or orig == base:
+            continue
+        rate = Decimal(str(expense.exchange_rate or '1'))
+        converted = Decimal(str(expense.converted_amount or '0'))
+        original = Decimal(str(expense.original_amount or '0'))
+        # Bad row: rate≈1 or converted≈original despite different currency
+        if rate != Decimal('1') and abs(converted - original) > Decimal('0.02'):
+            continue
+        try:
+            new_rate = resolve_exchange_rate(
+                orig, base, on_date=expense.expense_date,
+            )
+        except ValueError as e:
+            skipped.append({'id': expense.id, 'title': expense.title, 'error': str(e)})
+            continue
+        if new_rate <= 0 or new_rate == Decimal('1'):
+            skipped.append({
+                'id': expense.id,
+                'title': expense.title,
+                'error': f'rate unresolved ({new_rate})',
+            })
+            continue
+
+        new_converted = (original * new_rate).quantize(Decimal('0.01'))
+        old = {
+            'exchange_rate': str(expense.exchange_rate),
+            'converted_amount': str(expense.converted_amount),
+        }
+        expense.exchange_rate = new_rate
+        expense.converted_amount = new_converted
+
+        participants = (
+            ExpenseParticipant.query.filter_by(expense_id=expense.id).all()
+        )
+        if participants:
+            count = len(participants)
+            base_share = (new_converted / count).quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP
+            )
+            total_dist = base_share * (count - 1)
+            last = (new_converted - total_dist).quantize(
+                Decimal('0.01'), rounding=ROUND_HALF_UP
+            )
+            shares = [base_share] * (count - 1) + [last]
+            for p, share in zip(participants, shares):
+                p.share_amount = share
+
+        repaired.append({
+            'id': expense.id,
+            'group_id': group.id,
+            'group_name': group.name,
+            'title': expense.title,
+            'expense_date': expense.expense_date.isoformat() if expense.expense_date else None,
+            'from': orig,
+            'to': base,
+            'old': old,
+            'new_rate': str(new_rate),
+            'new_converted': str(new_converted),
+        })
+
+    db.session.commit()
+    return success_response(data={
+        'repaired_count': len(repaired),
+        'skipped_count': len(skipped),
+        'repaired': repaired,
+        'skipped': skipped,
     })
 
 

@@ -106,7 +106,12 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       );
       if (mounted) setState(() => _exchangeRate = result.rate);
     } catch (_) {
-      if (mounted) setState(() => _exchangeRate = 1.0);
+      if (mounted) {
+        setState(() => _exchangeRate = 1.0);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('שגיאה בהמרת מטבע — בדקו את החיבור')),
+        );
+      }
     }
   }
 
@@ -239,6 +244,32 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     HapticFeedback.mediumImpact();
     setState(() => _loading = true);
 
+    // Resolve FX on save — never send rate=1 for foreign currency by accident.
+    var rate = _exchangeRate;
+    if (_currency != widget.group.baseCurrency) {
+      try {
+        final result = await CurrencyRepository().convert(
+          from: _currency,
+          to: widget.group.baseCurrency,
+          amount: 1.0,
+        );
+        rate = result.rate;
+        if (mounted) setState(() => _exchangeRate = rate);
+      } catch (_) {
+        if (mounted) {
+          setState(() => _loading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('לא ניתן להמיר מטבע כרגע. נסו שוב.'),
+            ),
+          );
+        }
+        return;
+      }
+    } else {
+      rate = 1.0;
+    }
+
     final participants = _selectedParticipantIds
         .map((uid) => {'user_id': uid})
         .toList();
@@ -250,7 +281,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             amount: double.parse(_amountCtrl.text),
             currency: _currency,
             paidBy: _paidBy ?? ref.read(authProvider).userId,
-            exchangeRate: _exchangeRate,
+            exchangeRate: rate,
             category: _category,
             notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
             participants: participants,

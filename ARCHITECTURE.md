@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 21 אוגוסט 2026 — מקור גרסה `PENDING_RELEASE.md`: בניה הבאה `1.0.9+66` = קומיט `608e444` (פיילוט מקומי; חנויות בסוף הפיילוט)
+> עודכן לאחרונה: 22 אוגוסט 2026 — מקור גרסה `PENDING_RELEASE.md`: בניה הבאה `1.0.9+67` (תיקון FX לפי תאריך, הזמנה מפושטת, אונבורדינג, התראות; פיילוט מקומי)
 
 ---
 
@@ -221,7 +221,7 @@ SHAREFLOW_ADMIN_KEY=<זהה ל-ADL_ADMIN_KEY ב-adlshareflow-production>
 
 `adl_platform_module/.env` **לא** משפיע על ADL Control בייצור. `ADL_ADMIN_KEY` ב-backend בלבד **לא מספיק** — חובה `SHAREFLOW_ADMIN_KEY` על ADL Control.
 
-- **Endpoints (ShareFlow API):** `GET /api/adl/stats`, `/users`, `/groups`, `/monetization`, `/ocr-stats`, `/feature-flags`, `/activity`, `/settlements`; `POST /api/adl/pilot/reset`; `GET|PUT /api/adl/pilot/mode`
+- **Endpoints (ShareFlow API):** `GET /api/adl/stats`, `/users`, `/groups`, `/monetization`, `/ocr-stats`, `/feature-flags`, `/activity`, `/settlements`; `POST /api/adl/pilot/reset`; `GET|PUT /api/adl/pilot/mode`; `POST /api/adl/expenses/repair-fx` (תיקון שערי המרה לפי תאריך הוצאה)
 - **סינון פיילוט:** פרמטר `scope=pilot` מסנן לפי `feature_flags.PILOT_STARTED_AT` (לשונית פיילוט ב-ADL Control בלבד)
 - **כיבוי פיילוט:** `PUT /api/adl/pilot/mode` עם `enabled=false` חוסם את כל `account_mode=pilot`, מבטל refresh tokens; התחברות מחזירה `PILOT_ENDED`; הרשמה חוזרת עם אותו אימייל/OAuth ממירה ל-`active`
 - **נתוני ShareFlow:** PostgreSQL ShareFlow (`DATABASE_URL` בפרויקט **ADL ShareFlow** בלבד)

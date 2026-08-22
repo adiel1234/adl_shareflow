@@ -159,7 +159,26 @@ def create_expense(group_id, **kwargs):
     if group and group.is_closed:
         return error_response('הקבוצה סגורה - לא ניתן להוסיף הוצאות חדשות', 403)
 
-    exchange_rate = to_decimal(data.get('exchange_rate', '1'))
+    try:
+        expense_date = date.fromisoformat(data.get('expense_date', date.today().isoformat()))
+    except Exception:
+        return error_response('expense_date must be YYYY-MM-DD')
+
+    base_currency = (group.base_currency if group else 'ILS').upper()
+    try:
+        from app.currency.routes import resolve_exchange_rate
+        if original_currency == base_currency:
+            exchange_rate = Decimal('1')
+        else:
+            # Server is source of truth — never trust client rate=1 for FX.
+            exchange_rate = resolve_exchange_rate(
+                original_currency,
+                base_currency,
+                on_date=expense_date,
+            )
+    except ValueError as e:
+        return error_response(str(e), 400)
+
     converted_amount = (original_amount * exchange_rate).quantize(Decimal('0.01'))
 
     paid_by = data.get('paid_by') or user_id
@@ -170,11 +189,6 @@ def create_expense(group_id, **kwargs):
     split_type = data.get('split_type', 'equal')
     if split_type not in ('equal', 'exact', 'percentage'):
         return error_response('split_type must be equal, exact, or percentage')
-
-    try:
-        expense_date = date.fromisoformat(data.get('expense_date', date.today().isoformat()))
-    except Exception:
-        return error_response('expense_date must be YYYY-MM-DD')
 
     receipt_id = data.get('receipt_id')
     receipt_err = _validate_receipt_id(receipt_id, user_id)
@@ -338,8 +352,13 @@ def update_expense(expense_id):
             return error_response('paid_by user is not a group member')
         expense.paid_by = data['paid_by']
 
-    # Recalculate amounts if original_amount or original_currency changed
-    amount_changed = 'original_amount' in data or 'original_currency' in data
+    # Recalculate amounts if original_amount, currency, rate, or date changed
+    amount_changed = (
+        'original_amount' in data
+        or 'original_currency' in data
+        or 'exchange_rate' in data
+        or 'expense_date' in data
+    )
 
     if amount_changed:
         try:
@@ -352,7 +371,21 @@ def update_expense(expense_id):
             return error_response('original_amount must be a positive number')
 
         new_currency = data.get('original_currency', expense.original_currency).upper()
-        exchange_rate = to_decimal(data.get('exchange_rate', str(expense.exchange_rate or '1')))
+        group = db.session.get(Group, expense.group_id)
+        base_currency = (group.base_currency if group else 'ILS').upper()
+        try:
+            from app.currency.routes import resolve_exchange_rate
+            if new_currency == base_currency:
+                exchange_rate = Decimal('1')
+            else:
+                exchange_rate = resolve_exchange_rate(
+                    new_currency,
+                    base_currency,
+                    on_date=expense.expense_date,
+                )
+        except ValueError as e:
+            return error_response(str(e), 400)
+
         new_converted = (new_amount * exchange_rate).quantize(Decimal('0.01'))
 
         expense.original_amount = new_amount

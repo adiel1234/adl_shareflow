@@ -46,7 +46,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get loginRegisterFirstHint =>
-      'אין לך משתמש עדיין? קודם הירשמו לאפליקציה, ואז תוכלו להתחבר.';
+      'להתחיל צריך ליצור חשבון: אימייל וסיסמה. אם כבר יש לך חשבון — התחבר למטה.';
 
   @override
   String get alreadyHaveAccount => 'כבר יש לך חשבון?';
@@ -844,7 +844,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get welcomeTitle => 'ברוך הבא ל-ADL ShareFlow';
 
   @override
-  String get loginSubtitle => 'כנס לחשבון שלך';
+  String get loginSubtitle => 'יצירת חשבון או התחברות';
 
   @override
   String get emailRequired => 'נדרש אימייל';

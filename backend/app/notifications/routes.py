@@ -77,8 +77,10 @@ def register_fcm_token():
             existing.platform = plat
             db.session.commit()
     else:
-        # Drop stale duplicate rows for the same physical token under another user
+        # One active token per user+platform — drop stale tokens that cause
+        # the same push to appear multiple times on one device.
         FCMToken.query.filter_by(token=token).delete()
+        FCMToken.query.filter_by(user_id=user_id, platform=plat).delete()
         ft = FCMToken(user_id=user_id, token=token, platform=plat)
         db.session.add(ft)
         db.session.commit()
