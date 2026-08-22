@@ -1309,6 +1309,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactSubtitle => 'Questions, issues and more';
 
   @override
+  String get contactChooseTopic => 'What would you like to report?';
+
+  @override
+  String get contactTopicBug => 'App bug / issue';
+
+  @override
+  String get contactTopicBalances => 'Balances or settlement issue';
+
+  @override
+  String get contactTopicInvite => 'Invite / group / joining';
+
+  @override
+  String get contactTopicOther => 'Question or other topic';
+
+  @override
+  String get sortExpenses => 'Sort by';
+
+  @override
+  String get sortNewest => 'Newest → oldest';
+
+  @override
+  String get sortOldest => 'Oldest → newest';
+
+  @override
+  String get sortByCategory => 'Expense type';
+
+  @override
+  String get sortByPayer => 'Payer name';
+
+  @override
+  String get sortAmountHigh => 'Amount high → low';
+
+  @override
+  String get sortAmountLow => 'Amount low → high';
+
+  @override
   String get adlProjects => 'ADL Projects';
 
   @override

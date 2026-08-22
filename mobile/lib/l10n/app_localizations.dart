@@ -2504,6 +2504,78 @@ abstract class AppLocalizations {
   /// **'שאלות, בעיות וכל שאר'**
   String get contactSubtitle;
 
+  /// No description provided for @contactChooseTopic.
+  ///
+  /// In he, this message translates to:
+  /// **'על מה תרצה לדווח?'**
+  String get contactChooseTopic;
+
+  /// No description provided for @contactTopicBug.
+  ///
+  /// In he, this message translates to:
+  /// **'תקלה / באג באפליקציה'**
+  String get contactTopicBug;
+
+  /// No description provided for @contactTopicBalances.
+  ///
+  /// In he, this message translates to:
+  /// **'בעיה ביתרות או חשבון'**
+  String get contactTopicBalances;
+
+  /// No description provided for @contactTopicInvite.
+  ///
+  /// In he, this message translates to:
+  /// **'הזמנה / קבוצה / הצטרפות'**
+  String get contactTopicInvite;
+
+  /// No description provided for @contactTopicOther.
+  ///
+  /// In he, this message translates to:
+  /// **'שאלה או נושא אחר'**
+  String get contactTopicOther;
+
+  /// No description provided for @sortExpenses.
+  ///
+  /// In he, this message translates to:
+  /// **'סדר לפי'**
+  String get sortExpenses;
+
+  /// No description provided for @sortNewest.
+  ///
+  /// In he, this message translates to:
+  /// **'מועד חדש → ישן'**
+  String get sortNewest;
+
+  /// No description provided for @sortOldest.
+  ///
+  /// In he, this message translates to:
+  /// **'מועד ישן → חדש'**
+  String get sortOldest;
+
+  /// No description provided for @sortByCategory.
+  ///
+  /// In he, this message translates to:
+  /// **'סוג הוצאה'**
+  String get sortByCategory;
+
+  /// No description provided for @sortByPayer.
+  ///
+  /// In he, this message translates to:
+  /// **'שם המשלם'**
+  String get sortByPayer;
+
+  /// No description provided for @sortAmountHigh.
+  ///
+  /// In he, this message translates to:
+  /// **'סכום גבוה → נמוך'**
+  String get sortAmountHigh;
+
+  /// No description provided for @sortAmountLow.
+  ///
+  /// In he, this message translates to:
+  /// **'סכום נמוך → גבוה'**
+  String get sortAmountLow;
+
   /// No description provided for @adlProjects.
   ///
   /// In he, this message translates to:

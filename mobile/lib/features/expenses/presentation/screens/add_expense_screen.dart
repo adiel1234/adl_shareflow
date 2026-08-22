@@ -19,6 +19,7 @@ import '../../../../services/feedback_service.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../features/currency/data/currency_repository.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/currency_format.dart';
 import '../widgets/participants_selector.dart';
 
 // 3 professional icon colors — same palette as GroupCard
@@ -43,6 +44,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   late String _currency;
   String? _category;
   String? _paidBy;
+  late String _expenseDate;
   bool _loading = false;
   String? _scannedReceiptId;
   String? _receiptImageUrl;
@@ -84,6 +86,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   void initState() {
     super.initState();
     _currency = widget.group.baseCurrency;
+    _expenseDate = DateTime.now().toIso8601String().split('T')[0];
     final uid = ref.read(authProvider).userId;
     _paidBy = uid.isNotEmpty ? uid : null;
     _amountCtrl.addListener(() => setState(() {}));
@@ -286,6 +289,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
             participants: participants,
             receiptId: _scannedReceiptId,
+            expenseDate: _expenseDate,
           );
       await FeedbackService.newExpense();
       ref.invalidate(groupDetailProvider(widget.group.id));
@@ -481,14 +485,25 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                           flex: 2,
                           child: DropdownButtonFormField<String>(
                             value: _currency,
+                            isExpanded: true,
                             decoration: const InputDecoration(
                               filled: true,
                               fillColor: AppColors.background,
                             ),
                             items: AppConstants.supportedCurrencies
-                                .map((c) => DropdownMenuItem(
-                                    value: c, child: Text(c)))
-                                .toList(),
+                                .map((c) {
+                              final he = Localizations.localeOf(context)
+                                      .languageCode ==
+                                  'he';
+                              return DropdownMenuItem(
+                                value: c,
+                                child: Text(
+                                  currencyPickerLabel(c, hebrew: he),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 13),
+                                ),
+                              );
+                            }).toList(),
                             onChanged: (v) => _onCurrencyChanged(
                                 v ?? widget.group.baseCurrency),
                           ),
@@ -503,6 +518,55 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                         amount: _currentAmount,
                       ),
                     ],
+                    const SizedBox(height: 16),
+                    Text(
+                      AppLocalizations.of(context)!.date,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate:
+                              DateTime.tryParse(_expenseDate) ?? DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime.now(),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            _expenseDate =
+                                picked.toIso8601String().split('T')[0];
+                          });
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.calendar_today_outlined,
+                                size: 18, color: AppColors.textSecondary),
+                            const SizedBox(width: 10),
+                            Text(
+                              _expenseDate,
+                              style: const TextStyle(
+                                  fontSize: 15, color: AppColors.textPrimary),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

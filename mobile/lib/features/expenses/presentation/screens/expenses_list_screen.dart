@@ -59,11 +59,73 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
   final _searchCtrl = TextEditingController();
   String _query = '';
   bool _showSearch = false;
+  _ExpenseSort _sort = _ExpenseSort.newest;
 
   @override
   void dispose() {
     _searchCtrl.dispose();
     super.dispose();
+  }
+
+  List<Expense> _applySort(List<Expense> input) {
+    final list = List<Expense>.from(input);
+    int dateCmp(Expense a, Expense b) {
+      final da = a.expenseDate ?? a.createdAt?.toIso8601String() ?? '';
+      final db = b.expenseDate ?? b.createdAt?.toIso8601String() ?? '';
+      return da.compareTo(db);
+    }
+
+    switch (_sort) {
+      case _ExpenseSort.newest:
+        list.sort((a, b) {
+          final c = dateCmp(b, a);
+          if (c != 0) return c;
+          return (b.createdAt ?? DateTime(0))
+              .compareTo(a.createdAt ?? DateTime(0));
+        });
+        break;
+      case _ExpenseSort.oldest:
+        list.sort((a, b) {
+          final c = dateCmp(a, b);
+          if (c != 0) return c;
+          return (a.createdAt ?? DateTime(0))
+              .compareTo(b.createdAt ?? DateTime(0));
+        });
+        break;
+      case _ExpenseSort.category:
+        list.sort((a, b) {
+          final ca = a.category ?? 'zzz';
+          final cb = b.category ?? 'zzz';
+          final c = ca.compareTo(cb);
+          if (c != 0) return c;
+          return dateCmp(b, a);
+        });
+        break;
+      case _ExpenseSort.payer:
+        list.sort((a, b) {
+          final pa = (a.paidByName ?? '').toLowerCase();
+          final pb = (b.paidByName ?? '').toLowerCase();
+          final c = pa.compareTo(pb);
+          if (c != 0) return c;
+          return dateCmp(b, a);
+        });
+        break;
+      case _ExpenseSort.amountHigh:
+        list.sort((a, b) {
+          final c = b.amountDouble.compareTo(a.amountDouble);
+          if (c != 0) return c;
+          return dateCmp(b, a);
+        });
+        break;
+      case _ExpenseSort.amountLow:
+        list.sort((a, b) {
+          final c = a.amountDouble.compareTo(b.amountDouble);
+          if (c != 0) return c;
+          return dateCmp(b, a);
+        });
+        break;
+    }
+    return list;
   }
 
   @override
@@ -138,14 +200,15 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
               ),
             ),
             data: (allExpenses) {
-              // Filter by search query
-              final expenses = _query.isEmpty
+              // Filter by search query, then sort
+              final filtered = _query.isEmpty
                   ? allExpenses
                   : allExpenses
                       .where((e) => e.title
                           .toLowerCase()
                           .contains(_query.toLowerCase()))
                       .toList();
+              final expenses = _applySort(filtered);
 
               if (allExpenses.isEmpty) {
                 return _EmptyExpenses(
@@ -269,26 +332,84 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
                       },
                     ),
                   ),
-                  // Search toggle FAB-like button
+                  // Search + sort controls
                   Positioned(
                     bottom: 110,
                     left: 16,
-                    child: FloatingActionButton.small(
-                      heroTag: 'expense_search_btn',
-                      backgroundColor: AppColors.surface,
-                      foregroundColor: AppColors.primary,
-                      elevation: 2,
-                      onPressed: () {
-                        setState(() {
-                          _showSearch = !_showSearch;
-                          if (!_showSearch) {
-                            _query = '';
-                            _searchCtrl.clear();
-                          }
-                        });
-                      },
-                      child: Icon(
-                          _showSearch ? Icons.search_off : Icons.search),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FloatingActionButton.small(
+                          heroTag: 'expense_sort_btn',
+                          backgroundColor: AppColors.surface,
+                          foregroundColor: AppColors.primary,
+                          elevation: 2,
+                          onPressed: () async {
+                            final l = AppLocalizations.of(context)!;
+                            final picked = await showModalBottomSheet<_ExpenseSort>(
+                              context: context,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20),
+                                ),
+                              ),
+                              builder: (ctx) => SafeArea(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          16, 16, 16, 8),
+                                      child: Text(
+                                        l.sortExpenses,
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                    for (final opt in _ExpenseSort.values)
+                                      ListTile(
+                                        leading: Icon(
+                                          _sort == opt
+                                              ? Icons.radio_button_checked
+                                              : Icons.radio_button_off,
+                                          color: AppColors.primary,
+                                        ),
+                                        title: Text(opt.label(l)),
+                                        onTap: () =>
+                                            Navigator.pop(ctx, opt),
+                                      ),
+                                    const SizedBox(height: 8),
+                                  ],
+                                ),
+                              ),
+                            );
+                            if (picked != null && mounted) {
+                              setState(() => _sort = picked);
+                            }
+                          },
+                          child: const Icon(Icons.sort),
+                        ),
+                        const SizedBox(height: 10),
+                        FloatingActionButton.small(
+                          heroTag: 'expense_search_btn',
+                          backgroundColor: AppColors.surface,
+                          foregroundColor: AppColors.primary,
+                          elevation: 2,
+                          onPressed: () {
+                            setState(() {
+                              _showSearch = !_showSearch;
+                              if (!_showSearch) {
+                                _query = '';
+                                _searchCtrl.clear();
+                              }
+                            });
+                          },
+                          child: Icon(
+                              _showSearch ? Icons.search_off : Icons.search),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -298,6 +419,34 @@ class _ExpensesListScreenState extends ConsumerState<ExpensesListScreen> {
         ),
       ],
     );
+  }
+}
+
+enum _ExpenseSort {
+  newest,
+  oldest,
+  category,
+  payer,
+  amountHigh,
+  amountLow,
+}
+
+extension on _ExpenseSort {
+  String label(AppLocalizations l) {
+    switch (this) {
+      case _ExpenseSort.newest:
+        return l.sortNewest;
+      case _ExpenseSort.oldest:
+        return l.sortOldest;
+      case _ExpenseSort.category:
+        return l.sortByCategory;
+      case _ExpenseSort.payer:
+        return l.sortByPayer;
+      case _ExpenseSort.amountHigh:
+        return l.sortAmountHigh;
+      case _ExpenseSort.amountLow:
+        return l.sortAmountLow;
+    }
   }
 }
 
@@ -472,7 +621,15 @@ class _ExpenseItem extends StatelessWidget {
                           ],
                         ],
                       ),
-                      if (expense.createdAt != null) ...[
+                      if (expense.expenseDate != null &&
+                          expense.expenseDate!.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          _formatExpenseDate(expense.expenseDate!),
+                          style: const TextStyle(
+                              fontSize: 11, color: AppColors.textDisabled),
+                        ),
+                      ] else if (expense.createdAt != null) ...[
                         const SizedBox(height: 2),
                         Text(
                           _formatDateTime(expense.createdAt!),
@@ -528,6 +685,12 @@ class _ExpenseItem extends StatelessWidget {
       ),
     );
   }
+}
+
+String _formatExpenseDate(String isoDate) {
+  final parts = isoDate.split('T').first.split('-');
+  if (parts.length != 3) return isoDate;
+  return '${parts[2]}/${parts[1]}/${parts[0]}';
 }
 
 String _formatDateTime(DateTime dt) {

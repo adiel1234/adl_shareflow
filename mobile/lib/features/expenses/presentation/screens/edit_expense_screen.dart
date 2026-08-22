@@ -14,6 +14,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../features/currency/data/currency_repository.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/media_url.dart';
+import '../../../../core/utils/currency_format.dart';
 import '../widgets/participants_selector.dart';
 import '../widgets/receipt_viewer.dart';
 
@@ -406,11 +407,22 @@ class _EditExpenseScreenState extends ConsumerState<EditExpenseScreen> {
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
                           value: _currency,
+                          isExpanded: true,
                           decoration: const InputDecoration(),
                           items: AppConstants.supportedCurrencies
-                              .map((c) => DropdownMenuItem(
-                                  value: c, child: Text(c)))
-                              .toList(),
+                              .map((c) {
+                            final he = Localizations.localeOf(context)
+                                    .languageCode ==
+                                'he';
+                            return DropdownMenuItem(
+                              value: c,
+                              child: Text(
+                                currencyPickerLabel(c, hebrew: he),
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            );
+                          }).toList(),
                           onChanged: (v) =>
                               _onCurrencyChanged(v ?? widget.group.baseCurrency),
                         ),

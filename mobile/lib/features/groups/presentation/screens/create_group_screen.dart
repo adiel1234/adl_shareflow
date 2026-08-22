@@ -8,6 +8,7 @@ import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/app_button.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/currency_format.dart';
 import 'activation_screen.dart';
 
 class CreateGroupScreen extends ConsumerStatefulWidget {
@@ -643,13 +644,22 @@ class _CreateGroupScreenState extends ConsumerState<CreateGroupScreen> {
                 required: true,
                 child: DropdownButtonFormField<String>(
                   value: _currency,
+                  isExpanded: true,
                   decoration: const InputDecoration(
                     filled: true,
                     fillColor: AppColors.background,
                   ),
-                  items: AppConstants.supportedCurrencies
-                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                      .toList(),
+                  items: AppConstants.supportedCurrencies.map((c) {
+                    final he =
+                        Localizations.localeOf(context).languageCode == 'he';
+                    return DropdownMenuItem(
+                      value: c,
+                      child: Text(
+                        currencyPickerLabel(c, hebrew: he),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  }).toList(),
                   onChanged: (v) => setState(() => _currency = v ?? 'ILS'),
                 ),
               ),

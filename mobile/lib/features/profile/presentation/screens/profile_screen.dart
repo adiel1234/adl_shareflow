@@ -13,6 +13,7 @@ import '../../../../providers/locale_provider.dart';
 import '../../../../providers/notifications_provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/currency_format.dart';
 import 'reminder_settings_screen.dart';
 import 'payment_details_screen.dart';
 import '../../../home/presentation/widgets/home_howto.dart';
@@ -337,7 +338,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           _SettingsTile(
             icon: Icons.currency_exchange,
             title: l.defaultCurrency,
-            subtitle: '${auth.preferredCurrency} ${_currencySymbol(auth.preferredCurrency)}',
+            subtitle: currencyPickerLabel(
+              auth.preferredCurrency,
+              hebrew: Localizations.localeOf(context).languageCode == 'he',
+            ),
             onTap: () => _pickCurrency(context, ref, auth.preferredCurrency),
           ),
           _SettingsTile(
@@ -395,8 +399,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             icon: Icons.mail_outline,
             title: l.contactUs,
             subtitle: l.contactSubtitle,
-            onTap: () => _launchUrl(
-                'mailto:info@adlprojects.co.il?subject=ADL%20ShareFlow%20Support'),
+            onTap: () => _showContactTopics(context, l),
           ),
           _SettingsTile(
             icon: Icons.info_outline,
@@ -430,6 +433,52 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         );
       }
     }
+  }
+
+  Future<void> _showContactTopics(BuildContext context, AppLocalizations l) async {
+    final topics = <(String, String)>[
+      (l.contactTopicBug, 'ADL ShareFlow — Bug'),
+      (l.contactTopicBalances, 'ADL ShareFlow — Balances'),
+      (l.contactTopicInvite, 'ADL ShareFlow — Invite/Group'),
+      (l.contactTopicOther, 'ADL ShareFlow — Support'),
+    ];
+    final subject = await showModalBottomSheet<String>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 12, 8, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                child: Text(
+                  l.contactChooseTopic,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              ...topics.map(
+                (t) => ListTile(
+                  leading: const Icon(Icons.chevron_left),
+                  title: Text(t.$1),
+                  onTap: () => Navigator.pop(ctx, t.$2),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (subject == null || !mounted) return;
+    final encoded = Uri.encodeComponent(subject);
+    await _launchUrl('mailto:info@adlprojects.co.il?subject=$encoded');
   }
 
   void _showAbout(BuildContext context, AppLocalizations l) {
@@ -481,24 +530,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 }
 
 const _kCurrencies = [
-  ('ILS', '₪', 'שקל'),
-  ('USD', '\$', 'דולר'),
-  ('EUR', '€', 'יורו'),
-  ('GBP', '£', 'לירה שטרלינג'),
-  ('JPY', '¥', 'ין יפני'),
-  ('CAD', 'CA\$', 'דולר קנדי'),
-  ('AUD', 'A\$', 'דולר אוסטרלי'),
-  ('CHF', 'Fr', 'פרנק שוויצרי'),
+  'ILS', 'USD', 'EUR', 'GBP', 'JPY', 'AED', 'CAD', 'AUD', 'CHF',
 ];
 
-String _currencySymbol(String code) {
-  for (final c in _kCurrencies) {
-    if (c.$1 == code) return c.$2;
-  }
-  return '';
-}
-
 void _pickCurrency(BuildContext context, WidgetRef ref, String current) {
+  final hebrew = Localizations.localeOf(context).languageCode == 'he';
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -522,13 +558,13 @@ void _pickCurrency(BuildContext context, WidgetRef ref, String current) {
               ),
             ),
             const SizedBox(height: 16),
-              Text(
+            Text(
               AppLocalizations.of(context)!.chooseCurrency,
               style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
-            ..._kCurrencies.map((c) {
-              final isSelected = c.$1 == current;
+            ..._kCurrencies.map((code) {
+              final isSelected = code == current;
               return ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: Container(
@@ -541,19 +577,14 @@ void _pickCurrency(BuildContext context, WidgetRef ref, String current) {
                   ),
                   child: Center(
                     child: Text(
-                      c.$2,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.textPrimary,
-                      ),
+                      currencyFlag(code),
+                      style: const TextStyle(fontSize: 22),
                     ),
                   ),
                 ),
                 title: Text(
-                  '${c.$1} · ${c.$3}',
+                  '${currencyCountry(code, hebrew: hebrew)} · '
+                  '${currencyName(code, hebrew: hebrew)} ($code)',
                   style: TextStyle(
                     fontWeight:
                         isSelected ? FontWeight.w700 : FontWeight.w500,
@@ -569,7 +600,7 @@ void _pickCurrency(BuildContext context, WidgetRef ref, String current) {
                 onTap: () {
                   ref
                       .read(authProvider.notifier)
-                      .setPreferredCurrency(c.$1);
+                      .setPreferredCurrency(code);
                   Navigator.pop(context);
                 },
               );

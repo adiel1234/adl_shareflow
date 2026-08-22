@@ -1299,6 +1299,42 @@ class AppLocalizationsHe extends AppLocalizations {
   String get contactSubtitle => 'שאלות, בעיות וכל שאר';
 
   @override
+  String get contactChooseTopic => 'על מה תרצה לדווח?';
+
+  @override
+  String get contactTopicBug => 'תקלה / באג באפליקציה';
+
+  @override
+  String get contactTopicBalances => 'בעיה ביתרות או חשבון';
+
+  @override
+  String get contactTopicInvite => 'הזמנה / קבוצה / הצטרפות';
+
+  @override
+  String get contactTopicOther => 'שאלה או נושא אחר';
+
+  @override
+  String get sortExpenses => 'סדר לפי';
+
+  @override
+  String get sortNewest => 'מועד חדש → ישן';
+
+  @override
+  String get sortOldest => 'מועד ישן → חדש';
+
+  @override
+  String get sortByCategory => 'סוג הוצאה';
+
+  @override
+  String get sortByPayer => 'שם המשלם';
+
+  @override
+  String get sortAmountHigh => 'סכום גבוה → נמוך';
+
+  @override
+  String get sortAmountLow => 'סכום נמוך → גבוה';
+
+  @override
   String get adlProjects => 'ADL Projects';
 
   @override
