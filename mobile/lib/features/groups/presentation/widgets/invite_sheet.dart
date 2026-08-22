@@ -509,6 +509,14 @@ class _InviteSheetState extends State<InviteSheet> {
     );
   }
 
+  Future<void> _copyCode() async {
+    await Clipboard.setData(ClipboardData(text: widget.code));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(context)!.codeCopied)),
+    );
+  }
+
   Future<void> _addGuest() async {
     final name = _guestNameController.text.trim();
     if (name.isEmpty) return;
@@ -851,6 +859,44 @@ class _InviteSheetState extends State<InviteSheet> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+
+          // Invite code — join by typing the code (same as before)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  l.inviteCode,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  widget.code,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 3,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                TextButton.icon(
+                  onPressed: _copyCode,
+                  icon: const Icon(Icons.copy, size: 16),
+                  label: Text(l.copyCode),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 10),
 
