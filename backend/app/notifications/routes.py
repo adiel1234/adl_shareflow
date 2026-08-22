@@ -71,16 +71,23 @@ def register_fcm_token():
     if plat not in ('ios', 'android'):
         plat = 'ios'
 
+    # One active token per user+platform — drop stale tokens that cause
+    # the same push to appear multiple times on one device.
     existing = FCMToken.query.filter_by(user_id=user_id, token=token).first()
     if existing:
         if existing.platform != plat:
             existing.platform = plat
-            db.session.commit()
+        FCMToken.query.filter(
+            FCMToken.user_id == user_id,
+            FCMToken.platform == plat,
+            FCMToken.token != token,
+        ).delete(synchronize_session=False)
+        db.session.commit()
     else:
-        # One active token per user+platform — drop stale tokens that cause
-        # the same push to appear multiple times on one device.
-        FCMToken.query.filter_by(token=token).delete()
-        FCMToken.query.filter_by(user_id=user_id, platform=plat).delete()
+        FCMToken.query.filter_by(token=token).delete(synchronize_session=False)
+        FCMToken.query.filter_by(user_id=user_id, platform=plat).delete(
+            synchronize_session=False
+        )
         ft = FCMToken(user_id=user_id, token=token, platform=plat)
         db.session.add(ft)
         db.session.commit()
