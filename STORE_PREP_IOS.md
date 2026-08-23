@@ -90,6 +90,8 @@
 - [x] `build_release.sh ios` משתמש ב־ExportOptions + `FLAVOR=prod`
 - [x] טיוטת טקסטים לחנות: `docs/APP_STORE_LISTING_IOS.md`
 - [x] סקריפט אימות: `scripts/verify_ios_store_prep.sh`
+- [x] סקריפט חשבון דמו לסוקר: `backend/scripts/setup_app_review_demo.py` → `.store_review_account.local`
+- [x] מדריך ASC ידני: `docs/ASC_MANUAL_CHECKLIST.md`
 - [x] מסמך זה: `STORE_PREP_IOS.md`
 
 ---

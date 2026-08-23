@@ -19,6 +19,8 @@ build/
 backend/.env
 mobile/.env
 .env
+.store_review_account.local
+STORE_PREP_ASC_STATUS.local.md
 
 # Flutter
 mobile/.dart_tool/

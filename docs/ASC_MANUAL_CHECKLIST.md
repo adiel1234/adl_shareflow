@@ -88,15 +88,18 @@ App Store Connect → **Business / Agreements, Tax, and Banking**:
 
 ## 5) חשבון דמו לסוקר
 
-צור משתמש ייעודי באפליקציה (הרשמה רגילה), למשל:
+כבר הוכן סקריפט שיוצר חשבון + קבוצת הדגמה עם הוצאות:
 
-- אימייל: `review@adlprojects.co.il` (או אימייל שאתה שולט בו)
-- סיסמה חזקה שמורה במנהל סיסמאות
-- הוסף לקבוצת דמו עם כמה הוצאות לדוגמה
+```bash
+cd backend && python scripts/setup_app_review_demo.py
+```
 
-הדבק ב־App Review Information ב־ASC + העתק ל־`docs/APP_STORE_LISTING_IOS.md` בסעיף «הערות לסוקר».
+הפרטים נשמרים ב־`.store_review_account.local` (לא ב־git).  
+העתק אימייל + סיסמה ל־App Store Connect → App Review Information.
 
-סמן: `[ ] חשבון דמו מוכן וממולא ב־ASC`
+סמן: `[ ] חשבון דמו ממולא ב־ASC`
+
+מעקב סטטוס מקומי: העתק מ־`docs/ASC_STATUS_TEMPLATE.md` ל־`STORE_PREP_ASC_STATUS.local.md`
 
 ---
 
