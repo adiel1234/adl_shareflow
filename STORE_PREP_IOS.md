@@ -6,9 +6,12 @@
 
 עודכן: 23 באוגוסט 2026
 
-**אימות אוטומטי:** הרץ `./scripts/verify_ios_store_prep.sh` (26 בדיקות ריפו+שרת — עברו ב־23.8.2026).  
+**אימות אוטומטי:** הרץ `./scripts/verify_ios_store_prep.sh`  
 **מדריך ASC ידני:** `docs/ASC_MANUAL_CHECKLIST.md`  
-פריטי ASC **לא** נבדקים אוטומטית (אין מפתח API ל־ASC במחשב זה).
+**תוויות פרטיות מוכנות להעתקה:** `docs/ASC_APP_PRIVACY_ANSWERS.md`  
+**מטא־דאטה להעתקה/deliver:** `store/ios/metadata/` · IAP: `store/ios/iap/products.tsv`  
+**אופציונלי — מפתח API:** `docs/ASC_API_KEY_SETUP.md`  
+פריטי ASC **לא** נסגרים בלי פעולה בפורטל (או מפתח API).
 
 ---
 

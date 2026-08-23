@@ -94,12 +94,37 @@ else
 fi
 
 echo ""
-echo "Manual ASC items (not auto-verified) — see STORE_PREP_IOS.md §א:"
-echo "  [ ] Listing metadata filled"
-echo "  [ ] Screenshots uploaded"
-echo "  [ ] All 12 IAP products created in ASC"
-echo "  [ ] Tax/banking/agreements active"
-echo "  [ ] Reviewer demo account ready"
+echo "Manual ASC items (not auto-verified) — see docs/ASC_MANUAL_CHECKLIST.md:"
+echo "  [ ] Listing metadata (copy from store/ios/metadata)"
+echo "  [ ] App Privacy (copy from docs/ASC_APP_PRIVACY_ANSWERS.md)"
+echo "  [ ] Screenshots → store/ios/screenshots then ASC"
+echo "  [ ] 12 IAP products (store/ios/iap/products.tsv)"
+echo "  [ ] Tax/banking/agreements"
+echo "  [ ] Paste demo login from .store_review_account.local into ASC"
+echo ""
+
+# Demo account login (if local creds exist)
+CREDS="$ROOT/.store_review_account.local"
+if [[ -f "$CREDS" ]]; then
+  if python3 - "$CREDS" <<'PY'
+import json,sys,urllib.request
+creds=json.load(open(sys.argv[1]))
+body=json.dumps({"email":creds["email"],"password":creds["password"]}).encode()
+req=urllib.request.Request(
+  "https://adlshareflow-production.up.railway.app/api/auth/login",
+  data=body, headers={"Content-Type":"application/json"}, method="POST")
+with urllib.request.urlopen(req, timeout=30) as r:
+  d=json.load(r)
+assert d.get("success") or d.get("data",{}).get("access_token")
+print("demo_login_ok")
+PY
+  then ok "App Review demo account login works"
+  else bad "App Review demo account login failed"
+  fi
+else
+  bad "missing .store_review_account.local — run: cd backend && python scripts/setup_app_review_demo.py"
+fi
+
 echo ""
 echo "Result: $PASS passed, $FAIL failed"
 [[ "$FAIL" -eq 0 ]] && exit 0 || exit 1

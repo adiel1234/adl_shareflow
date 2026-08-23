@@ -20,6 +20,7 @@ backend/.env
 mobile/.env
 .env
 .store_review_account.local
+.asc_api.local.json
 STORE_PREP_ASC_STATUS.local.md
 
 # Flutter

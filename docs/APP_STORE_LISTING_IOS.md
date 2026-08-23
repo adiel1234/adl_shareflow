@@ -61,9 +61,9 @@ expenses,split,group,trip,roommate,balance,share,bill,travel,apartment
 
 ## הערות לסוקר (טיוטה)
 
-Demo account:  
-Email: _______________  
-Password: _______________
+Demo account (נוצר בשרת; פרטים מלאים ב־`.store_review_account.local`):  
+Email: `apple.review@shareflow-demo.local`  
+Password: ראה קובץ מקומי (לא ב־git)
 
 Notes:
 - Hebrew RTL UI; English available in profile language settings.
@@ -71,6 +71,7 @@ Notes:
 - Push notifications require permission prompt.
 - If payments are disabled in this build: group activation may be free/pilot; IAP products exist for when payments are enabled.
 - Camera used for receipt scan and QR join only.
+- Demo group on account: «קבוצת הדגמה — App Review» with sample expenses.
 
 ## צילומי מסך — רשימת מסכים מומלצת
 

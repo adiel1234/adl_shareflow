@@ -1,0 +1,13 @@
+ADL ShareFlow helps groups track shared expenses without spreadsheets or confusion.
+
+Create a group for a trip, apartment, or event, add expenses in different currencies, and see who owes whom — clearly.
+
+• Invite with link, QR, or code
+• Multi-currency with date-based conversion
+• Clear balances and payment reminders
+• Guests without the app (via group admin)
+• Real-time notifications
+
+Built for families, friends, roommates, and travel groups.
+
+Privacy policy: https://adlshareflow-production.up.railway.app/privacy
