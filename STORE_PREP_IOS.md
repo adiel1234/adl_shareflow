@@ -6,6 +6,9 @@
 
 עודכן: 23 באוגוסט 2026
 
+**אימות אוטומטי:** הרץ `./scripts/verify_ios_store_prep.sh` (26 בדיקות ריפו+שרת — עברו ב־23.8.2026).  
+פריטי ASC למטה **לא** נבדקים אוטומטית.
+
 ---
 
 ## עקרון
@@ -77,30 +80,32 @@
 
 - [x] גרסת יעד נעולה: `1.0.9+69` ב־`PENDING_RELEASE.md`
 - [x] חתימה / Bundle / Push / Associated Domains (הוכח בפיילוט)
-- [x] מדיניות פרטיות חיה: `/privacy`
-- [x] `mobile/ios/ExportOptions.plist` — העלאה לחנות בלי ש־ASC ישנה מספר build
+- [x] מדיניות פרטיות חיה: `/privacy` (HTTP 200)
+- [x] AASA חי עם `9QP3FZTL8C.com.adl.shareflow` ונתיבי `/join/*`
+- [x] `APPLE_SHARED_SECRET` קיים ב־Railway (נוכחות אומתה; לא להדפיס ערך)
+- [x] `TESTFLIGHT_URL` + `FIREBASE_CREDENTIALS_JSON` ב־Railway
+- [x] `mobile/ios/ExportOptions.plist` — העלאה לחנות בלי ש־ASC תשנה מספר build
 - [x] `PrivacyInfo.xcprivacy` מחובר למשאבי Runner
 - [x] `build_release.sh ios` משתמש ב־ExportOptions + `FLAVOR=prod`
 - [x] טיוטת טקסטים לחנות: `docs/APP_STORE_LISTING_IOS.md`
+- [x] סקריפט אימות: `scripts/verify_ios_store_prep.sh`
 - [x] מסמך זה: `STORE_PREP_IOS.md`
 
 ---
 
 ## ג. תוכנית יציאת פיילוט (לפני Submit אם רוצים מצב «חנויות»)
 
-**חשוב:** `PILOT_MODE_ENABLED=false` חוסם התחברות של `account_mode=pilot`.
+**חשוב:** `PILOT_MODE_ENABLED=false` (`disable_pilot_mode`) **חוסם** את כל משתמשי `account_mode=pilot` (מבטל refresh tokens).
 
-סדר מומלץ ביום ההשקה (או יום לפני):
+אפשרויות:
 
-1. גיבוי / רשימת משתמשי `pilot` מ־ADL Control / API
-2. המרה ל־`active` (סקריפט / אדמין — לא לכבות את הדגל לפני ההמרה)
-3. רק אז: `PILOT_MODE_ENABLED=false` (אם רוצים לסיים פיילוט)
-4. `PAYMENTS_ENABLED=true` — **רק** אחרי IAP מוכנים + בדיקת Sandbox
+**א — השארה רכה לביקורת:** לשלוח עם `PAYMENTS_ENABLED=false` ו־`PILOT_MODE_ENABLED=true`, ולהסביר לסוקר.
 
-אפשר גם לשלוח לביקורת עם:
-- `PAYMENTS_ENABLED=false`
-- `PILOT_MODE_ENABLED=true`  
-ולציין בהערות לסוקר שמדובר בהשקה ראשונית / מודל חינם זמני — לפי החלטה עסקית.
+**ב — סיום פיילוט אמיתי:**
+1. ליידע משתתפים מראש
+2. כיבוי דרך ADL Control / `PUT /api/adl/pilot/mode` עם `enabled=false`
+3. משתמשים שנחסמו יכולים **להירשם מחדש** עם אותו אימייל/OAuth → `promote_to_active` ממיר ל־`active`
+4. `PAYMENTS_ENABLED=true` — **רק** אחרי שכל 12 מוצרי IAP קיימים ב־ASC + בדיקת Sandbox
 
 ---
 

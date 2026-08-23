@@ -273,12 +273,15 @@ free (5 ימים) → limited → [תשלום] → active → expired / read_onl
 4. Backend → `validate_iap_receipt()` → מאמת מול שרתי Apple (`/verifyReceipt`) / Google Play API
 5. אם תקין — מפעיל את הקבוצה
 
-**Product IDs (נדרש יצירה ידנית בחנויות):**
+**Product IDs (נדרש יצירה ידנית בחנויות — חייב להתאים ל־`iap_service.dart`):**
 
 | מחיר | Product ID |
 |------|-----------|
+| 5 ₪ | `com.adl.shareflow.tier_5` |
+| 10 ₪ | `com.adl.shareflow.tier_10` |
 | 15 ₪ | `com.adl.shareflow.tier_15` |
 | 20 ₪ | `com.adl.shareflow.tier_20` |
+| 25 ₪ | `com.adl.shareflow.tier_25` |
 | 30 ₪ | `com.adl.shareflow.tier_30` |
 | 35 ₪ | `com.adl.shareflow.tier_35` |
 | 45 ₪ | `com.adl.shareflow.tier_45` |
