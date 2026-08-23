@@ -35,7 +35,9 @@ class AppConfig {
   }
 
   static String get appName => 'ADL ShareFlow';
-  static String get appVersion => '1.0.1';
+  /// Deprecated — use package_info / ProfileScreen version. Do not hardcode.
+  @Deprecated('Use PackageInfo.fromPlatform()')
+  static String get appVersion => '1.0.9';
 
   /// מספר build לתצוגה — תואם `pubspec` (+N), לא `versionCode` גולמי של Android.
   /// APK split-per-abi: Flutter מקודד ABI ב-prefix (arm64 → 2×1000+N).

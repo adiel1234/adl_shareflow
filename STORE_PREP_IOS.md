@@ -1,0 +1,136 @@
+# הכנת תשתית iOS לחנות — בלי בניית גרסה סופית
+
+> **מטרה:** עד סוף הפיילוט (~28.8) התשתית מוכנה כך שביום ההעלאה יישארו רק: bump אם צריך → בניית IPA → העלאה → Submit.  
+> **לא לבנות / לא להעלות IPA סופי עכשיו** — אלא אם יוחלט אחרת.  
+> **גרסת יעד נעולה:** `1.0.9+69` (קומיט תוכן `4cd5dfa`) — ראה `PENDING_RELEASE.md`.
+
+עודכן: 23 באוגוסט 2026
+
+---
+
+## עקרון
+
+| עכשיו (תשתית) | ביום ההעלאה (אחרי הפיילוט) |
+|---------------|---------------------------|
+| מילוי ASC, IAP, צילומים, טקסטים | `flutter build ipa` מגרסת היעד |
+| ExportOptions + PrivacyInfo | העלאה ל־App Store Connect |
+| סודות / הסכמים / תוויות פרטיות | עשן ב־TestFlight על הבילד הסופי |
+| תוכנית יציאת פיילוט | Submit לביקורת (+ דגלי ייצור לפי החלטה) |
+
+---
+
+## א. מה לסגור עכשיו ב־App Store Connect (ידני)
+
+סמן כאן כשנעשה:
+
+### זהות ואפליקציה
+- [ ] האפליקציה ShareFlow קיימת (`com.adl.shareflow`)
+- [ ] הסכמי חוזים / מס / בנקאות ב־ASC מעודכנים ופעילים
+- [ ] Paid Apps / IAP agreement מאושר (גם אם התשלומים עדיין כבויים בשרת)
+
+### דף המוצר (ניתן למלא לפני הבילד)
+- [ ] שם: ADL ShareFlow (או כפי שאושר)
+- [ ] כותרת משנה (עד 30 תווים) — HE + EN
+- [ ] תיאור מלא — HE + EN (טיוטה: `docs/APP_STORE_LISTING_IOS.md`)
+- [ ] מילות מפתח
+- [ ] URL תמיכה: `mailto:info@adlprojects.co.il` או דף תמיכה
+- [ ] URL שיווקי (אופציונלי): `https://adlprojects.co.il`
+- [ ] URL מדיניות פרטיות: `https://adlshareflow-production.up.railway.app/privacy`
+- [ ] קטגוריה ראשית (למשל Finance / Lifestyle)
+- [ ] דירוג גיל
+- [ ] תוויות פרטיות (App Privacy) תואמות ל־`/privacy`: אימייל, פרטי תשלום בין משתמשים, מזהה מכשיר ל־Push
+
+### צילומי מסך
+- [ ] iPhone 6.7" (או הגדלים ש־ASC דורש כרגע) — לפחות 3–5 מסכים
+- [ ] מומלץ לצלם מההתקנה המקומית `+69` על המכשיר (בלי להפיץ)
+- [ ] שמירה בתיקייה מקומית / Drive (לא חובה בריפו)
+
+### In-App Purchases (יצירה עכשיו, הפעלה בשרת אחר כך)
+ליצור מוצרי Consumable / Non-Consumable לפי המודל הקיים — מזהים חייבים להתאים ל־`iap_service.dart`:
+
+| מחיר (₪) | Product ID |
+|----------|------------|
+| 5 | `com.adl.shareflow.tier_5` |
+| 10 | `com.adl.shareflow.tier_10` |
+| 15 | `com.adl.shareflow.tier_15` |
+| 20 | `com.adl.shareflow.tier_20` |
+| 25 | `com.adl.shareflow.tier_25` |
+| 30 | `com.adl.shareflow.tier_30` |
+| 35 | `com.adl.shareflow.tier_35` |
+| 45 | `com.adl.shareflow.tier_45` |
+| 49 | `com.adl.shareflow.tier_49` |
+| 69 | `com.adl.shareflow.tier_69` |
+| 79 | `com.adl.shareflow.tier_79` |
+| 89 | `com.adl.shareflow.tier_89` |
+
+- [ ] כל ה־Product IDs נוצרו ב־ASC
+- [ ] App-Specific Shared Secret הועתק ל־Railway כ־`APPLE_SHARED_SECRET`
+- [ ] (אופציונלי) בדיקת Sandbox על בילד קיים — רק אם רוצים; אפשר לדחות ליום ההעלאה
+
+### ביקורת
+- [ ] חשבון דמו לסוקר (אימייל + סיסמה) מוכן מראש
+- [ ] טיוטת הערות לסוקר — ראה סעיף ב־`docs/APP_STORE_LISTING_IOS.md`
+
+---
+
+## ב. מה מוכן / הוכן בריפו (אוטומטי)
+
+- [x] גרסת יעד נעולה: `1.0.9+69` ב־`PENDING_RELEASE.md`
+- [x] חתימה / Bundle / Push / Associated Domains (הוכח בפיילוט)
+- [x] מדיניות פרטיות חיה: `/privacy`
+- [x] `mobile/ios/ExportOptions.plist` — העלאה לחנות בלי ש־ASC ישנה מספר build
+- [x] `PrivacyInfo.xcprivacy` מחובר למשאבי Runner
+- [x] `build_release.sh ios` משתמש ב־ExportOptions + `FLAVOR=prod`
+- [x] טיוטת טקסטים לחנות: `docs/APP_STORE_LISTING_IOS.md`
+- [x] מסמך זה: `STORE_PREP_IOS.md`
+
+---
+
+## ג. תוכנית יציאת פיילוט (לפני Submit אם רוצים מצב «חנויות»)
+
+**חשוב:** `PILOT_MODE_ENABLED=false` חוסם התחברות של `account_mode=pilot`.
+
+סדר מומלץ ביום ההשקה (או יום לפני):
+
+1. גיבוי / רשימת משתמשי `pilot` מ־ADL Control / API
+2. המרה ל־`active` (סקריפט / אדמין — לא לכבות את הדגל לפני ההמרה)
+3. רק אז: `PILOT_MODE_ENABLED=false` (אם רוצים לסיים פיילוט)
+4. `PAYMENTS_ENABLED=true` — **רק** אחרי IAP מוכנים + בדיקת Sandbox
+
+אפשר גם לשלוח לביקורת עם:
+- `PAYMENTS_ENABLED=false`
+- `PILOT_MODE_ENABLED=true`  
+ולציין בהערות לסוקר שמדובר בהשקה ראשונית / מודל חינם זמני — לפי החלטה עסקית.
+
+---
+
+## ד. יום ההעלאה — רק אלה
+
+```bash
+cd /path/to/ADL\ ShareFlow
+git checkout main && git pull
+grep '^version:' mobile/pubspec.yaml   # חייב להתאים ל-PENDING_RELEASE
+git status --porcelain                 # ריק
+
+# בנייה (אחרי שהגרסה הסופית נעולה — כרגע +69 אלא אם bump)
+./build_release.sh ios
+# או:
+# cd mobile && flutter build ipa --release \
+#   --dart-define=FLAVOR=prod \
+#   --export-options-plist=ios/ExportOptions.plist
+```
+
+1. העלאת ה־IPA (Transporter / Xcode / `xcrun altool`)
+2. חיבור הבילד לדף האפליקציה ב־ASC
+3. עשן ב־TestFlight על הבילד הסופי
+4. סנכרון מדריכי התקנה + `APK`/`TESTFLIGHT` לפי כלל הפצה
+5. Submit for Review
+
+---
+
+## ה. מה לא לעשות עד סוף הפיילוט
+
+- לא לבנות IPA «סופי» ולהפיץ לכולם (אלא אם באג קריטי)
+- לא לעדכן דפי `/getting-started` ל־`+69` לפני שיש הפצה אמיתית
+- לא לכבות `PILOT_MODE` בלי המרת משתמשים
+- לא להדליק `PAYMENTS_ENABLED` בלי IAP + Shared Secret

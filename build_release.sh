@@ -105,11 +105,13 @@ build_ios() {
     flutter clean
     flutter pub get
 
-    log "Building iOS archive..."
-    flutter build ipa --release
+    log "Building iOS IPA for App Store Connect..."
+    flutter build ipa --release \
+        --dart-define=FLAVOR=prod \
+        --export-options-plist="$MOBILE_DIR/ios/ExportOptions.plist"
 
     ok "IPA: build/ios/ipa/"
-    warn "Remember to configure signing in Xcode before distributing to App Store"
+    warn "Upload with Transporter / Xcode. Do not flip PILOT_MODE or PAYMENTS until STORE_PREP_IOS.md checklist is done."
 }
 
 # ---------------------------------------------------------------------------
