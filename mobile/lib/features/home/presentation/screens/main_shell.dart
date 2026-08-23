@@ -41,7 +41,33 @@ class _MainShellState extends ConsumerState<MainShell> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowCoach());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _maybeScreenshotNavigate();
+      await _maybeShowCoach();
+    });
+  }
+
+  /// Store-prep screenshots: skip coach and open a target screen.
+  Future<void> _maybeScreenshotNavigate() async {
+    const scene = String.fromEnvironment('SCREENSHOT_SCENE');
+    const groupId = String.fromEnvironment('SCREENSHOT_GROUP_ID');
+    if (scene.isEmpty) return;
+    _coachStarted = true; // suppress coach overlays
+    if (scene == 'home' || groupId.isEmpty) return;
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    if (!mounted) return;
+    final initialTab = scene == 'balances' ? 1 : 0;
+    final openInvite = scene == 'invite';
+    Navigator.pushNamed(
+      context,
+      '/group-detail',
+      arguments: <String, dynamic>{
+        'groupId': groupId,
+        'initialTab': initialTab,
+        'openInvite': openInvite,
+        'forceCoach': false,
+      },
+    );
   }
 
   List<CoachTarget> _homeCoachTargets(AppLocalizations l) => [
@@ -135,6 +161,8 @@ class _MainShellState extends ConsumerState<MainShell> {
   Future<void> _maybeShowCoach() async {
     if (_coachStarted || !mounted) return;
     _coachStarted = true;
+    const screenshotScene = String.fromEnvironment('SCREENSHOT_SCENE');
+    if (screenshotScene.isNotEmpty) return;
 
     var showedTour = false;
 

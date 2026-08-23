@@ -46,6 +46,10 @@
 
 סמן: `[ ] צילומי מסך הועלו`
 
+**טיוטות שצולמו בסימולטור** (לבדיקה/העלאה ל־ASC):  
+`store/ios/screenshots/01_home.png` … `04_invite.png`  
+רענון: `./scripts/capture_store_screenshots.sh`
+
 ---
 
 ## 3) In-App Purchases — צור את כולם עכשיו

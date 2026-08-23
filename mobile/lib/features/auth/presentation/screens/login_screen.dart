@@ -31,7 +31,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadRemembered());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadRemembered();
+      await _maybeScreenshotAutoLogin();
+    });
+  }
+
+  /// Store-prep only: `--dart-define=SCREENSHOT_EMAIL=... --dart-define=SCREENSHOT_PASSWORD=...`
+  Future<void> _maybeScreenshotAutoLogin() async {
+    const email = String.fromEnvironment('SCREENSHOT_EMAIL');
+    const password = String.fromEnvironment('SCREENSHOT_PASSWORD');
+    if (email.isEmpty || password.isEmpty) return;
+    if (!mounted) return;
+    setState(() {
+      _emailCtrl.text = email;
+      _passwordCtrl.text = password;
+      _rememberMe = false;
+    });
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+    if (mounted) await _loginEmail();
   }
 
   Future<void> _loadRemembered() async {

@@ -100,6 +100,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
   Future<void> _maybeShowGroupCoach() async {
     if (_groupCoachStarted || !mounted) return;
     _groupCoachStarted = true;
+    const screenshotScene = String.fromEnvironment('SCREENSHOT_SCENE');
+    if (screenshotScene.isNotEmpty) return;
     if (!widget.forceCoach && await isGroupCoachDone()) return;
     // Let header + FAB layout settle.
     await Future<void>.delayed(const Duration(milliseconds: 800));
