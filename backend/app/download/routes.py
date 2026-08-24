@@ -297,6 +297,22 @@ def getting_started():
     return Response(html, mimetype='text/html; charset=utf-8')
 
 
+@download_bp.get('/support')
+def support_page():
+    """Public support page for App Store Connect Support URL."""
+    html_path = _STATIC_DIR / 'support.html'
+    html = html_path.read_text(encoding='utf-8')
+    return Response(html, mimetype='text/html; charset=utf-8')
+
+
+@download_bp.get('/account-deletion')
+def account_deletion_page():
+    """Google Play required URL: how to request account + data deletion."""
+    html_path = _STATIC_DIR / 'account_deletion.html'
+    html = html_path.read_text(encoding='utf-8')
+    return Response(html, mimetype='text/html; charset=utf-8')
+
+
 @download_bp.get('/pilot')
 def pilot_onboarding():
     """Legacy full guide — redirect to the shorter getting-started flow."""
@@ -378,7 +394,10 @@ def privacy_policy():
   <h2>שמירת מידע</h2>
   <p>
     נתוני קבוצה נמחקים כ-30 יום לאחר סיום הקבוצה.
-    ניתן לבקש מחיקת חשבון בכל עת דרך הגדרות האפליקציה.
+    ניתן לבקש מחיקת חשבון בכל עת דרך הדף
+    <a href="/account-deletion">מחיקת חשבון</a>
+    או במייל
+    <a href="mailto:support@adlprojects.co.il">support@adlprojects.co.il</a>.
   </p>
 
   <h2>ילדים</h2>

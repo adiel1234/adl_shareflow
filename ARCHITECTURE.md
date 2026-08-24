@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 23 אוגוסט 2026 — מקור גרסה `PENDING_RELEASE.md`: **`1.0.9+69` נעולה** · הכנת חנות iOS ב־`STORE_PREP_IOS.md` (בלי IPA סופי עד סוף הפיילוט)
+> עודכן לאחרונה: 24 אוגוסט 2026 — מקור גרסה `PENDING_RELEASE.md`: **`1.0.9+70` נעולה** · דף `/account-deletion` ל־Google Play · OAuth Google/Apple במסך כניסה · הכנת חנות iOS ב־`STORE_PREP_IOS.md`
 
 ---
 
@@ -128,7 +128,7 @@
 | `ocr/` | קבלות — צירוף + OCR | POST /ocr/attach, POST /ocr/scan, GET /ocr/receipts/{id}/image |
 | `currency/` | שערי חליפין | GET /currency/rates, /convert; POST /currency/rates (admin), /refresh (admin) |
 | `dashboard/` | ADL Admin API | GET /dashboard/stats, /monetization |
-| `download/` | דפי הורדה + פיילוט | GET /download, /pilot/join, /getting-started, /privacy, /join/<code>; `/pilot` ו-`/invite` מפנים לנתיבים החדשים |
+| `download/` | דפי הורדה + פיילוט | GET /download, /pilot/join, /getting-started, /support, /account-deletion, /privacy, /join/<code>; `/pilot` ו-`/invite` מפנים לנתיבים החדשים |
 | `scheduler.py` | משימות אוטומטיות | תזכורות שעתיות + בדיקת פקיעה יומית |
 
 **קובץ הגדרות:** `/backend/.env` (לא ב-git)
@@ -331,7 +331,7 @@ flutter install --release
 - קישור: `APK_DOWNLOAD_URL` ב-Railway (GitHub Releases); משתמשים מקבלים `GET /download/apk`
 - Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build64
 - **למשתמשי פיילוט:** שתפו `/pilot/join` → `/getting-started` (לא `/download` ישירות)
-- **יעד הבא לחנויות / הפצה:** `1.0.9+69` — ראה `PENDING_RELEASE.md` (עדיין לא Release חדש)
+- **יעד הבא לחנויות / הפצה:** `1.0.9+70` — ראה `PENDING_RELEASE.md` (עדיין לא Release חדש)
 
 ### iOS (TestFlight)
 ```
@@ -405,7 +405,7 @@ flutter install --release
 | Team ID | `9QP3FZTL8C` |
 | Bundle ID | `com.adl.shareflow` |
 | APNs Key ID | `4BT7S9CS4V` |
-| App Store Connect | ShareFlow (שם) |
+| App Store Connect | ShareFlow (שם) · Apple ID `6763933889` · SKU `adlshareflow2026` |
 | TestFlight | Internal Group פעיל |
 
 ---
