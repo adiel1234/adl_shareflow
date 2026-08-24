@@ -128,7 +128,7 @@
 | `ocr/` | קבלות — צירוף + OCR | POST /ocr/attach, POST /ocr/scan, GET /ocr/receipts/{id}/image |
 | `currency/` | שערי חליפין | GET /currency/rates, /convert; POST /currency/rates (admin), /refresh (admin) |
 | `dashboard/` | ADL Admin API | GET /dashboard/stats, /monetization |
-| `download/` | דפי הורדה + פיילוט | GET /download, /pilot/join, /getting-started, /support, /account-deletion, /privacy, /join/<code>; `/pilot` ו-`/invite` מפנים לנתיבים החדשים |
+| `download/` | דפי הורדה + פיילוט | GET /download, /pilot/join, /getting-started, /support, /account-deletion, /data-deletion, /privacy, /join/<code>; `/pilot` ו-`/invite` מפנים לנתיבים החדשים |
 | `scheduler.py` | משימות אוטומטיות | תזכורות שעתיות + בדיקת פקיעה יומית |
 
 **קובץ הגדרות:** `/backend/.env` (לא ב-git)
