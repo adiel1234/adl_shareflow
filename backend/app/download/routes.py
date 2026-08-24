@@ -313,6 +313,14 @@ def account_deletion_page():
     return Response(html, mimetype='text/html; charset=utf-8')
 
 
+@download_bp.get('/data-deletion')
+def data_deletion_page():
+    """Google Play optional URL: delete data without deleting the account."""
+    html_path = _STATIC_DIR / 'data_deletion.html'
+    html = html_path.read_text(encoding='utf-8')
+    return Response(html, mimetype='text/html; charset=utf-8')
+
+
 @download_bp.get('/pilot')
 def pilot_onboarding():
     """Legacy full guide — redirect to the shorter getting-started flow."""
