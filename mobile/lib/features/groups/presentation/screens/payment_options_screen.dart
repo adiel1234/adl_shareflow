@@ -43,22 +43,54 @@ class PaymentOptionsScreen extends StatefulWidget {
 
 class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
   bool _markingPaid = false;
+  late final TextEditingController _amountController;
+  late double _payAmount;
 
-  String get _amountLabel =>
-      formatAmountWithCurrency(widget.amount, widget.currency);
+  @override
+  void initState() {
+    super.initState();
+    _payAmount = widget.amount;
+    _amountController = TextEditingController(text: _formatEditable(widget.amount));
+  }
 
-  /// Numeric amount for payment-app deep links (keeps agorot).
-  String get _amountValue {
-    final d = widget.amount;
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  String _formatEditable(double d) {
     if (d == d.roundToDouble()) return d.round().toString();
     return d.toStringAsFixed(2);
   }
+
+  String get _amountLabel =>
+      formatAmountWithCurrency(_payAmount, widget.currency);
 
   bool get _canMarkPaid =>
       widget.groupId != null &&
       widget.groupId!.isNotEmpty &&
       widget.toUserId != null &&
       widget.toUserId!.isNotEmpty;
+
+  void _onAmountEdited(String raw) {
+    final parsed = double.tryParse(raw.trim().replaceAll(',', '.'));
+    setState(() => _payAmount = parsed ?? 0);
+  }
+
+  String? _validatePayAmount(AppLocalizations l) {
+    if (_payAmount <= 0) {
+      return l.amountMustBePositive;
+    }
+    // Allow tiny float noise; reject overpayment of remaining debt.
+    if (_payAmount > widget.amount + 0.009) {
+      return l.amountExceedsDebt(
+        _formatEditable(widget.amount),
+        widget.currency,
+      );
+    }
+    return null;
+  }
 
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
@@ -86,6 +118,12 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
   Future<void> _markPaidAndReturn() async {
     if (!_canMarkPaid || _markingPaid) return;
     final l = AppLocalizations.of(context)!;
+    final amountError = _validatePayAmount(l);
+    if (amountError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(amountError)));
+      return;
+    }
+    final payAmount = _payAmount > widget.amount ? widget.amount : _payAmount;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -113,7 +151,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
       await BalanceRepository().requestSettlement(
         groupId: widget.groupId!,
         toUserId: widget.toUserId!,
-        amount: widget.amount,
+        amount: payAmount,
         currency: widget.currency,
       );
       if (!mounted) return;
@@ -470,21 +508,75 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                     child: Column(
                       children: [
                         Text(
-                          _amountLabel,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 36,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
                           l.payTo(widget.recipientName),
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.85),
                             fontSize: 15,
                           ),
                         ),
+                        const SizedBox(height: 14),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            l.paymentAmountLabel,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _amountController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                          ),
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white.withOpacity(0.15),
+                            hintText: _formatEditable(widget.amount),
+                            hintStyle: TextStyle(
+                              color: Colors.white.withOpacity(0.45),
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                            ),
+                            suffixText: widget.currency,
+                            suffixStyle: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          onChanged: _onAmountEdited,
+                        ),
+                        if ((_payAmount - widget.amount).abs() > 0.009) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            l.debtRemainingHint(
+                              _formatEditable(widget.amount),
+                              widget.currency,
+                            ),
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -537,7 +629,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                           bankName: widget.bankName,
                           bankBranch: widget.bankBranch,
                           bankAccountNumber: widget.bankAccountNumber!,
-                          amount: widget.amount,
+                          amount: _payAmount,
                           currency: widget.currency,
                           recipientName: widget.recipientName,
                         )

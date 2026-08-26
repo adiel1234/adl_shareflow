@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import '../../../../services/auth_service.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../ui/widgets/app_button.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../social_auth.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -38,7 +40,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
     HapticFeedback.mediumImpact();
-    setState(() { _loading = true; _error = null; });
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
 
     try {
       final user = await _authService.register(
@@ -51,10 +56,57 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     } catch (e) {
       final l = AppLocalizations.of(context)!;
       setState(() {
-        _error = e.toString().contains('already') ? l.emailAlreadyRegistered : l.registerError;
+        _error = e.toString().contains('already')
+            ? l.emailAlreadyRegistered
+            : l.registerError;
       });
     } finally {
-      if (mounted) setState(() { _loading = false; });
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _registerGoogle() async {
+    HapticFeedback.mediumImpact();
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final l = AppLocalizations.of(context)!;
+    try {
+      final user = await SocialAuth.signInWithGoogle();
+      ref.read(authProvider.notifier).setUser(user);
+      if (mounted) Navigator.pushReplacementNamed(context, '/onboarding');
+    } catch (e) {
+      if (!e.toString().contains('cancelled')) {
+        setState(() => _error = l.registerError);
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _registerApple() async {
+    HapticFeedback.mediumImpact();
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final l = AppLocalizations.of(context)!;
+    try {
+      final user = await SocialAuth.signInWithApple();
+      ref.read(authProvider.notifier).setUser(user);
+      if (mounted) Navigator.pushReplacementNamed(context, '/onboarding');
+    } catch (e) {
+      final msg = e.toString();
+      if (!msg.contains('canceled') && !msg.contains('cancelled')) {
+        setState(() => _error = l.registerError);
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -74,7 +126,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 24),
-
               Text(
                 l.createAccount,
                 style: const TextStyle(
@@ -90,8 +141,39 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
-
+              const SizedBox(height: 24),
+              _SocialButton(
+                label: l.continueWithGoogle,
+                fallbackIcon: Icons.g_mobiledata,
+                onPressed: _loading ? null : _registerGoogle,
+              ),
+              if (!kIsWeb && SocialAuth.isAppleAvailable) ...[
+                const SizedBox(height: 12),
+                _SocialButton(
+                  label: l.continueWithApple,
+                  fallbackIcon: Icons.apple,
+                  onPressed: _loading ? null : _registerApple,
+                  isDark: true,
+                ),
+              ],
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      l.orDivider,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 20),
               Form(
                 key: _formKey,
                 child: Column(
@@ -103,7 +185,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         prefixIcon: const Icon(Icons.person_outline),
                       ),
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return l.nameRequired;
+                        if (v == null || v.trim().isEmpty) {
+                          return l.nameRequired;
+                        }
                         if (v.trim().length < 2) return l.nameTooShort;
                         return null;
                       },
@@ -165,9 +249,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 16),
-
               if (_error != null) ...[
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -183,15 +265,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 12),
               ],
-
               GradientButton(
                 label: l.register,
                 onPressed: _loading ? null : _register,
                 isLoading: _loading,
               ),
-
               const SizedBox(height: 20),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -209,6 +288,52 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SocialButton extends StatelessWidget {
+  final String label;
+  final IconData fallbackIcon;
+  final VoidCallback? onPressed;
+  final bool isDark;
+
+  const _SocialButton({
+    required this.label,
+    required this.fallbackIcon,
+    this.onPressed,
+    this.isDark = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: isDark ? AppColors.textPrimary : AppColors.surface,
+        foregroundColor: isDark ? Colors.white : AppColors.textPrimary,
+        side: BorderSide(
+          color: isDark ? AppColors.textPrimary : AppColors.border,
+          width: 1,
+        ),
+        minimumSize: const Size(double.infinity, 52),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(fallbackIcon, size: 22),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: isDark ? Colors.white : AppColors.textPrimary,
+            ),
+          ),
+        ],
       ),
     );
   }

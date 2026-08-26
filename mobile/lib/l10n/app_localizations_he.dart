@@ -844,7 +844,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get welcomeTitle => 'ברוך הבא ל-ADL ShareFlow';
 
   @override
-  String get loginSubtitle => 'יצירת חשבון או התחברות';
+  String get loginSubtitle => 'המקום לשיתוף הוצאות';
 
   @override
   String get emailRequired => 'נדרש אימייל';
@@ -1634,7 +1634,26 @@ class AppLocalizationsHe extends AppLocalizations {
       'מומלץ לסרוק קבלה: ממלא סכום ותיאור אוטומטית. אפשר גם לצרף תמונה לצפייה בלבד.';
 
   @override
-  String get transferPendingBadge => 'ממתין לאישור - אין פעולה נוספת';
+  String get transferPendingBadge =>
+      'יש תשלום ממתין לאישור — אפשר לשלוח תשלום נוסף';
+
+  @override
+  String paidOfTotal(String paid, String total) {
+    return 'שולם $paid מתוך $total';
+  }
+
+  @override
+  String get amountMustBePositive => 'יש להזין סכום חיובי';
+
+  @override
+  String amountExceedsDebt(String amount, String currency) {
+    return 'הסכום גדול מהיתרה ($amount $currency)';
+  }
+
+  @override
+  String debtRemainingHint(String amount, String currency) {
+    return 'יתרת החוב: $amount $currency';
+  }
 
   @override
   String pendingHintMemberPaid(String debtor, String creditor) {
@@ -1934,7 +1953,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipParticipantsEqualSplit =>
-      'סמנו רק מי באמת חלק בהוצאה. הסכום מתחלק שווה בין המסומנים.';
+      'מי משתתף בחלוקה? סמנו, והסכום יתחלק שווה ביניהם.';
 
   @override
   String get tipJoinWithCode =>

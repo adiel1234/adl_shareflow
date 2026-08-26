@@ -526,7 +526,12 @@ class _PeriodReportCard extends StatelessWidget {
   });
 
   Future<void> _markPaid(BuildContext context, PeriodDebt debt) async {
-    // Ask for confirmation before marking paid
+    final remaining = debt.remaining;
+    final amountController = TextEditingController(
+      text: remaining == remaining.roundToDouble()
+          ? remaining.round().toString()
+          : remaining.toStringAsFixed(2),
+    );
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) {
@@ -536,13 +541,46 @@ class _PeriodReportCard extends StatelessWidget {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(dl.confirmMarkDebtPaid,
               style: const TextStyle(fontWeight: FontWeight.w700)),
-          content: Text(
-            dl.confirmMarkDebtPaidBody(
-              debt.fromName,
-              debt.toName,
-              debt.amount.round().toString(),
-              debt.currency,
-            ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                dl.confirmMarkDebtPaidBody(
+                  debt.fromName,
+                  debt.toName,
+                  remaining.round().toString(),
+                  debt.currency,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(dl.paymentAmountLabel,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 13)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: amountController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                autofocus: true,
+                decoration: InputDecoration(
+                  suffixText: debt.currency,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+              if (debt.amountPaid > 0) ...[
+                const SizedBox(height: 8),
+                Text(
+                  dl.paidOfTotal(
+                    debt.amountPaid.round().toString(),
+                    debt.amount.round().toString(),
+                  ),
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textSecondary),
+                ),
+              ],
+            ],
           ),
           actions: [
             TextButton(
@@ -559,10 +597,42 @@ class _PeriodReportCard extends StatelessWidget {
         );
       },
     );
-    if (confirmed != true) return;
-    if (!context.mounted) return;
+    if (confirmed != true) {
+      amountController.dispose();
+      return;
+    }
+    if (!context.mounted) {
+      amountController.dispose();
+      return;
+    }
+    final parsed =
+        double.tryParse(amountController.text.trim().replaceAll(',', '.'));
+    amountController.dispose();
+    final dl = AppLocalizations.of(context)!;
+    if (parsed == null || parsed <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(dl.amountMustBePositive)),
+      );
+      return;
+    }
+    if (parsed > remaining + 0.009) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(dl.amountExceedsDebt(
+            remaining == remaining.roundToDouble()
+                ? remaining.round().toString()
+                : remaining.toStringAsFixed(2),
+            debt.currency,
+          )),
+        ),
+      );
+      return;
+    }
     try {
-      await ref.read(groupRepositoryProvider).markDebtPaid(debt.id);
+      await ref.read(groupRepositoryProvider).markDebtPaid(
+            debt.id,
+            amount: parsed,
+          );
       ref.invalidate(periodReportsProvider(groupId));
     } catch (e) {
       if (!context.mounted) return;
@@ -704,13 +774,31 @@ class _DebtRow extends StatelessWidget {
             }),
           ),
           const SizedBox(width: 8),
-          Text(
-            '${debt.amount.round()} ${debt.currency}',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 13,
-              color: debt.isPaid ? isPaidColor : const Color(0xFFEF4444),
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                debt.isPaid
+                    ? '${debt.amount.round()} ${debt.currency}'
+                    : '${debt.remaining.round()} ${debt.currency}',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  color: debt.isPaid ? isPaidColor : const Color(0xFFEF4444),
+                ),
+              ),
+              if (!debt.isPaid && debt.amountPaid > 0)
+                Text(
+                  AppLocalizations.of(context)!.paidOfTotal(
+                    debt.amountPaid.round().toString(),
+                    debt.amount.round().toString(),
+                  ),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+            ],
           ),
           // Only creditor can mark as paid
           if (!debt.isPaid && isCreditor) ...[
@@ -860,36 +948,87 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
       fromIsGuest: s.fromIsGuest,
       toIsGuest: s.toIsGuest,
     );
-    final amountStr = s.amountDouble.round().toString();
-    final confirmBody = scenario == PaymentScenario.guestToGuest
-        ? dl.markGuestPaidConfirmGuestToGuest(
-            s.fromDisplayName,
-            s.toDisplayName,
-            amountStr,
-            s.currency,
-          )
-        : dl.markGuestPaidConfirmGuestToMember(
-            s.fromDisplayName,
-            s.toDisplayName,
-            amountStr,
-            s.currency,
-          );
+    final amountController = TextEditingController(
+      text: s.amountDouble == s.amountDouble.roundToDouble()
+          ? s.amountDouble.round().toString()
+          : s.amountDouble.toStringAsFixed(2),
+    );
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(dl.confirmGuestTransfer),
-        content: Text(confirmBody),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(dl.cancel)),
-          ElevatedButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(dl.confirmGuestTransfer)),
-        ],
-      ),
+      builder: (ctx) {
+        final amountStr = amountController.text;
+        final confirmBody = scenario == PaymentScenario.guestToGuest
+            ? dl.markGuestPaidConfirmGuestToGuest(
+                s.fromDisplayName,
+                s.toDisplayName,
+                amountStr,
+                s.currency,
+              )
+            : dl.markGuestPaidConfirmGuestToMember(
+                s.fromDisplayName,
+                s.toDisplayName,
+                amountStr,
+                s.currency,
+              );
+        return AlertDialog(
+          title: Text(dl.confirmGuestTransfer),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(confirmBody),
+              const SizedBox(height: 14),
+              Text(dl.paymentAmountLabel,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 13)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: amountController,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  suffixText: s.currency,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(dl.cancel)),
+            ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(dl.confirmGuestTransfer)),
+          ],
+        );
+      },
     );
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !mounted) {
+      amountController.dispose();
+      return;
+    }
+    final parsed =
+        double.tryParse(amountController.text.trim().replaceAll(',', '.'));
+    amountController.dispose();
+    if (parsed == null || parsed <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(dl.amountMustBePositive)),
+      );
+      return;
+    }
+    if (parsed > s.amountDouble + 0.009) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(dl.amountExceedsDebt(
+            s.amountDouble.round().toString(),
+            s.currency,
+          )),
+        ),
+      );
+      return;
+    }
     try {
       HapticFeedback.mediumImpact();
       final api = ApiClient.instance;
@@ -898,7 +1037,7 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
         data: {
           'guest_user_id': s.fromUserId,
           'to_user_id': s.toUserId,
-          'amount': s.amountDouble,
+          'amount': parsed,
           'currency': s.currency,
         },
       );
@@ -1020,18 +1159,20 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                 s,
                 pending,
               );
+              final pendingSum =
+                  PaymentScenarioLabels.pendingSumForTransfer(s, pending);
+              final remainingAmount = s.amountDouble;
+              final originalAmount = remainingAmount + pendingSum;
               final showDebtorActions = isMyDebt &&
-                  !hasPending &&
                   (scenario == PaymentScenario.memberToMember ||
                       scenario == PaymentScenario.memberToGuest);
               final showAdminGuestAction = group.isAdmin &&
                   s.fromIsGuest &&
                   !isMyDebt &&
-                  !hasPending &&
                   (scenario == PaymentScenario.guestToMember ||
                       scenario == PaymentScenario.guestToGuest);
               final isFormerMember = s.fromIsFormerMember && !s.fromIsGuest;
-              final amountStr = s.amountDouble.round().toString();
+              final amountStr = remainingAmount.round().toString();
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -1060,6 +1201,20 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
                               fontSize: 13,
                             ),
                           ),
+                          if (pendingSum > 0) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              dl.paidOfTotal(
+                                pendingSum.round().toString(),
+                                originalAmount.round().toString(),
+                              ),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: headerColor.withOpacity(0.9),
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: 4),
                           Text(
                             PaymentScenarioLabels.transferHint(dl, scenario),

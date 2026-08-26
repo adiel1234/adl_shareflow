@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 24 אוגוסט 2026 — מקור גרסה `PENDING_RELEASE.md`: **`1.0.9+70` נעולה** · דף `/account-deletion` ל־Google Play · OAuth Google/Apple במסך כניסה · הכנת חנות iOS ב־`STORE_PREP_IOS.md`
+> עודכן לאחרונה: 26 אוגוסט 2026 — מקור גרסה `PENDING_RELEASE.md`: **`1.0.9+71`** · תשלום חלקי (העברות + חובות תקופתיים) · `period_debts.amount_paid` · OAuth Google/Apple · הכנת חנויות
 
 ---
 
@@ -148,7 +148,8 @@
 | `group_members` | חברות בקבוצות + תפקידים |
 | `expenses` | הוצאות + פיצולים |
 | `expense_participants` | חלוקת הוצאה לכל משתתף |
-| `settlements` | הסדרי חובות |
+| `settlements` | הסדרי חובות (כולל כמה `pending` לאותו זוג לתשלומים חלקיים) |
+| `period_reports` / `period_debts` | סליקה תקופתית; ב־`period_debts` גם `amount_paid` לתשלום חלקי |
 | `notifications` | התראות in-app |
 | `fcm_tokens` | tokens לפוש נוטיפיקיישן |
 | `group_payments` | תשלומי הפעלה/שדרוג/הארכה |
@@ -156,8 +157,9 @@
 | `pilot_funnel_events` | אירועי משפך פיילוט אנונימיים (עמוד התקנה / TestFlight / APK) |
 | `reminder_settings` | הגדרות תזכורות אוטומטיות |
 
-**שינוי סכמה אחרון (migration `a9b8c7d6e5f4`):**
-- נוסף עמודה `account_mode VARCHAR(20) NOT NULL DEFAULT 'pilot'` לטבלת `users`
+**שינוי סכמה אחרון (migration `c3d4e5f6a7b8`):**
+- נוסף עמודה `amount_paid NUMERIC(12,2) NOT NULL DEFAULT 0` לטבלת `period_debts`
+- `POST /groups/period-debts/<id>/mark-paid` מקבל `amount` אופציונלי (ברירת מחדל = יתרה)
 
 ---
 
@@ -331,7 +333,7 @@ flutter install --release
 - קישור: `APK_DOWNLOAD_URL` ב-Railway (GitHub Releases); משתמשים מקבלים `GET /download/apk`
 - Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build64
 - **למשתמשי פיילוט:** שתפו `/pilot/join` → `/getting-started` (לא `/download` ישירות)
-- **יעד הבא לחנויות / הפצה:** `1.0.9+70` — ראה `PENDING_RELEASE.md` (עדיין לא Release חדש)
+- **יעד הבא לחנויות / הפצה:** `1.0.9+71` — ראה `PENDING_RELEASE.md` (עדיין לא Release חדש)
 
 ### iOS (TestFlight)
 ```
@@ -579,7 +581,7 @@ flutter install --release
 ### Flutter (Mobile)
 - **JWT Refresh + API Errors**: `ApiClient._AuthInterceptor` מנסה refresh אוטומטי. אם נכשל → ניווט ל-login + הודעה. שגיאות 5xx → Snackbar אדום.
 - **Offline Banner**: `connectivity_plus` — בדיקת חיבור רציפה, באנר אפור בראש המסך.
-- **Settlement Confirmation Flow**: חייב: "שלמתי" → creates pending settlement. נושה: "אשר קבלה" → confirms. Provider: `pendingSettlementsProvider`.
+- **Settlement Confirmation Flow**: חייב: "שלמתי" → creates pending settlement. נושה: "אשר קבלה" → confirms. Provider: `pendingSettlementsProvider`. תשלום חלקי (אוג׳ 2026): שדה סכום במסך תשלום; כמה `pending` לאותו זוג; תצוגה «שולם X מתוך Y»; חוב תקופתי עם `amount_paid`.
 - **Haptic Feedback**: `HapticFeedback.mediumImpact()` ב-login, register, צור קבוצה, שמירת הוצאה, settlement.
 - **"מי שילם הכי הרבה"**: `event_summary_screen.dart` — chip 🏆 עם שם ה-top payer.
 - **חיפוש הוצאות**: `ExpensesListScreen` → `ConsumerStatefulWidget` עם שדה חיפוש real-time.

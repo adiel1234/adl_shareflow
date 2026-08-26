@@ -432,7 +432,7 @@
   "selectPaidBy": "Please select who paid",
   "loginBtn": "Sign In",
   "welcomeTitle": "Welcome to ADL ShareFlow",
-  "loginSubtitle": "Create an account or sign in",
+  "loginSubtitle": "The place for shared expenses",
   "emailRequired": "Email is required",
   "passwordRequired": "Password is required",
   "wrongCredentials": "Incorrect email or password",
@@ -878,7 +878,29 @@
   "transferHintGuestToGuest": "Admin closes the debt in one action",
   "markGuestPaidShort": "Mark guest paid",
   "tipScanPrimary": "Scan a receipt to auto-fill amount and title. You can also attach an image for viewing only.",
-  "transferPendingBadge": "Awaiting approval - no further action",
+  "transferPendingBadge": "A payment is awaiting approval — you can send another payment",
+  "paidOfTotal": "Paid {paid} of {total}",
+  "@paidOfTotal": {
+    "placeholders": {
+      "paid": {"type": "String"},
+      "total": {"type": "String"}
+    }
+  },
+  "amountMustBePositive": "Enter a positive amount",
+  "amountExceedsDebt": "Amount exceeds the remaining balance ({amount} {currency})",
+  "@amountExceedsDebt": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "currency": {"type": "String"}
+    }
+  },
+  "debtRemainingHint": "Remaining debt: {amount} {currency}",
+  "@debtRemainingHint": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "currency": {"type": "String"}
+    }
+  },
   "pendingHintMemberPaid": "{debtor} paid {creditor} - awaiting approval",
   "@pendingHintMemberPaid": {
     "placeholders": {
@@ -1083,7 +1105,7 @@
   "tipCreateGroupNoCharge": "You only create the group now. Payment, if any, happens later at activation.",
   "tipEmptyExpensesInvite": "Start by inviting friends (person icon above). Alone there's no one to split with.",
   "tipBalancesBeforeDebts": "Here you will see who owes whom. Settle up and Confirm receipt appear when there are debts.",
-  "tipParticipantsEqualSplit": "Select only who truly shared this expense. The amount splits equally among selected.",
+  "tipParticipantsEqualSplit": "Who splits this expense? Select them, and the amount splits equally.",
   "tipJoinWithCode": "The invite code comes from a friend who already created a group, or from scanning their QR.",
   "tipScanVsAttach": "The scanner above auto-fills amount and title. Attach receipt only saves an image to view.",
   "tipWhatsAppInvite": "WhatsApp opens. Pick who to send to.",

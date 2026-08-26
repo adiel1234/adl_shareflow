@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ישיבת מילוי — App Store Connect</title>
+  <style>
+    :root { --brand:#0B3D91; --ink:#14213D; --muted:#5B6475; --ok:#0F766E; --line:#d8deea; }
+    * { box-sizing: border-box; }
+    body { font-family: "Segoe UI", Arial, sans-serif; color: var(--ink); background:#f4f6fb; margin:0; padding:24px; }
+    .wrap { max-width: 880px; margin: 0 auto; }
+    h1 { color: var(--brand); font-size: 1.5rem; }
+    h2 { margin-top: 2rem; border-top: 1px solid var(--line); padding-top: 1.2rem; }
+    p, li { line-height: 1.5; }
+    .warn { background:#fff4e5; border:1px solid #f0c36d; padding:12px 16px; border-radius:10px; }
+    pre, textarea {
+      width: 100%; background:#fff; border:1px solid var(--line); border-radius:10px;
+      padding:12px; font-size: 14px; direction: rtl; white-space: pre-wrap;
+    }
+    .ltr { direction: ltr; text-align: left; }
+    button {
+      background: var(--brand); color:#fff; border:0; border-radius:8px;
+      padding:8px 14px; cursor:pointer; margin: 6px 0 12px;
+    }
+    button:hover { opacity: .92; }
+    table { width:100%; border-collapse: collapse; background:#fff; }
+    th, td { border:1px solid var(--line); padding:8px; text-align:right; font-size:14px; }
+    code { background:#eef2ff; padding:1px 6px; border-radius:4px; }
+    .done { color: var(--ok); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>ישיבת מילוי — ShareFlow בחנות</h1>
+    <p>מטרה: לסגור הכל בפורטל <strong>בלי</strong> לבנות IPA ובלי Submit.</p>
+    <p class="warn">
+      URL תמיכה להדבקה עכשיו הוא
+      <a href="https://adlshareflow-production.up.railway.app/getting-started">/getting-started</a>
+      (חי). סיסמת דמו: הרץ
+      <code>./scripts/print_asc_paste_pack.sh</code>
+    </p>
+    <p>פורטל:
+      <a href="https://appstoreconnect.apple.com" target="_blank" rel="noreferrer">appstoreconnect.apple.com</a>
+      → ShareFlow
+    </p>
+
+    <h2>1) קישורים</h2>
+    <textarea id="urls" class="ltr" rows="4" readonly>Privacy: https://adlshareflow-production.up.railway.app/privacy
+Support: https://adlshareflow-production.up.railway.app/getting-started
+Marketing: https://adlshareflow-production.up.railway.app/getting-started
+Category: Finance</textarea>
+    <button onclick="copy('urls')">העתק קישורים</button>
+
+    <h2>2) עברית</h2>
+    <p>שם: <code>ADL ShareFlow</code> · כותרת משנה: <code>חשבונות משותפים בקלות</code></p>
+    <textarea id="kw-he" rows="2" readonly>הוצאות,קבוצה,טיול,דירה,יתרות,שיתוף,חשבון,חברים,אירוע,מטבע</textarea>
+    <button onclick="copy('kw-he')">העתק מילות מפתח</button>
+    <textarea id="desc-he" rows="12" readonly>ADL ShareFlow עוזרת לקבוצות לנהל הוצאות משותפות בלי אקסלים ובלי בלבול.
+
+צרו קבוצה לטיול, דירה או אירוע, הוסיפו הוצאות במטבעות שונים, וראו מי חייב למי — בבירור.
+
+• הזמנת חברים בקישור, QR או קוד
+• תמיכה במספר מטבעות עם המרה לפי תאריך
+• יתרות ברורות ותזכורות תשלום
+• אורחים בלי אפליקציה (דרך מנהל הקבוצה)
+• התראות בזמן אמת
+
+מתאים למשפחות, חברים, שותפים לדירה ולטיולים.
+
+מדיניות פרטיות: https://adlshareflow-production.up.railway.app/privacy</textarea>
+    <button onclick="copy('desc-he')">העתק תיאור עברית</button>
+
+    <h2>3) English</h2>
+    <p>Name: <code>ADL ShareFlow</code> · Subtitle: <code>Split group expenses easily</code></p>
+    <textarea id="kw-en" class="ltr" rows="2" readonly>expenses,split,group,trip,roommate,balance,share,bill,travel,apartment</textarea>
+    <button onclick="copy('kw-en')">Copy keywords</button>
+    <textarea id="desc-en" class="ltr" rows="12" readonly>ADL ShareFlow helps groups track shared expenses without spreadsheets or confusion.
+
+Create a group for a trip, apartment, or event, add expenses in different currencies, and see who owes whom — clearly.
+
+• Invite with link, QR, or code
+• Multi-currency with date-based conversion
+• Clear balances and payment reminders
+• Guests without the app (via group admin)
+• Real-time notifications
+
+Built for families, friends, roommates, and travel groups.
+
+Privacy policy: https://adlshareflow-production.up.railway.app/privacy</textarea>
+    <button onclick="copy('desc-en')">Copy English description</button>
+
+    <h2>4) דירוג גיל</h2>
+    <p>Made for Kids: לא. כמעט כל השאלון: אין. UGC קל (שמות קבוצות / הוצאות / קבלות). פירוט: <code>docs/ASC_AGE_RATING.md</code></p>
+
+    <h2>5) App Privacy</h2>
+    <ul>
+      <li>אוספים נתונים: כן · Tracking: לא</li>
+      <li>שם, אימייל, טלפון אופציונלי</li>
+      <li>פרטי תשלום בין משתמשים (Bit / PayBox / בנק) — לא כרטיס אשראי שלנו</li>
+      <li>מזהה מכשיר ל־Push</li>
+      <li>תמונות קבלות + תוכן משתמש (שמות / כותרות)</li>
+    </ul>
+    <p>פירוט: <code>docs/ASC_APP_PRIVACY_ANSWERS.md</code></p>
+
+    <h2>6) צילומים — מחלקת 6.9"</h2>
+    <p>העלה מתיקייה <code>store/ios/screenshots/</code>:</p>
+    <ul>
+      <li>01_home.png</li>
+      <li>02_expenses.png</li>
+      <li>03_balances.png</li>
+      <li>04_invite.png</li>
+    </ul>
+    <p>גודל: 1320×2868. אל תעלה למחלקת 6.3".</p>
+
+    <h2>7) 12 מוצרים — Consumable בלבד</h2>
+    <table>
+      <tr><th>מחיר</th><th>Product ID</th><th>שם</th></tr>
+      <tr><td>5 ₪</td><td class="ltr">com.adl.shareflow.tier_5</td><td>ShareFlow Tier 5</td></tr>
+      <tr><td>10 ₪</td><td class="ltr">com.adl.shareflow.tier_10</td><td>ShareFlow Tier 10</td></tr>
+      <tr><td>15 ₪</td><td class="ltr">com.adl.shareflow.tier_15</td><td>ShareFlow Tier 15</td></tr>
+      <tr><td>20 ₪</td><td class="ltr">com.adl.shareflow.tier_20</td><td>ShareFlow Tier 20</td></tr>
+      <tr><td>25 ₪</td><td class="ltr">com.adl.shareflow.tier_25</td><td>ShareFlow Tier 25</td></tr>
+      <tr><td>30 ₪</td><td class="ltr">com.adl.shareflow.tier_30</td><td>ShareFlow Tier 30</td></tr>
+      <tr><td>35 ₪</td><td class="ltr">com.adl.shareflow.tier_35</td><td>ShareFlow Tier 35</td></tr>
+      <tr><td>45 ₪</td><td class="ltr">com.adl.shareflow.tier_45</td><td>ShareFlow Tier 45</td></tr>
+      <tr><td>49 ₪</td><td class="ltr">com.adl.shareflow.tier_49</td><td>ShareFlow Tier 49</td></tr>
+      <tr><td>69 ₪</td><td class="ltr">com.adl.shareflow.tier_69</td><td>ShareFlow Tier 69</td></tr>
+      <tr><td>79 ₪</td><td class="ltr">com.adl.shareflow.tier_79</td><td>ShareFlow Tier 79</td></tr>
+      <tr><td>89 ₪</td><td class="ltr">com.adl.shareflow.tier_89</td><td>ShareFlow Tier 89</td></tr>
+    </table>
+    <p>סוג בכל מוצר: <strong>Consumable</strong>. אל תבחר Non-Consumable.</p>
+
+    <h2>8) הסכמים</h2>
+    <p>Business → Agreements, Tax, and Banking: Paid Apps + מס + בנק.</p>
+
+    <h2>9) חשבון דמו + הערות לסוקר</h2>
+    <p>אימייל וסיסמה: קובץ מקומי <code>.store_review_account.local</code> או פלט</p>
+    <p><code>./scripts/print_asc_paste_pack.sh</code></p>
+    <textarea id="notes" class="ltr" rows="14" readonly>App Review notes — ADL ShareFlow (iOS)
+
+Demo login:
+  Email + password: see repo file `.store_review_account.local`
+
+Demo group:
+  «קבוצת הדגמה — App Review» with sample expenses.
+
+Notes:
+- Hebrew RTL UI by default; English is available in profile language settings.
+- Deep links: https://adlshareflow-production.up.railway.app/join/{code}
+- Push notifications require the system permission prompt.
+- Camera is used only for receipt scan and QR join.
+- Pilot / payments: server may run with PAYMENTS_ENABLED=false and PILOT_MODE_ENABLED=true
+  during pilot; IAP product IDs are registered for when payments are enabled.
+- Privacy policy: https://adlshareflow-production.up.railway.app/privacy
+- Support: https://adlshareflow-production.up.railway.app/getting-started</textarea>
+    <button onclick="copy('notes')">העתק הערות לסוקר</button>
+
+    <h2>לא לעשות</h2>
+    <ul>
+      <li>לא לבנות IPA</li>
+      <li>לא לשייך build</li>
+      <li>לא ללחוץ Submit</li>
+    </ul>
+    <p class="done">אחרי 1–9: ביום ההעלאה נשאר רק לבנות ולהעלות.</p>
+  </div>
+  <script>
+    function copy(id) {
+      const el = document.getElementById(id);
+      navigator.clipboard.writeText(el.value).then(() => {
+        const b = event.target;
+        const t = b.textContent;
+        b.textContent = 'הועתק';
+        setTimeout(() => { b.textContent = t; }, 1200);
+      });
+    }
+  </script>
+</body>
+</html>

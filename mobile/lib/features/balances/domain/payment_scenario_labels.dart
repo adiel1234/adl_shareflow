@@ -120,6 +120,15 @@ class PaymentScenarioLabels {
         (r) => r.status == 'pending' && matchesTransfer(s, r),
       );
 
+  /// Sum of pending settlement amounts for this from→to pair.
+  static double pendingSumForTransfer(
+    SettlementSuggestion s,
+    List<SettlementRecord> pending,
+  ) =>
+      pending
+          .where((r) => r.status == 'pending' && matchesTransfer(s, r))
+          .fold<double>(0, (sum, r) => sum + r.amountDouble);
+
   /// Transfers list: debtor, creditor, or admin for guest flows.
   static bool isInvolvedInTransfer(
     SettlementSuggestion s,

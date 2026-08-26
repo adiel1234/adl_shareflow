@@ -432,7 +432,7 @@
   "selectPaidBy": "בחר מי שילם",
   "loginBtn": "כניסה",
   "welcomeTitle": "ברוך הבא ל-ADL ShareFlow",
-  "loginSubtitle": "יצירת חשבון או התחברות",
+  "loginSubtitle": "המקום לשיתוף הוצאות",
   "emailRequired": "נדרש אימייל",
   "passwordRequired": "נדרשת סיסמה",
   "wrongCredentials": "אימייל או סיסמה שגויים",
@@ -877,7 +877,29 @@
   "transferHintGuestToMember": "המנהל: סמן שאורח שילם · המקבל: אשר קבלה",
   "transferHintGuestToGuest": "המנהל סוגר את החוב בפעולה אחת",
   "tipScanPrimary": "מומלץ לסרוק קבלה: ממלא סכום ותיאור אוטומטית. אפשר גם לצרף תמונה לצפייה בלבד.",
-  "transferPendingBadge": "ממתין לאישור - אין פעולה נוספת",
+  "transferPendingBadge": "יש תשלום ממתין לאישור — אפשר לשלוח תשלום נוסף",
+  "paidOfTotal": "שולם {paid} מתוך {total}",
+  "@paidOfTotal": {
+    "placeholders": {
+      "paid": {"type": "String"},
+      "total": {"type": "String"}
+    }
+  },
+  "amountMustBePositive": "יש להזין סכום חיובי",
+  "amountExceedsDebt": "הסכום גדול מהיתרה ({amount} {currency})",
+  "@amountExceedsDebt": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "currency": {"type": "String"}
+    }
+  },
+  "debtRemainingHint": "יתרת החוב: {amount} {currency}",
+  "@debtRemainingHint": {
+    "placeholders": {
+      "amount": {"type": "String"},
+      "currency": {"type": "String"}
+    }
+  },
   "pendingHintMemberPaid": "{debtor} שילם ל-{creditor} - ממתין לאישור",
   "@pendingHintMemberPaid": {
     "placeholders": {
@@ -1082,7 +1104,7 @@
   "tipCreateGroupNoCharge": "רק יוצרים את הקבוצה עכשיו. התשלום, אם בכלל, רק בהפעלה בהמשך.",
   "tipEmptyExpensesInvite": "התחילו בהזמנת חברים (אייקון האדם למעלה). לבד אין עם מי להתחלק.",
   "tipBalancesBeforeDebts": "כאן רואים מי חייב למי. כשיהיו חובות יופיעו הסדר חוב ואשר קבלה.",
-  "tipParticipantsEqualSplit": "סמנו רק מי באמת חלק בהוצאה. הסכום מתחלק שווה בין המסומנים.",
+  "tipParticipantsEqualSplit": "מי משתתף בחלוקה? סמנו, והסכום יתחלק שווה ביניהם.",
   "tipJoinWithCode": "קוד ההזמנה מגיע מחבר שכבר יצר קבוצה, או מסריקת ה-QR שלו.",
   "tipScanVsAttach": "הסורק למעלה ממלא סכום ותיאור אוטומטית. צרף קבלה רק שומר תמונה לצפייה.",
   "tipWhatsAppInvite": "נפתח WhatsApp. בחרו למי לשלוח.",

@@ -1,13 +1,15 @@
-import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart';
 
 import '../../../../theme/app_colors.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../ui/widgets/app_button.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../social_auth.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -24,7 +26,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   bool _loading = false;
   bool _obscurePassword = true;
-  bool _rememberMe = false;
+  bool _rememberMe = true;
   bool _offerShown = false;
   String? _error;
 
@@ -56,7 +58,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final saved = await _authService.loadRememberedCredentials();
     if (!mounted || !saved.rememberMe || saved.email == null) return;
 
-    // Silent autofill — no confusing dialog after a dropped session.
     if (_offerShown) return;
     _offerShown = true;
 
@@ -105,6 +106,47 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _loginGoogle() async {
+    HapticFeedback.mediumImpact();
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final l = AppLocalizations.of(context)!;
+    try {
+      final user = await SocialAuth.signInWithGoogle();
+      ref.read(authProvider.notifier).setUser(user);
+      if (mounted) Navigator.pushReplacementNamed(context, '/home');
+    } catch (e) {
+      if (!e.toString().contains('cancelled')) {
+        setState(() => _error = _parseError(e, l));
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _loginApple() async {
+    HapticFeedback.mediumImpact();
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final l = AppLocalizations.of(context)!;
+    try {
+      final user = await SocialAuth.signInWithApple();
+      ref.read(authProvider.notifier).setUser(user);
+      if (mounted) Navigator.pushReplacementNamed(context, '/home');
+    } catch (e) {
+      final msg = e.toString();
+      if (!msg.contains('canceled') && !msg.contains('cancelled')) {
+        setState(() => _error = _parseError(e, l));
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
   String _parseError(dynamic e, AppLocalizations l) {
     String msg = e.toString();
     if (e is DioException) {
@@ -133,36 +175,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 48),
-
-              // Logo + Title
+              const SizedBox(height: 40),
               Center(
                 child: Column(
                   children: [
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: 72,
+                      height: 72,
                       decoration: BoxDecoration(
                         gradient: AppColors.brandGradient,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(16),
                         child: Image.asset('assets/icons/app_icon.png'),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     Text(
                       l.welcomeTitle,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
-                        fontSize: 24,
+                        fontSize: 22,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
@@ -170,43 +204,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 6),
                     Text(
                       l.loginSubtitle,
+                      textAlign: TextAlign.center,
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 14,
+                        height: 1.3,
                         color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Text(
-                        l.loginRegisterFirstHint,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          height: 1.4,
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
 
-              // Form
               Form(
                 key: _formKey,
                 child: Column(
@@ -215,6 +226,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       controller: _emailCtrl,
                       keyboardType: TextInputType.emailAddress,
                       textDirection: TextDirection.ltr,
+                      textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
                         hintText: l.email,
                         prefixIcon: const Icon(Icons.email_outlined),
@@ -230,6 +242,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       controller: _passwordCtrl,
                       obscureText: _obscurePassword,
                       textDirection: TextDirection.ltr,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) {
+                        if (!_loading) _loginEmail();
+                      },
                       decoration: InputDecoration(
                         hintText: l.password,
                         prefixIcon: const Icon(Icons.lock_outline),
@@ -249,49 +265,69 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 8),
-                    CheckboxListTile(
-                      value: _rememberMe,
-                      onChanged: (v) =>
-                          setState(() => _rememberMe = v ?? false),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      contentPadding: EdgeInsets.zero,
-                      activeColor: AppColors.primary,
-                      title: Text(
-                        l.rememberMe,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      subtitle: Text(
-                        l.rememberMeSubtitle,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
 
-              // Forgot password
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () =>
-                      Navigator.pushNamed(context, '/forgot-password'),
-                  child: Text(l.forgotPassword),
-                ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () =>
+                          setState(() => _rememberMe = !_rememberMe),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: Checkbox(
+                              value: _rememberMe,
+                              onChanged: (v) =>
+                                  setState(() => _rememberMe = v ?? false),
+                              activeColor: AppColors.primary,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              l.rememberMe,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/forgot-password'),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      l.forgotPassword,
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                  ),
+                ],
               ),
 
-              // Error
               if (_error != null) ...[
+                const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.error.withOpacity(0.08),
+                    color: AppColors.error.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
@@ -300,45 +336,62 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(height: 12),
               ],
 
-              // Register first (primary) — new users after download
+              const SizedBox(height: 16),
+
+              // Existing users: login is primary
               GradientButton(
-                label: '${l.dontHaveAccount} ${l.register}',
+                label: l.loginBtn,
+                onPressed: _loading ? null : _loginEmail,
+                isLoading: _loading,
+              ),
+
+              const SizedBox(height: 8),
+              TextButton(
                 onPressed: _loading
                     ? null
                     : () => Navigator.pushNamed(context, '/register'),
-              ),
-
-              const SizedBox(height: 12),
-
-              // Login secondary
-              OutlinedButton(
-                onPressed: _loading ? null : _loginEmail,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 48),
-                  side: BorderSide(
-                    color: AppColors.primary.withValues(alpha: 0.45),
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                child: Text(
+                  '${l.dontHaveAccount} ${l.register}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
                   ),
                 ),
-                child: _loading
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(
-                        l.loginBtn,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primary,
-                        ),
-                      ),
               ),
+
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      l.orDivider,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              _GoogleSignInButton(
+                label: l.continueWithGoogle,
+                onPressed: _loading ? null : _loginGoogle,
+              ),
+              if (!kIsWeb && SocialAuth.isAppleAvailable) ...[
+                const SizedBox(height: 10),
+                _AppleSignInButton(
+                  label: l.continueWithApple,
+                  onPressed: _loading ? null : _loginApple,
+                ),
+              ],
+
               const SizedBox(height: 24),
             ],
           ),
@@ -346,4 +399,146 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
+}
+
+class _GoogleSignInButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+
+  const _GoogleSignInButton({
+    required this.label,
+    this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0xFFF8F9FA),
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          height: 52,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFF747775), width: 1.2),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(
+                width: 24,
+                height: 24,
+                child: CustomPaint(painter: _GoogleGPainter()),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1F1F1F),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AppleSignInButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+
+  const _AppleSignInButton({
+    required this.label,
+    this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Colors.black, width: 1),
+        minimumSize: const Size(double.infinity, 52),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.apple, size: 22, color: Colors.white),
+          const SizedBox(width: 10),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Multicolor Google «G» (simplified brand mark).
+class _GoogleGPainter extends CustomPainter {
+  const _GoogleGPainter();
+
+  static const _blue = Color(0xFF4285F4);
+  static const _green = Color(0xFF34A853);
+  static const _yellow = Color(0xFFFBBC05);
+  static const _red = Color(0xFFEA4335);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final stroke = w * 0.22;
+    final c = Offset(w / 2, size.height / 2);
+    final r = w / 2 - stroke / 2;
+    final oval = Rect.fromCircle(center: c, radius: r);
+
+    void ring(Color color, double start, double sweep) {
+      canvas.drawArc(
+        oval,
+        start,
+        sweep,
+        false,
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = stroke
+          ..strokeCap = StrokeCap.butt,
+      );
+    }
+
+    // Angles: 0 = right, clockwise in Flutter drawArc is... actually
+    // drawArc uses radians, 0 at right, positive = clockwise in Flutter? 
+    // In Flutter, positive angles are clockwise.
+    ring(_blue, -0.55, 1.85);
+    ring(_green, 1.3, 0.95);
+    ring(_yellow, 2.25, 0.85);
+    ring(_red, 3.1, 1.05);
+
+    // Horizontal bar of the G (blue)
+    final barH = stroke;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(c.dx - stroke * 0.1, c.dy - barH / 2, w * 0.48, barH),
+        Radius.circular(barH / 4),
+      ),
+      Paint()..color = _blue,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

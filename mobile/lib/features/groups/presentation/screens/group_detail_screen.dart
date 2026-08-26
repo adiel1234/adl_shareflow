@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/config/screenshot_mode.dart';
 import '../../../../core/network/api_client.dart';
 import '../../data/group_repository.dart';
 import '../../domain/group_model.dart';
@@ -779,6 +780,18 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
   }
 
   void _showInvite(BuildContext context, Group group) {
+    // Store screenshots: open the real invite sheet (code + QR + link),
+    // skipping method/split dialogs that block the capture.
+    if (isScreenshotMode) {
+      showInviteSheet(
+        context,
+        groupId: group.id,
+        groupName: group.name,
+        isAdmin: group.isAdmin,
+        expenseCount: group.expenseCount,
+      );
+      return;
+    }
     openInviteFlow(
       context,
       groupId: group.id,

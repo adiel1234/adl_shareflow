@@ -1,1 +1,1 @@
-https://adlprojects.co.il
+https://adlshareflow-production.up.railway.app/getting-started

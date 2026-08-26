@@ -43,7 +43,7 @@ fi
 
 VER="$(grep '^version:' "$ROOT/mobile/pubspec.yaml" | awk '{print $2}')"
 echo "  pubspec version: $VER"
-[[ "$VER" == "1.0.9+69" ]] && ok "pubspec matches locked target 1.0.9+69" || bad "pubspec is $VER (expected 1.0.9+69 unless intentionally bumped)"
+[[ "$VER" == "1.0.9+70" ]] && ok "pubspec matches locked target 1.0.9+70" || bad "pubspec is $VER (expected 1.0.9+70 unless intentionally bumped)"
 
 # IAP IDs present in Dart
 REQUIRED_TIERS=(5 10 15 20 25 30 35 45 49 69 79 89)
@@ -58,6 +58,13 @@ done
 # --- Live endpoints ---
 code="$(curl -sS -o /dev/null -w '%{http_code}' "$BASE/privacy")"
 [[ "$code" == "200" ]] && ok "/privacy HTTP 200" || bad "/privacy HTTP $code"
+
+SUPPORT_URL="$(tr -d '\n' < "$ROOT/store/ios/metadata/en-US/support_url.txt")"
+code="$(curl -sS -o /dev/null -w '%{http_code}' "$SUPPORT_URL")"
+[[ "$code" == "200" ]] && ok "Support URL HTTP 200 ($SUPPORT_URL)" || bad "Support URL HTTP $code ($SUPPORT_URL)"
+
+code="$(curl -sS -o /dev/null -w '%{http_code}' "$BASE/getting-started")"
+[[ "$code" == "200" ]] && ok "/getting-started HTTP 200" || bad "/getting-started HTTP $code"
 
 code="$(curl -sS -o /tmp/sf_aasa_check.json -w '%{http_code}' "$BASE/.well-known/apple-app-site-association")"
 if [[ "$code" == "200" ]] && grep -q '9QP3FZTL8C.com.adl.shareflow' /tmp/sf_aasa_check.json; then
@@ -93,14 +100,49 @@ else
   bad "railway CLI not installed — skip secret checks"
 fi
 
+# --- Screenshot drafts (6.9" required class) ---
+SS="$ROOT/store/ios/screenshots"
+ALLOWED='1320x2868 1290x2796 1260x2736'
+SS_OK=1
+for f in 01_home.png 02_expenses.png 03_balances.png 04_invite.png; do
+  if [[ ! -f "$SS/$f" ]]; then
+    bad "screenshot missing: $f"
+    SS_OK=0
+    continue
+  fi
+  wh="$(sips -g pixelWidth -g pixelHeight "$SS/$f" 2>/dev/null | awk '/pixelWidth/{w=$2} /pixelHeight/{h=$2} END{print w"x"h}')"
+  if echo " $ALLOWED " | grep -q " $wh "; then
+    ok "screenshot $f ($wh)"
+  else
+    bad "screenshot $f is $wh — need 6.9\" (1320×2868 / 1290×2796 / 1260×2736)"
+    SS_OK=0
+  fi
+done
+[[ "$SS_OK" -eq 1 ]] || echo "  tip: ./scripts/capture_store_screenshots.sh  (uses iPhone 17 Pro Max)"
+
+# --- Metadata + IAP paste packs ---
+[[ -f "$ROOT/store/ios/metadata/he-IL/description.txt" ]] && ok "metadata he-IL pack" || bad "metadata he-IL missing"
+[[ -f "$ROOT/store/ios/metadata/en-US/description.txt" ]] && ok "metadata en-US pack" || bad "metadata en-US missing"
+[[ -f "$ROOT/store/ios/iap/products.tsv" ]] && ok "IAP products.tsv" || bad "IAP products.tsv missing"
+if grep -q $'\tconsumable\t' "$ROOT/store/ios/iap/products.tsv" \
+  && ! grep -q $'\tnon_consumable\t' "$ROOT/store/ios/iap/products.tsv"; then
+  ok "IAP type is consumable (matches buyConsumable)"
+else
+  bad "IAP products.tsv must be consumable — code uses buyConsumable"
+fi
+[[ -f "$ROOT/docs/ASC_AGE_RATING.md" ]] && ok "ASC_AGE_RATING.md" || bad "age rating answers missing"
+[[ -f "$ROOT/docs/ASC_APP_PRIVACY_ANSWERS.md" ]] && ok "ASC_APP_PRIVACY_ANSWERS.md" || bad "privacy answers missing"
+[[ -f "$ROOT/store/ios/review_notes.txt" ]] && ok "review_notes.txt" || bad "review_notes.txt missing"
+
 echo ""
 echo "Manual ASC items (not auto-verified) — see docs/ASC_MANUAL_CHECKLIST.md:"
 echo "  [ ] Listing metadata (copy from store/ios/metadata)"
 echo "  [ ] App Privacy (copy from docs/ASC_APP_PRIVACY_ANSWERS.md)"
-echo "  [ ] Screenshots → store/ios/screenshots then ASC"
+echo "  [ ] Upload screenshots from store/ios/screenshots → ASC 6.9\""
 echo "  [ ] 12 IAP products (store/ios/iap/products.tsv)"
 echo "  [ ] Tax/banking/agreements"
 echo "  [ ] Paste demo login from .store_review_account.local into ASC"
+echo "  track locally: cp docs/ASC_STATUS_TEMPLATE.md STORE_PREP_ASC_STATUS.local.md"
 echo ""
 
 # Demo account login (if local creds exist)

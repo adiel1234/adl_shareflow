@@ -56,8 +56,8 @@ expenses,split,group,trip,roommate,balance,share,bill,travel,apartment
 | שדה | ערך |
 |-----|-----|
 | Privacy | `https://adlshareflow-production.up.railway.app/privacy` |
-| Support | `info@adlprojects.co.il` |
-| Marketing | `https://adlprojects.co.il` |
+| Support | `https://adlshareflow-production.up.railway.app/getting-started` |
+| Marketing | `https://adlshareflow-production.up.railway.app/getting-started` |
 
 ## הערות לסוקר (טיוטה)
 

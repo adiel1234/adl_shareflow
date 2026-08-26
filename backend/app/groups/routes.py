@@ -951,9 +951,16 @@ def settle_period(group_id, **kwargs):
 @groups_bp.post('/period-debts/<debt_id>/mark-paid')
 @jwt_required()
 def mark_debt_paid(debt_id):
-    """Mark a period debt as paid. Only the creditor (to_user) may do this,
-    and only if they are a member of the group that owns this debt."""
+    """Mark a period debt as paid (full or partial). Only the creditor (to_user)
+    may do this, and only if they are a member of the group that owns this debt.
+
+    Optional JSON body: ``{"amount": <positive number>}``.
+    Defaults to the full remaining balance.
+    """
+    from decimal import Decimal
     from app.models import PeriodDebt, PeriodReport
+    from app.common.utils import to_decimal
+
     user_id = get_jwt_identity()
     debt = db.session.get(PeriodDebt, debt_id)
     if not debt:
@@ -974,9 +981,39 @@ def mark_debt_paid(debt_id):
     if debt.is_paid:
         return error_response('חוב זה כבר סומן כשולם', 400)
 
-    debt.is_paid = True
-    debt.paid_at = datetime.now(timezone.utc)
+    already_paid = Decimal(str(debt.amount_paid or 0))
+    total = Decimal(str(debt.amount))
+    remaining = total - already_paid
+    if remaining <= 0:
+        debt.is_paid = True
+        debt.paid_at = datetime.now(timezone.utc)
+        debt.marked_paid_by = user_id
+        db.session.commit()
+        return success_response(data=debt.to_dict())
+
+    data = request.get_json(silent=True) or {}
+    if data.get('amount') is None:
+        pay_amount = remaining
+    else:
+        try:
+            pay_amount = to_decimal(data.get('amount'))
+            if pay_amount <= 0:
+                raise ValueError()
+        except Exception:
+            return error_response('amount must be a positive number')
+
+    if pay_amount > remaining:
+        return error_response(
+            f'לא ניתן לסמן יותר מהיתרה ({remaining} {debt.currency})',
+            400,
+        )
+
+    debt.amount_paid = already_paid + pay_amount
     debt.marked_paid_by = user_id
+    if debt.amount_paid >= total:
+        debt.is_paid = True
+        debt.paid_at = datetime.now(timezone.utc)
+        debt.amount_paid = total
     db.session.commit()
     return success_response(data=debt.to_dict())
 

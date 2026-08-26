@@ -665,6 +665,7 @@ class PeriodDebt(db.Model):
     from_user_id = Column(UUID(as_uuid=False), ForeignKey('users.id'), nullable=False)
     to_user_id = Column(UUID(as_uuid=False), ForeignKey('users.id'), nullable=False)
     amount = Column(Numeric(12, 2), nullable=False)
+    amount_paid = Column(Numeric(12, 2), nullable=False, default=0)
     currency = Column(String(3), nullable=False, default='ILS')
     is_paid = Column(Boolean, nullable=False, default=False)
     paid_at = Column(DateTime(timezone=True), nullable=True)
@@ -678,6 +679,10 @@ class PeriodDebt(db.Model):
     paid_by_user = relationship('User', foreign_keys=[marked_paid_by])
 
     def to_dict(self):
+        paid = self.amount_paid if self.amount_paid is not None else 0
+        remaining = self.amount - paid
+        if remaining < 0:
+            remaining = 0
         return {
             'id': self.id,
             'report_id': self.report_id,
@@ -686,6 +691,8 @@ class PeriodDebt(db.Model):
             'to_user_id': self.to_user_id,
             'to_user': self.to_user.to_dict() if self.to_user else None,
             'amount': str(self.amount),
+            'amount_paid': str(paid),
+            'remaining': str(remaining),
             'currency': self.currency,
             'is_paid': self.is_paid,
             'paid_at': self.paid_at.isoformat() if self.paid_at else None,

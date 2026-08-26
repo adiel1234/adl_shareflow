@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/storage/secure_storage.dart';
+import '../../core/config/screenshot_mode.dart';
 import '../../providers/auth_provider.dart';
 import '../../theme/app_colors.dart';
 
@@ -14,6 +15,7 @@ const _kOnboardingDone = 'onboarding_done_v1';
 
 /// Returns true if the user has already completed/skipped onboarding.
 Future<bool> hasCompletedOnboarding() async {
+  if (isScreenshotMode) return true;
   return await AppSecureStorage.read(_kOnboardingDone) == 'true';
 }
 

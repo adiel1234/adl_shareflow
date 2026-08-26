@@ -71,8 +71,11 @@ class GroupRepository {
     return PeriodReport.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 
-  Future<PeriodDebt> markDebtPaid(String debtId) async {
-    final response = await _api.post('/groups/period-debts/$debtId/mark-paid');
+  Future<PeriodDebt> markDebtPaid(String debtId, {double? amount}) async {
+    final response = await _api.post(
+      '/groups/period-debts/$debtId/mark-paid',
+      data: amount != null ? {'amount': amount} : null,
+    );
     return PeriodDebt.fromJson(response.data['data'] as Map<String, dynamic>);
   }
 

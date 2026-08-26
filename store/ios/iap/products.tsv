@@ -1,13 +1,13 @@
 reference_name	product_id	type	price_ils	display_name	description
-ShareFlow Tier 5	com.adl.shareflow.tier_5	non_consumable	5	ShareFlow Tier 5	Group capacity / activation tier 5 ILS
-ShareFlow Tier 10	com.adl.shareflow.tier_10	non_consumable	10	ShareFlow Tier 10	Group capacity / activation tier 10 ILS
-ShareFlow Tier 15	com.adl.shareflow.tier_15	non_consumable	15	ShareFlow Tier 15	Group capacity / activation tier 15 ILS
-ShareFlow Tier 20	com.adl.shareflow.tier_20	non_consumable	20	ShareFlow Tier 20	Group capacity / activation tier 20 ILS
-ShareFlow Tier 25	com.adl.shareflow.tier_25	non_consumable	25	ShareFlow Tier 25	Group capacity / activation tier 25 ILS
-ShareFlow Tier 30	com.adl.shareflow.tier_30	non_consumable	30	ShareFlow Tier 30	Group capacity / activation tier 30 ILS
-ShareFlow Tier 35	com.adl.shareflow.tier_35	non_consumable	35	ShareFlow Tier 35	Group capacity / activation tier 35 ILS
-ShareFlow Tier 45	com.adl.shareflow.tier_45	non_consumable	45	ShareFlow Tier 45	Group capacity / activation tier 45 ILS
-ShareFlow Tier 49	com.adl.shareflow.tier_49	non_consumable	49	ShareFlow Tier 49	Group capacity / activation tier 49 ILS
-ShareFlow Tier 69	com.adl.shareflow.tier_69	non_consumable	69	ShareFlow Tier 69	Group capacity / activation tier 69 ILS
-ShareFlow Tier 79	com.adl.shareflow.tier_79	non_consumable	79	ShareFlow Tier 79	Group capacity / activation tier 79 ILS
-ShareFlow Tier 89	com.adl.shareflow.tier_89	non_consumable	89	ShareFlow Tier 89	Group capacity / activation tier 89 ILS
+ShareFlow Tier 5	com.adl.shareflow.tier_5	consumable	5	ShareFlow Tier 5	Group capacity / activation tier 5 ILS
+ShareFlow Tier 10	com.adl.shareflow.tier_10	consumable	10	ShareFlow Tier 10	Group capacity / activation tier 10 ILS
+ShareFlow Tier 15	com.adl.shareflow.tier_15	consumable	15	ShareFlow Tier 15	Group capacity / activation tier 15 ILS
+ShareFlow Tier 20	com.adl.shareflow.tier_20	consumable	20	ShareFlow Tier 20	Group capacity / activation tier 20 ILS
+ShareFlow Tier 25	com.adl.shareflow.tier_25	consumable	25	ShareFlow Tier 25	Group capacity / activation tier 25 ILS
+ShareFlow Tier 30	com.adl.shareflow.tier_30	consumable	30	ShareFlow Tier 30	Group capacity / activation tier 30 ILS
+ShareFlow Tier 35	com.adl.shareflow.tier_35	consumable	35	ShareFlow Tier 35	Group capacity / activation tier 35 ILS
+ShareFlow Tier 45	com.adl.shareflow.tier_45	consumable	45	ShareFlow Tier 45	Group capacity / activation tier 45 ILS
+ShareFlow Tier 49	com.adl.shareflow.tier_49	consumable	49	ShareFlow Tier 49	Group capacity / activation tier 49 ILS
+ShareFlow Tier 69	com.adl.shareflow.tier_69	consumable	69	ShareFlow Tier 69	Group capacity / activation tier 69 ILS
+ShareFlow Tier 79	com.adl.shareflow.tier_79	consumable	79	ShareFlow Tier 79	Group capacity / activation tier 79 ILS
+ShareFlow Tier 89	com.adl.shareflow.tier_89	consumable	89	ShareFlow Tier 89	Group capacity / activation tier 89 ILS

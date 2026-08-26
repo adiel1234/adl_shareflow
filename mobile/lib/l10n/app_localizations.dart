@@ -1655,7 +1655,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'יצירת חשבון או התחברות'**
+  /// **'המקום לשיתוף הוצאות'**
   String get loginSubtitle;
 
   /// No description provided for @emailRequired.
@@ -3079,8 +3079,32 @@ abstract class AppLocalizations {
   /// No description provided for @transferPendingBadge.
   ///
   /// In he, this message translates to:
-  /// **'ממתין לאישור - אין פעולה נוספת'**
+  /// **'יש תשלום ממתין לאישור — אפשר לשלוח תשלום נוסף'**
   String get transferPendingBadge;
+
+  /// No description provided for @paidOfTotal.
+  ///
+  /// In he, this message translates to:
+  /// **'שולם {paid} מתוך {total}'**
+  String paidOfTotal(String paid, String total);
+
+  /// No description provided for @amountMustBePositive.
+  ///
+  /// In he, this message translates to:
+  /// **'יש להזין סכום חיובי'**
+  String get amountMustBePositive;
+
+  /// No description provided for @amountExceedsDebt.
+  ///
+  /// In he, this message translates to:
+  /// **'הסכום גדול מהיתרה ({amount} {currency})'**
+  String amountExceedsDebt(String amount, String currency);
+
+  /// No description provided for @debtRemainingHint.
+  ///
+  /// In he, this message translates to:
+  /// **'יתרת החוב: {amount} {currency}'**
+  String debtRemainingHint(String amount, String currency);
 
   /// No description provided for @pendingHintMemberPaid.
   ///
@@ -3579,7 +3603,7 @@ abstract class AppLocalizations {
   /// No description provided for @tipParticipantsEqualSplit.
   ///
   /// In he, this message translates to:
-  /// **'סמנו רק מי באמת חלק בהוצאה. הסכום מתחלק שווה בין המסומנים.'**
+  /// **'מי משתתף בחלוקה? סמנו, והסכום יתחלק שווה ביניהם.'**
   String get tipParticipantsEqualSplit;
 
   /// No description provided for @tipJoinWithCode.

@@ -2,7 +2,10 @@
 
 > מטרה: לסגור את כל מה שדורש ASC **לפני** סוף הפיילוט, בלי לבנות IPA סופי.  
 > טקסטים מוכנים: `docs/APP_STORE_LISTING_IOS.md`  
-> אימות ריפו/שרת: `./scripts/verify_ios_store_prep.sh`
+> אימות ריפו/שרת: `./scripts/verify_ios_store_prep.sh`  
+> **חבילת העתקה אחת לישיבה:** `./scripts/print_asc_paste_pack.sh`  
+> **דף ישיבה בדפדפן:** `store/ios/ASC_SITTING.html`  
+> **דירוג גיל:** `docs/ASC_AGE_RATING.md`
 
 ---
 
@@ -12,8 +15,13 @@
 2. **App Information**
    - Privacy Policy URL:  
      `https://adlshareflow-production.up.railway.app/privacy`
+   - Support URL:  
+     `https://adlshareflow-production.up.railway.app/getting-started`  
+     (חי עכשיו. אחרי פריסת `/support` אפשר להחליף.)
+   - Marketing URL:  
+     `https://adlshareflow-production.up.railway.app/getting-started`
    - Category: Finance או Lifestyle
-   - Age rating: מלא לפי השאלון (אין UGC מסוכן / אין הימורים)
+   - Age rating: לפי `docs/ASC_AGE_RATING.md` (אין אלימות / הימורים / תוכן מיני)
 3. צור / ערוך גרסה (למשל 1.0.9) — **בלי** לשייך build עדיין
 4. העתק מ־`docs/APP_STORE_LISTING_IOS.md`:
    - שם / כותרת משנה
@@ -32,7 +40,7 @@
 
 ## 2) צילומי מסך
 
-צלם מההתקנה המקומית על האייפון (`1.0.9+69`), **בלי** להפיץ:
+צלם מההתקנה המקומית על האייפון (`1.0.9+70`), **בלי** להפיץ:
 
 | # | מסך | איך להגיע |
 |---|-----|-----------|
@@ -42,11 +50,12 @@
 | 4 | יתרות | טאב חשבון / מי חייב למי |
 | 5 | הזמנה | הזמן חבר → קוד + QR + קישור |
 
-העלה ל־ASC לפי הגדלים שדורשים כרגע (לרוב 6.7").
+העלה ל־ASC במחלקת **6.9"** (חובה). גדלים מותרים: `1320×2868` / `1290×2796` / `1260×2736`.  
+(1206×2622 = מחלקת 6.3" אופציונלית — לא מספיק לבד.)
 
 סמן: `[ ] צילומי מסך הועלו`
 
-**טיוטות שצולמו בסימולטור** (לבדיקה/העלאה ל־ASC):  
+**טיוטות בריפו** (סימולטור `iPhone 17 Pro Max`):  
 `store/ios/screenshots/01_home.png` … `04_invite.png`  
 רענון: `./scripts/capture_store_screenshots.sh`
 
@@ -54,8 +63,8 @@
 
 ## 3) In-App Purchases — צור את כולם עכשיו
 
-**סוג:** לפי המודל הקיים בקוד — מוצרי מחיר חד־פעמיים (Consumable או Non-Consumable; אם לא בטוח — Non-Consumable לכל tier activation).  
-**חשוב:** ה־Product ID חייב להיות **בדיוק** כמו בטבלה.
+**סוג:** Consumable בלבד — הקוד קורא ל־`buyConsumable` ב־`iap_service.dart`.  
+אל תיצור Non-Consumable. ה־Product ID חייב להיות **בדיוק** כמו בטבלה.
 
 | מחיר | Product ID | שם לתצוגה (הצעה) |
 |------|------------|-------------------|

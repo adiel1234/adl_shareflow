@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../core/constants/app_constants.dart';
+import '../core/config/screenshot_mode.dart';
 import '../core/network/api_client.dart';
 import '../core/storage/secure_storage.dart';
 import 'app_badge_service.dart';
@@ -147,6 +148,10 @@ class FcmService {
 
   /// Request notification permission (iOS + Android 13+).
   Future<void> _requestPermission() async {
+    if (isScreenshotMode) {
+      debugPrint('[FCM] Skipping permission prompt (screenshot mode)');
+      return;
+    }
     final settings = await _messaging.requestPermission(
       alert: true,
       badge: true,

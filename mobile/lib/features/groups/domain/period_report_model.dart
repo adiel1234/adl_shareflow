@@ -8,6 +8,7 @@ class PeriodDebt {
   final String toUserId;
   final GroupMember? toUser;
   final double amount;
+  final double amountPaid;
   final String currency;
   final bool isPaid;
   final DateTime? paidAt;
@@ -20,6 +21,7 @@ class PeriodDebt {
     required this.toUserId,
     this.toUser,
     required this.amount,
+    this.amountPaid = 0,
     required this.currency,
     this.isPaid = false,
     this.paidAt,
@@ -28,6 +30,9 @@ class PeriodDebt {
   factory PeriodDebt.fromJson(Map<String, dynamic> json) {
     final fromUserJson = json['from_user'] as Map<String, dynamic>?;
     final toUserJson   = json['to_user']   as Map<String, dynamic>?;
+    final amount = double.tryParse(json['amount'] as String? ?? '0') ?? 0;
+    final amountPaid =
+        double.tryParse(json['amount_paid'] as String? ?? '0') ?? 0;
     return PeriodDebt(
       id:         json['id'] as String,
       reportId:   json['report_id'] as String,
@@ -45,7 +50,8 @@ class PeriodDebt {
               'role': 'member', 'user': toUserJson,
             })
           : null,
-      amount:   double.tryParse(json['amount'] as String? ?? '0') ?? 0,
+      amount: amount,
+      amountPaid: amountPaid,
       currency: json['currency'] as String? ?? 'ILS',
       isPaid:   json['is_paid'] as bool? ?? false,
       paidAt: json['paid_at'] != null
@@ -56,6 +62,11 @@ class PeriodDebt {
 
   String get fromName => fromUser?.displayLabel ?? fromUserId;
   String get toName   => toUser?.displayLabel   ?? toUserId;
+
+  double get remaining {
+    final r = amount - amountPaid;
+    return r < 0 ? 0 : r;
+  }
 }
 
 

@@ -847,7 +847,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeTitle => 'Welcome to ADL ShareFlow';
 
   @override
-  String get loginSubtitle => 'Create an account or sign in';
+  String get loginSubtitle => 'The place for shared expenses';
 
   @override
   String get emailRequired => 'Email is required';
@@ -1645,7 +1645,26 @@ class AppLocalizationsEn extends AppLocalizations {
       'Scan a receipt to auto-fill amount and title. You can also attach an image for viewing only.';
 
   @override
-  String get transferPendingBadge => 'Awaiting approval - no further action';
+  String get transferPendingBadge =>
+      'A payment is awaiting approval — you can send another payment';
+
+  @override
+  String paidOfTotal(String paid, String total) {
+    return 'Paid $paid of $total';
+  }
+
+  @override
+  String get amountMustBePositive => 'Enter a positive amount';
+
+  @override
+  String amountExceedsDebt(String amount, String currency) {
+    return 'Amount exceeds the remaining balance ($amount $currency)';
+  }
+
+  @override
+  String debtRemainingHint(String amount, String currency) {
+    return 'Remaining debt: $amount $currency';
+  }
 
   @override
   String pendingHintMemberPaid(String debtor, String creditor) {
@@ -1947,7 +1966,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipParticipantsEqualSplit =>
-      'Select only who truly shared this expense. The amount splits equally among selected.';
+      'Who splits this expense? Select them, and the amount splits equally.';
 
   @override
   String get tipJoinWithCode =>

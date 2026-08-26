@@ -102,14 +102,27 @@ def login_google(id_token: str) -> tuple[User, str, str]:
     from google.oauth2 import id_token as google_id_token
     from google.auth.transport import requests as google_requests
 
-    try:
-        idinfo = google_id_token.verify_oauth2_token(
-            id_token,
-            google_requests.Request(),
-            current_app.config['GOOGLE_CLIENT_ID'],
-        )
-    except Exception as e:
-        raise ValueError(f'Invalid Google token: {e}')
+    # Accept iOS + Web (and optional comma-separated) client IDs as token audience.
+    raw = (current_app.config.get('GOOGLE_CLIENT_ID') or '').strip()
+    audiences = [a.strip() for a in raw.split(',') if a.strip()]
+    if not audiences:
+        raise ValueError('Google Sign-In is not configured on the server')
+
+    request = google_requests.Request()
+    idinfo = None
+    last_error: Exception | None = None
+    for audience in audiences:
+        try:
+            idinfo = google_id_token.verify_oauth2_token(
+                id_token,
+                request,
+                audience,
+            )
+            break
+        except Exception as e:
+            last_error = e
+    if idinfo is None:
+        raise ValueError(f'Invalid Google token: {last_error}')
 
     google_user_id = idinfo['sub']
     email = idinfo.get('email', '').lower()

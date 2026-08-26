@@ -2,13 +2,15 @@
 
 > **מטרה:** עד סוף הפיילוט (~28.8) התשתית מוכנה כך שביום ההעלאה יישארו רק: bump אם צריך → בניית IPA → העלאה → Submit.  
 > **לא לבנות / לא להעלות IPA סופי עכשיו** — אלא אם יוחלט אחרת.  
-> **גרסת יעד נעולה:** `1.0.9+69` (קומיט תוכן `4cd5dfa`) — ראה `PENDING_RELEASE.md`.
+> **גרסת יעד נעולה:** `1.0.9+70` — ראה `PENDING_RELEASE.md`.
 
 עודכן: 23 באוגוסט 2026
 
 **אימות אוטומטי:** הרץ `./scripts/verify_ios_store_prep.sh`  
 **מדריך ASC ידני:** `docs/ASC_MANUAL_CHECKLIST.md`  
+**ישיבת מילוי אחת:** `store/ios/ASC_SITTING.html`  
 **תוויות פרטיות מוכנות להעתקה:** `docs/ASC_APP_PRIVACY_ANSWERS.md`  
+**דירוג גיל:** `docs/ASC_AGE_RATING.md`  
 **מטא־דאטה להעתקה/deliver:** `store/ios/metadata/` · IAP: `store/ios/iap/products.tsv`  
 **אופציונלי — מפתח API:** `docs/ASC_API_KEY_SETUP.md`  
 פריטי ASC **לא** נסגרים בלי פעולה בפורטל (או מפתח API).
@@ -31,29 +33,29 @@
 סמן כאן כשנעשה:
 
 ### זהות ואפליקציה
-- [ ] האפליקציה ShareFlow קיימת (`com.adl.shareflow`)
-- [ ] הסכמי חוזים / מס / בנקאות ב־ASC מעודכנים ופעילים
-- [ ] Paid Apps / IAP agreement מאושר (גם אם התשלומים עדיין כבויים בשרת)
+- [x] האפליקציה ShareFlow קיימת (`com.adl.shareflow`) — `1.0 Prepare for Submission` · Apple ID `6763933889`
+- [x] הסכמי חוזים / מס / בנקאות ב־ASC מעודכנים ופעילים
+- [x] Paid Apps / IAP agreement מאושר (גם אם התשלומים עדיין כבויים בשרת)
 
 ### דף המוצר (ניתן למלא לפני הבילד)
-- [ ] שם: ADL ShareFlow (או כפי שאושר)
-- [ ] כותרת משנה (עד 30 תווים) — HE + EN
-- [ ] תיאור מלא — HE + EN (טיוטה: `docs/APP_STORE_LISTING_IOS.md`)
-- [ ] מילות מפתח
-- [ ] URL תמיכה: `mailto:info@adlprojects.co.il` או דף תמיכה
-- [ ] URL שיווקי (אופציונלי): `https://adlprojects.co.il`
-- [ ] URL מדיניות פרטיות: `https://adlshareflow-production.up.railway.app/privacy`
-- [ ] קטגוריה ראשית (למשל Finance / Lifestyle)
-- [ ] דירוג גיל
-- [ ] תוויות פרטיות (App Privacy) תואמות ל־`/privacy`: אימייל, פרטי תשלום בין משתמשים, מזהה מכשיר ל־Push
+- [x] שם: ADL ShareFlow (או כפי שאושר)
+- [x] כותרת משנה (עד 30 תווים) — HE + EN — לוודא אם כבר מולא
+- [x] תיאור מלא — HE + EN
+- [x] מילות מפתח
+- [x] URL תמיכה: `https://adlshareflow-production.up.railway.app/getting-started` (חי; `/support` אחרי פריסה)
+- [x] URL שיווקי: `https://adlshareflow-production.up.railway.app/getting-started`
+- [x] URL מדיניות פרטיות: `https://adlshareflow-production.up.railway.app/privacy`
+- [x] קטגוריה ראשית: Finance
+- [x] דירוג גיל — 4+
+- [x] תוויות פרטיות (App Privacy) פורסמו
 
 ### צילומי מסך
-- [ ] iPhone 6.7" (או הגדלים ש־ASC דורש כרגע) — לפחות 3–5 מסכים
-- [ ] מומלץ לצלם מההתקנה המקומית `+69` על המכשיר (בלי להפיץ)
-- [ ] שמירה בתיקייה מקומית / Drive (לא חובה בריפו)
+- [x] העלאה ל־ASC במחלקת **6.9"**
+- [x] טיוטות בריפו: `store/ios/screenshots/` (צילום מסימולטור `iPhone 17 Pro Max`)
+- [ ] רענון אופציונלי ממכשיר פיזי `+69` אם רוצים מראה «אמיתי» יותר
 
 ### In-App Purchases (יצירה עכשיו, הפעלה בשרת אחר כך)
-ליצור מוצרי Consumable / Non-Consumable לפי המודל הקיים — מזהים חייבים להתאים ל־`iap_service.dart`:
+ליצור מוצרי **Consumable** בלבד (הקוד: `buyConsumable`) — מזהים חייבים להתאים ל־`iap_service.dart`:
 
 | מחיר (₪) | Product ID |
 |----------|------------|
@@ -70,19 +72,20 @@
 | 79 | `com.adl.shareflow.tier_79` |
 | 89 | `com.adl.shareflow.tier_89` |
 
-- [ ] כל ה־Product IDs נוצרו ב־ASC
-- [ ] App-Specific Shared Secret הועתק ל־Railway כ־`APPLE_SHARED_SECRET`
-- [ ] (אופציונלי) בדיקת Sandbox על בילד קיים — רק אם רוצים; אפשר לדחות ליום ההעלאה
+- [x] Product IDs נדרשים נוצרו ב־ASC (11; בלי `tier_25`)
+- [x] App-Specific Shared Secret ב־Railway כ־`APPLE_SHARED_SECRET`
+- [ ] לוודא בכל מוצר: Localization + Price + Availability + Review screenshot
+- [ ] (אופציונלי) בדיקת Sandbox — אפשר לדחות ליום ההעלאה
 
 ### ביקורת
-- [ ] חשבון דמו לסוקר (אימייל + סיסמה) מוכן מראש
-- [ ] טיוטת הערות לסוקר — ראה סעיף ב־`docs/APP_STORE_LISTING_IOS.md`
+- [x] חשבון דמו לסוקר ממולא ב־App Review Information
+- [x] הערות לסוקר נשמרו
 
 ---
 
 ## ב. מה מוכן / הוכן בריפו (אוטומטי)
 
-- [x] גרסת יעד נעולה: `1.0.9+69` ב־`PENDING_RELEASE.md`
+- [x] גרסת יעד נעולה: `1.0.9+70` ב־`PENDING_RELEASE.md`
 - [x] חתימה / Bundle / Push / Associated Domains (הוכח בפיילוט)
 - [x] מדיניות פרטיות חיה: `/privacy` (HTTP 200)
 - [x] AASA חי עם `9QP3FZTL8C.com.adl.shareflow` ונתיבי `/join/*`
@@ -95,6 +98,9 @@
 - [x] סקריפט אימות: `scripts/verify_ios_store_prep.sh`
 - [x] סקריפט חשבון דמו לסוקר: `backend/scripts/setup_app_review_demo.py` → `.store_review_account.local`
 - [x] מדריך ASC ידני: `docs/ASC_MANUAL_CHECKLIST.md`
+- [x] חבילות העתקה: `store/ios/metadata/`, `store/ios/iap/products.tsv`, `store/ios/review_notes.txt`
+- [x] צילומי 6.9" ב־`store/ios/screenshots/` + `./scripts/capture_store_screenshots.sh`
+- [x] דף תמיכה לחנות: `/support` (+ `./scripts/print_asc_paste_pack.sh`)
 - [x] מסמך זה: `STORE_PREP_IOS.md`
 
 ---

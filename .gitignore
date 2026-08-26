@@ -41,3 +41,16 @@ backend/uploads/
 .idea/
 .vscode/
 *.swp
+
+# Android signing — never commit
+release_keys/
+*.keystore
+
+# Local Play AAB uploads (infra / not store-final)
+store/android/builds/*.aab
+
+# Local iOS IPA uploads
+store/ios/builds/*.ipa
+
+# Local Play prep status
+STORE_PREP_PLAY_STATUS.local.md

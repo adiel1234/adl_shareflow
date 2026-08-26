@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>תכנית השקה כפולה — 20 יום · ADL ShareFlow</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a222c;
+      --surface2: #243040;
+      --ink: #e8eef5;
+      --muted: #8b9aab;
+      --line: #2e3c4d;
+      --apple: #5ac8fa;
+      --google: #81c995;
+      --launch: #f4c15d;
+      --danger: #f28b82;
+      --today: #aecbfa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    header {
+      padding: 28px 20px 20px;
+      background: linear-gradient(160deg, #15202b 0%, #1a3348 45%, #1e3a2f 100%);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(8px);
+    }
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 1.45rem;
+      font-weight: 700;
+    }
+    header .sub {
+      color: var(--muted);
+      margin: 0 0 14px;
+      font-size: 0.95rem;
+      max-width: 820px;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+    .chip.launch { color: var(--launch); border-color: #6b5420; background: #2a2414; }
+    .chip.google { color: var(--google); border-color: #2d5a3a; background: #14241a; }
+    .chip.apple { color: var(--apple); border-color: #2a5a72; background: #132430; }
+    .chip.today-chip { color: var(--today); border-color: #3a5278; background: #182434; }
+    main { max-width: 980px; margin: 0 auto; padding: 18px 16px 64px; }
+    .banner {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .banner strong { color: var(--ink); }
+    .timeline {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+    .bar {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    .bar .label { color: var(--muted); }
+    .bar .track {
+      height: 28px;
+      border-radius: 8px;
+      background: var(--surface2);
+      position: relative;
+      overflow: hidden;
+    }
+    .bar .fill {
+      position: absolute;
+      top: 0; bottom: 0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .fill.apple { background: #1e4a63; color: var(--apple); }
+    .fill.google { background: #1e4a32; color: var(--google); }
+    .fill.launch-fill { background: #5a4518; color: var(--launch); }
+    .phase {
+      margin: 28px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .phase h2 {
+      margin: 0 0 4px;
+      font-size: 1.15rem;
+    }
+    .phase p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .day {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .day.is-today {
+      border-color: #5b7fb5;
+      box-shadow: 0 0 0 1px #3a5278 inset;
+    }
+    .day.is-done { opacity: 0.72; }
+    .day-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--surface2);
+      cursor: pointer;
+      user-select: none;
+    }
+    .day-num {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      background: #0f1419;
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .day.is-today .day-num {
+      background: #243a5c;
+      border-color: #5b7fb5;
+      color: var(--today);
+    }
+    .day.launch-day .day-num {
+      background: #3d3214;
+      border-color: #8a6d20;
+      color: var(--launch);
+    }
+    .day-title { flex: 1; min-width: 160px; }
+    .day-title strong { display: block; font-size: 1rem; }
+    .day-title span { color: var(--muted); font-size: 0.85rem; }
+    .day-body {
+      display: none;
+      padding: 12px 14px 16px;
+      border-top: 1px solid var(--line);
+    }
+    .day.open .day-body { display: block; }
+    .cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 720px) {
+      .cols { grid-template-columns: 1fr; }
+      .bar { grid-template-columns: 1fr; }
+    }
+    .col h3 {
+      margin: 0 0 8px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+    .col.google h3 { color: var(--google); }
+    .col.apple h3 { color: var(--apple); }
+    .col.general h3 { color: var(--launch); }
+    ul.tasks {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    ul.tasks li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 7px 0;
+      border-bottom: 1px solid #243040;
+      font-size: 0.92rem;
+    }
+    ul.tasks li:last-child { border-bottom: 0; }
+    ul.tasks input {
+      margin-top: 3px;
+      width: 16px;
+      height: 16px;
+      accent-color: var(--google);
+      flex-shrink: 0;
+    }
+    ul.tasks li.done span {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+    .goal {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #142018;
+      border: 1px solid #2d5a3a;
+      font-size: 0.9rem;
+      color: var(--google);
+    }
+    .rules {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .rule {
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #2a1818;
+      border: 1px solid #5a3030;
+      color: #f5c2bc;
+      font-size: 0.9rem;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 4px;
+    }
+    button.linkish {
+      background: var(--surface2);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    button.linkish:hover { border-color: #5b7fb5; }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      padding: 8px 16px 32px;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.85em;
+      background: #0f1419;
+      padding: 1px 5px;
+      border-radius: 4px;
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
+    .progress-wrap {
+      margin-top: 12px;
+    }
+    .progress-wrap label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .progress-bar {
+      height: 8px;
+      background: var(--surface2);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-bar > i {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--google), var(--apple));
+      border-radius: 99px;
+      transition: width .25s ease;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>תכנית השקה כפולה — 20 יום</h1>
+    <p class="sub">
+      ADL ShareFlow · iOS (פרסום ידני מוכן מוקדם) + Google Play (14 יום בדיקה סגורה) ·
+      השקה משותפת ביום 20
+    </p>
+    <div class="meta">
+      <span class="chip today-chip" id="todayChip">היום</span>
+      <span class="chip launch">★ יום 20 · 12.9.2026</span>
+      <span class="chip google">Google · 12×14</span>
+      <span class="chip apple">Apple · Manual release</span>
+    </div>
+    <div class="progress-wrap">
+      <label>
+        <span>התקדמות משימות</span>
+        <span id="progressText">0%</span>
+      </label>
+      <div class="progress-bar"><i id="progressFill"></i></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="banner">
+      <strong>עקרונות:</strong>
+      הפיילוט (APK + TestFlight) ממשיך עד יום 20 ·
+      לא להדליק <code>PAYMENTS_ENABLED</code> לפני ההשקה ·
+      לא לייצור ב־Play לפני סוף 14 הימים ·
+      ב־iOS: <strong>Manually release this version</strong>
+    </div>
+
+    <div class="timeline" aria-hidden="true">
+      <div class="bar">
+        <div class="label">ימים 1–4</div>
+        <div class="track"><div class="fill apple" style="inset-inline-start:0;width:20%">iOS בנייה + Review</div></div>
+      </div>
+      <div class="bar">
+        <div class="label">ימים 1–14</div>
+        <div class="track"><div class="fill google" style="inset-inline-start:0;width:70%">Google בדיקה סגורה</div></div>
+      </div>
+      <div class="bar">
+        <div class="label">ימים 15–19</div>
+        <div class="track"><div class="fill google" style="inset-inline-start:70%;width:25%">Play ייצור</div></div>
+      </div>
+      <div class="bar">
+        <div class="label">יום 20</div>
+        <div class="track"><div class="fill launch-fill" style="inset-inline-start:95%;width:5%">★</div></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button class="linkish" type="button" id="expandAll">פתח הכל</button>
+      <button class="linkish" type="button" id="collapseAll">סגור הכל</button>
+      <button class="linkish" type="button" id="openToday">קפוץ להיום</button>
+      <button class="linkish" type="button" id="resetChecks">אפס סימונים</button>
+    </div>
+
+    <div class="rules">
+      <div class="rule">אם פחות מ־12 בודקים ב־Play — יום 20 זז. לדחוף הצטרפות מיד.</div>
+      <div class="rule">אם Play Review מתעכב אחרי יום 19 — להזיז את יום ההשקה ליום האישור המשותף הראשון.</div>
+    </div>
+
+    <!-- PHASE 1 -->
+    <section class="phase">
+      <h2>שלב א · ימים 1–4</h2>
+      <p>24–27 באוגוסט · התחלת שעון Google + הכנת iOS לביקורת עם פרסום ידני</p>
+    </section>
+
+    <article class="day" data-day="1" data-date="2026-08-24">
+      <div class="day-head">
+        <div class="day-num">1</div>
+        <div class="day-title"><strong>יום 1</strong><span>ראשון 24.8.2026</span></div>
+      </div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col google">
+            <h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d1-g1" /><span>לפתוח בדיקה סגורה (Alpha)</span></li>
+              <li><input type="checkbox" data-id="d1-g2" /><span>רשימת ≥12 אימיילים + קישור הצטרפות</span></li>
+              <li><input type="checkbox" data-id="d1-g3" /><span>להעלות / לשייך AAB 1.0.9+70 למסלול Alpha</span></li>
+              <li><input type="checkbox" data-id="d1-g4" /><span>לוודא לפחות חלק מהבודקים הצטרפו והתקינו</span></li>
+            </ul>
+          </div>
+          <div class="col general">
+            <h3>כללי</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d1-x1" /><span>לגבש רשימת בודקים + קבוצת WhatsApp</span></li>
+              <li><input type="checkbox" data-id="d1-x2" /><span>לשלוח הוראות הצטרפות (לא פרסום ציבורי)</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="day" data-day="2" data-date="2026-08-25">
+      <div class="day-head">
+        <div class="day-num">2</div>
+        <div class="day-title"><strong>יום 2</strong><span>שני 25.8.2026</span></div>
+      </div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col google">
+            <h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d2-g1" /><span>לוודא ≥12 הצטרפו ופתחו את האפליקציה</span></li>
+              <li><input type="checkbox" data-id="d2-g2" /><span>לאשר ששעון 14 הימים רץ</span></li>
+            </ul>
+          </div>
+          <div class="col apple">
+            <h3>Apple</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d2-a1" /><span>קומיט שינויי +70 / OAuth / תשתית</span></li>
+              <li><input type="checkbox" data-id="d2-a2" /><span>הכנת בניית IPA</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="day" data-day="3" data-date="2026-08-26">
+      <div class="day-head">
+        <div class="day-num">3</div>
+        <div class="day-title"><strong>יום 3</strong><span>שלישי 26.8.2026</span></div>
+      </div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col google">
+            <h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d3-g1" /><span>מעקב בודקים שטרם התקינו</span></li>
+              <li><input type="checkbox" data-id="d3-g2" /><span>אימות בנק אם ההפקדה הגיעה</span></li>
+            </ul>
+          </div>
+          <div class="col apple">
+            <h3>Apple</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d3-a1" /><span>בניית IPA 1.0.9+N</span></li>
+              <li><input type="checkbox" data-id="d3-a2" /><span>העלאה ל־App Store Connect</span></li>
+              <li><input type="checkbox" data-id="d3-a3" /><span>TestFlight (אופציונלי לבדיקה)</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="day" data-day="4" data-date="2026-08-27">
+      <div class="day-head">
+        <div class="day-num">4</div>
+        <div class="day-title"><strong>יום 4</strong><span>רביעי 27.8.2026</span></div>
+      </div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col google">
+            <h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d4-g1" /><span>מעקב שוטף אחרי הבודקים</span></li>
+            </ul>
+          </div>
+          <div class="col apple">
+            <h3>Apple</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d4-a1" /><span>שליחה ל־App Review</span></li>
+              <li><input type="checkbox" data-id="d4-a2" /><span>בחירת Manually release this version</span></li>
+              <li><input type="checkbox" data-id="d4-a3" /><span>וידוא שלא סומן Automatic release</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="goal">יעד סוף יום 4: Google — בדיקה סגורה פעילה · iOS — בביקורת עם פרסום ידני</div>
+      </div>
+    </article>
+
+    <!-- PHASE 2 -->
+    <section class="phase">
+      <h2>שלב ב · ימים 5–14</h2>
+      <p>28.8–6.9 · שעון Google + IAP · iOS מאושר וממתין לכפתור</p>
+    </section>
+
+    <article class="day" data-day="5" data-date="2026-08-28">
+      <div class="day-head"><div class="day-num">5</div><div class="day-title"><strong>יום 5</strong><span>חמישי 28.8.2026</span></div></div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col google"><h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d5-g1" /><span>השלמת אימות בנק</span></li>
+              <li><input type="checkbox" data-id="d5-g2" /><span>התחלת יצירת 11 מוצרי IAP</span></li>
+            </ul>
+          </div>
+          <div class="col apple"><h3>Apple</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d5-a1" /><span>מעקב סטטוס App Review</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="goal">הפיילוט נמשך עד יום 20 (גם אם התאריך הישן 28.8 עבר)</div>
+      </div>
+    </article>
+
+    <article class="day" data-day="6" data-date="2026-08-29">
+      <div class="day-head"><div class="day-num">6</div><div class="day-title"><strong>יום 6</strong><span>שישי 29.8.2026</span></div></div>
+      <div class="day-body">
+        <div class="col google"><h3>Google Play</h3>
+          <ul class="tasks"><li><input type="checkbox" data-id="d6-g1" /><span>המשך יצירת מוצרי IAP</span></li></ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="day" data-day="7" data-date="2026-08-30">
+      <div class="day-head"><div class="day-num">7</div><div class="day-title"><strong>יום 7</strong><span>שבת 30.8.2026</span></div></div>
+      <div class="day-body">
+        <div class="col google"><h3>Google Play</h3>
+          <ul class="tasks">
+            <li><input type="checkbox" data-id="d7-g1" /><span>בדיקה מי מהבודקים לא התקין</span></li>
+            <li><input type="checkbox" data-id="d7-g2" /><span>תזכורת WhatsApp אם חסרים</span></li>
+          </ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="day" data-day="8" data-date="2026-08-31">
+      <div class="day-head"><div class="day-num">8</div><div class="day-title"><strong>יום 8</strong><span>ראשון 31.8.2026</span></div></div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col google"><h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d8-g1" /><span>המשך IAP + וידוא מס/פרופיל</span></li>
+            </ul>
+          </div>
+          <div class="col apple"><h3>Apple</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d8-a1" /><span>אם Review אושר — להשאיר כפתור פרסום, לא ללחוץ</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="day" data-day="9" data-date="2026-09-01">
+      <div class="day-head"><div class="day-num">9</div><div class="day-title"><strong>יום 9</strong><span>שני 1.9.2026</span></div></div>
+      <div class="day-body">
+        <ul class="tasks"><li><input type="checkbox" data-id="d9-x1" /><span>מעקב שוטף — בלי פרסום</span></li></ul>
+      </div>
+    </article>
+
+    <article class="day" data-day="10" data-date="2026-09-02">
+      <div class="day-head"><div class="day-num">10</div><div class="day-title"><strong>יום 10</strong><span>שלישי 2.9.2026</span></div></div>
+      <div class="day-body">
+        <div class="col google"><h3>Google Play</h3>
+          <ul class="tasks"><li><input type="checkbox" data-id="d10-g1" /><span>אמצע התקופה — וידוא שעדיין ≥12 פעילים</span></li></ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="day" data-day="11" data-date="2026-09-03">
+      <div class="day-head"><div class="day-num">11</div><div class="day-title"><strong>יום 11</strong><span>רביעי 3.9.2026</span></div></div>
+      <div class="day-body"><ul class="tasks"><li><input type="checkbox" data-id="d11-x1" /><span>יום מעקב קל</span></li></ul></div>
+    </article>
+
+    <article class="day" data-day="12" data-date="2026-09-04">
+      <div class="day-head"><div class="day-num">12</div><div class="day-title"><strong>יום 12</strong><span>חמישי 4.9.2026</span></div></div>
+      <div class="day-body">
+        <div class="col google"><h3>Google Play</h3>
+          <ul class="tasks"><li><input type="checkbox" data-id="d12-g1" /><span>סיום IAP אם התעכב</span></li></ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="day" data-day="13" data-date="2026-09-05">
+      <div class="day-head"><div class="day-num">13</div><div class="day-title"><strong>יום 13</strong><span>שישי 5.9.2026</span></div></div>
+      <div class="day-body"><ul class="tasks"><li><input type="checkbox" data-id="d13-x1" /><span>יום מעקב קל</span></li></ul></div>
+    </article>
+
+    <article class="day" data-day="14" data-date="2026-09-06">
+      <div class="day-head"><div class="day-num">14</div><div class="day-title"><strong>יום 14</strong><span>שבת 6.9.2026</span></div></div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col google"><h3>Google Play</h3>
+            <ul class="tasks"><li><input type="checkbox" data-id="d14-g1" /><span>יום 14 הושלם — וידוא תנאי 12×14</span></li></ul>
+          </div>
+          <div class="col apple"><h3>Apple</h3>
+            <ul class="tasks"><li><input type="checkbox" data-id="d14-a1" /><span>סטטוס: ממתין לפרסום ידני</span></li></ul>
+          </div>
+        </div>
+        <div class="goal">יעד: Google מוכן לבקשת ייצור · iOS עם כפתור Release מוכן</div>
+      </div>
+    </article>
+
+    <!-- PHASE 3 -->
+    <section class="phase">
+      <h2>שלב ג · ימים 15–19</h2>
+      <p>7–11.9 · Google לייצור + ביקורת · iOS ממתין ללחיצה</p>
+    </section>
+
+    <article class="day" data-day="15" data-date="2026-09-07">
+      <div class="day-head"><div class="day-num">15</div><div class="day-title"><strong>יום 15</strong><span>ראשון 7.9.2026</span></div></div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col google"><h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d15-g1" /><span>הגשת בקשה לגישה לייצור</span></li>
+              <li><input type="checkbox" data-id="d15-g2" /><span>הכנת AAB סופי לחנויות</span></li>
+            </ul>
+          </div>
+          <div class="col apple"><h3>Apple</h3>
+            <ul class="tasks"><li><input type="checkbox" data-id="d15-a1" /><span>לא לפרסם עדיין</span></li></ul>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="day" data-day="16" data-date="2026-09-08">
+      <div class="day-head"><div class="day-num">16</div><div class="day-title"><strong>יום 16</strong><span>שני 8.9.2026</span></div></div>
+      <div class="day-body">
+        <div class="col google"><h3>Google Play</h3>
+          <ul class="tasks"><li><input type="checkbox" data-id="d16-g1" /><span>העלאת גרסה לייצור (ממתין לביקורת)</span></li></ul>
+        </div>
+      </div>
+    </article>
+
+    <article class="day" data-day="17" data-date="2026-09-09">
+      <div class="day-head"><div class="day-num">17</div><div class="day-title"><strong>יום 17</strong><span>שלישי 9.9.2026</span></div></div>
+      <div class="day-body">
+        <ul class="tasks"><li><input type="checkbox" data-id="d17-g1" /><span>מעקב ביקורת Play</span></li></ul>
+      </div>
+    </article>
+
+    <article class="day" data-day="18" data-date="2026-09-10">
+      <div class="day-head"><div class="day-num">18</div><div class="day-title"><strong>יום 18</strong><span>רביעי 10.9.2026</span></div></div>
+      <div class="day-body">
+        <ul class="tasks"><li><input type="checkbox" data-id="d18-g1" /><span>מעקב / תיקונים אם גוגל מבקשת</span></li></ul>
+      </div>
+    </article>
+
+    <article class="day" data-day="19" data-date="2026-09-11">
+      <div class="day-head"><div class="day-num">19</div><div class="day-title"><strong>יום 19</strong><span>חמישי 11.9.2026</span></div></div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col google"><h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d19-g1" /><span>Play מאושר / מוכן לפרסום</span></li>
+              <li><input type="checkbox" data-id="d19-g2" /><span>רשימת השקה מוכנה</span></li>
+            </ul>
+          </div>
+          <div class="col apple"><h3>Apple</h3>
+            <ul class="tasks"><li><input type="checkbox" data-id="d19-a1" /><span>וידוא כפתור פרסום ידני מוכן</span></li></ul>
+          </div>
+          <div class="col general"><h3>שרת</h3>
+            <ul class="tasks"><li><input type="checkbox" data-id="d19-x1" /><span>הכנת הודעות + PAYMENTS_ENABLED למחר</span></li></ul>
+          </div>
+        </div>
+        <div class="goal">יעד: מחר בבוקר אפשר ללחוץ בשתי החנויות</div>
+      </div>
+    </article>
+
+    <!-- DAY 20 -->
+    <section class="phase">
+      <h2>שלב ד · יום 20 — השקה</h2>
+      <p>שישי 12.9.2026 · פרסום ידני בשתי החנויות</p>
+    </section>
+
+    <article class="day launch-day" data-day="20" data-date="2026-09-12">
+      <div class="day-head">
+        <div class="day-num">★</div>
+        <div class="day-title"><strong>יום 20 — השקה משותפת</strong><span>שישי 12.9.2026</span></div>
+      </div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col apple"><h3>Apple</h3>
+            <ul class="tasks"><li><input type="checkbox" data-id="d20-a1" /><span>לחיצה על פרסום ידני (Release)</span></li></ul>
+          </div>
+          <div class="col google"><h3>Google Play</h3>
+            <ul class="tasks"><li><input type="checkbox" data-id="d20-g1" /><span>פרסום לייצור / זמין בחנות</span></li></ul>
+          </div>
+          <div class="col general"><h3>אחרי הפרסום</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d20-x1" /><span>PAYMENTS_ENABLED לפי התוכנית</span></li>
+              <li><input type="checkbox" data-id="d20-x2" /><span>עדכון מדריכים / קישורים</span></li>
+              <li><input type="checkbox" data-id="d20-x3" /><span>הודעה למשתתפי פיילוט</span></li>
+              <li><input type="checkbox" data-id="d20-x4" /><span>מעקב קריסות / ביקורות שעתיים ראשונים</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    קובץ: <code>docs/DUAL_STORE_LAUNCH_20_DAYS.html</code>
+    · מקור: <code>docs/DUAL_STORE_LAUNCH_20_DAYS.md</code>
+    · הסימונים נשמרים בדפדפן (localStorage)
+  </footer>
+
+  <script>
+    (function () {
+      const KEY = "shareflow-launch-20d-checks-v1";
+      const start = new Date(2026, 7, 24); // Aug 24, 2026 local
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      function dayIndex(d) {
+        const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        return Math.floor((x - start) / 86400000) + 1;
+      }
+      const currentDay = dayIndex(today);
+      const chip = document.getElementById("todayChip");
+      if (currentDay >= 1 && currentDay <= 20) {
+        chip.textContent = "היום · יום " + currentDay;
+      } else if (currentDay < 1) {
+        chip.textContent = "לפני תחילת התכנית";
+      } else {
+        chip.textContent = "אחרי יום 20";
+      }
+
+      document.querySelectorAll(".day").forEach((el) => {
+        const n = Number(el.dataset.day);
+        if (n === currentDay) el.classList.add("is-today", "open");
+        if (n < currentDay) el.classList.add("is-done");
+        el.querySelector(".day-head").addEventListener("click", () => {
+          el.classList.toggle("open");
+        });
+      });
+
+      const saved = JSON.parse(localStorage.getItem(KEY) || "{}");
+      document.querySelectorAll('input[type="checkbox"][data-id]').forEach((box) => {
+        box.checked = !!saved[box.dataset.id];
+        box.closest("li").classList.toggle("done", box.checked);
+        box.addEventListener("change", () => {
+          saved[box.dataset.id] = box.checked;
+          localStorage.setItem(KEY, JSON.stringify(saved));
+          box.closest("li").classList.toggle("done", box.checked);
+          updateProgress();
+        });
+      });
+
+      function updateProgress() {
+        const boxes = [...document.querySelectorAll('input[type="checkbox"][data-id]')];
+        const done = boxes.filter((b) => b.checked).length;
+        const pct = boxes.length ? Math.round((done / boxes.length) * 100) : 0;
+        document.getElementById("progressText").textContent = pct + "% · " + done + "/" + boxes.length;
+        document.getElementById("progressFill").style.width = pct + "%";
+      }
+      updateProgress();
+
+      document.getElementById("expandAll").onclick = () =>
+        document.querySelectorAll(".day").forEach((d) => d.classList.add("open"));
+      document.getElementById("collapseAll").onclick = () =>
+        document.querySelectorAll(".day").forEach((d) => d.classList.remove("open"));
+      document.getElementById("openToday").onclick = () => {
+        const el = document.querySelector(".day.is-today") || document.querySelector('.day[data-day="1"]');
+        if (!el) return;
+        el.classList.add("open");
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      };
+      document.getElementById("resetChecks").onclick = () => {
+        if (!confirm("לאפס את כל הסימונים?")) return;
+        localStorage.removeItem(KEY);
+        location.reload();
+      };
+    })();
+  </script>
+</body>
+</html>
