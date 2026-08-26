@@ -739,6 +739,19 @@ class AppLocalizationsHe extends AppLocalizations {
   String get paymentAmountLabel => 'סכום לתשלום';
 
   @override
+  String get chooseSettleAmountTitle => 'כמה לשלם עכשיו?';
+
+  @override
+  String get chooseSettleAmountHint =>
+      'ברירת מחדל היא מלוא החוב. אפשר לשלם חלקית.';
+
+  @override
+  String get continueToPayment => 'המשך לתשלום';
+
+  @override
+  String get editAmountHint => 'לחצו על הסכום כדי לשנות — אפשר תשלום חלקי';
+
+  @override
   String get validityLabel => 'תוקף';
 
   @override

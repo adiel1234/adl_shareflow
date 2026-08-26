@@ -742,6 +742,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentAmountLabel => 'Payment amount';
 
   @override
+  String get chooseSettleAmountTitle => 'How much to pay now?';
+
+  @override
+  String get chooseSettleAmountHint =>
+      'Default is the full remaining debt. You can pay partially.';
+
+  @override
+  String get continueToPayment => 'Continue to payment';
+
+  @override
+  String get editAmountHint =>
+      'Tap the amount to change it — partial payment is allowed';
+
+  @override
   String get validityLabel => 'Validity';
 
   @override

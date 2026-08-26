@@ -1460,6 +1460,30 @@ abstract class AppLocalizations {
   /// **'סכום לתשלום'**
   String get paymentAmountLabel;
 
+  /// No description provided for @chooseSettleAmountTitle.
+  ///
+  /// In he, this message translates to:
+  /// **'כמה לשלם עכשיו?'**
+  String get chooseSettleAmountTitle;
+
+  /// No description provided for @chooseSettleAmountHint.
+  ///
+  /// In he, this message translates to:
+  /// **'ברירת מחדל היא מלוא החוב. אפשר לשלם חלקית.'**
+  String get chooseSettleAmountHint;
+
+  /// No description provided for @continueToPayment.
+  ///
+  /// In he, this message translates to:
+  /// **'המשך לתשלום'**
+  String get continueToPayment;
+
+  /// No description provided for @editAmountHint.
+  ///
+  /// In he, this message translates to:
+  /// **'לחצו על הסכום כדי לשנות — אפשר תשלום חלקי'**
+  String get editAmountHint;
+
   /// No description provided for @validityLabel.
   ///
   /// In he, this message translates to:

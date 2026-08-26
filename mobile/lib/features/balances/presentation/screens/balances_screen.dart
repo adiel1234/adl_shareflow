@@ -840,14 +840,173 @@ class _TransfersCard extends ConsumerStatefulWidget {
 }
 
 class _TransfersCardState extends ConsumerState<_TransfersCard> {
+  String _formatSettleAmount(double d) {
+    if (d == d.roundToDouble()) return d.round().toString();
+    return d.toStringAsFixed(2);
+  }
+
+  /// Ask for (possibly partial) amount, then open payment methods.
   Future<void> _openPayment(BuildContext context, SettlementSuggestion s) async {
     HapticFeedback.lightImpact();
+    final l = AppLocalizations.of(context)!;
+    final maxAmount = s.amountDouble;
+    final controller = TextEditingController(text: _formatSettleAmount(maxAmount));
+
+    final chosen = await showModalBottomSheet<double>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
+        return Padding(
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomInset),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l.chooseSettleAmountTitle,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l.chooseSettleAmountHint,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                  height: 1.35,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l.debtOwesAmount(
+                  s.fromDisplayName,
+                  s.toDisplayName,
+                  _formatSettleAmount(maxAmount),
+                  s.currency,
+                ),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l.paymentAmountLabel,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                ),
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  suffixText: s.currency,
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide:
+                        const BorderSide(color: AppColors.primary, width: 2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    final parsed = double.tryParse(
+                      controller.text.trim().replaceAll(',', '.'),
+                    );
+                    if (parsed == null || parsed <= 0) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(content: Text(l.amountMustBePositive)),
+                      );
+                      return;
+                    }
+                    if (parsed > maxAmount + 0.009) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(
+                          content: Text(l.amountExceedsDebt(
+                            _formatSettleAmount(maxAmount),
+                            s.currency,
+                          )),
+                        ),
+                      );
+                      return;
+                    }
+                    final capped =
+                        parsed > maxAmount ? maxAmount : parsed;
+                    Navigator.pop(ctx, capped);
+                  },
+                  child: Text(l.continueToPayment),
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(l.cancel),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    controller.dispose();
+    if (chosen == null || !mounted) return;
+
     final marked = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (_) => PaymentOptionsScreen(
           recipientName: s.toDisplayName,
-          amount: s.amountDouble,
+          amount: chosen,
           currency: s.currency,
           recipientPhone: s.toPaymentPhone,
           recipientPayboxLink: s.toPayboxLink,
@@ -856,6 +1015,7 @@ class _TransfersCardState extends ConsumerState<_TransfersCard> {
           bankAccountNumber: s.toBankAccountNumber,
           groupId: widget.group.id,
           toUserId: s.toUserId,
+          maxAmount: maxAmount,
         ),
       ),
     );

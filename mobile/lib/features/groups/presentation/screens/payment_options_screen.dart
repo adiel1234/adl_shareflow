@@ -22,6 +22,8 @@ class PaymentOptionsScreen extends StatefulWidget {
   final String? bankAccountNumber;
   final String? groupId;
   final String? toUserId;
+  /// Upper bound for editable amount (remaining debt). Defaults to [amount].
+  final double? maxAmount;
 
   const PaymentOptionsScreen({
     super.key,
@@ -35,6 +37,7 @@ class PaymentOptionsScreen extends StatefulWidget {
     this.bankAccountNumber,
     this.groupId,
     this.toUserId,
+    this.maxAmount,
   });
 
   @override
@@ -45,6 +48,8 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
   bool _markingPaid = false;
   late final TextEditingController _amountController;
   late double _payAmount;
+
+  double get _maxAllowed => widget.maxAmount ?? widget.amount;
 
   @override
   void initState() {
@@ -82,10 +87,9 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
     if (_payAmount <= 0) {
       return l.amountMustBePositive;
     }
-    // Allow tiny float noise; reject overpayment of remaining debt.
-    if (_payAmount > widget.amount + 0.009) {
+    if (_payAmount > _maxAllowed + 0.009) {
       return l.amountExceedsDebt(
-        _formatEditable(widget.amount),
+        _formatEditable(_maxAllowed),
         widget.currency,
       );
     }
@@ -123,7 +127,7 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(amountError)));
       return;
     }
-    final payAmount = _payAmount > widget.amount ? widget.amount : _payAmount;
+    final payAmount = _payAmount > _maxAllowed ? _maxAllowed : _payAmount;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -515,68 +519,108 @@ class _PaymentOptionsScreenState extends State<PaymentOptionsScreen> {
                           ),
                         ),
                         const SizedBox(height: 14),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            l.paymentAmountLabel,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _amountController,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          style: const TextStyle(
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                          decoration: BoxDecoration(
                             color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                          textAlign: TextAlign.center,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white.withOpacity(0.15),
-                            hintText: _formatEditable(widget.amount),
-                            hintStyle: TextStyle(
-                              color: Colors.white.withOpacity(0.45),
-                              fontSize: 32,
-                              fontWeight: FontWeight.w800,
-                            ),
-                            suffixText: widget.currency,
-                            suffixStyle: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide: BorderSide.none,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.edit_outlined,
+                                      size: 16, color: AppColors.primary),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    l.paymentAmountLabel,
+                                    style: const TextStyle(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              TextField(
+                                controller: _amountController,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                                style: const TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  hintText: _formatEditable(_maxAllowed),
+                                  hintStyle: TextStyle(
+                                    color: AppColors.textSecondary
+                                        .withOpacity(0.45),
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                  suffixText: widget.currency,
+                                  suffixStyle: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(
+                                        color: AppColors.border),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(
+                                        color: AppColors.border),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(
+                                        color: AppColors.primary, width: 2),
+                                  ),
+                                ),
+                                onChanged: _onAmountEdited,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                l.editAmountHint,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12,
+                                  height: 1.3,
+                                ),
+                              ),
+                              if ((_payAmount - _maxAllowed).abs() > 0.009) ...[
+                                const SizedBox(height: 6),
+                                Text(
+                                  l.debtRemainingHint(
+                                    _formatEditable(_maxAllowed),
+                                    widget.currency,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
-                          onChanged: _onAmountEdited,
                         ),
-                        if ((_payAmount - widget.amount).abs() > 0.009) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            l.debtRemainingHint(
-                              _formatEditable(widget.amount),
-                              widget.currency,
-                            ),
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
