@@ -15,10 +15,13 @@ from app.models import (
 )
 from app.common.errors import success_response, error_response
 from app.pilot_mode import (
+    PILOT_ANDROID_STARTED_FLAG,
     PILOT_STARTED_FLAG,
     is_pilot_mode_enabled,
     set_pilot_mode,
 )
+
+_FAR_FUTURE = datetime(2099, 1, 1, tzinfo=timezone.utc)
 
 dashboard_bp = Blueprint('dashboard', __name__)
 _PILOT_USER_TABLES = (
@@ -53,20 +56,37 @@ def _require_adl_admin():
     return None
 
 
-def _pilot_cutoff():
-    """When scope=pilot, return PILOT_STARTED_AT cutoff (or far-future if unset → empty)."""
-    if request.args.get('scope') != 'pilot':
-        return None
-    flag = FeatureFlag.query.filter_by(key=PILOT_STARTED_FLAG).first()
+def _request_pilot_scope() -> str | None:
+    scope = (request.args.get('scope') or '').strip()
+    if scope in ('pilot', 'pilot_android'):
+        return scope
+    return None
+
+
+def _parse_flag_datetime(key: str) -> datetime | None:
+    flag = FeatureFlag.query.filter_by(key=key).first()
     raw = flag.value if flag else None
     if raw is None or (isinstance(raw, str) and not raw.strip()):
-        # Pilot mode without a start mark: show nothing (clean slate until reset).
-        return datetime.now(timezone.utc) + timedelta(days=36500)
+        return None
     try:
         text_val = str(raw).strip().strip('"').replace('Z', '+00:00')
         return datetime.fromisoformat(text_val)
     except ValueError:
-        return datetime.now(timezone.utc) + timedelta(days=36500)
+        return None
+
+
+def _pilot_cutoff():
+    """
+    Lower-bound cutoff for pilot scopes.
+    scope=pilot → PILOT_STARTED_AT
+    scope=pilot_android → PILOT_ANDROID_STARTED_AT
+    unset flag → far future (empty dashboard)
+    """
+    scope = _request_pilot_scope()
+    if scope is None:
+        return None
+    key = PILOT_ANDROID_STARTED_FLAG if scope == 'pilot_android' else PILOT_STARTED_FLAG
+    return _parse_flag_datetime(key) or _FAR_FUTURE
 
 
 def _with_cutoff(query, column, cutoff):
@@ -77,6 +97,11 @@ def _with_cutoff(query, column, cutoff):
 
 def _pilot_started_value() -> str | None:
     flag = FeatureFlag.query.filter_by(key=PILOT_STARTED_FLAG).first()
+    return flag.value if flag else None
+
+
+def _pilot_android_started_value() -> str | None:
+    flag = FeatureFlag.query.filter_by(key=PILOT_ANDROID_STARTED_FLAG).first()
     return flag.value if flag else None
 
 
@@ -95,6 +120,56 @@ def _platform_map(user_ids: list[str]) -> dict[str, str]:
         if uid not in result:
             result[uid] = platform
     return result
+
+
+def _android_pilot_user_ids(android_start: datetime | None = None) -> set[str]:
+    """Users in the Google Play closed-testing cohort (Android FCM, after android start)."""
+    start = android_start or _parse_flag_datetime(PILOT_ANDROID_STARTED_FLAG)
+    if start is None:
+        return set()
+    candidate_ids = [
+        uid for (uid,) in db.session.query(User.id).filter(User.created_at >= start).all()
+    ]
+    if not candidate_ids:
+        return set()
+    platforms = _platform_map(candidate_ids)
+    return {uid for uid in candidate_ids if platforms.get(uid) == 'android'}
+
+
+def _scope_user_ids() -> set[str] | None:
+    """
+    Exclusive user cohorts for pilot dashboards.
+    None = no scope (all data).
+    Empty set = scoped but nothing to show yet.
+    """
+    scope = _request_pilot_scope()
+    if scope is None:
+        return None
+    if scope == 'pilot_android':
+        return _android_pilot_user_ids()
+    # Main pilot: everyone since PILOT_STARTED_AT except the Android cohort.
+    start = _parse_flag_datetime(PILOT_STARTED_FLAG)
+    if start is None:
+        return set()
+    ids = {uid for (uid,) in db.session.query(User.id).filter(User.created_at >= start).all()}
+    ids -= _android_pilot_user_ids()
+    return ids
+
+
+def _filter_by_users(query, user_column, user_ids: set[str] | None):
+    if user_ids is None:
+        return query
+    if not user_ids:
+        return query.filter(False)
+    return query.filter(user_column.in_(user_ids))
+
+
+def _user_in_scope(user: User, cutoff, user_ids: set[str] | None) -> bool:
+    if user_ids is not None:
+        return user.id in user_ids
+    if cutoff is not None and (not user.created_at or user.created_at < cutoff):
+        return False
+    return True
 
 
 def _user_admin_dict(user: User, platform: str | None = None) -> dict:
@@ -119,6 +194,21 @@ def _set_pilot_started_at(when: datetime | None = None) -> str:
     return value
 
 
+def _set_pilot_android_started_at(when: datetime | None = None) -> str:
+    when = when or datetime.now(timezone.utc)
+    value = when.isoformat()
+    flag = FeatureFlag.query.filter_by(key=PILOT_ANDROID_STARTED_FLAG).first()
+    if not flag:
+        flag = FeatureFlag(
+            key=PILOT_ANDROID_STARTED_FLAG,
+            description='תחילת פיילוט Android (Play) — סינון דשבורד (scope=pilot_android)',
+        )
+        db.session.add(flag)
+    flag.value = value
+    flag.description = 'תחילת פיילוט Android (Play) — סינון דשבורד (scope=pilot_android)'
+    return value
+
+
 def _wipe_user_data() -> None:
     """Delete all user-generated rows. Keeps feature_flags, plans, exchange_rates."""
     tables = ', '.join(_PILOT_USER_TABLES)
@@ -136,29 +226,33 @@ def adl_stats():
         return err
 
     cutoff = _pilot_cutoff()
+    user_ids = _scope_user_ids()
     now = datetime.now(timezone.utc)
     last_30 = now - timedelta(days=30)
     last_7 = now - timedelta(days=7)
     last_1 = now - timedelta(days=1)
 
-    users_q = _with_cutoff(User.query, User.created_at, cutoff)
+    users_q = _filter_by_users(User.query, User.id, user_ids)
+    if user_ids is None:
+        users_q = _with_cutoff(users_q, User.created_at, cutoff)
     total_users = users_q.count()
     active_users = users_q.filter_by(is_active=True).count()
     pro_users = users_q.filter_by(plan='pro').count()
-    new_users_30d = _with_cutoff(User.query, User.created_at, cutoff).filter(
-        User.created_at >= last_30
-    ).count()
-    new_users_7d = _with_cutoff(User.query, User.created_at, cutoff).filter(
-        User.created_at >= last_7
-    ).count()
-    dau = _with_cutoff(User.query, User.created_at, cutoff).filter(
-        User.last_login_at >= last_1
-    ).count()
-    wau = _with_cutoff(User.query, User.created_at, cutoff).filter(
-        User.last_login_at >= last_7
-    ).count()
+    new_users_30d = users_q.filter(User.created_at >= last_30).count()
+    new_users_7d = users_q.filter(User.created_at >= last_7).count()
+    dau = users_q.filter(User.last_login_at >= last_1).count()
+    wau = users_q.filter(User.last_login_at >= last_7).count()
 
-    if cutoff is not None:
+    if user_ids is not None:
+        pilot_user_ids = list(user_ids)
+        if not pilot_user_ids:
+            ios_users = 0
+            android_users = 0
+        else:
+            platforms = _platform_map(pilot_user_ids)
+            ios_users = sum(1 for p in platforms.values() if p == 'ios')
+            android_users = sum(1 for p in platforms.values() if p == 'android')
+    elif cutoff is not None:
         pilot_user_ids = [uid for (uid,) in db.session.query(User.id).filter(User.created_at >= cutoff).all()]
         if not pilot_user_ids:
             ios_users = 0
@@ -190,38 +284,46 @@ def adl_stats():
             or 0
         )
 
-    groups_q = _with_cutoff(Group.query, Group.created_at, cutoff).filter_by(is_active=True)
+    groups_q = _filter_by_users(Group.query, Group.created_by, user_ids).filter_by(is_active=True)
+    if user_ids is None:
+        groups_q = _with_cutoff(groups_q, Group.created_at, cutoff)
     total_groups = groups_q.count()
+    expenses_for_active = _filter_by_users(Expense.query, Expense.paid_by, user_ids)
+    if user_ids is None:
+        expenses_for_active = _with_cutoff(expenses_for_active, Expense.created_at, cutoff)
     active_groups_30d = (
-        _with_cutoff(
-            db.session.query(func.count(func.distinct(Expense.group_id))),
-            Expense.created_at,
-            cutoff,
-        )
-        .filter(Expense.created_at >= last_30)
+        expenses_for_active.filter(Expense.created_at >= last_30)
+        .with_entities(func.count(func.distinct(Expense.group_id)))
         .scalar()
         or 0
     )
 
-    total_expenses = _with_cutoff(Expense.query, Expense.created_at, cutoff).count()
-    expenses_30d = _with_cutoff(Expense.query, Expense.created_at, cutoff).filter(
-        Expense.created_at >= last_30
-    ).count()
+    expenses_q = _filter_by_users(Expense.query, Expense.paid_by, user_ids)
+    if user_ids is None:
+        expenses_q = _with_cutoff(expenses_q, Expense.created_at, cutoff)
+    total_expenses = expenses_q.count()
+    expenses_30d = expenses_q.filter(Expense.created_at >= last_30).count()
     total_expense_volume = (
-        _with_cutoff(
-            db.session.query(func.sum(Expense.converted_amount)),
-            Expense.created_at,
-            cutoff,
-        ).scalar()
-        or 0
+        expenses_q.with_entities(func.sum(Expense.converted_amount)).scalar() or 0
     )
 
-    receipts_q = _with_cutoff(Receipt.query, Receipt.created_at, cutoff)
+    receipts_q = _filter_by_users(Receipt.query, Receipt.user_id, user_ids)
+    if user_ids is None:
+        receipts_q = _with_cutoff(receipts_q, Receipt.created_at, cutoff)
     total_receipts = receipts_q.count()
     ocr_confirmed = receipts_q.filter_by(status='confirmed').count()
     ocr_pending = receipts_q.filter_by(status='pending').count()
 
-    settlements_q = _with_cutoff(Settlement.query, Settlement.created_at, cutoff)
+    settlements_q = Settlement.query
+    if user_ids is not None:
+        if not user_ids:
+            settlements_q = settlements_q.filter(False)
+        else:
+            settlements_q = settlements_q.filter(
+                (Settlement.from_user_id.in_(user_ids)) | (Settlement.to_user_id.in_(user_ids))
+            )
+    else:
+        settlements_q = _with_cutoff(settlements_q, Settlement.created_at, cutoff)
     total_settlements = settlements_q.count()
     confirmed_settlements = settlements_q.filter_by(status='confirmed').count()
     pending_settlements = settlements_q.filter_by(status='pending').count()
@@ -246,21 +348,13 @@ def adl_stats():
         else 0
     )
 
-    total_payments = (
-        _with_cutoff(
-            db.session.query(func.sum(GroupPayment.amount)),
-            GroupPayment.created_at,
-            cutoff,
-        ).scalar()
-        or 0
-    )
+    payments_q = _filter_by_users(GroupPayment.query, GroupPayment.payer_id, user_ids)
+    if user_ids is None:
+        payments_q = _with_cutoff(payments_q, GroupPayment.created_at, cutoff)
+    total_payments = payments_q.with_entities(func.sum(GroupPayment.amount)).scalar() or 0
     payments_30d = (
-        _with_cutoff(
-            db.session.query(func.sum(GroupPayment.amount)),
-            GroupPayment.created_at,
-            cutoff,
-        )
-        .filter(GroupPayment.created_at >= last_30)
+        payments_q.filter(GroupPayment.created_at >= last_30)
+        .with_entities(func.sum(GroupPayment.amount))
         .scalar()
         or 0
     )
@@ -311,20 +405,44 @@ def adl_stats():
             'revenue_30d_ils': float(payments_30d),
         },
         'pilot_started_at': _pilot_started_value(),
+        'pilot_android_started_at': _pilot_android_started_value(),
         'pilot_mode_enabled': is_pilot_mode_enabled(),
+        'scope': _request_pilot_scope() or 'all',
         'downloads': _funnel_stats(cutoff),
     })
 
 
 def _funnel_stats(cutoff):
     """Anonymous install-funnel counts (+ recent events) for the pilot dashboard."""
+    scope = _request_pilot_scope()
+    android_start = _parse_flag_datetime(PILOT_ANDROID_STARTED_FLAG)
+    # Play closed-testing track events (no overlap with main pilot funnel).
+    android_events = ('apk',)
+
     def _base():
         q = PilotFunnelEvent.query
-        if cutoff is not None:
+        if scope == 'pilot_android':
+            if cutoff is not None:
+                q = q.filter(PilotFunnelEvent.created_at >= cutoff)
+            q = q.filter(PilotFunnelEvent.event.in_(android_events))
+        elif scope == 'pilot':
+            if cutoff is not None:
+                q = q.filter(PilotFunnelEvent.created_at >= cutoff)
+            if android_start is not None:
+                # APK after Android pilot start belongs only to scope=pilot_android
+                q = q.filter(
+                    ~(
+                        (PilotFunnelEvent.event.in_(android_events))
+                        & (PilotFunnelEvent.created_at >= android_start)
+                    )
+                )
+        elif cutoff is not None:
             q = q.filter(PilotFunnelEvent.created_at >= cutoff)
         return q
 
     def _count(event: str) -> int:
+        if scope == 'pilot_android' and event not in android_events:
+            return 0
         return _base().filter(PilotFunnelEvent.event == event).count()
 
     recent = (
@@ -446,7 +564,10 @@ def adl_users():
     search = request.args.get('search', '').strip()
     plan_filter = request.args.get('plan', '').strip()
 
-    q = _with_cutoff(User.query, User.created_at, _pilot_cutoff())
+    user_ids = _scope_user_ids()
+    q = _filter_by_users(User.query, User.id, user_ids)
+    if user_ids is None:
+        q = _with_cutoff(q, User.created_at, _pilot_cutoff())
     if search:
         q = q.filter(
             (User.email.ilike(f'%{search}%')) |
@@ -477,7 +598,7 @@ def adl_user_detail(user_id):
         return error_response('User not found', 404)
 
     cutoff = _pilot_cutoff()
-    if cutoff is not None and (not user.created_at or user.created_at < cutoff):
+    if not _user_in_scope(user, cutoff, _scope_user_ids()):
         return error_response('User not found', 404)
 
     platforms = _platform_map([user.id])
@@ -1001,9 +1122,12 @@ def adl_activity():
 
     limit = min(request.args.get('limit', 40, type=int), 100)
     cutoff = _pilot_cutoff()
+    user_ids = _scope_user_ids()
     events = []
 
-    users_q = _with_cutoff(User.query.filter(User.is_guest.is_(False)), User.created_at, cutoff)
+    users_q = _filter_by_users(User.query.filter(User.is_guest.is_(False)), User.id, user_ids)
+    if user_ids is None:
+        users_q = _with_cutoff(users_q, User.created_at, cutoff)
     for u in users_q.order_by(User.created_at.desc()).limit(20):
         events.append({
             'type': 'registration',
@@ -1013,7 +1137,9 @@ def adl_activity():
             'summary': f'{u.display_name} נרשם/ה',
         })
 
-    groups_q = _with_cutoff(Group.query, Group.created_at, cutoff)
+    groups_q = _filter_by_users(Group.query, Group.created_by, user_ids)
+    if user_ids is None:
+        groups_q = _with_cutoff(groups_q, Group.created_at, cutoff)
     for g in groups_q.order_by(Group.created_at.desc()).limit(20):
         creator = db.session.get(User, g.created_by)
         events.append({
@@ -1026,7 +1152,9 @@ def adl_activity():
             'summary': f'נוצרה קבוצה «{g.name}»',
         })
 
-    expenses_q = _with_cutoff(Expense.query, Expense.created_at, cutoff)
+    expenses_q = _filter_by_users(Expense.query, Expense.paid_by, user_ids)
+    if user_ids is None:
+        expenses_q = _with_cutoff(expenses_q, Expense.created_at, cutoff)
     for e in expenses_q.order_by(Expense.created_at.desc()).limit(20):
         payer = db.session.get(User, e.paid_by)
         group = db.session.get(Group, e.group_id)
@@ -1042,7 +1170,16 @@ def adl_activity():
             'summary': f'הוצאה: {e.title} · {e.original_amount} {e.original_currency}',
         })
 
-    settlements_q = _with_cutoff(Settlement.query, Settlement.created_at, cutoff)
+    settlements_q = Settlement.query
+    if user_ids is not None:
+        if not user_ids:
+            settlements_q = settlements_q.filter(False)
+        else:
+            settlements_q = settlements_q.filter(
+                (Settlement.from_user_id.in_(user_ids)) | (Settlement.to_user_id.in_(user_ids))
+            )
+    else:
+        settlements_q = _with_cutoff(settlements_q, Settlement.created_at, cutoff)
     for s in settlements_q.order_by(Settlement.created_at.desc()).limit(20):
         from_u = s.from_user
         to_u = s.to_user
@@ -1083,7 +1220,17 @@ def adl_settlements():
     date_from = request.args.get('from', '').strip()
     date_to = request.args.get('to', '').strip()
 
-    q = _with_cutoff(Settlement.query, Settlement.created_at, _pilot_cutoff())
+    user_ids = _scope_user_ids()
+    q = Settlement.query
+    if user_ids is not None:
+        if not user_ids:
+            q = q.filter(False)
+        else:
+            q = q.filter(
+                (Settlement.from_user_id.in_(user_ids)) | (Settlement.to_user_id.in_(user_ids))
+            )
+    else:
+        q = _with_cutoff(q, Settlement.created_at, _pilot_cutoff())
     if status:
         q = q.filter_by(status=status)
     if group_id:
@@ -1159,6 +1306,42 @@ def adl_pilot_reset():
     )
 
 
+@dashboard_bp.post('/pilot/android/start')
+def adl_pilot_android_start():
+    """
+    Mark the start of the Android (Play closed testing) pilot dashboard.
+    Does NOT wipe existing users — only sets PILOT_ANDROID_STARTED_AT so
+    scope=pilot_android starts empty from that moment.
+    Body (optional): { "force": true } to move the start marker to now.
+    """
+    err = _require_adl_admin()
+    if err:
+        return err
+
+    data = request.get_json(silent=True) or {}
+    force = bool(data.get('force'))
+    existing = _pilot_android_started_value()
+    if existing and not force:
+        return success_response(
+            data={
+                'pilot_android_started_at': existing,
+                'created': False,
+            },
+            message='Android pilot start already set',
+        )
+
+    started = _set_pilot_android_started_at()
+    db.session.commit()
+    return success_response(
+        data={
+            'pilot_android_started_at': started,
+            'created': True,
+            'forced': force,
+        },
+        message='Android pilot dashboard starts empty from this timestamp',
+    )
+
+
 @dashboard_bp.get('/pilot/mode')
 def adl_pilot_mode_get():
     err = _require_adl_admin()
@@ -1167,6 +1350,7 @@ def adl_pilot_mode_get():
     return success_response(data={
         'pilot_mode_enabled': is_pilot_mode_enabled(),
         'pilot_started_at': _pilot_started_value(),
+        'pilot_android_started_at': _pilot_android_started_value(),
     })
 
 

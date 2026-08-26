@@ -223,8 +223,8 @@ SHAREFLOW_ADMIN_KEY=<זהה ל-ADL_ADMIN_KEY ב-adlshareflow-production>
 
 `adl_platform_module/.env` **לא** משפיע על ADL Control בייצור. `ADL_ADMIN_KEY` ב-backend בלבד **לא מספיק** — חובה `SHAREFLOW_ADMIN_KEY` על ADL Control.
 
-- **Endpoints (ShareFlow API):** `GET /api/adl/stats`, `/users`, `/groups`, `/monetization`, `/ocr-stats`, `/feature-flags`, `/activity`, `/settlements`; `POST /api/adl/pilot/reset`; `GET|PUT /api/adl/pilot/mode`; `POST /api/adl/expenses/repair-fx` (תיקון שערי המרה לפי תאריך הוצאה)
-- **סינון פיילוט:** פרמטר `scope=pilot` מסנן לפי `feature_flags.PILOT_STARTED_AT` (לשונית פיילוט ב-ADL Control בלבד)
+- **Endpoints (ShareFlow API):** `GET /api/adl/stats`, `/users`, `/groups`, `/monetization`, `/ocr-stats`, `/feature-flags`, `/activity`, `/settlements`; `POST /api/adl/pilot/reset`; `POST /api/adl/pilot/android/start`; `GET|PUT /api/adl/pilot/mode`; `POST /api/adl/expenses/repair-fx` (תיקון שערי המרה לפי תאריך הוצאה)
+- **סינון פיילוט:** `scope=pilot` לפי `PILOT_STARTED_AT` (ללא קוהורט Android); `scope=pilot_android` לפי `PILOT_ANDROID_STARTED_AT` + משתמשי Android בלבד — שני דשבורדים במקביל בלי כפילות
 - **כיבוי פיילוט:** `PUT /api/adl/pilot/mode` עם `enabled=false` חוסם את כל `account_mode=pilot`, מבטל refresh tokens; התחברות מחזירה `PILOT_ENDED`; הרשמה חוזרת עם אותו אימייל/OAuth ממירה ל-`active`
 - **נתוני ShareFlow:** PostgreSQL ShareFlow (`DATABASE_URL` בפרויקט **ADL ShareFlow** בלבד)
 - **DB של ADL Control:** `adl_control` PostgreSQL (`DATABASE_URL` בפרויקט **ADL Control**)
@@ -363,6 +363,7 @@ flutter install --release
 | `SMTP_SENDER_NAME` | שם השולח בכותרת המייל | 🟡 | `ADL ShareFlow` (ברירת מחדל) |
 | _(DB: `feature_flags`)_ | `PAYMENTS_ENABLED` — גביית תשלום אמיתי (לא משתנה סביבה) | 🔴 כבוי בפיילוט | `false` עד ההעלאה לחנויות; ניהול: Control → `/shareflow` |
 | _(DB: `feature_flags`)_ | `PILOT_STARTED_AT` — חותמת זמן לתחילת הפיילוט | ✅ פעיל | סינון `scope=pilot`; מתעדכן ב-`POST /api/adl/pilot/reset` |
+| _(DB: `feature_flags`)_ | `PILOT_ANDROID_STARTED_AT` — תחילת פיילוט Android (Play) | ✅ פעיל | סינון `scope=pilot_android`; `POST /api/adl/pilot/android/start` |
 | _(DB: `feature_flags`)_ | `PILOT_MODE_ENABLED` — מצב פיילוט פתוח/סגור | ✅ פעיל בפיילוט | `true`/`false`; ניהול: Control → `/shareflow/pilot` |
 | _(DB: `users.account_mode`)_ | `pilot` / `active` — סוג חשבון | ✅ | הרשמה בפיילוט → `pilot`; אחרי כיבוי + הרשמה מחדש → `active` |
 | `TESTFLIGHT_URL` | קישור TestFlight Public Link ל-iOS — `/pilot`, `/download` (redirect iPhone) | ✅ **חובה לפיילוט** | Public Link מ-App Store Connect; לא `placeholder` |
@@ -563,7 +564,7 @@ flutter install --release
 - **Event Summary Non-Blocking** (build 26 fix): `queue_notify_event_summary` — כל `notify_event_summary` (DB + FCM) ברקע; האפליקציה קוראת `GET /event-summary` בפתיחת הוויזארד ו-`POST /summary` רק בשלב 2.
 - **DB Migration** (`480ff4d3679c`): נוסף `is_guest BOOLEAN NOT NULL DEFAULT false` ל-`users`.
 - **Download / Pilot Pages**: `/pilot/join` שכנוע; `/getting-started` התקנה; `/download` redirect לפי מכשיר.
-- **ADL Control Pilot**: לשוניות «פיילוט» + «פיילוט Android» (אותם נתוני `scope=pilot`); מתג `PILOT_MODE_ENABLED` בעמוד הפיילוט הראשי; הפיילוט הקיים נמשך עד השקה מלאה לחנויות.
+- **ADL Control Pilot**: לשונית «פיילוט» (`scope=pilot`) + «פיילוט Android» (`scope=pilot_android`, מתחיל מאפס); מתג `PILOT_MODE_ENABLED` בעמוד הפיילוט הראשי; הפיילוט הראשי נמשך עד השקה מלאה — בלי כפילות נתונים בין הלשוניות.
 - **מעקב הורדות בפיילוט:** `GET /install/testflight`, `/install/shareflow`, `/download/apk`, `/getting-started`, `/pilot/join` רושמים ל-`pilot_funnel_events`; מוצג ב-`/api/adl/stats` → `downloads` ובלשונית פיילוט ב-Control.
 - **איפוס פיילוט (10 אוג׳ 2026):** נמחקו משתמשים/קבוצות/הוצאות/סילוקים בייצור; נשמרים `feature_flags`, `plans`, `exchange_rates`.
 - **סיום פיילוט:** כיבוי חוסם משתמשי `pilot`; הרשמה מחדש (אותו אימייל/OAuth) ממירה ל-`active`; JWT בודק `is_active` בכל בקשה (blocklist).
