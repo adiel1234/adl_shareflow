@@ -563,7 +563,7 @@ flutter install --release
 - **Event Summary Non-Blocking** (build 26 fix): `queue_notify_event_summary` — כל `notify_event_summary` (DB + FCM) ברקע; האפליקציה קוראת `GET /event-summary` בפתיחת הוויזארד ו-`POST /summary` רק בשלב 2.
 - **DB Migration** (`480ff4d3679c`): נוסף `is_guest BOOLEAN NOT NULL DEFAULT false` ל-`users`.
 - **Download / Pilot Pages**: `/pilot/join` שכנוע; `/getting-started` התקנה; `/download` redirect לפי מכשיר.
-- **ADL Control Pilot**: לשונית «פיילוט» + מתג `PILOT_MODE_ENABLED`; קוראת ל-`/api/adl/stats|users|activity|settlements|users/<id>` עם `scope=pilot`.
+- **ADL Control Pilot**: לשוניות «פיילוט» + «פיילוט Android» (אותם נתוני `scope=pilot`); מתג `PILOT_MODE_ENABLED` בעמוד הפיילוט הראשי; הפיילוט הקיים נמשך עד השקה מלאה לחנויות.
 - **מעקב הורדות בפיילוט:** `GET /install/testflight`, `/install/shareflow`, `/download/apk`, `/getting-started`, `/pilot/join` רושמים ל-`pilot_funnel_events`; מוצג ב-`/api/adl/stats` → `downloads` ובלשונית פיילוט ב-Control.
 - **איפוס פיילוט (10 אוג׳ 2026):** נמחקו משתמשים/קבוצות/הוצאות/סילוקים בייצור; נשמרים `feature_flags`, `plans`, `exchange_rates`.
 - **סיום פיילוט:** כיבוי חוסם משתמשי `pilot`; הרשמה מחדש (אותו אימייל/OAuth) ממירה ל-`active`; JWT בודק `is_active` בכל בקשה (blocklist).
