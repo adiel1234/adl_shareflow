@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 26 אוגוסט 2026 — מקור גרסה `PENDING_RELEASE.md`: **`1.0.9+71`** · תשלום חלקי (העברות + חובות תקופתיים) · `period_debts.amount_paid` · OAuth Google/Apple · הכנת חנויות
+> עודכן לאחרונה: 27 אוגוסט 2026 — שני דשבורדי פיילוט נפרדים ב-Control (`scope=pilot` / `scope=pilot_android`) · `PILOT_ANDROID_STARTED_AT`
 
 ---
 
