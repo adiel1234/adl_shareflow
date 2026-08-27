@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 27 אוגוסט 2026 — שני דשבורדי פיילוט נפרדים ב-Control (`scope=pilot` / `scope=pilot_android`) · `PILOT_ANDROID_STARTED_AT`
+> עודכן לאחרונה: 27 אוגוסט 2026 — Android closed testing `1.0.9+77` (Google Sign-In singleton + Play/upload SHA) · שני דשבורדי פיילוט נפרדים ב-Control
 
 ---
 
@@ -329,11 +329,13 @@ flutter build apk --release
 flutter install --release
 ```
 
-**APK אחרון שהופץ לפיילוט (גרסה 1.0.9+64):**
-- קישור: `APK_DOWNLOAD_URL` ב-Railway (GitHub Releases); משתמשים מקבלים `GET /download/apk`
-- Release: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build64
+**הפצה נוכחית לחנויות / פיילוט Android:**
+- **Google Play (closed testing / Alpha):** `1.0.9+77` — AAB: `store/android/builds/shareflow-1.0.9+77-CLOSED-TESTING.aab`
+- Google Sign-In: מופע יחיד של `GoogleSignIn` + `google-services.json` עם SHA-1 של Play App Signing ושל מפתח ההעלאה
+- APK ישיר לפיילוט ישן (גרסה 1.0.9+64): `APK_DOWNLOAD_URL` ב-Railway / `GET /download/apk`
+- Release ישן: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build64
 - **למשתמשי פיילוט:** שתפו `/pilot/join` → `/getting-started` (לא `/download` ישירות)
-- **יעד הבא לחנויות / הפצה:** `1.0.9+71` — ראה `PENDING_RELEASE.md` (עדיין לא Release חדש)
+- ראה `PENDING_RELEASE.md`
 
 ### iOS (TestFlight)
 ```

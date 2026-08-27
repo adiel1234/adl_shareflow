@@ -15,22 +15,53 @@ class SocialAuth {
 
   /// Web OAuth client from Firebase (type 3) — used as [GoogleSignIn.serverClientId]
   /// so the ID token audience matches the backend `GOOGLE_CLIENT_ID`.
-  static GoogleSignIn get _google => GoogleSignIn(
-        scopes: const ['email', 'profile'],
-        serverClientId: AppConstants.googleServerClientId,
-      );
+  /// Single shared instance (must not construct a new GoogleSignIn per call).
+  static final GoogleSignIn _google = GoogleSignIn(
+    scopes: const ['email', 'profile'],
+    serverClientId: AppConstants.googleServerClientId,
+  );
+
+  /// Quiet prep on login open — clears a sticky Google session if any.
+  static Future<void> prepareGoogleSignIn() async {
+    await signOutGoogle();
+  }
 
   static Future<Map<String, dynamic>> signInWithGoogle() async {
+    // Clear sticky Google session — avoids null idToken after a prior login.
+    await signOutGoogle();
+
     final googleUser = await _google.signIn();
     if (googleUser == null) {
       throw StateError('cancelled');
     }
-    final auth = await googleUser.authentication;
-    final idToken = auth.idToken;
+
+    var auth = await googleUser.authentication;
+    var idToken = auth.idToken;
     if (idToken == null || idToken.isEmpty) {
-      throw StateError('Google idToken missing — check CLIENT_ID / serverClientId');
+      try {
+        await googleUser.clearAuthCache();
+      } catch (_) {}
+      auth = await googleUser.authentication;
+      idToken = auth.idToken;
     }
+    if (idToken == null || idToken.isEmpty) {
+      throw StateError(
+        'Google idToken missing — check CLIENT_ID / serverClientId',
+      );
+    }
+
     return _auth.loginWithGoogle(idToken);
+  }
+
+  /// Call on app logout / before sign-in so the next Google flow starts fresh.
+  static Future<void> signOutGoogle() async {
+    try {
+      await _google.disconnect();
+    } catch (_) {
+      try {
+        await _google.signOut();
+      } catch (_) {}
+    }
   }
 
   static Future<Map<String, dynamic>> signInWithApple() async {

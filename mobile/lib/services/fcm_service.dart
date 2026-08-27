@@ -44,7 +44,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         ?.createNotificationChannel(channel);
     await plugin.initialize(
       const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        android: AndroidInitializationSettings('@mipmap/launcher_icon'),
         iOS: DarwinInitializationSettings(),
       ),
     );
@@ -66,7 +66,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           channelDescription: channel.description,
           importance: Importance.high,
           priority: Priority.high,
-          icon: '@mipmap/ic_launcher',
+          icon: '@mipmap/launcher_icon',
           playSound: true,
         ),
         iOS: const DarwinNotificationDetails(
@@ -261,7 +261,7 @@ class FcmService {
   // ---------------------------------------------------------------------------
 
   Future<void> _initLocalNotifications() async {
-    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidInit = AndroidInitializationSettings('@mipmap/launcher_icon');
     const iosInit = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -323,7 +323,7 @@ class FcmService {
             channelDescription: _androidChannel.description,
             importance: Importance.high,
             priority: Priority.high,
-            icon: '@mipmap/ic_launcher',
+            icon: '@mipmap/launcher_icon',
             playSound: true,
             enableVibration: true,
             number: info.badge,

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +33,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Transparent: clear sticky Google session before the user taps the button.
+      try {
+        await SocialAuth.prepareGoogleSignIn();
+      } catch (_) {}
       await _loadRemembered();
       await _maybeScreenshotAutoLogin();
     });

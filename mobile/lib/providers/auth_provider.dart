@@ -8,6 +8,7 @@ import '../core/storage/secure_storage.dart';
 import '../core/network/api_client.dart';
 import '../services/app_badge_service.dart';
 import '../services/fcm_service.dart';
+import '../features/auth/presentation/social_auth.dart';
 
 // Current user state
 class AuthState {
@@ -163,6 +164,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> logout() async {
     // Clear session only — keep remembered login credentials if user opted in.
+    try {
+      await SocialAuth.signOutGoogle();
+    } catch (_) {}
     try {
       await AppSecureStorage.clearSessionTokens();
     } catch (_) {}

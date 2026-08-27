@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "703436621794-ktiqrhk4au24gb1fc20fl0t83fc40p29.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adl.shareflow",
+            "certificate_hash": "26788720551ce6bcb6165f82d018e09a50c54714"
+          }
+        },
+        {
+          "client_id": "703436621794-tmte4dgjt6hc50srldtb2tnsf42pnngg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adl.shareflow",
+            "certificate_hash": "07010b127565744d10085a6e2282b7e4a9785e25"
+          }
+        },
+        {
           "client_id": "703436621794-uijr6vaao78sghtm4g9q5f69limb4hba.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -27,7 +43,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "703436621794-uijr6vaao78sghtm4g9q5f69limb4hba.apps.googleusercontent.com",
+              "client_id": "703436621794-0odo0c1g2jtlhbfppm6ea1vim5iq0lpb.apps.googleusercontent.com",
               "client_type": 3
             },
             {
