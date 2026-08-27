@@ -19,4 +19,4 @@
 | התקנה מ־Play + Google Sign-In | ✅ לפי דיווח |
 
 ## הצעד הבא
-שליחת הודעת הקבוצה מ־`store/android/WHATSAPP_CLOSED_TESTING_MESSAGE.md` (גרסה 79).
+שליחת WhatsApp **מחר בבוקר** מ־`store/android/WHATSAPP_CLOSED_TESTING_MESSAGE.md` (גרסה 79).
