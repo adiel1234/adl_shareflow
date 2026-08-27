@@ -6,8 +6,8 @@
 
 | בדיקה | תוצאה |
 |--------|--------|
-| `pubspec` | `1.0.9+78` |
-| AAB בשולחן / builds | `shareflow-1.0.9+78-CLOSED-TESTING.aab` קיים |
+| `pubspec` | `1.0.9+79` |
+| AAB בשולחן / builds | `shareflow-1.0.9+79-CLOSED-TESTING.aab` קיים |
 | APK מקומי | `versionCode=78`, חתימת העלאה `07010b12…` |
 | `google-services.json` | כולל SHA Play האמיתי `f1221cdd…` + העלאה + Web client |
 | קוד Google Sign-In | מופע יחיד + hygiene |
@@ -44,7 +44,7 @@
 
 ## אחרי ש־«Become a tester» עובד
 
-1. עדכון ל־**1.0.9 (78)** מהחנות  
+1. עדכון ל־**1.0.9 (79)** מהחנות  
 2. בדיקת Google Sign-In (השער האחרון)  
 3. שליחת WhatsApp מ־`store/android/WHATSAPP_CLOSED_TESTING_MESSAGE.md`
 
