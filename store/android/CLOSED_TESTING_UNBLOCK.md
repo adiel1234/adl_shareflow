@@ -1,57 +1,30 @@
-# חסימת Closed Testing — «האפליקציה לא זמינה»
+# חסימת Closed Testing — צ׳קליסט אחרי העלאת 79
 
-> עודכן: 27 אוגוסט 2026 · אחרי בדיקות אוטומטיות מהריפו (בלי גישה ל־Play Console)
+> עודכן: 27 אוגוסט 2026 · גרסה בהעלאה: **`1.0.9+79`**
 
-## מה כבר אומת מהמחשב ✅
-
+## מה כבר מוכן בריפו ✅
 | בדיקה | תוצאה |
 |--------|--------|
-| `pubspec` | `1.0.9+79` |
-| AAB בשולחן / builds | `shareflow-1.0.9+79-CLOSED-TESTING.aab` קיים |
-| APK מקומי | `versionCode=78`, חתימת העלאה `07010b12…` |
-| `google-services.json` | כולל SHA Play האמיתי `f1221cdd…` + העלאה + Web client |
-| קוד Google Sign-In | מופע יחיד + hygiene |
-| קישור חנות ציבורי | `…/store/apps/details?id=com.adl.shareflow` → **HTTP 404** (אין listing ציבורי) |
-| קישור opt-in | `…/apps/testing/com.adl.shareflow` → מפנה ל־Google Login (תקין ככתובת) |
-| `git push` | `main` מעודכן כולל 78 (Railway) |
+| `pubspec` / AAB | `1.0.9+79` · `shareflow-1.0.9+79-CLOSED-TESTING.aab` |
+| SHA Play ב־`google-services.json` | `f1221cdd…` + העלאה |
+| Google Sign-In singleton | ✅ |
+| WhatsApp draft | על 79 |
+| `git push` | `main` מעודכן |
 
-**מסקנה:** הקוד, ה־SHA והבילד תקינים. החסימה היא **רק במצב מסלול הבדיקה ב־Play Console**.
+## אחרי ש־Play מסיים לפרסם
 
-## למה הקישורים «לא עובדים»
+### ב־Play Console
+- [ ] Releases: מהדורה **`1.0.9 (79)`** בסטטוס Available to testers
+- [ ] בסיכום: **קוד גרסה 79** + App bundle מופיע
+- [ ] **לא** «זמינה ב־0 מכשירים»
+- [ ] Testers: הרשימה מסומנת ב־V (כולל המייל שלך)
+- [ ] Countries: ישראל
 
-- דף החנות הציבורי **יישאר 404** כל עוד אין Production (וזה תקין לפיילוט).
-- קישור הבדיקה מציג «לא זמינה» כש־Closed testing לא פתוח לבודק בפועל.
+### בטלפון
+- [ ] הסרת התקנת USB ישנה (אם קיימת)
+- [ ] https://play.google.com/apps/testing/com.adl.shareflow → Become a tester
+- [ ] התקנה/עדכון מ־Play → פרופיל מציג **1.0.9 (79)**
+- [ ] Google Sign-In עובד (כניסה + יציאה)
 
-## צ׳קליסט חובה ב־Play Console (5 דקות)
-
-היכנסו: https://play.google.com/console → ADL ShareFlow
-
-1. **Testing → Closed testing → Releases**
-   - [ ] יש release עם version code **78**
-   - [ ] סטטוס: **Available to testers** (לא Draft / In review / Rejected)
-2. **Testers** (באותו מסלול)
-   - [ ] המייל שלכם ברשימה
-   - [ ] ליד הרשימה יש **וי** (הרשימה פעילה במסלול)
-   - [ ] העתיקו מחדש את **Copy link** מהמסך הזה
-3. **Countries / regions** של המסלול
-   - [ ] **Israel** מסומן
-4. **Publishing overview**
-   - [ ] אין שינויים ממתינים בלי **Send for review**
-5. בטלפון
-   - [ ] אותו חשבון Google כמו ברשימה
-   - [ ] הוסרו התקנות USB קודמות של ShareFlow
-   - [ ] קישור opt-in → Become a tester → Download on Google Play
-
-## אחרי ש־«Become a tester» עובד
-
-1. עדכון ל־**1.0.9 (79)** מהחנות  
-2. בדיקת Google Sign-In (השער האחרון)  
-3. שליחת WhatsApp מ־`store/android/WHATSAPP_CLOSED_TESTING_MESSAGE.md`
-
-## מה לא צריך עכשיו
-
-- באמפ ל־79  
-- שינוי קישור WhatsApp  
-- בנייה מחדש  
-
-הבעיה אינה בבילד.
+### אז בלבד
+- [ ] שליחת WhatsApp מ־`store/android/WHATSAPP_CLOSED_TESTING_MESSAGE.md`
