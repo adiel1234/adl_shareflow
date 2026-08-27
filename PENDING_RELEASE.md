@@ -6,6 +6,7 @@
 | **סיבה** | תיקון SHA של Play App Signing ב־Firebase/`google-services.json` (ה־SHA הישן `26:78:87:20…` לא תאם את החתימה בפועל `F1:22:1C:DD…`) |
 | **הפצה** | AAB ל־Play Alpha |
 | **עודכן** | `2026-08-27` |
+| **HEAD** | `6595eee` |
 
 ## נכלל ב־78
 - `google-services.json` עם SHA-1 הנכון של Play (`f1221cdd…`) + העלאה + Web client
