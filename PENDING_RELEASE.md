@@ -6,7 +6,7 @@
 | **סיבה** | תיקון Google Sign-In (מופע יחיד) + hygiene + `google-services` עם SHA של Play/העלאה + אייקון התראות FCM |
 | **הפצה** | AAB ל־Play Alpha (closed testing) |
 | **עודכן** | `2026-08-27` |
-| **HEAD** | `d60c520` |
+| **HEAD** | `7da651a` |
 
 ## נכלל ב־77
 - מופע יחיד של `GoogleSignIn` (`static final`) — מונע מצב דביק בהחלפת חשבונות
