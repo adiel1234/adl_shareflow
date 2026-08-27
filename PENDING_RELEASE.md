@@ -3,23 +3,23 @@
 | שדה | ערך |
 |-----|-----------|
 | **גרסה** | **`1.0.9+78`** |
-| **סיבה** | תיקון SHA של Play App Signing ב־Firebase/`google-services.json` (ה־SHA הישן `26:78:87:20…` לא תאם את החתימה בפועל `F1:22:1C:DD…`) |
-| **הפצה** | AAB ל־Play Alpha |
+| **סיבה** | תיקון SHA של Play App Signing ב־Firebase/`google-services.json` |
+| **הפצה** | AAB הועלה ל־Play; **opt-in עדיין מציג «לא זמינה»** — חסימת Console |
+| **HEAD** | `ab7a8fb` (ב־`origin/main`) |
 | **עודכן** | `2026-08-27` |
-| **HEAD** | `6595eee` |
 
-## נכלל ב־78
-- `google-services.json` עם SHA-1 הנכון של Play (`f1221cdd…`) + העלאה + Web client
-- תיקוני 77 (מופע יחיד GoogleSignIn + hygiene + אייקון FCM)
-- הצגת שגיאת Google מפורטת זמנית לאימות אחרי Play
+## אומת אוטומטית מהריפו
+- Config Google / SHA / singleton / AAB+APK 78 — ✅
+- דף חנות ציבורי — 404 (צפוי בלי Production)
+- Opt-in — דורש תיקון Closed testing ב־Console (ראה `store/android/CLOSED_TESTING_UNBLOCK.md`)
 
-## ממתין
-- העלאה ל־Play + אימות Google Sign-In על התקנה מהחנות
-- `git push` לדפי Railway
-- הסרת הצגת שגיאה מפורטת אחרי אימות
-- שליחת WhatsApp
+## ממתין ממך
+1. צ׳קליסט ב־`CLOSED_TESTING_UNBLOCK.md` עד ש־Become a tester עובד
+2. אימות Google מ־Play על 78
+3. WhatsApp לקבוצה רק אחרי זה
 
 ## פתוחים
 | נושא | סטטוס |
 |------|--------|
-| אימות Google מ־Play אחרי 78 | ממתין להעלאה |
+| Closed testing זמין לבודקים | חסום — «האפליקציה לא זמינה» |
+| Google Sign-In על חתימת Play | ממתין להתקנה מ־Play |
