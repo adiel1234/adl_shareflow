@@ -1,6 +1,6 @@
 # מדריך אונבורדינג פיילוט — ADL ShareFlow (iOS + Android)
 
-> **גרסת פיילוט:** 1.0.9 build 77 · **ADL Projects**
+> **גרסת פיילוט:** 1.0.9 build 78 · **ADL Projects**
 
 ## קישור יחיד לשיתוף עם בודקים
 
@@ -48,7 +48,7 @@
 חשוב:
 • הפיילוט חינמי לחלוטין
 • ייתכנו באגים — כל משוב חשוב
-• גרסה נוכחית: 1.0.9 (build 77)
+• גרסה נוכחית: 1.0.9 (build 78)
 
 מדריך התקנה (iPhone + Android):
 https://adlshareflow-production.up.railway.app/pilot
@@ -73,7 +73,7 @@ https://adlshareflow-production.up.railway.app/pilot
 iPhone: TestFlight → ShareFlow → עדכן
 Android: https://adlshareflow-production.up.railway.app/pilot
 
-גרסה: 1.0.9 (77)
+גרסה: 1.0.9 (78)
 מה חדש: [משפט אחד]
 
 בעיה? צילום + גרסה מהפרופיל → שלחו כאן.
@@ -83,8 +83,8 @@ Android: https://adlshareflow-production.up.railway.app/pilot
 
 ## לפני שליחה לקבוצה (צ'קליסט מארגן)
 
-1. [ ] build **1.0.9 (77)** בסטטוס Testing ב-TestFlight External
-2. [ ] דף `/pilot` נפתח ומציג build 77
+1. [ ] build **1.0.9 (78)** בסטטוס Testing ב-TestFlight External
+2. [ ] דף `/pilot` נפתח ומציג build 78
 3. [ ] קבוצת WhatsApp פעילה עם קישור הצטרפות
 4. [ ] שלחתם את הודעת הפתיחה + קישור `/pilot` בלבד
 5. [ ] ביקשתם מכולם לכתוב «הותקן» + פלטפורמה + גרסה

@@ -30,13 +30,31 @@ class SocialAuth {
     // Clear sticky Google session — avoids null idToken after a prior login.
     await signOutGoogle();
 
-    final googleUser = await _google.signIn();
+    late final GoogleSignInAccount? googleUser;
+    try {
+      googleUser = await _google.signIn();
+    } catch (e) {
+      // #region agent log
+      debugPrint(
+        'SF_DBG_GOOGLE ${{'hypothesisId': 'A', 'location': 'signIn', 'error': e.toString()}}',
+      );
+      // #endregion
+      rethrow;
+    }
     if (googleUser == null) {
+      // #region agent log
+      debugPrint('SF_DBG_GOOGLE ${{'hypothesisId': 'D', 'message': 'cancelled'}}');
+      // #endregion
       throw StateError('cancelled');
     }
 
     var auth = await googleUser.authentication;
     var idToken = auth.idToken;
+    // #region agent log
+    debugPrint(
+      'SF_DBG_GOOGLE ${{'hypothesisId': 'B', 'hasIdToken': idToken != null && idToken.isNotEmpty, 'idTokenLen': idToken?.length ?? 0}}',
+    );
+    // #endregion
     if (idToken == null || idToken.isEmpty) {
       try {
         await googleUser.clearAuthCache();
@@ -50,7 +68,16 @@ class SocialAuth {
       );
     }
 
-    return _auth.loginWithGoogle(idToken);
+    try {
+      return await _auth.loginWithGoogle(idToken);
+    } catch (e) {
+      // #region agent log
+      debugPrint(
+        'SF_DBG_GOOGLE ${{'hypothesisId': 'C', 'location': 'backend', 'error': e.toString()}}',
+      );
+      // #endregion
+      rethrow;
+    }
   }
 
   /// Call on app logout / before sign-in so the next Google flow starts fresh.

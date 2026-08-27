@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "703436621794-docamotp8rbrj7bcegllo8regvh8eo25.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.adl.shareflow",
+            "certificate_hash": "f1221cddd83c6afb2269af1754574f9e3c8ee5dd"
+          }
+        },
+        {
           "client_id": "703436621794-ktiqrhk4au24gb1fc20fl0t83fc40p29.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

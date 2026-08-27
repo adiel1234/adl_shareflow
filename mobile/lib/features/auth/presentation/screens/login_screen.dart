@@ -123,7 +123,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       if (!e.toString().contains('cancelled')) {
-        setState(() => _error = _parseError(e, l));
+        setState(() => _error = _parseGoogleError(e, l));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -166,6 +166,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return l.wrongCredentials;
     }
     return l.loginError;
+  }
+
+  /// Temporary Play diagnosis — show raw Google/network failure (session d50e8a).
+  String _parseGoogleError(dynamic e, AppLocalizations l) {
+    if (e is DioException) {
+      final data = e.response?.data;
+      final status = e.response?.statusCode;
+      if (data is Map && data['message'] != null) {
+        final m = data['message'].toString();
+        if (m.contains('PILOT_ENDED')) return l.pilotEndedLogin;
+        // #region agent log
+        debugPrint(
+          'SF_DBG_GOOGLE ${{'hypothesisId': 'C', 'message': 'dio', 'status': status, 'msg': m}}',
+        );
+        // #endregion
+        return 'שרת ($status): $m';
+      }
+      return 'רשת: ${e.type.name}';
+    }
+    final raw = e.toString();
+    // #region agent log
+    debugPrint(
+      'SF_DBG_GOOGLE ${{'hypothesisId': 'A', 'message': 'client', 'raw': raw}}',
+    );
+    // #endregion
+    final short = raw.length > 160 ? '${raw.substring(0, 160)}…' : raw;
+    return short;
   }
 
   @override
