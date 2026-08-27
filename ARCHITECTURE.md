@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 27 אוגוסט 2026 — Android closed testing `1.0.9+79` (תיקון SHA של Play App Signing ל־Google Sign-In) · שני דשבורדי פיילוט נפרדים ב-Control
+> עודכן לאחרונה: 28 אוגוסט 2026 — Android closed testing `1.0.9+79` אומת ב־Play · `/getting-started` לאנדרואיד מפנה ל־Play testing
 
 ---
 
@@ -330,9 +330,10 @@ flutter install --release
 ```
 
 **הפצה נוכחית לחנויות / פיילוט Android:**
-- **Google Play (closed testing / Alpha):** `1.0.9+79` — AAB: `store/android/builds/shareflow-1.0.9+79-CLOSED-TESTING.aab`
+- **Google Play (closed testing / Alpha):** `1.0.9+79` — AAB: `store/android/builds/shareflow-1.0.9+79-CLOSED-TESTING.aab` · אומת (התקנה + Google Sign-In)
 - Google Sign-In: מופע יחיד של `GoogleSignIn` + SHA-1 אמיתי של Play App Signing (`F1:22:1C:DD…`) + מפתח העלאה
-- APK ישיר לפיילוט ישן (גרסה 1.0.9+64): `APK_DOWNLOAD_URL` ב-Railway / `GET /download/apk`
+- דף התקנה `/getting-started` (אנדרואיד): קישור opt-in ל־Play — `https://play.google.com/apps/testing/com.adl.shareflow`
+- APK ישיר לפיילוט ישן (גרסה 1.0.9+64): עדיין זמין ב־`APK_DOWNLOAD_URL` / `GET /download/apk` (לא ברירת מחדל בדף ההתקנה)
 - Release ישן: https://github.com/adiel1234/adl_shareflow/releases/tag/v1.0.9-build64
 - **למשתמשי פיילוט:** שתפו `/pilot/join` → `/getting-started` (לא `/download` ישירות)
 - ראה `PENDING_RELEASE.md`

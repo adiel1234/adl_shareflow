@@ -3,20 +3,18 @@
 | שדה | ערך |
 |-----|-----------|
 | **גרסה** | **`1.0.9+79`** |
-| **הפצה** | **פורסם** + **אומת** על Play Closed testing |
-| **HEAD** | `509b576` |
+| **הפצה** | **פורסם + אומת** ב־Play Closed testing |
+| **WhatsApp** | מתוכנן **מחר בבוקר** |
 | **עודכן** | `2026-08-28` |
 
-## נכלל ב־79
-- SHA-1 האמיתי של Play App Signing + מפתח העלאה
-- מופע יחיד של `GoogleSignIn` + hygiene
-- אייקון התראות FCM תקין
+## נכלל / אומת
+- SHA Play הנכון + GoogleSignIn singleton
+- התקנה מ־Play + Google Sign-In — ✅
+- דף `/getting-started` לאנדרואיד → קישור Play testing (לא APK 64)
 
-## אומת
-| נושא | סטטוס |
-|------|--------|
-| פרסום 79 ב־Play | ✅ |
-| התקנה מ־Play + Google Sign-In | ✅ לפי דיווח |
+## סנכרון מדריכים
+- דפים חיים: `pilot_invite` / `pilot_onboarding` / `getting_started` על 79
+- WhatsApp: `store/android/WHATSAPP_CLOSED_TESTING_MESSAGE.md`
 
 ## הצעד הבא
-שליחת WhatsApp **מחר בבוקר** מ־`store/android/WHATSAPP_CLOSED_TESTING_MESSAGE.md` (גרסה 79).
+שליחת WhatsApp מחר בבוקר.
