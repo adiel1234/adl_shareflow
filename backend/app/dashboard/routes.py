@@ -123,17 +123,43 @@ def _platform_map(user_ids: list[str]) -> dict[str, str]:
 
 
 def _android_pilot_user_ids(android_start: datetime | None = None) -> set[str]:
-    """Users in the Google Play closed-testing cohort (Android FCM, after android start)."""
+    """
+    Google Play closed-testing cohort:
+    - new Android accounts created after android start, OR
+    - existing accounts that logged in on Android after android start, OR
+    - accounts that registered an Android FCM token after android start
+    """
     start = android_start or _parse_flag_datetime(PILOT_ANDROID_STARTED_FLAG)
     if start is None:
         return set()
-    candidate_ids = [
+
+    new_ids = {
         uid for (uid,) in db.session.query(User.id).filter(User.created_at >= start).all()
-    ]
+    }
+    login_ids = {
+        uid
+        for (uid,) in db.session.query(User.id)
+        .filter(User.last_login_at.isnot(None), User.last_login_at >= start)
+        .all()
+    }
+    fcm_ids = {
+        uid
+        for (uid,) in db.session.query(FCMToken.user_id)
+        .filter(FCMToken.platform == 'android', FCMToken.created_at >= start)
+        .distinct()
+        .all()
+    }
+
+    candidate_ids = new_ids | login_ids | fcm_ids
     if not candidate_ids:
         return set()
-    platforms = _platform_map(candidate_ids)
-    return {uid for uid in candidate_ids if platforms.get(uid) == 'android'}
+    platforms = _platform_map(list(candidate_ids))
+    # FCM-after-start already proves Android; others need android platform map.
+    android_ids = set(fcm_ids)
+    for uid in candidate_ids:
+        if platforms.get(uid) == 'android':
+            android_ids.add(uid)
+    return android_ids
 
 
 def _scope_user_ids() -> set[str] | None:
