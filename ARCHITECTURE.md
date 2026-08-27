@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 28 אוגוסט 2026 — Android closed testing `1.0.9+79` אומת ב־Play · `/getting-started` לאנדרואיד מפנה ל־Play testing
+> עודכן לאחרונה: 28 אוגוסט 2026 — פיילוט Android אופס מעכשיו (\`PILOT_ANDROID_STARTED_AT\`) · Play 79 אומת · \`/getting-started\` → Play testing
 
 ---
 

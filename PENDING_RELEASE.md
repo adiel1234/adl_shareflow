@@ -4,17 +4,14 @@
 |-----|-----------|
 | **גרסה** | **`1.0.9+79`** |
 | **הפצה** | **פורסם + אומת** ב־Play Closed testing |
+| **פיילוט Android** | מדדים אופסו מעכשיו (`PILOT_ANDROID_STARTED_AT`) |
 | **WhatsApp** | מתוכנן **מחר בבוקר** |
 | **עודכן** | `2026-08-28` |
 
-## נכלל / אומת
-- SHA Play הנכון + GoogleSignIn singleton
-- התקנה מ־Play + Google Sign-In — ✅
-- דף `/getting-started` לאנדרואיד → קישור Play testing (לא APK 64)
-
-## סנכרון מדריכים
-- דפים חיים: `pilot_invite` / `pilot_onboarding` / `getting_started` על 79
-- WhatsApp: `store/android/WHATSAPP_CLOSED_TESTING_MESSAGE.md`
+## אומת
+- Play 79 + Google Sign-In
+- `/getting-started` לאנדרואיד → Play testing
+- דשבורד פיילוט Android מתחיל מאפס מעכשיו
 
 ## הצעד הבא
-שליחת WhatsApp מחר בבוקר.
+שליחת WhatsApp מחר בבוקר מ־`store/android/WHATSAPP_CLOSED_TESTING_MESSAGE.md`

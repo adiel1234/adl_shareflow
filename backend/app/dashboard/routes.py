@@ -417,7 +417,7 @@ def _funnel_stats(cutoff):
     scope = _request_pilot_scope()
     android_start = _parse_flag_datetime(PILOT_ANDROID_STARTED_FLAG)
     # Play closed-testing track events (no overlap with main pilot funnel).
-    android_events = ('apk',)
+    android_events = ('apk', 'getting_started')
 
     def _base():
         q = PilotFunnelEvent.query
@@ -456,7 +456,7 @@ def _funnel_stats(cutoff):
         'getting_started': 'עמוד התקנה',
         'testflight_app': 'הורדת TestFlight',
         'shareflow_ios': 'הורדת ShareFlow (אייפון)',
-        'apk': 'הורדת APK (אנדרואיד)',
+        'apk': 'התקנת אנדרואיד / Play',
     }
     ios_dl = _count('shareflow_ios')
     apk_dl = _count('apk')
