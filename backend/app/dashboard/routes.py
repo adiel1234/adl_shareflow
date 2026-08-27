@@ -122,14 +122,33 @@ def _platform_map(user_ids: list[str]) -> dict[str, str]:
     return result
 
 
+def _platform_map_since(user_ids: list[str], since: datetime) -> dict[str, str]:
+    """Latest FCM platform per user among tokens created at/after *since*."""
+    if not user_ids:
+        return {}
+    rows = (
+        db.session.query(FCMToken.user_id, FCMToken.platform, FCMToken.created_at)
+        .filter(FCMToken.user_id.in_(user_ids), FCMToken.created_at >= since)
+        .order_by(FCMToken.created_at.desc())
+        .all()
+    )
+    result = {}
+    for uid, platform, _ in rows:
+        if uid not in result:
+            result[uid] = platform
+    return result
+
+
 def _android_pilot_user_ids(android_start: datetime | None = None) -> set[str]:
     """
     Google Play closed-testing cohort.
 
     Include users who registered or logged in after the Android pilot start,
-    unless they are known iOS-only. Do not require a *current* Android FCM
-    token — logout on a shared device deletes FCM and would otherwise drop
-    previous testers from the dashboard.
+    unless they only showed iOS activity *during* the Android pilot window.
+
+    Do not require a *current* Android FCM token: logout / signing in as
+    another account on the same device deletes or reassigns the device token
+    (often leaving only an old iOS row), which must not drop prior testers.
     """
     start = android_start or _parse_flag_datetime(PILOT_ANDROID_STARTED_FLAG)
     if start is None:
@@ -156,13 +175,15 @@ def _android_pilot_user_ids(android_start: datetime | None = None) -> set[str]:
     if not active_ids:
         return set()
 
-    platforms = _platform_map(list(active_ids))
+    # Only tokens created during the Android pilot count for iOS exclusion.
+    # Pre-pilot iOS tokens must not hide shared-device Android testers.
+    platforms_since = _platform_map_since(list(active_ids), start)
     result = set(fcm_after_ids)
     for uid in (new_ids | login_ids):
-        plat = platforms.get(uid)
-        # Keep android users and users whose FCM was cleared on logout.
-        if plat != 'ios':
-            result.add(uid)
+        plat = platforms_since.get(uid)
+        if plat == 'ios':
+            continue
+        result.add(uid)
     return result
 
 
@@ -278,6 +299,11 @@ def adl_stats():
         if not pilot_user_ids:
             ios_users = 0
             android_users = 0
+        elif _request_pilot_scope() == 'pilot_android':
+            # Cohort *is* the Android pilot — count members, not live FCM
+            # (shared-device login reassigns the device token to one user).
+            android_users = len(pilot_user_ids)
+            ios_users = 0
         else:
             platforms = _platform_map(pilot_user_ids)
             ios_users = sum(1 for p in platforms.values() if p == 'ios')
