@@ -124,10 +124,12 @@ def _platform_map(user_ids: list[str]) -> dict[str, str]:
 
 def _android_pilot_user_ids(android_start: datetime | None = None) -> set[str]:
     """
-    Google Play closed-testing cohort:
-    - new Android accounts created after android start, OR
-    - existing accounts that logged in on Android after android start, OR
-    - accounts that registered an Android FCM token after android start
+    Google Play closed-testing cohort.
+
+    Include users who registered or logged in after the Android pilot start,
+    unless they are known iOS-only. Do not require a *current* Android FCM
+    token — logout on a shared device deletes FCM and would otherwise drop
+    previous testers from the dashboard.
     """
     start = android_start or _parse_flag_datetime(PILOT_ANDROID_STARTED_FLAG)
     if start is None:
@@ -142,7 +144,7 @@ def _android_pilot_user_ids(android_start: datetime | None = None) -> set[str]:
         .filter(User.last_login_at.isnot(None), User.last_login_at >= start)
         .all()
     }
-    fcm_ids = {
+    fcm_after_ids = {
         uid
         for (uid,) in db.session.query(FCMToken.user_id)
         .filter(FCMToken.platform == 'android', FCMToken.created_at >= start)
@@ -150,16 +152,18 @@ def _android_pilot_user_ids(android_start: datetime | None = None) -> set[str]:
         .all()
     }
 
-    candidate_ids = new_ids | login_ids | fcm_ids
-    if not candidate_ids:
+    active_ids = new_ids | login_ids | fcm_after_ids
+    if not active_ids:
         return set()
-    platforms = _platform_map(list(candidate_ids))
-    # FCM-after-start already proves Android; others need android platform map.
-    android_ids = set(fcm_ids)
-    for uid in candidate_ids:
-        if platforms.get(uid) == 'android':
-            android_ids.add(uid)
-    return android_ids
+
+    platforms = _platform_map(list(active_ids))
+    result = set(fcm_after_ids)
+    for uid in (new_ids | login_ids):
+        plat = platforms.get(uid)
+        # Keep android users and users whose FCM was cleared on logout.
+        if plat != 'ios':
+            result.add(uid)
+    return result
 
 
 def _scope_user_ids() -> set[str] | None:
