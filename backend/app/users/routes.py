@@ -19,10 +19,12 @@ users_bp = Blueprint('users', __name__)
 @users_bp.get('/me')
 @jwt_required()
 def get_me():
+    from app.users.account_deletion import is_deleted_account
+
     user_id = get_jwt_identity()
     user = db.session.get(User, user_id)
-    if not user:
-        return error_response('User not found', 404)
+    if not user or is_deleted_account(user):
+        return error_response('User not found', 401)
     return success_response(data=user.to_dict())
 
 
@@ -117,14 +119,17 @@ def delete_avatar():
 @users_bp.delete('/me')
 @jwt_required()
 def delete_me():
+    from app.users.account_deletion import delete_account, is_deleted_account
+
     user_id = get_jwt_identity()
     user = db.session.get(User, user_id)
     if not user:
         return error_response('User not found', 404)
+    if is_deleted_account(user):
+        return success_response(message='Account deleted')
 
-    user.is_active = False
-    db.session.commit()
-    return success_response(message='Account deactivated')
+    delete_account(user)
+    return success_response(message='Account deleted')
 
 
 @users_bp.post('/fcm-token')

@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 28 אוגוסט 2026 — פיילוט Android אופס מעכשיו (\`PILOT_ANDROID_STARTED_AT\`) · Play 79 אומת · \`/getting-started\` → Play testing
+> עודכן לאחרונה: 17 בספטמבר 2026 — `1.0.9+80` · מחיקת חשבון מתוך האפליקציה (פרופיל + `DELETE /users/me`)
 
 ---
 
@@ -119,7 +119,7 @@
 | מודול | תיאור | Endpoints עיקריים |
 |-------|--------|-------------------|
 | `auth/` | JWT + Google + Apple | POST /auth/login, /register, /google, /apple |
-| `users/` | פרופיל משתמש | GET/PUT /users/me |
+| `users/` | פרופיל משתמש | GET/PUT /users/me · DELETE /users/me (מחיקת חשבון) |
 | `groups/` | קבוצות + מונטיזציה | CRUD /groups, /activate, /extend, /renew, /upgrade-tier, /reopen, /duplicate |
 | `expenses/` | הוצאות | CRUD /expenses |
 | `balances/` | מנוע חישוב יתרות | GET /groups/{id}/balances |
@@ -330,7 +330,7 @@ flutter install --release
 ```
 
 **הפצה נוכחית לחנויות / פיילוט Android:**
-- **Google Play (closed testing / Alpha):** `1.0.9+79` — AAB: `store/android/builds/shareflow-1.0.9+79-CLOSED-TESTING.aab` · אומת (התקנה + Google Sign-In)
+- **Google Play (closed testing / Alpha):** `1.0.9+80` — AAB: `store/android/builds/shareflow-1.0.9+80-CLOSED-TESTING.aab` · אומת (התקנה + Google Sign-In)
 - Google Sign-In: מופע יחיד של `GoogleSignIn` + SHA-1 אמיתי של Play App Signing (`F1:22:1C:DD…`) + מפתח העלאה
 - דף התקנה `/getting-started` (אנדרואיד): קישור opt-in ל־Play — `https://play.google.com/apps/testing/com.adl.shareflow`
 - APK ישיר לפיילוט ישן (גרסה 1.0.9+64): עדיין זמין ב־`APK_DOWNLOAD_URL` / `GET /download/apk` (לא ברירת מחדל בדף ההתקנה)

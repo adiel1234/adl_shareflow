@@ -782,6 +782,42 @@ abstract class AppLocalizations {
   /// **'האם אתה בטוח שברצונך לצאת?'**
   String get confirmLogout;
 
+  /// No description provided for @deleteAccount.
+  ///
+  /// In he, this message translates to:
+  /// **'מחיקת חשבון'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountSubtitle.
+  ///
+  /// In he, this message translates to:
+  /// **'מחיקה סופית של החשבון והנתונים האישיים'**
+  String get deleteAccountSubtitle;
+
+  /// No description provided for @deleteAccountExplain.
+  ///
+  /// In he, this message translates to:
+  /// **'החשבון, פרטי ההתחברות ופרטי התשלום יימחקו. הוצאות בקבוצות משותפות עשויות להישאר אצל חברים אחרים לצורך הנהלת החשבונות. הפעולה סופית.'**
+  String get deleteAccountExplain;
+
+  /// No description provided for @deleteAccountConfirm.
+  ///
+  /// In he, this message translates to:
+  /// **'למחוק את החשבון לצמיתות?'**
+  String get deleteAccountConfirm;
+
+  /// No description provided for @deleteAccountAction.
+  ///
+  /// In he, this message translates to:
+  /// **'מחק חשבון'**
+  String get deleteAccountAction;
+
+  /// No description provided for @deleteAccountError.
+  ///
+  /// In he, this message translates to:
+  /// **'לא הצלחנו למחוק את החשבון. נסו שוב.'**
+  String get deleteAccountError;
+
   /// No description provided for @chooseCurrency.
   ///
   /// In he, this message translates to:

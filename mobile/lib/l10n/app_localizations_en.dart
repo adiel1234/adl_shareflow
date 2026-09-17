@@ -362,6 +362,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmLogout => 'Are you sure you want to log out?';
 
   @override
+  String get deleteAccount => 'Delete account';
+
+  @override
+  String get deleteAccountSubtitle =>
+      'Permanently delete your account and personal data';
+
+  @override
+  String get deleteAccountExplain =>
+      'Your account, login, and payment details will be deleted. Shared group expenses may remain visible to other members for their records. This cannot be undone.';
+
+  @override
+  String get deleteAccountConfirm => 'Delete this account permanently?';
+
+  @override
+  String get deleteAccountAction => 'Delete account';
+
+  @override
+  String get deleteAccountError =>
+      'Could not delete the account. Please try again.';
+
+  @override
   String get chooseCurrency => 'Choose default currency';
 
   @override

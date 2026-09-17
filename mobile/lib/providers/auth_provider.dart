@@ -162,6 +162,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(preferredCurrency: currency);
   }
 
+  Future<void> deleteAccount() async {
+    await ApiClient.instance.delete('/users/me');
+    await logout();
+  }
+
   Future<void> logout() async {
     // Clear session only — keep remembered login credentials if user opted in.
     try {

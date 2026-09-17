@@ -56,6 +56,8 @@ def registration_account_mode() -> str:
 def raise_if_blocked(user: User | None) -> None:
     if user is None:
         raise ValueError(ERR_ACCOUNT_DISABLED)
+    if getattr(user, 'account_mode', None) == 'deleted':
+        raise ValueError(ERR_ACCOUNT_DISABLED)
     if user.is_active:
         return
     if getattr(user, 'account_mode', None) == ACCOUNT_MODE_PILOT:

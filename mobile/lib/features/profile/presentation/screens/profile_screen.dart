@@ -82,6 +82,73 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context)!;
+    final explained = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(dl.deleteAccount),
+          content: Text(dl.deleteAccountExplain),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(dl.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(dl.deleteAccountAction),
+            ),
+          ],
+        );
+      },
+    );
+    if (explained != true || !mounted) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        final dl = AppLocalizations.of(ctx)!;
+        return AlertDialog(
+          title: Text(dl.deleteAccountConfirm),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(dl.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(
+                dl.deleteAccountAction,
+                style: const TextStyle(color: AppColors.error),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true || !mounted) return;
+
+    final nav = Navigator.of(context, rootNavigator: true);
+    try {
+      await ref.read(authProvider.notifier).deleteAccount();
+      ref.invalidate(notificationsProvider);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l.deleteAccountError)),
+        );
+      }
+      return;
+    }
+    if (nav.mounted) {
+      nav.pushNamedAndRemoveUntil('/login', (_) => false);
+    }
+  }
+
   Future<void> _pickAvatar() async {
     final hasAvatar = ref.read(authProvider).avatarUrl != null;
     // 'camera', 'gallery', 'delete', or null (dismissed)
@@ -418,6 +485,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             iconColor: AppColors.error,
             titleColor: AppColors.error,
             onTap: () => _logout(context, ref),
+          ),
+          _SettingsTile(
+            icon: Icons.delete_forever_outlined,
+            title: l.deleteAccount,
+            subtitle: l.deleteAccountSubtitle,
+            iconColor: AppColors.error,
+            titleColor: AppColors.error,
+            onTap: () => _deleteAccount(context, ref),
           ),
         ],
       ),

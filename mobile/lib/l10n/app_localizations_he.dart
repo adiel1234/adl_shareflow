@@ -361,6 +361,25 @@ class AppLocalizationsHe extends AppLocalizations {
   String get confirmLogout => 'האם אתה בטוח שברצונך לצאת?';
 
   @override
+  String get deleteAccount => 'מחיקת חשבון';
+
+  @override
+  String get deleteAccountSubtitle => 'מחיקה סופית של החשבון והנתונים האישיים';
+
+  @override
+  String get deleteAccountExplain =>
+      'החשבון, פרטי ההתחברות ופרטי התשלום יימחקו. הוצאות בקבוצות משותפות עשויות להישאר אצל חברים אחרים לצורך הנהלת החשבונות. הפעולה סופית.';
+
+  @override
+  String get deleteAccountConfirm => 'למחוק את החשבון לצמיתות?';
+
+  @override
+  String get deleteAccountAction => 'מחק חשבון';
+
+  @override
+  String get deleteAccountError => 'לא הצלחנו למחוק את החשבון. נסו שוב.';
+
+  @override
   String get chooseCurrency => 'בחר מטבע ברירת מחדל';
 
   @override

@@ -485,3 +485,34 @@ class TestDashboardAPI:
         r = client.get('/api/adl/users', headers={'X-ADL-Admin-Key': self.ADL_KEY})
         assert r.status_code == 200
         assert len(r.get_json()['data']['users']) >= 2
+
+
+class TestAccountDeletion:
+    def test_delete_account_strips_login(self, client):
+        r = client.post('/api/auth/register', json={
+            'email': 'carol-delete@shareflowtest.com',
+            'password': 'Password1!',
+            'display_name': 'Carol',
+        })
+        assert r.status_code == 201, r.data
+        token = r.get_json()['data']['access_token']
+
+        r = client.delete('/api/users/me', headers=_auth(token))
+        assert r.status_code == 200
+        assert r.get_json()['message'] == 'Account deleted'
+
+        r = client.get('/api/users/me', headers=_auth(token))
+        assert r.status_code in (401, 403, 404)
+
+        r = client.post('/api/auth/login', json={
+            'email': 'carol-delete@shareflowtest.com',
+            'password': 'Password1!',
+        })
+        assert r.status_code == 401
+
+        r = client.post('/api/auth/register', json={
+            'email': 'carol-delete@shareflowtest.com',
+            'password': 'Password1!',
+            'display_name': 'Carol Again',
+        })
+        assert r.status_code == 201, r.data

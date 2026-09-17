@@ -16,3 +16,4 @@ Notes for reviewer:
   during pilot; IAP product IDs are registered for when payments are enabled.
 - Privacy policy: https://adlshareflow-production.up.railway.app/privacy
 - Support: info@adlprojects.co.il
+- Account deletion: Profile → Delete account (two confirmations). Personal data is removed immediately. Shared group expenses may remain for other members.

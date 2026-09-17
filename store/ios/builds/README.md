@@ -1,7 +1,12 @@
-# IPA ל־TestFlight — `1.0.9+72`
+# IPA לחנות / TestFlight
 
-## קובץ
+## נוכחי להעלאה — `1.0.9+80`
 
-`shareflow-1.0.9+72-TESTFLIGHT.ipa`
+`shareflow-1.0.9+80-APPSTORE.ipa`
 
-גרסה `1.0.9` (72) · כולל חלון בחירת סכום ב«הסדר חוב».
+גרסה `1.0.9` (79) · יישור לאנדרואיד ב־Play · להעלאה ב־Transporter.
+
+## ישן
+
+- `shareflow-1.0.9+72-TESTFLIGHT.ipa` — לא לשלוח ל־Review
+- `shareflow-1.0.9+71-TESTFLIGHT.ipa`
