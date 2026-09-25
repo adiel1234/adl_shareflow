@@ -105,9 +105,10 @@ def create_app(config=None):
                     {
                         "appID": "9QP3FZTL8C.com.adl.shareflow",
                         "appIDs": ["9QP3FZTL8C.com.adl.shareflow"],
-                        "paths": ["/join/*"],
+                        "paths": ["/join/*", "NOT /join/*/open"],
                         "components": [
-                            {"/": "/join/*"}
+                            {"/": "/join/*/open", "exclude": True},
+                            {"/": "/join/*"},
                         ]
                     }
                 ]
@@ -312,7 +313,7 @@ def create_app(config=None):
     <div class="code">{invite_code}</div>
 
     <div id="main-actions">
-      <a class="btn btn-primary" id="join-btn" href="/join/{invite_code}/open">הצטרף</a>
+      <a class="btn btn-primary" id="join-btn" href="{deep_link}">הצטרף</a>
       <div class="divider">- אין לך את האפליקציה עדיין? -</div>
       <a class="btn btn-android" href="{INSTALL_PAGE}" onclick="writeClip(function(){{}})">🤖 הורד לאנדרואיד</a>
       <a class="btn btn-ios" href="{TESTFLIGHT}" onclick="writeClip(function(){{}})">🍎 הורד ל-iPhone (TestFlight)</a>
