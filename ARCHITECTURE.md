@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 25 בספטמבר 2026 — כפתור «הצטרף» ב־`/join/<code>` פותח את האפליקציה שכבר מותקנת (`/join/<code>/open`)
+> עודכן לאחרונה: 25 בספטמבר 2026 — סיווג פיילוט: קבוצה מאפל נשארת בפיילוט הראשי; פיילוט Android רק למשתמשי אנדרואיד בלבד
 
 ---
 
@@ -224,7 +224,7 @@ SHAREFLOW_ADMIN_KEY=<זהה ל-ADL_ADMIN_KEY ב-adlshareflow-production>
 `adl_platform_module/.env` **לא** משפיע על ADL Control בייצור. `ADL_ADMIN_KEY` ב-backend בלבד **לא מספיק** — חובה `SHAREFLOW_ADMIN_KEY` על ADL Control.
 
 - **Endpoints (ShareFlow API):** `GET /api/adl/stats`, `/users`, `/groups`, `/monetization`, `/ocr-stats`, `/feature-flags`, `/activity`, `/settlements`; `POST /api/adl/pilot/reset`; `POST /api/adl/pilot/android/start`; `GET|PUT /api/adl/pilot/mode`; `POST /api/adl/expenses/repair-fx` (תיקון שערי המרה לפי תאריך הוצאה)
-- **סינון פיילוט:** `scope=pilot` לפי `PILOT_STARTED_AT` (ללא קוהורט Android); `scope=pilot_android` לפי `PILOT_ANDROID_STARTED_AT` + משתמשי Android בלבד — שני דשבורדים במקביל בלי כפילות
+- **סינון פיילוט:** `scope=pilot` — פעילים מאז `PILOT_STARTED_AT` (הרשמה / התחברות / FCM) בלי משתמשי Android-בלבד; `scope=pilot_android` — רק מי שיש לו FCM אנדרואיד אחרי `PILOT_ANDROID_STARTED_AT` ואין לו FCM של אייפון. קבוצות מסווגות לפי היוצר, לא לפי כניסה אחרונה. `/adl/groups` מכבד `scope`.
 - **כיבוי פיילוט:** `PUT /api/adl/pilot/mode` עם `enabled=false` חוסם את כל `account_mode=pilot`, מבטל refresh tokens; התחברות מחזירה `PILOT_ENDED`; הרשמה חוזרת עם אותו אימייל/OAuth ממירה ל-`active`
 - **נתוני ShareFlow:** PostgreSQL ShareFlow (`DATABASE_URL` בפרויקט **ADL ShareFlow** בלבד)
 - **DB של ADL Control:** `adl_control` PostgreSQL (`DATABASE_URL` בפרויקט **ADL Control**)

@@ -122,69 +122,37 @@ def _platform_map(user_ids: list[str]) -> dict[str, str]:
     return result
 
 
-def _platform_map_since(user_ids: list[str], since: datetime) -> dict[str, str]:
-    """Latest FCM platform per user among tokens created at/after *since*."""
-    if not user_ids:
-        return {}
-    rows = (
-        db.session.query(FCMToken.user_id, FCMToken.platform, FCMToken.created_at)
-        .filter(FCMToken.user_id.in_(user_ids), FCMToken.created_at >= since)
-        .order_by(FCMToken.created_at.desc())
-        .all()
-    )
-    result = {}
-    for uid, platform, _ in rows:
-        if uid not in result:
-            result[uid] = platform
-    return result
-
-
 def _android_pilot_user_ids(android_start: datetime | None = None) -> set[str]:
     """
-    Google Play closed-testing cohort.
+    Google Play closed-testing cohort — Android-only users.
 
-    Include users who registered or logged in after the Android pilot start,
-    unless they only showed iOS activity *during* the Android pilot window.
-
-    Do not require a *current* Android FCM token: logout / signing in as
-    another account on the same device deletes or reassigns the device token
-    (often leaving only an old iOS row), which must not drop prior testers.
+    A user is Android-pilot only if they have an Android FCM token after the
+    Android start AND have never had an iOS token. Anyone who used iPhone
+    (including the same person testing Play on another device) stays on the
+    main pilot, so an Apple-created group cannot appear on the Android tab.
     """
     start = android_start or _parse_flag_datetime(PILOT_ANDROID_STARTED_FLAG)
     if start is None:
         return set()
 
-    new_ids = {
-        uid for (uid,) in db.session.query(User.id).filter(User.created_at >= start).all()
-    }
-    login_ids = {
-        uid
-        for (uid,) in db.session.query(User.id)
-        .filter(User.last_login_at.isnot(None), User.last_login_at >= start)
-        .all()
-    }
-    fcm_after_ids = {
+    android_ids = {
         uid
         for (uid,) in db.session.query(FCMToken.user_id)
         .filter(FCMToken.platform == 'android', FCMToken.created_at >= start)
         .distinct()
         .all()
     }
-
-    active_ids = new_ids | login_ids | fcm_after_ids
-    if not active_ids:
+    if not android_ids:
         return set()
 
-    # Only tokens created during the Android pilot count for iOS exclusion.
-    # Pre-pilot iOS tokens must not hide shared-device Android testers.
-    platforms_since = _platform_map_since(list(active_ids), start)
-    result = set(fcm_after_ids)
-    for uid in (new_ids | login_ids):
-        plat = platforms_since.get(uid)
-        if plat == 'ios':
-            continue
-        result.add(uid)
-    return result
+    ios_ids = {
+        uid
+        for (uid,) in db.session.query(FCMToken.user_id)
+        .filter(FCMToken.platform == 'ios', FCMToken.user_id.in_(android_ids))
+        .distinct()
+        .all()
+    }
+    return android_ids - ios_ids
 
 
 def _scope_user_ids() -> set[str] | None:
@@ -198,13 +166,60 @@ def _scope_user_ids() -> set[str] | None:
         return None
     if scope == 'pilot_android':
         return _android_pilot_user_ids()
-    # Main pilot: everyone since PILOT_STARTED_AT except the Android cohort.
     start = _parse_flag_datetime(PILOT_STARTED_FLAG)
     if start is None:
         return set()
-    ids = {uid for (uid,) in db.session.query(User.id).filter(User.created_at >= start).all()}
-    ids -= _android_pilot_user_ids()
-    return ids
+    created = {
+        uid for (uid,) in db.session.query(User.id).filter(User.created_at >= start).all()
+    }
+    logged_in = {
+        uid
+        for (uid,) in db.session.query(User.id)
+        .filter(User.last_login_at.isnot(None), User.last_login_at >= start)
+        .all()
+    }
+    fcm_ids = {
+        uid
+        for (uid,) in db.session.query(FCMToken.user_id)
+        .filter(FCMToken.created_at >= start)
+        .distinct()
+        .all()
+    }
+    return (created | logged_in | fcm_ids) - _android_pilot_user_ids()
+
+
+def _scope_group_ids() -> set[str] | None:
+    """Groups for the current dashboard. None = no scope (all groups)."""
+    scope = _request_pilot_scope()
+    if scope is None:
+        return None
+    android_users = _android_pilot_user_ids()
+    if scope == 'pilot_android':
+        start = _parse_flag_datetime(PILOT_ANDROID_STARTED_FLAG)
+        if start is None or not android_users:
+            return set()
+        return {
+            gid
+            for (gid,) in db.session.query(Group.id).filter(
+                Group.created_at >= start,
+                Group.created_by.in_(android_users),
+            ).all()
+        }
+    start = _parse_flag_datetime(PILOT_STARTED_FLAG)
+    if start is None:
+        return set()
+    q = db.session.query(Group.id).filter(Group.created_at >= start)
+    if android_users:
+        q = q.filter(~Group.created_by.in_(android_users))
+    return {gid for (gid,) in q.all()}
+
+
+def _filter_by_ids(query, column, ids: set[str] | None):
+    if ids is None:
+        return query
+    if not ids:
+        return query.filter(False)
+    return query.filter(column.in_(ids))
 
 
 def _filter_by_users(query, user_column, user_ids: set[str] | None):
@@ -278,6 +293,7 @@ def adl_stats():
 
     cutoff = _pilot_cutoff()
     user_ids = _scope_user_ids()
+    group_ids = _scope_group_ids()
     now = datetime.now(timezone.utc)
     last_30 = now - timedelta(days=30)
     last_7 = now - timedelta(days=7)
@@ -340,12 +356,12 @@ def adl_stats():
             or 0
         )
 
-    groups_q = _filter_by_users(Group.query, Group.created_by, user_ids).filter_by(is_active=True)
-    if user_ids is None:
+    groups_q = _filter_by_ids(Group.query, Group.id, group_ids).filter_by(is_active=True)
+    if group_ids is None:
         groups_q = _with_cutoff(groups_q, Group.created_at, cutoff)
     total_groups = groups_q.count()
-    expenses_for_active = _filter_by_users(Expense.query, Expense.paid_by, user_ids)
-    if user_ids is None:
+    expenses_for_active = _filter_by_ids(Expense.query, Expense.group_id, group_ids)
+    if group_ids is None:
         expenses_for_active = _with_cutoff(expenses_for_active, Expense.created_at, cutoff)
     active_groups_30d = (
         expenses_for_active.filter(Expense.created_at >= last_30)
@@ -354,8 +370,8 @@ def adl_stats():
         or 0
     )
 
-    expenses_q = _filter_by_users(Expense.query, Expense.paid_by, user_ids)
-    if user_ids is None:
+    expenses_q = _filter_by_ids(Expense.query, Expense.group_id, group_ids)
+    if group_ids is None:
         expenses_q = _with_cutoff(expenses_q, Expense.created_at, cutoff)
     total_expenses = expenses_q.count()
     expenses_30d = expenses_q.filter(Expense.created_at >= last_30).count()
@@ -370,15 +386,8 @@ def adl_stats():
     ocr_confirmed = receipts_q.filter_by(status='confirmed').count()
     ocr_pending = receipts_q.filter_by(status='pending').count()
 
-    settlements_q = Settlement.query
-    if user_ids is not None:
-        if not user_ids:
-            settlements_q = settlements_q.filter(False)
-        else:
-            settlements_q = settlements_q.filter(
-                (Settlement.from_user_id.in_(user_ids)) | (Settlement.to_user_id.in_(user_ids))
-            )
-    else:
+    settlements_q = _filter_by_ids(Settlement.query, Settlement.group_id, group_ids)
+    if group_ids is None:
         settlements_q = _with_cutoff(settlements_q, Settlement.created_at, cutoff)
     total_settlements = settlements_q.count()
     confirmed_settlements = settlements_q.filter_by(status='confirmed').count()
@@ -404,8 +413,8 @@ def adl_stats():
         else 0
     )
 
-    payments_q = _filter_by_users(GroupPayment.query, GroupPayment.payer_id, user_ids)
-    if user_ids is None:
+    payments_q = _filter_by_ids(GroupPayment.query, GroupPayment.group_id, group_ids)
+    if group_ids is None:
         payments_q = _with_cutoff(payments_q, GroupPayment.created_at, cutoff)
     total_payments = payments_q.with_entities(func.sum(GroupPayment.amount)).scalar() or 0
     payments_30d = (
@@ -583,7 +592,7 @@ def adl_monetization():
     per_page = min(request.args.get('per_page', 50, type=int), 200)
     state_filter = request.args.get('state', '').strip()
 
-    q = Group.query.filter_by(is_active=True)
+    q = _filter_by_ids(Group.query.filter_by(is_active=True), Group.id, _scope_group_ids())
     if state_filter:
         q = q.filter_by(group_state=state_filter)
     q = q.order_by(Group.created_at.desc())
@@ -1042,7 +1051,7 @@ def adl_groups():
     page = request.args.get('page', 1, type=int)
     per_page = min(request.args.get('per_page', 50, type=int), 200)
 
-    q = Group.query.order_by(Group.created_at.desc())
+    q = _filter_by_ids(Group.query, Group.id, _scope_group_ids()).order_by(Group.created_at.desc())
     total = q.count()
     groups = q.offset((page - 1) * per_page).limit(per_page).all()
 
@@ -1051,6 +1060,8 @@ def adl_groups():
         d = g.to_dict()
         d['member_count'] = GroupMember.query.filter_by(group_id=g.id).count()
         d['expense_count'] = Expense.query.filter_by(group_id=g.id).count()
+        creator = db.session.get(User, g.created_by)
+        d['created_by_name'] = creator.display_name if creator else g.created_by
         result.append(d)
 
     return success_response(data={
@@ -1176,15 +1187,17 @@ def adl_activity():
     if err:
         return err
 
-    limit = min(request.args.get('limit', 40, type=int), 100)
+    limit = min(request.args.get('limit', 40, type=int), 200)
     cutoff = _pilot_cutoff()
     user_ids = _scope_user_ids()
+    group_ids = _scope_group_ids()
     events = []
+    per_type = min(max(limit, 40), 80)
 
     users_q = _filter_by_users(User.query.filter(User.is_guest.is_(False)), User.id, user_ids)
     if user_ids is None:
         users_q = _with_cutoff(users_q, User.created_at, cutoff)
-    for u in users_q.order_by(User.created_at.desc()).limit(20):
+    for u in users_q.order_by(User.created_at.desc()).limit(per_type):
         events.append({
             'type': 'registration',
             'at': u.created_at.isoformat() if u.created_at else None,
@@ -1193,10 +1206,10 @@ def adl_activity():
             'summary': f'{u.display_name} נרשם/ה',
         })
 
-    groups_q = _filter_by_users(Group.query, Group.created_by, user_ids)
-    if user_ids is None:
+    groups_q = _filter_by_ids(Group.query, Group.id, group_ids)
+    if group_ids is None:
         groups_q = _with_cutoff(groups_q, Group.created_at, cutoff)
-    for g in groups_q.order_by(Group.created_at.desc()).limit(20):
+    for g in groups_q.order_by(Group.created_at.desc()).limit(per_type):
         creator = db.session.get(User, g.created_by)
         events.append({
             'type': 'group_created',
@@ -1208,10 +1221,10 @@ def adl_activity():
             'summary': f'נוצרה קבוצה «{g.name}»',
         })
 
-    expenses_q = _filter_by_users(Expense.query, Expense.paid_by, user_ids)
-    if user_ids is None:
+    expenses_q = _filter_by_ids(Expense.query, Expense.group_id, group_ids)
+    if group_ids is None:
         expenses_q = _with_cutoff(expenses_q, Expense.created_at, cutoff)
-    for e in expenses_q.order_by(Expense.created_at.desc()).limit(20):
+    for e in expenses_q.order_by(Expense.created_at.desc()).limit(per_type):
         payer = db.session.get(User, e.paid_by)
         group = db.session.get(Group, e.group_id)
         events.append({
@@ -1226,17 +1239,10 @@ def adl_activity():
             'summary': f'הוצאה: {e.title} · {e.original_amount} {e.original_currency}',
         })
 
-    settlements_q = Settlement.query
-    if user_ids is not None:
-        if not user_ids:
-            settlements_q = settlements_q.filter(False)
-        else:
-            settlements_q = settlements_q.filter(
-                (Settlement.from_user_id.in_(user_ids)) | (Settlement.to_user_id.in_(user_ids))
-            )
-    else:
+    settlements_q = _filter_by_ids(Settlement.query, Settlement.group_id, group_ids)
+    if group_ids is None:
         settlements_q = _with_cutoff(settlements_q, Settlement.created_at, cutoff)
-    for s in settlements_q.order_by(Settlement.created_at.desc()).limit(20):
+    for s in settlements_q.order_by(Settlement.created_at.desc()).limit(per_type):
         from_u = s.from_user
         to_u = s.to_user
         group = db.session.get(Group, s.group_id)
@@ -1276,16 +1282,9 @@ def adl_settlements():
     date_from = request.args.get('from', '').strip()
     date_to = request.args.get('to', '').strip()
 
-    user_ids = _scope_user_ids()
-    q = Settlement.query
-    if user_ids is not None:
-        if not user_ids:
-            q = q.filter(False)
-        else:
-            q = q.filter(
-                (Settlement.from_user_id.in_(user_ids)) | (Settlement.to_user_id.in_(user_ids))
-            )
-    else:
+    group_ids = _scope_group_ids()
+    q = _filter_by_ids(Settlement.query, Settlement.group_id, group_ids)
+    if group_ids is None:
         q = _with_cutoff(q, Settlement.created_at, _pilot_cutoff())
     if status:
         q = q.filter_by(status=status)
