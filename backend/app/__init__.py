@@ -104,7 +104,11 @@ def create_app(config=None):
                 "details": [
                     {
                         "appID": "9QP3FZTL8C.com.adl.shareflow",
-                        "paths": ["/join/*"]
+                        "appIDs": ["9QP3FZTL8C.com.adl.shareflow"],
+                        "paths": ["/join/*"],
+                        "components": [
+                            {"/": "/join/*"}
+                        ]
                     }
                 ]
             }
@@ -112,6 +116,10 @@ def create_app(config=None):
         from flask import Response
         import json
         return Response(json.dumps(data), mimetype='application/json')
+
+    @app.get('/apple-app-site-association')
+    def apple_app_site_association_root():
+        return apple_app_site_association()
 
     # Public config — app reads this to decide whether to trigger IAP / pilot messaging
     @app.get('/api/config/public')
@@ -155,6 +163,32 @@ def create_app(config=None):
         """Bare /join used to 404 if WhatsApp truncated the invite URL."""
         from flask import redirect
         return redirect('/getting-started', code=302)
+
+    @app.get('/join/<invite_code>/open')
+    def join_open_app(invite_code):
+        """User-gesture trampoline: HTTPS tap → open the installed app."""
+        import re
+        from flask import Response, redirect
+        if not re.fullmatch(r'[A-Za-z0-9_-]{4,32}', invite_code or ''):
+            return redirect('/getting-started', code=302)
+        target = f'shareflow://join/{invite_code}'
+        html = (
+            '<!DOCTYPE html><html lang="he" dir="rtl"><head>'
+            '<meta charset="UTF-8">'
+            f'<meta http-equiv="refresh" content="0;url={target}">'
+            '<title>הצטרפות</title>'
+            f'<script>location.replace({target!r});</script>'
+            '</head><body>'
+            '<p>פותח את האפליקציה…</p>'
+            f'<p><a href="{target}">הצטרף</a></p>'
+            '</body></html>'
+        )
+        return Response(
+            html,
+            status=302,
+            headers={'Location': target},
+            mimetype='text/html',
+        )
 
     # Smart join link - opens app if installed, otherwise shows download page
     @app.get('/join/<invite_code>')
@@ -258,44 +292,15 @@ def create_app(config=None):
       }}
     }}
 
-    function openInBrowser() {{
-      // Copy the page URL to clipboard so the user can paste it in their browser
-      // then open it. On Android, use an intent to hand off to Chrome.
-      if (!isIOS()) {{
-        window.location = 'intent://' + PAGE.replace(/https?:\\/\\//, '') +
-          '#Intent;scheme=https;package=com.android.chrome;end';
-      }} else {{
-        // On iOS show the instructions panel — x-safari: is deprecated
-        document.getElementById('ios-hint').style.display = 'block';
-      }}
-    }}
-
-    function openApp() {{
-      writeClip(function() {{
-        // Navigate to the deep link. On Android use an intent for better reliability.
-        if (!isIOS()) {{
-          window.location = 'intent://join/{invite_code}#Intent;scheme=shareflow;package=com.adl.shareflow;S.browser_fallback_url=' + encodeURIComponent(PAGE) + ';end';
-        }} else {{
-          window.location = DEEP;
-        }}
-        // If we're still here after 1.8s the app is not installed — show download buttons
-        setTimeout(function() {{
-          document.getElementById('no-app-hint').style.display = 'block';
-        }}, 1800);
-      }});
-    }}
-
-    function dlApp(e, url) {{
-      // Clipboard copy is best-effort; navigation proceeds regardless.
-      writeClip(function() {{}});
+    function androidIntent() {{
+      return 'intent://join/{invite_code}#Intent;scheme=shareflow;package=com.adl.shareflow;S.browser_fallback_url=' + encodeURIComponent(PAGE) + ';end';
     }}
 
     window.onload = function() {{
-      if (isInAppBrowser()) {{
-        // WhatsApp/Messenger: can't open custom schemes — show notice + still show buttons
-        document.getElementById('wa-notice').style.display = 'block';
+      var btn = document.getElementById('join-btn');
+      if (btn && !isIOS()) {{
+        btn.href = androidIntent();
       }}
-      // Always show main-actions so the user sees the page
     }};
   </script>
 </head>
@@ -306,24 +311,8 @@ def create_app(config=None):
     <p class="subtitle">ניהול הוצאות משותפות בקלות</p>
     <div class="code">{invite_code}</div>
 
-    <!-- Shown inside WhatsApp / Messenger -->
-    <div class="wa-notice" id="wa-notice">
-      <p><strong>כדי לפתוח את האפליקציה יש לפתוח קישור זה בדפדפן רגיל</strong><br>
-      לחץ על "פתח בדפדפן" או העתק את הקוד למטה ישירות לאפליקציה</p>
-      <button class="btn btn-browser" onclick="openInBrowser()">
-        &#127758; פתח בדפדפן
-      </button>
-      <div id="ios-hint" style="display:none;margin-top:10px;background:#fff8e1;border-radius:10px;padding:12px;font-size:13px;color:#856404;">
-        ב-iPhone: לחץ לחיצה ארוכה על הקישור ב-WhatsApp ובחר "פתח ב-Safari"
-      </div>
-    </div>
-
-    <!-- Always shown -->
     <div id="main-actions">
-      <a class="btn btn-primary" href="#" onclick="event.preventDefault();openApp()">&#128241; פתח באפליקציה</a>
-      <div id="no-app-hint" style="display:none;background:#fff3cd;border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;color:#856404;">
-        האפליקציה לא מותקנת במכשיר זה. הורד אותה למטה
-      </div>
+      <a class="btn btn-primary" id="join-btn" href="/join/{invite_code}/open">הצטרף</a>
       <div class="divider">- אין לך את האפליקציה עדיין? -</div>
       <a class="btn btn-android" href="{INSTALL_PAGE}" onclick="writeClip(function(){{}})">🤖 הורד לאנדרואיד</a>
       <a class="btn btn-ios" href="{TESTFLIGHT}" onclick="writeClip(function(){{}})">🍎 הורד ל-iPhone (TestFlight)</a>
