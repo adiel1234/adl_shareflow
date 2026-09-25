@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 17 בספטמבר 2026 — `1.0.9+80` · מחיקת חשבון מתוך האפליקציה (פרופיל + `DELETE /users/me`)
+> עודכן לאחרונה: 25 בספטמבר 2026 — `/join/<code>`: נפילה מ־WhatsApp נשארת בדף ההצטרפות; הורדה ל־`/getting-started` ולא לגיטהאב (404)
 
 ---
 
@@ -128,7 +128,7 @@
 | `ocr/` | קבלות — צירוף + OCR | POST /ocr/attach, POST /ocr/scan, GET /ocr/receipts/{id}/image |
 | `currency/` | שערי חליפין | GET /currency/rates, /convert; POST /currency/rates (admin), /refresh (admin) |
 | `dashboard/` | ADL Admin API | GET /dashboard/stats, /monetization |
-| `download/` | דפי הורדה + פיילוט | GET /download, /pilot/join, /getting-started, /support, /account-deletion, /data-deletion, /privacy, /join/<code>; `/pilot` ו-`/invite` מפנים לנתיבים החדשים |
+| `download/` | דפי הורדה + פיילוט | GET /download, /pilot/join, /getting-started, /support, /account-deletion, /data-deletion, /privacy, /join/<code>; `/join` בלי קוד מפנה ל־`/getting-started`; `/pilot` ו-`/invite` מפנים לנתיבים החדשים |
 | `scheduler.py` | משימות אוטומטיות | תזכורות שעתיות + בדיקת פקיעה יומית |
 
 **קובץ הגדרות:** `/backend/.env` (לא ב-git)

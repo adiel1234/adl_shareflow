@@ -149,12 +149,21 @@ def create_app(config=None):
             print(f'[deferred_link] Failed to retrieve: {e}')
         return jsonify({'invite_code': None})
 
+    @app.get('/join')
+    @app.get('/join/')
+    def join_missing_code():
+        """Bare /join used to 404 if WhatsApp truncated the invite URL."""
+        from flask import redirect
+        return redirect('/getting-started', code=302)
+
     # Smart join link - opens app if installed, otherwise shows download page
     @app.get('/join/<invite_code>')
     def join_redirect(invite_code):
         import os
         from flask import request, redirect, Response
-        ANDROID_APK = 'https://github.com/adiel1234/adl_shareflow/releases/latest/download/app-release.apk'
+        # Never send WhatsApp/in-app-browser fallbacks to GitHub — that file 404s.
+        # Existing app installs must keep working; this page is server-only.
+        INSTALL_PAGE = '/getting-started'
         TESTFLIGHT  = os.environ.get('TESTFLIGHT_URL', 'https://testflight.apple.com/join/PLACEHOLDER')
         deep_link   = f'shareflow://join/{invite_code}'
 
@@ -265,7 +274,7 @@ def create_app(config=None):
       writeClip(function() {{
         // Navigate to the deep link. On Android use an intent for better reliability.
         if (!isIOS()) {{
-          window.location = 'intent://join/{invite_code}#Intent;scheme=shareflow;package=com.adl.shareflow;S.browser_fallback_url=' + encodeURIComponent('{ANDROID_APK}') + ';end';
+          window.location = 'intent://join/{invite_code}#Intent;scheme=shareflow;package=com.adl.shareflow;S.browser_fallback_url=' + encodeURIComponent(PAGE) + ';end';
         }} else {{
           window.location = DEEP;
         }}
@@ -316,7 +325,7 @@ def create_app(config=None):
         האפליקציה לא מותקנת במכשיר זה. הורד אותה למטה
       </div>
       <div class="divider">- אין לך את האפליקציה עדיין? -</div>
-      <a class="btn btn-android" href="{ANDROID_APK}" onclick="writeClip(function(){{}})">🤖 הורד לאנדרואיד</a>
+      <a class="btn btn-android" href="{INSTALL_PAGE}" onclick="writeClip(function(){{}})">🤖 הורד לאנדרואיד</a>
       <a class="btn btn-ios" href="{TESTFLIGHT}" onclick="writeClip(function(){{}})">🍎 הורד ל-iPhone (TestFlight)</a>
     </div>
   </div>
