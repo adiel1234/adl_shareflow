@@ -6,6 +6,7 @@ ShareFlow Tier 20	com.adl.shareflow.tier_20	consumable	20	ShareFlow Tier 20	Grou
 ShareFlow Tier 25	com.adl.shareflow.tier_25	consumable	25	ShareFlow Tier 25	Group capacity / activation tier 25 ILS
 ShareFlow Tier 30	com.adl.shareflow.tier_30	consumable	30	ShareFlow Tier 30	Group capacity / activation tier 30 ILS
 ShareFlow Tier 35	com.adl.shareflow.tier_35	consumable	35	ShareFlow Tier 35	Group capacity / activation tier 35 ILS
+ShareFlow Tier 40	com.adl.shareflow.tier_40	consumable	40	ShareFlow Tier 40	Group upgrade difference 40 ILS
 ShareFlow Tier 45	com.adl.shareflow.tier_45	consumable	45	ShareFlow Tier 45	Group capacity / activation tier 45 ILS
 ShareFlow Tier 49	com.adl.shareflow.tier_49	consumable	49	ShareFlow Tier 49	Group capacity / activation tier 49 ILS
 ShareFlow Tier 69	com.adl.shareflow.tier_69	consumable	69	ShareFlow Tier 69	Group capacity / activation tier 69 ILS

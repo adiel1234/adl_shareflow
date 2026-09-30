@@ -4,7 +4,11 @@ from flask import Blueprint, request, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app.models import Group, GroupMember, Expense, User
-from app.balances.engine import calculate_group_balances, calculate_settlement_plan
+from app.balances.engine import (
+    calculate_group_balances,
+    calculate_settlement_plan,
+    calculate_member_amounts_paid,
+)
 from app.common.errors import success_response, error_response
 from app.common.decorators import require_group_member, require_group_admin
 from app import db
@@ -21,6 +25,7 @@ def get_balances(group_id, **kwargs):
         return error_response('Group not found', 404)
 
     balances = calculate_group_balances(group_id)
+    amounts_paid = calculate_member_amounts_paid(group_id)
     return success_response(data={
         'group_id': group_id,
         'base_currency': group.base_currency,
@@ -31,6 +36,9 @@ def get_balances(group_id, **kwargs):
                 'net_amount': str(b.net_amount),
                 'total_paid': str(b.total_paid),
                 'total_owed': str(b.total_owed),
+                'total_expenses_paid': str(
+                    amounts_paid.get(b.user_id, Decimal('0.00'))
+                ),
                 'status': 'creditor' if b.net_amount > 0 else ('debtor' if b.net_amount < 0 else 'settled'),
             }
             for b in balances

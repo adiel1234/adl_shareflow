@@ -320,22 +320,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   style: const TextStyle(
                       color: AppColors.textSecondary, fontSize: 14),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    gradient: AppColors.brandGradient,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    auth.isPro ? 'Pro' : 'Free',
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600),
-                  ),
-                ),
               ],
             ),
           ),
@@ -447,11 +431,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             subtitle: l.profileHowToSubtitle,
             onTap: () => showHomeHowTo(context, markDone: false),
           ),
-
-          const SizedBox(height: 20),
-
-          // Pro Plan banner
-          _ProPlanBanner(l: l),
 
           const SizedBox(height: 20),
 
@@ -830,69 +809,6 @@ class _SectionHeader extends StatelessWidget {
           color: AppColors.textSecondary,
           letterSpacing: 0.8,
         ),
-      ),
-    );
-  }
-}
-
-class _ProPlanBanner extends StatelessWidget {
-  final AppLocalizations l;
-  const _ProPlanBanner({required this.l});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF6C47FF), Color(0xFF9E72FF)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.star_rounded, color: Colors.white, size: 24),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l.proPlanTitle,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  l.proPlanSubtitle,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              l.comingSoon,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
       ),
     );
   }

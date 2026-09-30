@@ -52,6 +52,8 @@ class UserBalance {
   final String netAmount;
   final String totalPaid;
   final String totalOwed;
+  /// Full converted amount this member paid for expenses (not share, not settlements).
+  final String totalExpensesPaid;
   final String status; // creditor / debtor / settled
 
   const UserBalance({
@@ -60,6 +62,7 @@ class UserBalance {
     required this.netAmount,
     required this.totalPaid,
     required this.totalOwed,
+    this.totalExpensesPaid = '0.00',
     required this.status,
   });
 
@@ -69,10 +72,13 @@ class UserBalance {
         netAmount: json['net_amount'] as String,
         totalPaid: json['total_paid'] as String,
         totalOwed: json['total_owed'] as String,
+        totalExpensesPaid: (json['total_expenses_paid'] ?? '0.00').toString(),
         status: json['status'] as String,
       );
 
   double get netDouble => double.tryParse(netAmount) ?? 0;
+  double get totalExpensesPaidDouble =>
+      double.tryParse(totalExpensesPaid) ?? 0;
   bool get isCreditor => status == 'creditor';
   bool get isDebtor => status == 'debtor';
   bool get isSettled => status == 'settled';

@@ -84,7 +84,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
           return;
         }
         iapResult = await IapService.instance.purchase(priceIls: _price);
-        if (iapResult == null) {
+        if (iapResult == null || iapResult.productId != productId) {
           if (mounted) {
             setState(() => _loading = false);
             ScaffoldMessenger.of(context).showSnackBar(

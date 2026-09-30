@@ -1936,9 +1936,24 @@ class _MemberBalanceRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              balance.displayName,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  balance.displayName,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 14),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${AppLocalizations.of(context)!.memberTotalExpenses} · '
+                  '${formatAmountWithCurrency(balance.totalExpensesPaidDouble, currency)}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
             ),
           ),
           Column(

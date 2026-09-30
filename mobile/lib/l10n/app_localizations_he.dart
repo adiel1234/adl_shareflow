@@ -127,7 +127,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get notifications => 'התראות';
 
   @override
-  String get scanReceipt => 'סרוק קבלה';
+  String get scanReceipt => 'צרף קבלה';
 
   @override
   String get confirm => 'אישור';
@@ -191,9 +191,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get free => 'חינמי';
-
-  @override
-  String get pro => 'Pro';
 
   @override
   String helloUser(String name) {
@@ -466,6 +463,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get groupTotalExpenses => 'סך הוצאות הקבוצה';
 
   @override
+  String get memberTotalExpenses => 'סך הוצאות';
+
+  @override
   String get expensesCountLabel => 'הוצאות';
 
   @override
@@ -506,13 +506,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get addExpenseBtn => 'הוסף הוצאה';
 
   @override
-  String get scanReceiptDescription => 'חסוך זמן - מלא אוטומטית מקבלה';
+  String get scanReceiptDescription => 'צלמו או צרפו תמונת קבלה';
 
   @override
-  String get receiptScanned => 'הקבלה נסרקה - ניתן לעדכן את הנתונים';
+  String get receiptScanned => 'הקבלה צורפה';
 
   @override
-  String get rescan => 'סרוק שוב';
+  String get rescan => 'החלף קבלה';
 
   @override
   String get groupTypeOngoing => 'שוטף';
@@ -536,7 +536,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get eventTypeDesc => 'אירוע = חד־פעמי (טיול, מסיבה, מפגש).';
 
   @override
-  String get ongoingTypeDesc => 'שוטף = מתמשך (דירה, משרד). חיוב לפי תקופה.';
+  String get ongoingTypeDesc =>
+      'שוטף = מתמשך (דירה, משרד). 30 ימים ברכישה חד־פעמית.';
 
   @override
   String get groupNameHint => 'לדוגמה: דירה ברחוב הרצל';
@@ -572,21 +573,21 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get bannerExpiredSubtitle =>
-      'לא ניתן להוסיף הוצאות. הארכה: 15 ₪ ל-7 ימים נוספים.';
+      'לא ניתן להוסיף הוצאות.\n7 ימים נוספים ברכישה חד־פעמית: 15 ₪';
 
   @override
-  String get bannerExtend => 'הארך';
+  String get bannerExtend => 'רכוש 7 ימים נוספים';
 
   @override
   String get bannerReadOnlyTitle => 'קריאה בלבד';
 
   @override
   String bannerReadOnlySubtitle(int price) {
-    return 'פרק הזמן שבתשלום הסתיים. חידוש: $price ₪';
+    return 'פרק הזמן שבתשלום הסתיים.\n30 ימים נוספים ברכישה חד־פעמית: $price ₪';
   }
 
   @override
-  String get bannerRenew => 'חדש';
+  String get bannerRenew => 'רכוש 30 ימים נוספים';
 
   @override
   String get bannerClosedTitle => 'קבוצה סגורה';
@@ -746,10 +747,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get formerMember => 'לשעבר';
 
   @override
-  String get extendGroupTitle => 'הארכת הקבוצה';
+  String get extendGroupTitle => 'רכישה חד־פעמית ל־7 ימים';
 
   @override
-  String get renewGroupTitle => 'חידוש הקבוצה';
+  String get renewGroupTitle => 'רכישה חד־פעמית ל־30 ימים';
 
   @override
   String get activateGroupTitle => 'הפעלת הקבוצה';
@@ -796,13 +797,13 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get betaNoteActivation =>
-      'בשלב הביתא ההפעלה מתבצעת ידנית על ידי המנהל. תשלום ישיר יתווסף בגרסה הבאה.';
+      'ההפעלה נרשמת כהוצאה בקבוצה. אין מנוי ואין תוכנית בתשלום נפרדת.';
 
   @override
-  String get extendedSuccess => 'הקבוצה הוארכה בהצלחה';
+  String get extendedSuccess => 'נוספו 7 ימים ברכישה חד־פעמית';
 
   @override
-  String get renewedSuccess => 'הקבוצה חודשה בהצלחה';
+  String get renewedSuccess => 'נוספו 30 ימים ברכישה חד־פעמית';
 
   @override
   String get activatedSuccess => 'הקבוצה הופעלה בהצלחה';
@@ -812,12 +813,12 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String extendBtnLabel(int price) {
-    return 'הארך ב-7 ימים - $price ₪';
+    return 'רכוש 7 ימים נוספים - $price ₪';
   }
 
   @override
   String renewBtnLabel(int price) {
-    return 'חדש לחודש - $price ₪';
+    return 'רכוש 30 ימים נוספים - $price ₪';
   }
 
   @override
@@ -1071,9 +1072,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get laterBtn => 'אחר כך';
-
-  @override
-  String get comingSoon => 'בקרוב';
 
   @override
   String get settingsSaved => 'הגדרות נשמרו ✓';
@@ -1379,12 +1377,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get suggestionsSubtitle => 'ספר לנו מה אפשר לשפר';
 
   @override
-  String get proPlanTitle => 'תוכנית Pro';
-
-  @override
-  String get proPlanSubtitle => 'בקרוב - ניתוחים, סטטיסטיקות ועוד';
-
-  @override
   String get appSection => 'אפליקציה';
 
   @override
@@ -1441,7 +1433,7 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get durationMonth => 'חודש';
+  String get durationMonth => '30 ימים';
 
   @override
   String get tierUpgradeRequired => 'נדרש שדרוג תוכנית';
@@ -1663,7 +1655,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipScanPrimary =>
-      'מומלץ לסרוק קבלה: ממלא סכום ותיאור אוטומטית. אפשר גם לצרף תמונה לצפייה בלבד.';
+      'אפשר לצלם או לצרף תמונת קבלה. הסכום והתיאור מוזנים ידנית.';
 
   @override
   String get transferPendingBadge =>
@@ -1993,7 +1985,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get tipScanVsAttach =>
-      'הסורק למעלה ממלא סכום ותיאור אוטומטית. צרף קבלה רק שומר תמונה לצפייה.';
+      'צירוף קבלה שומר תמונה לצפייה. הסכום והתיאור מוזנים ידנית.';
 
   @override
   String get tipWhatsAppInvite => 'נפתח WhatsApp. בחרו למי לשלוח.';
@@ -2019,8 +2011,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get attachReceiptTitle => 'צרף קבלה';
 
   @override
-  String get attachReceiptSubtitle =>
-      'צילום או גלריה, לצפייה בלבד, ללא מילוי אוטומטי';
+  String get attachReceiptSubtitle => 'צילום או גלריה';
 
   @override
   String get coachSkip => 'סגור';

@@ -8,10 +8,9 @@ import '../../../../providers/groups_provider.dart';
 import '../../../../providers/auth_provider.dart';
 import '../../../../providers/currency_provider.dart';
 import '../../../groups/domain/group_model.dart';
-import '../../../ocr/presentation/screens/ocr_scan_screen.dart';
-import '../../../ocr/domain/ocr_result_model.dart';
 import '../../../ocr/data/ocr_repository.dart';
 import '../../../../core/utils/media_url.dart';
+import '../widgets/receipt_viewer.dart';
 import '../../../../ui/widgets/currency_conversion_chip.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../ui/widgets/app_button.dart';
@@ -124,42 +123,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     _amountCtrl.dispose();
     _notesCtrl.dispose();
     super.dispose();
-  }
-
-  Future<void> _scanReceipt() async {
-    final result = await Navigator.push<OcrResult>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => OcrScanScreen(groupId: widget.group.id),
-      ),
-    );
-
-    if (result == null || !mounted) return;
-
-    setState(() {
-      _scannedReceiptId = result.receiptId;
-      _receiptImageUrl = resolveMediaUrl(result.imageUrl);
-      if (result.amount != null && result.amountAsDouble != null) {
-        _amountCtrl.text = result.amountAsDouble!.toStringAsFixed(2);
-      }
-      if (result.merchant != null && _titleCtrl.text.isEmpty) {
-        _titleCtrl.text = result.merchant!;
-      }
-    });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            result.amount != null
-                ? 'קבלה נסרקה. סכום: ${result.amount} ₪'
-                : 'הקבלה נסרקה, בדוק את הנתונים',
-          ),
-          backgroundColor: AppColors.positive,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
   }
 
   Future<ImageSource?> _pickReceiptSource() async {
@@ -315,18 +278,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.addExpense),
         backgroundColor: AppColors.background,
-        actions: [
-          IconButton(
-            onPressed: _loading ? null : _scanReceipt,
-            icon: const Icon(Icons.document_scanner_outlined),
-            tooltip: AppLocalizations.of(context)!.scanReceipt,
-            style: IconButton.styleFrom(
-              backgroundColor: AppColors.primary.withOpacity(0.08),
-              foregroundColor: AppColors.primary,
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: Form(
         key: _formKey,
@@ -336,22 +287,35 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (_scannedReceiptId != null) ...[
-                _OcrBanner(
-                  onRescan: _scanReceipt,
+                _AttachedReceiptBanner(
+                  onReplace: _attachReceipt,
                   onRemove: () => setState(() {
                     _scannedReceiptId = null;
                     _receiptImageUrl = null;
                   }),
                 ),
+                if (_receiptImageUrl != null && _receiptImageUrl!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  ReceiptPreviewTile(
+                    receiptId: _scannedReceiptId,
+                    imageUrl: _receiptImageUrl!,
+                    onView: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ReceiptViewerScreen(
+                          receiptId: _scannedReceiptId,
+                          imageUrl: _receiptImageUrl,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
               ] else ...[
                 _FieldSection(
-                  title: AppLocalizations.of(context)!.scanReceipt,
+                  title: AppLocalizations.of(context)!.attachReceiptTitle,
                   required: false,
-                  child: _ScanCta(
-                    onScan: _scanReceipt,
-                    onAttachOnly: _attachReceipt,
-                  ),
+                  child: _AttachReceiptCta(onAttach: _attachReceipt),
                 ),
               ],
 
@@ -689,110 +653,77 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 // Helpers
 // ---------------------------------------------------------------------------
 
-class _ScanCta extends StatelessWidget {
-  final VoidCallback onScan;
-  final VoidCallback onAttachOnly;
-  const _ScanCta({required this.onScan, required this.onAttachOnly});
+class _AttachReceiptCta extends StatelessWidget {
+  final VoidCallback onAttach;
+  const _AttachReceiptCta({required this.onAttach});
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        InkWell(
-          onTap: onScan,
+    return InkWell(
+      onTap: onAttach,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.primary.withOpacity(0.08),
+              AppColors.secondary.withOpacity(0.08),
+            ],
+          ),
           borderRadius: BorderRadius.circular(14),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primary.withOpacity(0.08),
-                  AppColors.secondary.withOpacity(0.08),
+          border: Border.all(
+            color: AppColors.primary.withOpacity(0.25),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: AppColors.brandGradient,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.photo_camera_outlined,
+                  color: Colors.white, size: 20),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.attachReceiptTitle,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    l.attachReceiptSubtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                 ],
               ),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: AppColors.primary.withOpacity(0.25),
-              ),
             ),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    gradient: AppColors.brandGradient,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(Icons.document_scanner_outlined,
-                      color: Colors.white, size: 20),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.scanReceipt,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      Text(
-                        l.scanReceiptDescription,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(Icons.chevron_left, color: AppColors.primary),
-              ],
-            ),
-          ),
+            Icon(Icons.chevron_left, color: AppColors.primary),
+          ],
         ),
-        const SizedBox(height: 8),
-        Text(
-          l.tipScanPrimary,
-          style: const TextStyle(
-            fontSize: 12,
-            height: 1.35,
-            color: AppColors.textSecondary,
-          ),
-        ),
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: TextButton(
-            onPressed: onAttachOnly,
-            style: TextButton.styleFrom(
-              foregroundColor: AppColors.textSecondary,
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-            ),
-            child: Text(
-              l.attachReceiptTitle,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
-class _OcrBanner extends StatelessWidget {
-  final VoidCallback onRescan;
+class _AttachedReceiptBanner extends StatelessWidget {
+  final VoidCallback onReplace;
   final VoidCallback? onRemove;
-  const _OcrBanner({required this.onRescan, this.onRemove});
+  const _AttachedReceiptBanner({required this.onReplace, this.onRemove});
 
   @override
   Widget build(BuildContext context) {
@@ -824,7 +755,7 @@ class _OcrBanner extends StatelessWidget {
               tooltip: 'הסר קבלה',
             ),
           TextButton(
-            onPressed: onRescan,
+            onPressed: onReplace,
             child: const Text('החלף'),
           ),
         ],

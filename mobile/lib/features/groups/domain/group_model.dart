@@ -157,6 +157,10 @@ class Group {
   bool get isExpiredOrReadOnly =>
       groupState == 'expired' || groupState == 'read_only';
 
+  /// True when the group belongs in the inactive bucket of the Groups list.
+  /// Trusts server-synced [groupState] and [isClosed]; does not inspect expiry dates.
+  bool get isInactive => isClosed || isExpiredOrReadOnly;
+
   bool get isPeriodic => settlementType == 'periodic';
 
   String get settlementPeriodLabel {

@@ -90,11 +90,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
     final l = AppLocalizations.of(context)!;
     try {
-      final user = await _authService.login(
-        email: _emailCtrl.text.trim(),
-        password: _passwordCtrl.text,
-        rememberMe: _rememberMe,
-      );
+      final user = await _authService
+          .login(
+            email: _emailCtrl.text.trim(),
+            password: _passwordCtrl.text,
+            rememberMe: _rememberMe,
+          )
+          .timeout(const Duration(seconds: 25));
       ref.read(authProvider.notifier).setUser(user);
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
@@ -118,7 +120,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
     final l = AppLocalizations.of(context)!;
     try {
-      final user = await SocialAuth.signInWithGoogle();
+      final user = await SocialAuth.signInWithGoogle()
+          .timeout(const Duration(seconds: 45));
       ref.read(authProvider.notifier).setUser(user);
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
@@ -138,7 +141,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
     final l = AppLocalizations.of(context)!;
     try {
-      final user = await SocialAuth.signInWithApple();
+      final user = await SocialAuth.signInWithApple()
+          .timeout(const Duration(seconds: 45));
       ref.read(authProvider.notifier).setUser(user);
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {

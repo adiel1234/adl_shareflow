@@ -46,11 +46,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     });
 
     try {
-      final user = await _authService.register(
-        email: _emailCtrl.text.trim(),
-        password: _passwordCtrl.text,
-        displayName: _nameCtrl.text.trim(),
-      );
+      final user = await _authService
+          .register(
+            email: _emailCtrl.text.trim(),
+            password: _passwordCtrl.text,
+            displayName: _nameCtrl.text.trim(),
+          )
+          .timeout(const Duration(seconds: 25));
       ref.read(authProvider.notifier).setUser(user);
       if (mounted) Navigator.pushReplacementNamed(context, '/onboarding');
     } catch (e) {
@@ -77,7 +79,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     });
     final l = AppLocalizations.of(context)!;
     try {
-      final user = await SocialAuth.signInWithGoogle();
+      final user = await SocialAuth.signInWithGoogle()
+          .timeout(const Duration(seconds: 45));
       ref.read(authProvider.notifier).setUser(user);
       if (mounted) Navigator.pushReplacementNamed(context, '/onboarding');
     } catch (e) {
@@ -97,7 +100,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     });
     final l = AppLocalizations.of(context)!;
     try {
-      final user = await SocialAuth.signInWithApple();
+      final user = await SocialAuth.signInWithApple()
+          .timeout(const Duration(seconds: 45));
       ref.read(authProvider.notifier).setUser(user);
       if (mounted) Navigator.pushReplacementNamed(context, '/onboarding');
     } catch (e) {

@@ -75,15 +75,20 @@
 | 25 ₪ | `com.adl.shareflow.tier_25` | ShareFlow Tier 25 |
 | 30 ₪ | `com.adl.shareflow.tier_30` | ShareFlow Tier 30 |
 | 35 ₪ | `com.adl.shareflow.tier_35` | ShareFlow Tier 35 |
+| 40 ₪ | `com.adl.shareflow.tier_40` | ShareFlow Tier 40 — הפרש שדרוג, כולל 49←89 |
 | 45 ₪ | `com.adl.shareflow.tier_45` | ShareFlow Tier 45 |
 | 49 ₪ | `com.adl.shareflow.tier_49` | ShareFlow Tier 49 |
 | 69 ₪ | `com.adl.shareflow.tier_69` | ShareFlow Tier 69 |
 | 79 ₪ | `com.adl.shareflow.tier_79` | ShareFlow Tier 79 |
 | 89 ₪ | `com.adl.shareflow.tier_89` | ShareFlow Tier 89 |
 
+אין מנוי. אין רכישת Pro. `tier_40` הוא Consumable טכני להפרש שדרוג 40 ₪.
+
+קבלה: המשתמש יכול לצלם או לצרף תמונה להוצאה. התמונה נשמרת כקובץ מצורף. אין סריקה או חילוץ נתונים אוטומטי.
+
 `APPLE_SHARED_SECRET` כבר קיים ב־Railway — אין צורך ליצור מחדש אלא אם החלפת סוד.
 
-סמן: `[ ] 12 מוצרים נוצרו ב־ASC`
+סמן: `[ ] 13 מוצרים נוצרו ב־ASC` כולל `tier_40`
 
 ---
 

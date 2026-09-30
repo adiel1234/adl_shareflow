@@ -304,8 +304,8 @@
   <header>
     <h1>תכנית השקה כפולה — 20 יום</h1>
     <p class="sub">
-      ADL ShareFlow · iOS (פרסום ידני מוכן מוקדם) + Google Play (14 יום בדיקה סגורה) ·
-      השקה משותפת ביום 20
+      ADL ShareFlow · עודכן 15.9.2026 · יום סגירת פערים ·
+      Play AAB מוכן <code>1.0.9+79</code> · iOS האחרון שנבנה <code>+72</code> · בונים IPA 79 להעלאה היום
     </p>
     <div class="meta">
       <span class="chip today-chip" id="todayChip">היום</span>
@@ -324,17 +324,17 @@
 
   <main>
     <div class="banner">
-      <strong>עקרונות:</strong>
-      הפיילוט (APK + TestFlight) ממשיך עד יום 20 ·
-      לא להדליק <code>PAYMENTS_ENABLED</code> לפני ההשקה ·
-      לא לייצור ב־Play לפני סוף 14 הימים ·
-      ב־iOS: <strong>Manually release this version</strong>
+      <strong>15.9 — מה אפשר היום:</strong>
+      להעלות קבצים לקונסולים ולשלוח לביקורת.
+      <strong>לא</strong> להופיע בחנות Apple היום (ביקורת 1–3 ימים).
+      Play: אם יש V על 14 ימים + גישה לייצור — אפשר להעלות AAB 79 למסלול ייצור.
+      IAP לא חוסם פרסום חינמי. לא להדליק <code>PAYMENTS_ENABLED</code> עד שהחנויות חיות.
     </div>
 
     <div class="timeline" aria-hidden="true">
       <div class="bar">
-        <div class="label">ימים 1–4</div>
-        <div class="track"><div class="fill apple" style="inset-inline-start:0;width:20%">iOS בנייה + Review</div></div>
+        <div class="label">ימים 13–15</div>
+        <div class="track"><div class="fill apple" style="inset-inline-start:60%;width:15%">iOS 79 + Review</div></div>
       </div>
       <div class="bar">
         <div class="label">ימים 1–14</div>
@@ -358,14 +358,49 @@
     </div>
 
     <div class="rules">
-      <div class="rule">אם פחות מ־12 בודקים ב־Play — יום 20 זז. לדחוף הצטרפות מיד.</div>
-      <div class="rule">אם Play Review מתעכב אחרי יום 19 — להזיז את יום ההשקה ליום האישור המשותף הראשון.</div>
+      <div class="rule">15.9: קודם IPA 79 ל־ASC (לא 72). אחר כך Submit עם Manually release.</div>
+      <div class="rule">Play: AAB 79 כבר קיים. לייצור רק אם יש V על 14 ימים + גישה לייצור.</div>
+      <div class="rule">IAP לא חוסם פרסום חינמי. אפשר למלא אחרי ההעלאה.</div>
     </div>
+
+    <section class="phase">
+      <h2>יום סגירת פערים · 15.9.2026</h2>
+      <p>כל מה שנשאר — היום. הופעה חיה בחנויות רק אחרי ביקורת.</p>
+    </section>
+
+    <article class="day" data-day="23" data-date="2026-09-15">
+      <div class="day-head">
+        <div class="day-num">15.9</div>
+        <div class="day-title"><strong>סגירת פערים + העלאה לקונסולים</strong><span>שלישי 15.9.2026</span></div>
+      </div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col apple">
+            <h3>Apple</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d21-a1" /><span>בניית IPA <code>1.0.9+79</code></span></li>
+              <li><input type="checkbox" data-id="d21-a2" /><span>העלאה ב־Transporter ל־App Store Connect</span></li>
+              <li><input type="checkbox" data-id="d21-a3" /><span>שיוך ביצה 79 לגרסה 1.0.9</span></li>
+              <li><input type="checkbox" data-id="d21-a4" /><span>Manually release + Submit for Review</span></li>
+            </ul>
+          </div>
+          <div class="col google">
+            <h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d21-g1" /><span>וידוא V על 14 ימים + גישה לייצור</span></li>
+              <li><input type="checkbox" data-id="d21-g2" /><span>העלאת AAB 79 למסלול ייצור (בלי פרסום אוטומטי אם אפשר)</span></li>
+              <li><input type="checkbox" data-id="d21-g3" /><span>IAP 11 מוצרים — אפשר במקביל / אחרי (לא חוסם חינמי)</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="goal">יעד היום: שני הקבצים בקונסולים + iOS בביקורת. לא מדליקים תשלומים בשרת.</div>
+      </div>
+    </article>
 
     <!-- PHASE 1 -->
     <section class="phase">
       <h2>שלב א · ימים 1–4</h2>
-      <p>24–27 באוגוסט · התחלת שעון Google + הכנת iOS לביקורת עם פרסום ידני</p>
+      <p>24–27 באוגוסט · Google התחיל · Apple נשאר על 72 — יישור מיום 13</p>
     </section>
 
     <article class="day" data-day="1" data-date="2026-08-24">
@@ -378,17 +413,17 @@
           <div class="col google">
             <h3>Google Play</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d1-g1" /><span>לפתוח בדיקה סגורה (Alpha)</span></li>
-              <li><input type="checkbox" data-id="d1-g2" /><span>רשימת ≥12 אימיילים + קישור הצטרפות</span></li>
-              <li><input type="checkbox" data-id="d1-g3" /><span>להעלות / לשייך AAB 1.0.9+70 למסלול Alpha</span></li>
-              <li><input type="checkbox" data-id="d1-g4" /><span>לוודא לפחות חלק מהבודקים הצטרפו והתקינו</span></li>
+              <li><input type="checkbox" data-id="d1-g1" checked /><span>לפתוח בדיקה סגורה (Alpha)</span></li>
+              <li><input type="checkbox" data-id="d1-g2" checked /><span>רשימת ≥12 אימיילים + קישור הצטרפות</span></li>
+              <li><input type="checkbox" data-id="d1-g3" checked /><span>להעלות / לשייך AAB 1.0.9+79 למסלול Closed testing</span></li>
+              <li><input type="checkbox" data-id="d1-g4" checked /><span>לוודא לפחות חלק מהבודקים הצטרפו והתקינו</span></li>
             </ul>
           </div>
           <div class="col general">
             <h3>כללי</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d1-x1" /><span>לגבש רשימת בודקים + קבוצת WhatsApp</span></li>
-              <li><input type="checkbox" data-id="d1-x2" /><span>לשלוח הוראות הצטרפות (לא פרסום ציבורי)</span></li>
+              <li><input type="checkbox" data-id="d1-x1" checked /><span>לגבש רשימת בודקים + קבוצת WhatsApp</span></li>
+              <li><input type="checkbox" data-id="d1-x2" checked /><span>לשלוח הוראות הצטרפות (לא פרסום ציבורי)</span></li>
             </ul>
           </div>
         </div>
@@ -405,15 +440,15 @@
           <div class="col google">
             <h3>Google Play</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d2-g1" /><span>לוודא ≥12 הצטרפו ופתחו את האפליקציה</span></li>
-              <li><input type="checkbox" data-id="d2-g2" /><span>לאשר ששעון 14 הימים רץ</span></li>
+              <li><input type="checkbox" data-id="d2-g1" checked /><span>לוודא ≥12 הצטרפו ופתחו את האפליקציה</span></li>
+              <li><input type="checkbox" data-id="d2-g2" checked /><span>לאשר ששעון 14 הימים רץ (אושר ב־28.8)</span></li>
             </ul>
           </div>
           <div class="col apple">
             <h3>Apple</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d2-a1" /><span>קומיט שינויי +70 / OAuth / תשתית</span></li>
-              <li><input type="checkbox" data-id="d2-a2" /><span>הכנת בניית IPA</span></li>
+              <li><input type="checkbox" data-id="d2-a1" checked /><span>קומיט שינויי OAuth / תשתית / Play 79</span></li>
+              <li><input type="checkbox" data-id="d2-a-moved" /><span>IPA עדכני + Review — פוזר לימים 13–15</span></li>
             </ul>
           </div>
         </div>
@@ -430,16 +465,15 @@
           <div class="col google">
             <h3>Google Play</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d3-g1" /><span>מעקב בודקים שטרם התקינו</span></li>
-              <li><input type="checkbox" data-id="d3-g2" /><span>אימות בנק אם ההפקדה הגיעה</span></li>
+              <li><input type="checkbox" data-id="d3-g1" checked /><span>מעקב בודקים שטרם התקינו</span></li>
+              <li><input type="checkbox" data-id="d3-g2" checked /><span>אימות בנק (הושלם ב־28.8)</span></li>
             </ul>
           </div>
           <div class="col apple">
             <h3>Apple</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d3-a1" /><span>בניית IPA 1.0.9+N</span></li>
-              <li><input type="checkbox" data-id="d3-a2" /><span>העלאה ל־App Store Connect</span></li>
-              <li><input type="checkbox" data-id="d3-a3" /><span>TestFlight (אופציונלי לבדיקה)</span></li>
+              <li><input type="checkbox" data-id="d3-a3" checked /><span>TestFlight פיילוט קיים — גרסה אחרונה שנבנתה 1.0.9+72</span></li>
+              <li><input type="checkbox" data-id="d3-a-moved" /><span>יישור ל־79 + Review — פוזר לימים 13–15</span></li>
             </ul>
           </div>
         </div>
@@ -456,26 +490,24 @@
           <div class="col google">
             <h3>Google Play</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d4-g1" /><span>מעקב שוטף אחרי הבודקים</span></li>
+              <li><input type="checkbox" data-id="d4-g1" checked /><span>מעקב שוטף אחרי הבודקים</span></li>
             </ul>
           </div>
           <div class="col apple">
             <h3>Apple</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d4-a1" /><span>שליחה ל־App Review</span></li>
-              <li><input type="checkbox" data-id="d4-a2" /><span>בחירת Manually release this version</span></li>
-              <li><input type="checkbox" data-id="d4-a3" /><span>וידוא שלא סומן Automatic release</span></li>
+              <li><input type="checkbox" data-id="d4-a-moved" /><span>שליחה ל־Review — יום 15 (אחרי IPA 79)</span></li>
             </ul>
           </div>
         </div>
-        <div class="goal">יעד סוף יום 4: Google — בדיקה סגורה פעילה · iOS — בביקורת עם פרסום ידני</div>
+        <div class="goal">יעד סוף יום 4 (בפועל): Google התחיל לרוץ · Apple נדחה ליום 13</div>
       </div>
     </article>
 
     <!-- PHASE 2 -->
     <section class="phase">
       <h2>שלב ב · ימים 5–14</h2>
-      <p>28.8–6.9 · שעון Google + IAP · iOS מאושר וממתין לכפתור</p>
+      <p>28.8–6.9 · שעון Google רץ · IAP + יישור iOS מתחילים מיום 13</p>
     </section>
 
     <article class="day" data-day="5" data-date="2026-08-28">
@@ -484,13 +516,13 @@
         <div class="cols">
           <div class="col google"><h3>Google Play</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d5-g1" /><span>השלמת אימות בנק</span></li>
-              <li><input type="checkbox" data-id="d5-g2" /><span>התחלת יצירת 11 מוצרי IAP</span></li>
+              <li><input type="checkbox" data-id="d5-g1" checked /><span>השלמת אימות בנק</span></li>
+              <li><input type="checkbox" data-id="d5-g2" /><span>11 מוצרי IAP — פוזר לימים 13–15</span></li>
             </ul>
           </div>
           <div class="col apple"><h3>Apple</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d5-a1" /><span>מעקב סטטוס App Review</span></li>
+              <li><input type="checkbox" data-id="d5-a-moved" /><span>מעקב Review — אחרי שליחה ביום 15</span></li>
             </ul>
           </div>
         </div>
@@ -502,7 +534,7 @@
       <div class="day-head"><div class="day-num">6</div><div class="day-title"><strong>יום 6</strong><span>שישי 29.8.2026</span></div></div>
       <div class="day-body">
         <div class="col google"><h3>Google Play</h3>
-          <ul class="tasks"><li><input type="checkbox" data-id="d6-g1" /><span>המשך יצירת מוצרי IAP</span></li></ul>
+          <ul class="tasks"><li><input type="checkbox" data-id="d6-g1" /><span>IAP — פוזר לימים 13–15</span></li></ul>
         </div>
       </div>
     </article>
@@ -512,8 +544,8 @@
       <div class="day-body">
         <div class="col google"><h3>Google Play</h3>
           <ul class="tasks">
-            <li><input type="checkbox" data-id="d7-g1" /><span>בדיקה מי מהבודקים לא התקין</span></li>
-            <li><input type="checkbox" data-id="d7-g2" /><span>תזכורת WhatsApp אם חסרים</span></li>
+            <li><input type="checkbox" data-id="d7-g1" checked /><span>בדיקה מי מהבודקים לא התקין</span></li>
+            <li><input type="checkbox" data-id="d7-g2" checked /><span>תזכורת WhatsApp אם חסרים</span></li>
           </ul>
         </div>
       </div>
@@ -525,12 +557,13 @@
         <div class="cols">
           <div class="col google"><h3>Google Play</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d8-g1" /><span>המשך IAP + וידוא מס/פרופיל</span></li>
+              <li><input type="checkbox" data-id="d8-g1" checked /><span>וידוא מס/פרופיל תשלומים (בנק מאומת)</span></li>
+              <li><input type="checkbox" data-id="d8-g2" /><span>IAP — פוזר לימים 13–15</span></li>
             </ul>
           </div>
           <div class="col apple"><h3>Apple</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d8-a1" /><span>אם Review אושר — להשאיר כפתור פרסום, לא ללחוץ</span></li>
+              <li><input type="checkbox" data-id="d8-a-moved" /><span>אחרי אישור Review — לא ללחוץ פרסום (רלוונטי אחרי יום 13)</span></li>
             </ul>
           </div>
         </div>
@@ -540,7 +573,7 @@
     <article class="day" data-day="9" data-date="2026-09-01">
       <div class="day-head"><div class="day-num">9</div><div class="day-title"><strong>יום 9</strong><span>שני 1.9.2026</span></div></div>
       <div class="day-body">
-        <ul class="tasks"><li><input type="checkbox" data-id="d9-x1" /><span>מעקב שוטף — בלי פרסום</span></li></ul>
+        <ul class="tasks"><li><input type="checkbox" data-id="d9-x1" checked /><span>מעקב שוטף — בלי פרסום</span></li></ul>
       </div>
     </article>
 
@@ -548,99 +581,156 @@
       <div class="day-head"><div class="day-num">10</div><div class="day-title"><strong>יום 10</strong><span>שלישי 2.9.2026</span></div></div>
       <div class="day-body">
         <div class="col google"><h3>Google Play</h3>
-          <ul class="tasks"><li><input type="checkbox" data-id="d10-g1" /><span>אמצע התקופה — וידוא שעדיין ≥12 פעילים</span></li></ul>
+          <ul class="tasks"><li><input type="checkbox" data-id="d10-g1" checked /><span>אמצע התקופה — וידוא שעדיין ≥12 פעילים</span></li></ul>
         </div>
       </div>
     </article>
 
     <article class="day" data-day="11" data-date="2026-09-03">
       <div class="day-head"><div class="day-num">11</div><div class="day-title"><strong>יום 11</strong><span>רביעי 3.9.2026</span></div></div>
-      <div class="day-body"><ul class="tasks"><li><input type="checkbox" data-id="d11-x1" /><span>יום מעקב קל</span></li></ul></div>
+      <div class="day-body"><ul class="tasks"><li><input type="checkbox" data-id="d11-x1" checked /><span>יום מעקב קל</span></li></ul></div>
     </article>
 
     <article class="day" data-day="12" data-date="2026-09-04">
       <div class="day-head"><div class="day-num">12</div><div class="day-title"><strong>יום 12</strong><span>חמישי 4.9.2026</span></div></div>
       <div class="day-body">
         <div class="col google"><h3>Google Play</h3>
-          <ul class="tasks"><li><input type="checkbox" data-id="d12-g1" /><span>סיום IAP אם התעכב</span></li></ul>
+          <ul class="tasks"><li><input type="checkbox" data-id="d12-g1" /><span>IAP — פוזר לימים 13–15</span></li></ul>
         </div>
       </div>
     </article>
 
     <article class="day" data-day="13" data-date="2026-09-05">
-      <div class="day-head"><div class="day-num">13</div><div class="day-title"><strong>יום 13</strong><span>שישי 5.9.2026</span></div></div>
-      <div class="day-body"><ul class="tasks"><li><input type="checkbox" data-id="d13-x1" /><span>יום מעקב קל</span></li></ul></div>
+      <div class="day-head"><div class="day-num">13</div><div class="day-title"><strong>יום 13 — יישור גרסה</strong><span>שבת 5.9.2026</span></div></div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col apple">
+            <h3>Apple</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d13-a1" /><span>נעילת יעד: iOS = <code>1.0.9+79</code> (כמו Play; לא לשלוח 72 ל־Review)</span></li>
+              <li><input type="checkbox" data-id="d13-a2" /><span>בניית IPA 79 לחנות / TestFlight</span></li>
+              <li><input type="checkbox" data-id="d13-a3" /><span>העלאה ל־App Store Connect</span></li>
+            </ul>
+          </div>
+          <div class="col google">
+            <h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d13-g1" /><span>וידוא שעדיין ≥12 opted in ושעון 14 הימים רץ</span></li>
+              <li><input type="checkbox" data-id="d13-g2" /><span>IAP: יצירת 4 מוצרים ראשונים (tier 5 / 10 / 15 / 20)</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="goal">יעד: IPA 79 בדרך ל־ASC · 4 מוצרי IAP נוצרו · בלי Submit וبدون ייצור</div>
+      </div>
     </article>
 
     <article class="day" data-day="14" data-date="2026-09-06">
-      <div class="day-head"><div class="day-num">14</div><div class="day-title"><strong>יום 14</strong><span>שבת 6.9.2026</span></div></div>
+      <div class="day-head"><div class="day-num">14</div><div class="day-title"><strong>יום 14</strong><span>ראשון 6.9.2026</span></div></div>
       <div class="day-body">
         <div class="cols">
           <div class="col google"><h3>Google Play</h3>
-            <ul class="tasks"><li><input type="checkbox" data-id="d14-g1" /><span>יום 14 הושלם — וידוא תנאי 12×14</span></li></ul>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d14-g1" /><span>בדיקת התקדמות שעון (14 מלאים סביב 10–11.9)</span></li>
+              <li><input type="checkbox" data-id="d14-g2" /><span>IAP: עוד 4 מוצרים (tier 30 / 35 / 45 / 49)</span></li>
+            </ul>
           </div>
           <div class="col apple"><h3>Apple</h3>
-            <ul class="tasks"><li><input type="checkbox" data-id="d14-a1" /><span>סטטוס: ממתין לפרסום ידני</span></li></ul>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d14-a1" /><span>עשן ב־TestFlight על 79 (פתיחה + התחברות)</span></li>
+              <li><input type="checkbox" data-id="d14-a2" /><span>שיוך הבילד 79 לגרסה 1.0.9 ב־ASC</span></li>
+            </ul>
           </div>
         </div>
-        <div class="goal">יעד: Google מוכן לבקשת ייצור · iOS עם כפתור Release מוכן</div>
+        <div class="goal">יעד: 79 חי ב־TestFlight · 8/11 IAP · עדיין בלי Review / ייצור</div>
       </div>
     </article>
 
     <!-- PHASE 3 -->
     <section class="phase">
       <h2>שלב ג · ימים 15–19</h2>
-      <p>7–11.9 · Google לייצור + ביקורת · iOS ממתין ללחיצה</p>
+      <p>7–11.9 · סיום IAP + שליחת iOS ל־Review · ייצור Play רק אחרי V על 14 ימים</p>
     </section>
 
     <article class="day" data-day="15" data-date="2026-09-07">
-      <div class="day-head"><div class="day-num">15</div><div class="day-title"><strong>יום 15</strong><span>ראשון 7.9.2026</span></div></div>
+      <div class="day-head"><div class="day-num">15</div><div class="day-title"><strong>יום 15</strong><span>שני 7.9.2026</span></div></div>
       <div class="day-body">
         <div class="cols">
-          <div class="col google"><h3>Google Play</h3>
+          <div class="col apple"><h3>Apple</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d15-g1" /><span>הגשת בקשה לגישה לייצור</span></li>
-              <li><input type="checkbox" data-id="d15-g2" /><span>הכנת AAB סופי לחנויות</span></li>
+              <li><input type="checkbox" data-id="d15-a1" /><span>וידוא דף מוצר / צילומים / דמו / הערות לסוקר</span></li>
+              <li><input type="checkbox" data-id="d15-a2" /><span>בחירת <strong>Manually release this version</strong></span></li>
+              <li><input type="checkbox" data-id="d15-a3" /><span>וידוא שלא סומן Automatic release</span></li>
+              <li><input type="checkbox" data-id="d15-a4" /><span>שליחה ל־App Review על ביצה 79 בלבד</span></li>
             </ul>
           </div>
-          <div class="col apple"><h3>Apple</h3>
-            <ul class="tasks"><li><input type="checkbox" data-id="d15-a1" /><span>לא לפרסם עדיין</span></li></ul>
+          <div class="col google"><h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d15-g1" /><span>IAP: 3 אחרונים (tier 69 / 79 / 89) + הפעלה</span></li>
+              <li><input type="checkbox" data-id="d15-g2" /><span>לא להגיש ייצור — השעון עדיין לא נגמר</span></li>
+            </ul>
           </div>
         </div>
+        <div class="goal">יעד: iOS בביקורת (ידני) · 11/11 IAP פעילים ב־Play</div>
       </div>
     </article>
 
     <article class="day" data-day="16" data-date="2026-09-08">
-      <div class="day-head"><div class="day-num">16</div><div class="day-title"><strong>יום 16</strong><span>שני 8.9.2026</span></div></div>
+      <div class="day-head"><div class="day-num">16</div><div class="day-title"><strong>יום 16</strong><span>שלישי 8.9.2026</span></div></div>
       <div class="day-body">
-        <div class="col google"><h3>Google Play</h3>
-          <ul class="tasks"><li><input type="checkbox" data-id="d16-g1" /><span>העלאת גרסה לייצור (ממתין לביקורת)</span></li></ul>
+        <div class="cols">
+          <div class="col google"><h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d16-g1" /><span>השלמות IAP (מחיר / צילום סוקר / Availability)</span></li>
+              <li><input type="checkbox" data-id="d16-g2" /><span>דף חנות EN אם חסר + וידוא גרפיקה</span></li>
+            </ul>
+          </div>
+          <div class="col apple"><h3>Apple</h3>
+            <ul class="tasks"><li><input type="checkbox" data-id="d16-a1" /><span>מעקב Review — לא ללחוץ פרסום</span></li></ul>
+          </div>
         </div>
       </div>
     </article>
 
     <article class="day" data-day="17" data-date="2026-09-09">
-      <div class="day-head"><div class="day-num">17</div><div class="day-title"><strong>יום 17</strong><span>שלישי 9.9.2026</span></div></div>
+      <div class="day-head"><div class="day-num">17</div><div class="day-title"><strong>יום 17</strong><span>רביעי 9.9.2026</span></div></div>
       <div class="day-body">
-        <ul class="tasks"><li><input type="checkbox" data-id="d17-g1" /><span>מעקב ביקורת Play</span></li></ul>
+        <div class="cols">
+          <div class="col google"><h3>Google Play</h3>
+            <ul class="tasks"><li><input type="checkbox" data-id="d17-g1" /><span>וידוא שעון + ≥12 · הכנת AAB 79 לייצור (בלי להעלות עדיין)</span></li></ul>
+          </div>
+          <div class="col apple"><h3>Apple</h3>
+            <ul class="tasks"><li><input type="checkbox" data-id="d17-a1" /><span>מעקב Review — לא ללחוץ פרסום</span></li></ul>
+          </div>
+        </div>
       </div>
     </article>
 
     <article class="day" data-day="18" data-date="2026-09-10">
-      <div class="day-head"><div class="day-num">18</div><div class="day-title"><strong>יום 18</strong><span>רביעי 10.9.2026</span></div></div>
-      <div class="day-body">
-        <ul class="tasks"><li><input type="checkbox" data-id="d18-g1" /><span>מעקב / תיקונים אם גוגל מבקשת</span></li></ul>
-      </div>
-    </article>
-
-    <article class="day" data-day="19" data-date="2026-09-11">
-      <div class="day-head"><div class="day-num">19</div><div class="day-title"><strong>יום 19</strong><span>חמישי 11.9.2026</span></div></div>
+      <div class="day-head"><div class="day-num">18</div><div class="day-title"><strong>יום 18</strong><span>חמישי 10.9.2026</span></div></div>
       <div class="day-body">
         <div class="cols">
           <div class="col google"><h3>Google Play</h3>
             <ul class="tasks">
-              <li><input type="checkbox" data-id="d19-g1" /><span>Play מאושר / מוכן לפרסום</span></li>
-              <li><input type="checkbox" data-id="d19-g2" /><span>רשימת השקה מוכנה</span></li>
+              <li><input type="checkbox" data-id="d18-g1" /><span>אם יש V על 14 ימים — הגשת בקשה לגישה לייצור</span></li>
+              <li><input type="checkbox" data-id="d18-g2" /><span>אם אין V — רק מעקב, בלי להגיש</span></li>
+            </ul>
+          </div>
+          <div class="col apple"><h3>Apple</h3>
+            <ul class="tasks"><li><input type="checkbox" data-id="d18-a1" /><span>מעקב Review / תיקונים אם אפל מבקשת</span></li></ul>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="day" data-day="19" data-date="2026-09-11">
+      <div class="day-head"><div class="day-num">19</div><div class="day-title"><strong>יום 19</strong><span>שישי 11.9.2026</span></div></div>
+      <div class="day-body">
+        <div class="cols">
+          <div class="col google"><h3>Google Play</h3>
+            <ul class="tasks">
+              <li><input type="checkbox" data-id="d19-g1" /><span>אם הגישה אושרה — העלאת AAB 79 לייצור (בלי פרסום אוטומטי)</span></li>
+              <li><input type="checkbox" data-id="d19-g2" /><span>Play מאושר / מוכן ללחיצה מחר</span></li>
+              <li><input type="checkbox" data-id="d19-g3" /><span>רשימת השקה מוכנה</span></li>
             </ul>
           </div>
           <div class="col apple"><h3>Apple</h3>
@@ -657,13 +747,13 @@
     <!-- DAY 20 -->
     <section class="phase">
       <h2>שלב ד · יום 20 — השקה</h2>
-      <p>שישי 12.9.2026 · פרסום ידני בשתי החנויות</p>
+      <p>שבת 12.9.2026 · פרסום ידני בשתי החנויות</p>
     </section>
 
     <article class="day launch-day" data-day="20" data-date="2026-09-12">
       <div class="day-head">
         <div class="day-num">★</div>
-        <div class="day-title"><strong>יום 20 — השקה משותפת</strong><span>שישי 12.9.2026</span></div>
+        <div class="day-title"><strong>יום 20 — השקה משותפת</strong><span>שבת 12.9.2026</span></div>
       </div>
       <div class="day-body">
         <div class="cols">
@@ -694,7 +784,7 @@
 
   <script>
     (function () {
-      const KEY = "shareflow-launch-20d-checks-v1";
+      const KEY = "shareflow-launch-20d-checks-v4";
       const start = new Date(2026, 7, 24); // Aug 24, 2026 local
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -724,7 +814,9 @@
 
       const saved = JSON.parse(localStorage.getItem(KEY) || "{}");
       document.querySelectorAll('input[type="checkbox"][data-id]').forEach((box) => {
-        box.checked = !!saved[box.dataset.id];
+        box.checked = Object.prototype.hasOwnProperty.call(saved, box.dataset.id)
+          ? !!saved[box.dataset.id]
+          : box.defaultChecked;
         box.closest("li").classList.toggle("done", box.checked);
         box.addEventListener("change", () => {
           saved[box.dataset.id] = box.checked;

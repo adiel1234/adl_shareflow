@@ -11,13 +11,20 @@ class AppSecureStorage {
     aOptions: AndroidOptions(
       encryptedSharedPreferences: true,
     ),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock,
+    ),
   );
 
   static Future<void> _queue = Future.value();
 
   static Future<T> _serialized<T>(Future<T> Function() action) {
     final completer = Completer<T>();
-    _queue = _queue.then((_) async {
+    final starter = _queue.timeout(
+      const Duration(seconds: 8),
+      onTimeout: () => null,
+    );
+    _queue = starter.then((_) async {
       try {
         completer.complete(await action());
       } catch (e, st) {
@@ -36,12 +43,23 @@ class AppSecureStorage {
     ).catchError((_) => null);
   }
 
-  static Future<void> write(String key, String value) {
-    return _serialized(() => _storage.write(key: key, value: value));
+  static Future<void> write(
+    String key,
+    String value, {
+    Duration timeout = const Duration(seconds: 8),
+  }) {
+    return _serialized(
+      () => _storage.write(key: key, value: value).timeout(timeout),
+    );
   }
 
-  static Future<void> delete(String key) {
-    return _serialized(() => _storage.delete(key: key));
+  static Future<void> delete(
+    String key, {
+    Duration timeout = const Duration(seconds: 8),
+  }) {
+    return _serialized(
+      () => _storage.delete(key: key).timeout(timeout),
+    );
   }
 
   static Future<void> deleteAll({

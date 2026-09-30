@@ -40,8 +40,6 @@ class AuthState {
   String get userId => user?['id'] as String? ?? '';
   String get displayName => user?['display_name'] as String? ?? '';
   String get email => user?['email'] as String? ?? '';
-  String get plan => user?['plan'] as String? ?? 'free';
-  bool get isPro => plan == 'pro';
   String? get avatarUrl => user?['avatar_url'] as String?;
 }
 
@@ -170,7 +168,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     // Clear session only — keep remembered login credentials if user opted in.
     try {
-      await SocialAuth.signOutGoogle();
+      await SocialAuth.signOutGoogle().timeout(const Duration(seconds: 3));
     } catch (_) {}
     try {
       await AppSecureStorage.clearSessionTokens();

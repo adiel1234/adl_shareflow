@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 25 בספטמבר 2026 — סיווג פיילוט: קבוצה מאפל נשארת בפיילוט הראשי; פיילוט Android רק למשתמשי אנדרואיד בלבד
+> עודכן לאחרונה: 30 בספטמבר 2026 — גרסה מוגדרת `1.0.9+83`. עדיין אין IPA.
 
 ---
 
@@ -89,11 +89,11 @@
 | `core/network/` | ApiClient (Dio) — כל קריאות ה-HTTP |
 | `features/auth/` | התחברות, הרשמה, Google Sign-In, Apple Sign-In |
 | `features/groups/` | קבוצות — יצירה, הזמנה, QR, ניהול |
-| `features/expenses/` | הוצאות — הוספה, עריכה, OCR, בחירת משתתפים |
+| `features/expenses/` | הוצאות — הוספה, עריכה, צירוף קבלה לצפייה, בחירת משתתפים |
 | `features/balances/` | יתרות, סיכום אירוע, התחשבנות |
 | `features/notifications/` | התראות in-app |
 | `features/profile/` | פרופיל, הגדרות, תזכורות, פרטי תשלום |
-| `features/ocr/` | סריקת קבלות |
+| `features/ocr/` | צירוף תמונת קבלה (הסריקה לא נגישה מהמסכים) |
 | `l10n/` | עברית (`app_he.arb`) + אנגלית (`app_en.arb`) — 399 מפתחות |
 | `services/fcm_service.dart` | ניהול Push Notifications — אתחול, רישום token, ניווט מהתראה |
 | `services/share_service.dart` | שיתוף קישורים / WhatsApp |
@@ -125,7 +125,7 @@
 | `balances/` | מנוע חישוב יתרות | GET /groups/{id}/balances |
 | `settlements/` | הסדרי חובות | POST /settlements |
 | `notifications/` | התראות + FCM | GET /notifications, POST /fcm-token |
-| `ocr/` | קבלות — צירוף + OCR | POST /ocr/attach, POST /ocr/scan, GET /ocr/receipts/{id}/image |
+| `ocr/` | קבלות — צירוף וצפייה. סריקה כבויה | POST /ocr/attach, POST /ocr/scan (410), GET /ocr/receipts/{id}/image |
 | `currency/` | שערי חליפין | GET /currency/rates, /convert; POST /currency/rates (admin), /refresh (admin) |
 | `dashboard/` | ADL Admin API | GET /dashboard/stats, /monetization |
 | `download/` | דפי הורדה + פיילוט | GET /download, /pilot/join, /getting-started, /support, /account-deletion, /data-deletion, /privacy, /join/<code>; `/join` בלי קוד מפנה ל־`/getting-started`; `/pilot` ו-`/invite` מפנים לנתיבים החדשים |
@@ -153,6 +153,7 @@
 | `notifications` | התראות in-app |
 | `fcm_tokens` | tokens לפוש נוטיפיקיישן |
 | `group_payments` | תשלומי הפעלה/שדרוג/הארכה |
+| `iap_processed_transactions` | מזהה עסקה של אפל/גוגל שמומש פעם אחת |
 | `feature_flags` | הגדרות מערכת (PAYMENTS_ENABLED וכו') |
 | `pilot_funnel_events` | אירועי משפך פיילוט אנונימיים (עמוד התקנה / TestFlight / APK) |
 | `reminder_settings` | הגדרות תזכורות אוטומטיות |
@@ -268,12 +269,15 @@ free (5 ימים) → limited → [תשלום] → active → expired / read_onl
 | `PAYMENTS_ENABLED=false` | הפעלה חינמית (מצב פיילוט) |
 | `PAYMENTS_ENABLED=true` | חיוב דרך Apple/Google לפני הפעלה |
 
-**זרימת תשלום:**
+**זרימת תשלום (כש־`PAYMENTS_ENABLED=true`):**
 1. Flutter: `IapService.purchase(priceIls)` — פותח גיליון תשלום של Apple/Google
 2. Apple/Google מחזירים `receipt` / `purchaseToken`
-3. Flutter שולח ל-`POST /api/groups/:id/activate` עם `receipt_data + platform + product_id`
-4. Backend → `validate_iap_receipt()` → מאמת מול שרתי Apple (`/verifyReceipt`) / Google Play API
-5. אם תקין — מפעיל את הקבוצה
+3. Flutter שולח ל-`POST /api/groups/:id/activate` עם `receipt_data + platform`
+4. השרת מחשב את הסכום ממצב הקבוצה ב־DB ומתרגם למזהה נדרש
+5. Backend → `validate_paid_operation()` — מאמת מול אפל/גוגל, דורש התאמת מזהה, ושומר את מזהה העסקה פעם אחת
+6. אם תקין — מפעיל את הקבוצה
+
+כש־`PAYMENTS_ENABLED=false` (מתג Control): ההפעלה נשארת בלי IAP. הלקוח לא יכול לכבות את הדגל.
 
 **Product IDs (נדרש יצירה ידנית בחנויות — חייב להתאים ל־`iap_service.dart`):**
 
@@ -286,6 +290,7 @@ free (5 ימים) → limited → [תשלום] → active → expired / read_onl
 | 25 ₪ | `com.adl.shareflow.tier_25` |
 | 30 ₪ | `com.adl.shareflow.tier_30` |
 | 35 ₪ | `com.adl.shareflow.tier_35` |
+| 40 ₪ | `com.adl.shareflow.tier_40` |
 | 45 ₪ | `com.adl.shareflow.tier_45` |
 | 49 ₪ | `com.adl.shareflow.tier_49` |
 | 69 ₪ | `com.adl.shareflow.tier_69` |
@@ -345,6 +350,9 @@ flutter install --release
 3. Organizer → Distribute App → Upload (~5 דקות)
 4. App Store Connect → TestFlight → Build חדש מופיע אוטומטית
 ```
+
+**גרסה מוגדרת עכשיו:** `1.0.9+83` (עדיין אין IPA).  
+**IPA פיילוט אחרון שנבנה:** `1.0.9+82` — `store/ios/builds/shareflow-1.0.9+82-TESTFLIGHT.ipa` · לא מחליף את 81 שבבדיקת אפל.
 
 **מסע פיילוט:** `/pilot/join` → `/getting-started`. אייפון: (1) `/install/testflight` (2) `TESTFLIGHT_URL` ל-ShareFlow. אנדרואיד: `/download/apk`. `/invite` ו-`/pilot` מפנים לנתיבים החדשים. `/join/<code>` נשאר להזמנת קבוצה.
 
@@ -505,6 +513,7 @@ flutter install --release
   - `calculate_group_balances` מחסיר `Settlement` עם `status='confirmed'` מהיתרות — חובות נמחקים לאחר תשלום.
   - חברים שהוסרו מהקבוצה (`GroupMember` נמחק) עדיין נכללים בחישוב אם הם מופיעים בהוצאות; מסומנים `is_former_member=True`.
   - `SettlementSuggestion` כולל שדות `from_is_former_member` / `to_is_former_member`.
+  - `calculate_member_amounts_paid`: סכום `converted_amount` לפי `paid_by` בלבד. לא משתמש ב־`share_amount`. לא כולל התחשבנויות. מדלג על `is_system_expense=True` (הפעלה / הארכה / חידוש / שדרוג). `GET /groups/{id}/balances` מחזיר `total_expenses_paid` לכל חבר — תצוגה בלבד, לפני פירוט «מי חייב למי».
 - **JWT** (`config.py`): ברירת מחדל של `JWT_REFRESH_TOKEN_EXPIRES` שונתה מ-30 יום ל-3650 יום (10 שנים). ניתן לשנות דרך `JWT_REFRESH_TOKEN_EXPIRES_DAYS`.
 - **`mark_debt_paid`** (`groups/routes.py`): נוספה בדיקת חברות בקבוצה — רק חבר בקבוצה שבבעלות החוב יכול לסמן כשולם.
 - **`POST /currency/rates`** (`currency/routes.py`): מוגן עכשיו בבדיקת `X-ADL-Admin-Key` header — רק אדמין יכול לעדכן שערי מטבע ידניים.

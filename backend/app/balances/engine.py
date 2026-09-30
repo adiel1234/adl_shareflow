@@ -112,6 +112,33 @@ def calculate_group_balances(group_id: str) -> List[UserBalance]:
     return sorted(balances, key=lambda b: b.net_amount, reverse=True)
 
 
+def calculate_member_amounts_paid(group_id: str) -> Dict[str, Decimal]:
+    """Full converted amount each member paid for normal group expenses.
+
+    Sums Expense.converted_amount where paid_by == member.
+    Does not use share_amount. Does not include settlements.
+    Excludes ShareFlow/app purchases (is_system_expense=True).
+    Deleted expenses are absent from the table. Edited amounts are current.
+    Members who paid nothing are 0.
+    """
+    paid: Dict[str, Decimal] = {}
+    members = GroupMember.query.filter_by(group_id=group_id).all()
+    for member in members:
+        paid[member.user_id] = Decimal('0')
+
+    expenses = Expense.query.filter_by(group_id=group_id).all()
+    for expense in expenses:
+        if expense.is_system_expense is True:
+            continue
+        uid = expense.paid_by
+        paid[uid] = paid.get(uid, Decimal('0')) + Decimal(str(expense.converted_amount))
+
+    return {
+        uid: amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        for uid, amount in paid.items()
+    }
+
+
 def calculate_settlement_plan(group_id: str, base_currency: str = 'ILS') -> List[SettlementSuggestion]:
     """
     Returns the minimum set of transfers to settle all debts.

@@ -39,7 +39,7 @@
   "settled": "מסודר",
   "profile": "פרופיל",
   "notifications": "התראות",
-  "scanReceipt": "סרוק קבלה",
+  "scanReceipt": "צרף קבלה",
   "confirm": "אישור",
   "cancel": "ביטול",
   "save": "שמור",
@@ -61,7 +61,6 @@
   "categoryOther": "אחר",
   "categoryOtherHint": "שם קטגוריה חופשי",
   "free": "חינמי",
-  "pro": "Pro",
   "helloUser": "שלום, {name} 👋",
   "@helloUser": {
     "placeholders": {
@@ -185,6 +184,7 @@
   "errorLoadingExpenses": "שגיאה בטעינת הוצאות",
   "groupBalances": "חשבון הקבוצה",
   "groupTotalExpenses": "סך הוצאות הקבוצה",
+  "memberTotalExpenses": "סך הוצאות",
   "expensesCountLabel": "הוצאות",
   "owesYouLabel": "חייבים לך",
   "balanceSettled": "מסודר",
@@ -198,9 +198,9 @@
   "inviteWithAppSubtitle": "לחבר עם אפליקציה, או בלי: בקישור אפשר גם להוריד",
   "addNotesHint": "הוסף הערה...",
   "addExpenseBtn": "הוסף הוצאה",
-  "scanReceiptDescription": "חסוך זמן - מלא אוטומטית מקבלה",
-  "receiptScanned": "הקבלה נסרקה - ניתן לעדכן את הנתונים",
-  "rescan": "סרוק שוב",
+  "scanReceiptDescription": "צלמו או צרפו תמונת קבלה",
+  "receiptScanned": "הקבלה צורפה",
+  "rescan": "החלף קבלה",
   "groupTypeOngoing": "שוטף",
   "groupTypeEvent": "אירוע",
   "newGroup": "קבוצה חדשה",
@@ -208,7 +208,7 @@
   "sevenDays": "7 ימים",
   "monthly": "חודשי",
   "eventTypeDesc": "אירוע = חד־פעמי (טיול, מסיבה, מפגש).",
-  "ongoingTypeDesc": "שוטף = מתמשך (דירה, משרד). חיוב לפי תקופה.",
+  "ongoingTypeDesc": "שוטף = מתמשך (דירה, משרד). 30 ימים ברכישה חד־פעמית.",
   "groupNameHint": "לדוגמה: דירה ברחוב הרצל",
   "groupNameRequired": "נדרש שם לקבוצה",
   "groupDescription": "תיאור",
@@ -226,10 +226,10 @@
   },
   "bannerActivate": "הפעל",
   "bannerExpiredTitle": "פג תוקף הקבוצה",
-  "bannerExpiredSubtitle": "לא ניתן להוסיף הוצאות. הארכה: 15 ₪ ל-7 ימים נוספים.",
-  "bannerExtend": "הארך",
+  "bannerExpiredSubtitle": "לא ניתן להוסיף הוצאות.\n7 ימים נוספים ברכישה חד־פעמית: 15 ₪",
+  "bannerExtend": "רכוש 7 ימים נוספים",
   "bannerReadOnlyTitle": "קריאה בלבד",
-  "bannerReadOnlySubtitle": "פרק הזמן שבתשלום הסתיים. חידוש: {price} ₪",
+  "bannerReadOnlySubtitle": "פרק הזמן שבתשלום הסתיים.\n30 ימים נוספים ברכישה חד־פעמית: {price} ₪",
   "@bannerReadOnlySubtitle": {
     "placeholders": {
       "price": {
@@ -237,7 +237,7 @@
       }
     }
   },
-  "bannerRenew": "חדש",
+  "bannerRenew": "רכוש 30 ימים נוספים",
   "bannerClosedTitle": "קבוצה סגורה",
   "bannerClosedSubtitle": "ניתן לשחזר את הקבוצה עם כל הנתונים, או לשכפל לקבוצה חדשה עם אותם חברים",
   "bannerFreeTitle": "מצב חינמי",
@@ -374,8 +374,8 @@
     }
   },
   "formerMember": "לשעבר",
-  "extendGroupTitle": "הארכת הקבוצה",
-  "renewGroupTitle": "חידוש הקבוצה",
+  "extendGroupTitle": "רכישה חד־פעמית ל־7 ימים",
+  "renewGroupTitle": "רכישה חד־פעמית ל־30 ימים",
   "activateGroupTitle": "הפעלת הקבוצה",
   "paymentAmountLabel": "סכום לתשלום",
   "chooseSettleAmountTitle": "כמה לשלם עכשיו?",
@@ -390,12 +390,12 @@
   "pay": "שלם",
   "payAlone": "אני משלם לבד",
   "payAloneDesc": "ההוצאה נרשמת רק עלי",
-  "betaNoteActivation": "בשלב הביתא ההפעלה מתבצעת ידנית על ידי המנהל. תשלום ישיר יתווסף בגרסה הבאה.",
-  "extendedSuccess": "הקבוצה הוארכה בהצלחה",
-  "renewedSuccess": "הקבוצה חודשה בהצלחה",
+  "betaNoteActivation": "ההפעלה נרשמת כהוצאה בקבוצה. אין מנוי ואין תוכנית בתשלום נפרדת.",
+  "extendedSuccess": "נוספו 7 ימים ברכישה חד־פעמית",
+  "renewedSuccess": "נוספו 30 ימים ברכישה חד־פעמית",
   "activatedSuccess": "הקבוצה הופעלה בהצלחה",
   "errorTryAgain": "שגיאה - נסה שוב",
-  "extendBtnLabel": "הארך ב-7 ימים - {price} ₪",
+  "extendBtnLabel": "רכוש 7 ימים נוספים - {price} ₪",
   "@extendBtnLabel": {
     "placeholders": {
       "price": {
@@ -403,7 +403,7 @@
       }
     }
   },
-  "renewBtnLabel": "חדש לחודש - {price} ₪",
+  "renewBtnLabel": "רכוש 30 ימים נוספים - {price} ₪",
   "@renewBtnLabel": {
     "placeholders": {
       "price": {
@@ -530,7 +530,6 @@
   "freeGroupLimitReachedBody": "ניתן ליצור עד 3 קבוצות ללא תשלום. הקבוצה נוצרה, אך כדי להתחיל לעבוד בה יש להפעיל אותה.",
   "activateGroupBtn": "הפעל קבוצה",
   "laterBtn": "אחר כך",
-  "comingSoon": "בקרוב",
   "settingsSaved": "הגדרות נשמרו ✓",
   "settingsSaveError": "שגיאה בשמירת ההגדרות",
   "enableReminders": "הפעל תזכורות אוטומטיות",
@@ -658,8 +657,6 @@
   "adlProjectsSubtitle": "עוד פרויקטים של ADL",
   "suggestions": "הצעות ושיפורים",
   "suggestionsSubtitle": "ספר לנו מה אפשר לשפר",
-  "proPlanTitle": "תוכנית Pro",
-  "proPlanSubtitle": "בקרוב - ניתוחים, סטטיסטיקות ועוד",
   "appSection": "אפליקציה",
   "paymentMethodSubtitle": "Bit / PayBox / בנק. בלי זה חברים לא יוכלו לשלוח לכם כסף מהאפליקציה",
   "pricingSection": "תמחור",
@@ -709,7 +706,7 @@
       }
     }
   },
-  "durationMonth": "חודש",
+  "durationMonth": "30 ימים",
   "tierUpgradeRequired": "נדרש שדרוג תוכנית",
   "tierUpgradeSubtitle": "הקבוצה גדלה - נדרש תשלום של {price} ₪ לשדרוג",
   "@tierUpgradeSubtitle": {
@@ -886,7 +883,7 @@
   "transferHintMemberToGuest": "החבר משלם לאורח · המנהל מאשר שהאורח קיבל",
   "transferHintGuestToMember": "המנהל: סמן שאורח שילם · המקבל: אשר קבלה",
   "transferHintGuestToGuest": "המנהל סוגר את החוב בפעולה אחת",
-  "tipScanPrimary": "מומלץ לסרוק קבלה: ממלא סכום ותיאור אוטומטית. אפשר גם לצרף תמונה לצפייה בלבד.",
+  "tipScanPrimary": "אפשר לצלם או לצרף תמונת קבלה. הסכום והתיאור מוזנים ידנית.",
   "transferPendingBadge": "יש תשלום ממתין לאישור — אפשר לשלוח תשלום נוסף",
   "paidOfTotal": "שולם {paid} מתוך {total}",
   "@paidOfTotal": {
@@ -1116,7 +1113,7 @@
   "tipBalancesBeforeDebts": "כאן רואים מי חייב למי. כשיהיו חובות יופיעו הסדר חוב ואשר קבלה.",
   "tipParticipantsEqualSplit": "מי משתתף בחלוקה? סמנו, והסכום יתחלק שווה ביניהם.",
   "tipJoinWithCode": "קוד ההזמנה מגיע מחבר שכבר יצר קבוצה, או מסריקת ה-QR שלו.",
-  "tipScanVsAttach": "הסורק למעלה ממלא סכום ותיאור אוטומטית. צרף קבלה רק שומר תמונה לצפייה.",
+  "tipScanVsAttach": "צירוף קבלה שומר תמונה לצפייה. הסכום והתיאור מוזנים ידנית.",
   "tipWhatsAppInvite": "נפתח WhatsApp. בחרו למי לשלוח.",
   "tipAddGuestNoApp": "בלי אפליקציה — אתם מנהלים בשמו.",
   "tipMemberBalanceLegend": "+ מגיע לו כסף · − הוא חייב.",
@@ -1124,7 +1121,7 @@
   "markGuestPaidShort": "סמן שאורח שילם",
   "tipPaymentDetailsScreen": "מלאו לפחות טלפון ל-Bit/PayBox או פרטי בנק כדי שחברים יוכלו לשלם לכם בקלות.",
   "attachReceiptTitle": "צרף קבלה",
-  "attachReceiptSubtitle": "צילום או גלריה, לצפייה בלבד, ללא מילוי אוטומטי",
+  "attachReceiptSubtitle": "צילום או גלריה",
   "coachSkip": "סגור",
   "coachNext": "הבא",
   "coachDone": "סיום",

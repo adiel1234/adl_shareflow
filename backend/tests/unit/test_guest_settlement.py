@@ -2,12 +2,23 @@
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
+import pytest
+
+from app import create_app
 from app.balances.engine import calculate_settlement_plan
 from app.settlements.routes import (
     _can_confirm_settlement,
     _guest_mark_paid_status,
     _guest_settlement_auto_confirms,
 )
+from config import TestingConfig
+
+
+@pytest.fixture
+def app():
+    application = create_app(TestingConfig)
+    with application.app_context():
+        yield application
 
 
 class TestGuestMarkPaidStatus:
@@ -68,11 +79,17 @@ class TestGuestSettlementPermissions:
             mock_gm.query.filter_by.return_value.first.return_value = admin_member
             assert _can_confirm_settlement(settlement, 'admin-1') is True
 
-    def test_random_member_cannot_confirm_for_other_creditor(self):
+    def test_random_member_cannot_confirm_for_other_creditor(self, app):
         settlement = MagicMock()
         settlement.to_user_id = 'member-1'
         settlement.group_id = 'group-1'
-        assert _can_confirm_settlement(settlement, 'member-2') is False
+
+        registered_creditor = MagicMock()
+        registered_creditor.is_guest = False
+
+        with patch('app.settlements.routes.db') as mock_db:
+            mock_db.session.get.return_value = registered_creditor
+            assert _can_confirm_settlement(settlement, 'member-2') is False
 
     def test_creditor_confirm_flag_for_guest_to_member(self):
         """Creditor (non-guest payee) should get is_creditor_confirm semantics."""
@@ -86,7 +103,7 @@ class TestGuestSettlementPermissions:
 
 
 class TestSettlementPlanPendingAdjustment:
-    def test_pending_settlement_reduces_open_debt_in_plan(self):
+    def test_pending_settlement_reduces_open_debt_in_plan(self, app):
         """Pending guest→member payment should not duplicate in settlement plan."""
         from app.models import Settlement
 

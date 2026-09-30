@@ -152,12 +152,14 @@ class FcmService {
       debugPrint('[FCM] Skipping permission prompt (screenshot mode)');
       return;
     }
-    final settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-      provisional: false,
-    );
+    final settings = await _messaging
+        .requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+          provisional: false,
+        )
+        .timeout(const Duration(seconds: 8));
     debugPrint('[FCM] Permission: ${settings.authorizationStatus}');
 
     // Android 13+: explicit runtime POST_NOTIFICATIONS (needed for tray when
@@ -170,6 +172,16 @@ class FcmService {
     }
   }
 
+  Future<String?> _apnsTokenOrNull() async {
+    try {
+      return await _messaging
+          .getAPNSToken()
+          .timeout(const Duration(seconds: 2));
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Get the FCM token and register it with our backend.
   /// Call this after login to ensure the token is registered when auth is ready.
   /// Retries when APNs is slow (common on iOS cold start / wireless debug).
@@ -177,10 +189,10 @@ class FcmService {
     try {
       // On iOS, FCM token may be null until APNs token is available.
       if (!kIsWeb && Platform.isIOS) {
-        String? apns = await _messaging.getAPNSToken();
-        for (var i = 0; i < 30 && apns == null; i++) {
-          await Future<void>.delayed(const Duration(milliseconds: 500));
-          apns = await _messaging.getAPNSToken();
+        String? apns = await _apnsTokenOrNull();
+        for (var i = 0; i < 4 && apns == null; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 400));
+          apns = await _apnsTokenOrNull();
         }
         if (apns == null) {
           debugPrint('[FCM] APNs token not ready after wait; scheduling retries');

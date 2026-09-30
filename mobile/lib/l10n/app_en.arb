@@ -39,7 +39,7 @@
   "settled": "Settled",
   "profile": "Profile",
   "notifications": "Notifications",
-  "scanReceipt": "Scan Receipt",
+  "scanReceipt": "Attach receipt",
   "confirm": "Confirm",
   "cancel": "Cancel",
   "save": "Save",
@@ -61,7 +61,6 @@
   "categoryOther": "Other",
   "categoryOtherHint": "Custom category name",
   "free": "Free",
-  "pro": "Pro",
   "helloUser": "Hello, {name} 👋",
   "@helloUser": {
     "placeholders": {
@@ -185,6 +184,7 @@
   "errorLoadingExpenses": "Error loading expenses",
   "groupBalances": "Group Ledger",
   "groupTotalExpenses": "Total group expenses",
+  "memberTotalExpenses": "Total expenses",
   "expensesCountLabel": "expenses",
   "owesYouLabel": "Others owe you",
   "balanceSettled": "Settled",
@@ -198,9 +198,9 @@
   "inviteWithAppSubtitle": "For someone with the app, or without: the link also lets them download",
   "addNotesHint": "Add a note...",
   "addExpenseBtn": "Add Expense",
-  "scanReceiptDescription": "Save time - auto-fill from receipt",
-  "receiptScanned": "Receipt scanned - you can update the data",
-  "rescan": "Rescan",
+  "scanReceiptDescription": "Take or attach a receipt photo",
+  "receiptScanned": "Receipt attached",
+  "rescan": "Replace receipt",
   "groupTypeOngoing": "Ongoing",
   "groupTypeEvent": "Event",
   "newGroup": "New Group",
@@ -208,7 +208,7 @@
   "sevenDays": "7 days",
   "monthly": "Monthly",
   "eventTypeDesc": "Event = one-time (trip, party, meetup).",
-  "ongoingTypeDesc": "Ongoing = continuous (flat, office). Billed by period.",
+  "ongoingTypeDesc": "Ongoing = continuous (flat, office). 30 days per one-time purchase.",
   "groupNameHint": "e.g. Apartment on Main St",
   "groupNameRequired": "Group name is required",
   "groupDescription": "Description",
@@ -226,10 +226,10 @@
   },
   "bannerActivate": "Activate",
   "bannerExpiredTitle": "Group expired",
-  "bannerExpiredSubtitle": "Cannot add expenses. Extension: ₪15 for 7 more days.",
-  "bannerExtend": "Extend",
+  "bannerExpiredSubtitle": "New expenses cannot be added.\n7 additional days — one-time purchase: ILS 15",
+  "bannerExtend": "Purchase 7 more days",
   "bannerReadOnlyTitle": "Read only",
-  "bannerReadOnlySubtitle": "Paid period ended. Renewal: ₪{price}",
+  "bannerReadOnlySubtitle": "The paid period ended.\n30 additional days — one-time purchase: ILS {price}",
   "@bannerReadOnlySubtitle": {
     "placeholders": {
       "price": {
@@ -237,7 +237,7 @@
       }
     }
   },
-  "bannerRenew": "Renew",
+  "bannerRenew": "Purchase 30 more days",
   "bannerClosedTitle": "Group closed",
   "bannerClosedSubtitle": "Restore with all data, or duplicate to a new group with the same members",
   "bannerFreeTitle": "Free mode",
@@ -374,8 +374,8 @@
     }
   },
   "formerMember": "Former",
-  "extendGroupTitle": "Extend Group",
-  "renewGroupTitle": "Renew Group",
+  "extendGroupTitle": "One-time purchase for 7 days",
+  "renewGroupTitle": "One-time purchase for 30 days",
   "activateGroupTitle": "Activate Group",
   "paymentAmountLabel": "Payment amount",
   "chooseSettleAmountTitle": "How much to pay now?",
@@ -390,12 +390,12 @@
   "pay": "Pay",
   "payAlone": "I pay alone",
   "payAloneDesc": "Expense recorded only for me",
-  "betaNoteActivation": "During beta, activation is done manually by the admin. Direct payment coming soon.",
-  "extendedSuccess": "Group extended successfully",
-  "renewedSuccess": "Group renewed successfully",
+  "betaNoteActivation": "Activation is recorded as a group expense. There is no subscription and no separate paid plan.",
+  "extendedSuccess": "7 more days added with a one-time purchase",
+  "renewedSuccess": "30 more days added with a one-time purchase",
   "activatedSuccess": "Group activated successfully",
   "errorTryAgain": "Error - try again",
-  "extendBtnLabel": "Extend 7 days - ₪{price}",
+  "extendBtnLabel": "Purchase 7 more days - ₪{price}",
   "@extendBtnLabel": {
     "placeholders": {
       "price": {
@@ -403,7 +403,7 @@
       }
     }
   },
-  "renewBtnLabel": "Renew for a month - ₪{price}",
+  "renewBtnLabel": "Purchase 30 more days - ₪{price}",
   "@renewBtnLabel": {
     "placeholders": {
       "price": {
@@ -530,7 +530,6 @@
   "freeGroupLimitReachedBody": "You can create up to 3 groups for free. Your group has been created, but you need to activate it before you can use it.",
   "activateGroupBtn": "Activate Group",
   "laterBtn": "Later",
-  "comingSoon": "Coming soon",
   "settingsSaved": "Settings saved ✓",
   "settingsSaveError": "Error saving settings",
   "enableReminders": "Enable automatic reminders",
@@ -658,8 +657,6 @@
   "adlProjectsSubtitle": "More projects by ADL",
   "suggestions": "Suggestions & Feedback",
   "suggestionsSubtitle": "Tell us how we can improve",
-  "proPlanTitle": "Pro Plan",
-  "proPlanSubtitle": "Coming soon - analytics, stats and more",
   "appSection": "App",
   "paymentMethodSubtitle": "Bit / PayBox / bank. Without this, friends can't send you money from the app",
   "pricingSection": "Pricing",
@@ -709,7 +706,7 @@
       }
     }
   },
-  "durationMonth": "Month",
+  "durationMonth": "30 days",
   "tierUpgradeRequired": "Plan Upgrade Required",
   "tierUpgradeSubtitle": "Group has grown - upgrade payment of ₪{price} required",
   "@tierUpgradeSubtitle": {
@@ -887,7 +884,7 @@
   "transferHintGuestToMember": "Admin: Mark guest paid · Creditor: Confirm receipt",
   "transferHintGuestToGuest": "Admin closes the debt in one action",
   "markGuestPaidShort": "Mark guest paid",
-  "tipScanPrimary": "Scan a receipt to auto-fill amount and title. You can also attach an image for viewing only.",
+  "tipScanPrimary": "You can take or attach a receipt photo. Amount and title are entered manually.",
   "transferPendingBadge": "A payment is awaiting approval — you can send another payment",
   "paidOfTotal": "Paid {paid} of {total}",
   "@paidOfTotal": {
@@ -1117,14 +1114,14 @@
   "tipBalancesBeforeDebts": "Here you will see who owes whom. Settle up and Confirm receipt appear when there are debts.",
   "tipParticipantsEqualSplit": "Who splits this expense? Select them, and the amount splits equally.",
   "tipJoinWithCode": "The invite code comes from a friend who already created a group, or from scanning their QR.",
-  "tipScanVsAttach": "The scanner above auto-fills amount and title. Attach receipt only saves an image to view.",
+  "tipScanVsAttach": "Attaching a receipt saves the image for viewing. Amount and title are entered manually.",
   "tipWhatsAppInvite": "WhatsApp opens. Pick who to send to.",
   "tipAddGuestNoApp": "No app — you manage on their behalf.",
   "tipMemberBalanceLegend": "+ they are owed · − they owe.",
   "tipPeriodicSettlement": "With periodic settlement you close a period on Balances and send a report, without auto-paying debts.",
   "tipPaymentDetailsScreen": "Add at least a Bit/PayBox phone or bank details so friends can pay you easily.",
   "attachReceiptTitle": "Attach receipt",
-  "attachReceiptSubtitle": "Camera or gallery, view only, no auto-fill",
+  "attachReceiptSubtitle": "Camera or gallery",
   "coachSkip": "Close",
   "coachNext": "Next",
   "coachDone": "Done",

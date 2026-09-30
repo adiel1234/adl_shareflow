@@ -1,4 +1,12 @@
-App Review notes — ADL ShareFlow (iOS)
+App Review notes — ADL ShareFlow (iOS) Build 83 (1.0.9)
+
+What this app is:
+  A group expense splitter for friends, family, roommates, and trips.
+  It is not a bank, wallet, money transmitter, or payment processor.
+  Friends settle outside the app (Bit / PayBox / bank). The app only shows who owes whom.
+
+What this app is not:
+  There is no Pro plan, no subscription, and no coming-soon paid feature.
 
 Demo login:
   Email + password: see repo file `.store_review_account.local`
@@ -7,13 +15,32 @@ Demo login:
 Demo group on that account:
   «קבוצת הדגמה — App Review» with sample expenses.
 
-Notes for reviewer:
-- Hebrew RTL UI by default; English is available in profile language settings.
+Account deletion:
+  Profile → Delete account (two confirmations).
+  Personal data is removed immediately. Shared group expenses may remain for other members.
+
+In-app purchases (13 consumable products only — group activation / capacity / upgrade difference):
+  There is no subscription and no Pro purchase.
+  com.adl.shareflow.tier_5
+  com.adl.shareflow.tier_10
+  com.adl.shareflow.tier_15
+  com.adl.shareflow.tier_20
+  com.adl.shareflow.tier_25
+  com.adl.shareflow.tier_30
+  com.adl.shareflow.tier_35
+  com.adl.shareflow.tier_40
+  com.adl.shareflow.tier_45
+  com.adl.shareflow.tier_49
+  com.adl.shareflow.tier_69
+  com.adl.shareflow.tier_79
+  com.adl.shareflow.tier_89
+  tier_40 is the 40 ILS upgrade-difference consumable (including 49 → 89).
+
+Other notes:
+- Hebrew RTL UI by default; English is available in Profile → language.
 - Deep links: https://adlshareflow-production.up.railway.app/join/{code}
 - Push notifications require the system permission prompt.
-- Camera is used only for receipt scan and QR join.
-- Pilot / payments: server may run with PAYMENTS_ENABLED=false and PILOT_MODE_ENABLED=true
-  during pilot; IAP product IDs are registered for when payments are enabled.
+- Camera is used to photograph a receipt attachment or scan a QR join code.
+- Users may photograph or attach a receipt image to an expense. The image is stored for reference. ShareFlow does not automatically scan or extract receipt data.
 - Privacy policy: https://adlshareflow-production.up.railway.app/privacy
 - Support: info@adlprojects.co.il
-- Account deletion: Profile → Delete account (two confirmations). Personal data is removed immediately. Shared group expenses may remain for other members.

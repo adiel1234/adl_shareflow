@@ -62,20 +62,19 @@ class GroupCard extends StatelessWidget {
 
   const GroupCard({super.key, required this.group, required this.onTap});
 
-  bool get _isInactive => group.isExpiredOrReadOnly || group.isClosed;
-
   @override
   Widget build(BuildContext context) {
-    final gradient = _isInactive ? null : _categoryGradient(group.category);
+    final inactive = group.isInactive;
+    final gradient = inactive ? null : _categoryGradient(group.category);
     // Primary color from gradient (first color) for borders and badges
-    final primaryColor = _isInactive ? AppColors.textDisabled : _gradientPrimaryColor(group.category);
+    final primaryColor = inactive ? AppColors.textDisabled : _gradientPrimaryColor(group.category);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
       child: Opacity(
-        opacity: _isInactive ? 0.55 : 1.0,
+        opacity: inactive ? 0.55 : 1.0,
         child: Material(
-          color: _isInactive ? AppColors.surfaceVariant : AppColors.surface,
+          color: inactive ? AppColors.surfaceVariant : AppColors.surface,
           borderRadius: BorderRadius.circular(18),
           elevation: 0,
           child: InkWell(
@@ -89,7 +88,7 @@ class GroupCard extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: _isInactive
+                  color: inactive
                       ? AppColors.border
                       : primaryColor.withOpacity(0.25),
                   width: 1.5,
@@ -103,11 +102,11 @@ class GroupCard extends StatelessWidget {
                     height: 52,
                     decoration: BoxDecoration(
                       gradient: gradient,
-                      color: _isInactive ? const Color(0xFFCBD5E1) : null,
+                      color: inactive ? const Color(0xFFCBD5E1) : null,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(
-                      _isInactive
+                      inactive
                           ? Icons.lock_outline_rounded
                           : _categoryIcon(group.category),
                       color: Colors.white,
@@ -126,7 +125,7 @@ class GroupCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: _isInactive
+                            color: inactive
                                 ? AppColors.textDisabled
                                 : AppColors.textPrimary,
                           ),
@@ -196,7 +195,7 @@ class GroupCard extends StatelessWidget {
 
                   Icon(
                     Icons.chevron_left_rounded,
-                    color: _isInactive
+                    color: inactive
                         ? AppColors.textDisabled
                         : AppColors.textSecondary,
                     size: 20,

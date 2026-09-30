@@ -90,6 +90,6 @@ https://adlshareflow-production.up.railway.app/getting-started
 
 ## אחרי זה (בנפרד)
 
-1. In-App Purchases — 12 מוצרים **Consumable** מ־`store/ios/iap/products.tsv`
+1. In-App Purchases — 13 מוצרים **Consumable** מ־`store/ios/iap/products.tsv` כולל `tier_40`. אין מנוי. אין Pro.
 2. Business → Agreements, Tax, and Banking
 3. App Review Information — דמו מ־`.store_review_account.local` + `store/ios/review_notes.txt`

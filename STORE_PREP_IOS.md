@@ -2,7 +2,7 @@
 
 > **מטרה:** עד סוף הפיילוט (~28.8) התשתית מוכנה כך שביום ההעלאה יישארו רק: bump אם צריך → בניית IPA → העלאה → Submit.  
 > **לא לבנות / לא להעלות IPA סופי עכשיו** — אלא אם יוחלט אחרת.  
-> **גרסת יעד נעולה:** `1.0.9+70` — ראה `PENDING_RELEASE.md`.
+> **גרסת יעד נוכחית:** `1.0.9+83` — ראה `PENDING_RELEASE.md`. עדיין אין IPA.
 
 עודכן: 23 באוגוסט 2026
 
@@ -66,13 +66,15 @@
 | 25 | `com.adl.shareflow.tier_25` |
 | 30 | `com.adl.shareflow.tier_30` |
 | 35 | `com.adl.shareflow.tier_35` |
+| 40 | `com.adl.shareflow.tier_40` |
 | 45 | `com.adl.shareflow.tier_45` |
 | 49 | `com.adl.shareflow.tier_49` |
 | 69 | `com.adl.shareflow.tier_69` |
 | 79 | `com.adl.shareflow.tier_79` |
 | 89 | `com.adl.shareflow.tier_89` |
 
-- [x] Product IDs נדרשים נוצרו ב־ASC (11; בלי `tier_25`)
+- [ ] 13 מוצרים Consumable ב־ASC כולל `tier_40` (הפרש שדרוג 40 ₪, כולל 49←89). אין מנוי. אין Pro.
+- המשתמש יכול לצלם או לצרף תמונת קבלה להוצאה. התמונה נשמרת כקובץ מצורף. אין סריקה או חילוץ נתונים אוטומטי.
 - [x] App-Specific Shared Secret ב־Railway כ־`APPLE_SHARED_SECRET`
 - [ ] לוודא בכל מוצר: Localization + Price + Availability + Review screenshot
 - [ ] (אופציונלי) בדיקת Sandbox — אפשר לדחות ליום ההעלאה

@@ -3,6 +3,7 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy.exc import IntegrityError
 
 from app import db
 from app.models import Group, GroupMember, User, ScheduledReminder
@@ -79,17 +80,33 @@ def _transfer_guest_to_real_user(group_id: str, guest_user_id: str, real_user_id
         db.session.delete(ghost)
 
 
-def _validate_iap(data: dict):
+def _validate_iap(data: dict, group, operation: str):
     """
-    Validates the IAP receipt in the request body when PAYMENTS_ENABLED=true.
-    Returns (ok: bool, error_response | None).
-    When payments are disabled, always returns (True, None).
+    When PAYMENTS_ENABLED=true (server FeatureFlag only):
+    compute the required product from group state, verify the store receipt,
+    and consume the transaction once.
+    Client product_id / payments flags are ignored.
+    When payments are disabled by admin, existing bypass is unchanged.
     """
-    from app.iap.routes import validate_iap_receipt
-    receipt = data.get('receipt_data', '')
-    platform = data.get('platform', '')
-    product_id = data.get('product_id', '')
-    result = validate_iap_receipt(receipt, platform, product_id)
+    from app.iap.routes import _payments_enabled, validate_paid_operation
+    from app.iap.products import product_id_for_amount, required_amount_ils
+
+    if not _payments_enabled():
+        return True, None
+
+    amount = required_amount_ils(group, operation)
+    expected_product_id = product_id_for_amount(amount)
+    if not expected_product_id:
+        return False, error_response('לא נמצא מוצר תשלום למדרגה הנדרשת', 402)
+
+    result = validate_paid_operation(
+        receipt_data=data.get('receipt_data', ''),
+        platform=data.get('platform', ''),
+        expected_product_id=expected_product_id,
+        operation=operation,
+        group_id=group.id,
+        user_id=get_jwt_identity(),
+    )
     if not result['valid']:
         return False, error_response(result.get('error') or 'תשלום לא אומת', 402)
     return True, None
@@ -399,7 +416,7 @@ def activate_group(group_id, **kwargs):
         return error_response('הקבוצה כבר פעילה', 400)
 
     data = request.get_json(silent=True) or {}
-    ok, err = _validate_iap(data)
+    ok, err = _validate_iap(data, group, 'activation')
     if not ok:
         return err
     split_among_group = bool(data.get('split_among_group', True))
@@ -408,7 +425,11 @@ def activate_group(group_id, **kwargs):
     try:
         result = MonetizationService.activate_group(group, payer_id, split_among_group)
     except ValueError as e:
+        db.session.rollback()
         return error_response(str(e), 400)
+    except IntegrityError:
+        db.session.rollback()
+        return error_response('העסקה כבר מומשה', 402)
 
     return success_response(data={**group.to_dict(), **result}, message='הקבוצה הופעלה בהצלחה')
 
@@ -432,7 +453,7 @@ def upgrade_tier(group_id, **kwargs):
         return error_response('ניתן לשדרג רק קבוצה פעילה', 400)
 
     data = request.get_json(silent=True) or {}
-    ok, err = _validate_iap(data)
+    ok, err = _validate_iap(data, group, 'upgrade')
     if not ok:
         return err
     split_among_group = bool(data.get('split_among_group', True))
@@ -441,7 +462,11 @@ def upgrade_tier(group_id, **kwargs):
     try:
         result = MonetizationService.upgrade_tier(group, payer_id, split_among_group)
     except ValueError as e:
+        db.session.rollback()
         return error_response(str(e), 400)
+    except IntegrityError:
+        db.session.rollback()
+        return error_response('העסקה כבר מומשה', 402)
 
     return success_response(
         data={**group.to_dict(), **result},
@@ -467,13 +492,17 @@ def extend_group(group_id, **kwargs):
         return error_response('הארכה זמינה רק לקבוצות אירוע', 400)
 
     data = request.get_json(silent=True) or {}
-    ok, err = _validate_iap(data)
+    ok, err = _validate_iap(data, group, 'extension')
     if not ok:
         return err
     split_among_group = bool(data.get('split_among_group', True))
     payer_id = get_jwt_identity()
 
-    result = MonetizationService.extend_group(group, payer_id, split_among_group)
+    try:
+        result = MonetizationService.extend_group(group, payer_id, split_among_group)
+    except IntegrityError:
+        db.session.rollback()
+        return error_response('העסקה כבר מומשה', 402)
     return success_response(data={**group.to_dict(), **result}, message='הקבוצה הוארכה בהצלחה')
 
 
@@ -495,7 +524,7 @@ def renew_group(group_id, **kwargs):
         return error_response('חידוש זמין רק לקבוצות שוטפות', 400)
 
     data = request.get_json(silent=True) or {}
-    ok, err = _validate_iap(data)
+    ok, err = _validate_iap(data, group, 'renewal')
     if not ok:
         return err
     split_among_group = bool(data.get('split_among_group', True))
@@ -504,7 +533,11 @@ def renew_group(group_id, **kwargs):
     try:
         result = MonetizationService.renew_group(group, payer_id, split_among_group)
     except ValueError as e:
+        db.session.rollback()
         return error_response(str(e), 400)
+    except IntegrityError:
+        db.session.rollback()
+        return error_response('העסקה כבר מומשה', 402)
 
     return success_response(data={**group.to_dict(), **result}, message='הקבוצה חודשה בהצלחה')
 

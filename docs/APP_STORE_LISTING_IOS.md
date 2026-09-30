@@ -70,7 +70,8 @@ Notes:
 - Deep links: https://adlshareflow-production.up.railway.app/join/{code}
 - Push notifications require permission prompt.
 - If payments are disabled in this build: group activation may be free/pilot; IAP products exist for when payments are enabled.
-- Camera used for receipt scan and QR join only.
+- Camera is used to photograph a receipt attachment or scan a QR join code.
+- Users may photograph or attach a receipt image to an expense. The image is stored for reference. ShareFlow does not automatically scan or extract receipt data.
 - Demo group on account: «קבוצת הדגמה — App Review» with sample expenses.
 
 ## צילומי מסך — רשימת מסכים מומלצת

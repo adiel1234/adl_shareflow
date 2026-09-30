@@ -569,6 +569,20 @@ class GroupPayment(db.Model):
         }
 
 
+class IapProcessedTransaction(db.Model):
+    """One Apple/Play transaction may unlock exactly one paid group action."""
+    __tablename__ = 'iap_processed_transactions'
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    transaction_id = Column(String(128), unique=True, nullable=False, index=True)
+    product_id = Column(String(120), nullable=False)
+    platform = Column(String(16), nullable=False)
+    operation = Column(String(20), nullable=False)
+    group_id = Column(UUID(as_uuid=False), ForeignKey('groups.id', ondelete='SET NULL'), nullable=True, index=True)
+    user_id = Column(UUID(as_uuid=False), ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True)
+    created_at = Column(DateTime(timezone=True), nullable=False, default=_now)
+
+
 # ---------------------------------------------------------------------------
 # Plans / Subscriptions / Feature Flags
 # ---------------------------------------------------------------------------

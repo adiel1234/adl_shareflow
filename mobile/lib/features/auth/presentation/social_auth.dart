@@ -21,14 +21,17 @@ class SocialAuth {
     serverClientId: AppConstants.googleServerClientId,
   );
 
-  /// Quiet prep on login open — clears a sticky Google session if any.
+  /// Quiet prep on login open. iOS must not call disconnect — it can hang
+  /// the platform channel and freeze email/Apple registration too.
   static Future<void> prepareGoogleSignIn() async {
+    if (!kIsWeb && Platform.isIOS) return;
     await signOutGoogle();
   }
 
   static Future<Map<String, dynamic>> signInWithGoogle() async {
-    // Clear sticky Google session — avoids null idToken after a prior login.
-    await signOutGoogle();
+    if (kIsWeb || !Platform.isIOS) {
+      await signOutGoogle();
+    }
 
     final googleUser = await _google.signIn();
     if (googleUser == null) {
@@ -54,14 +57,11 @@ class SocialAuth {
   }
 
   /// Call on app logout / before sign-in so the next Google flow starts fresh.
+  /// Never use [GoogleSignIn.disconnect] — on iPhone it can hang forever.
   static Future<void> signOutGoogle() async {
     try {
-      await _google.disconnect();
-    } catch (_) {
-      try {
-        await _google.signOut();
-      } catch (_) {}
-    }
+      await _google.signOut().timeout(const Duration(seconds: 3));
+    } catch (_) {}
   }
 
   static Future<Map<String, dynamic>> signInWithApple() async {

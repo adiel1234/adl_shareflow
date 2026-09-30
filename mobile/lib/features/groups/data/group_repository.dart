@@ -3,6 +3,22 @@ import '../../../services/iap_service.dart';
 import '../domain/group_model.dart';
 import '../domain/period_report_model.dart';
 
+/// Display order for the main Groups list: active first, then createdAt desc.
+List<Group> sortGroupsForList(List<Group> groups) {
+  groups.sort((a, b) {
+    if (a.isInactive != b.isInactive) {
+      return a.isInactive ? 1 : -1;
+    }
+    final aDate = a.createdAt;
+    final bDate = b.createdAt;
+    if (aDate == null && bDate == null) return 0;
+    if (aDate == null) return 1;
+    if (bDate == null) return -1;
+    return bDate.compareTo(aDate);
+  });
+  return groups;
+}
+
 class GroupRepository {
   final _api = ApiClient.instance;
 
@@ -10,16 +26,7 @@ class GroupRepository {
     final response = await _api.get('/groups');
     final list = response.data['data'] as List<dynamic>;
     final groups = list.map((j) => Group.fromJson(j as Map<String, dynamic>)).toList();
-    // Sort: newest groups first
-    groups.sort((a, b) {
-      final aDate = a.createdAt;
-      final bDate = b.createdAt;
-      if (aDate == null && bDate == null) return 0;
-      if (aDate == null) return 1;
-      if (bDate == null) return -1;
-      return bDate.compareTo(aDate);
-    });
-    return groups;
+    return sortGroupsForList(groups);
   }
 
   Future<Group> fetchGroup(String groupId) async {

@@ -335,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @scanReceipt.
   ///
   /// In he, this message translates to:
-  /// **'סרוק קבלה'**
+  /// **'צרף קבלה'**
   String get scanReceipt;
 
   /// No description provided for @confirm.
@@ -463,12 +463,6 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'חינמי'**
   String get free;
-
-  /// No description provided for @pro.
-  ///
-  /// In he, this message translates to:
-  /// **'Pro'**
-  String get pro;
 
   /// No description provided for @helloUser.
   ///
@@ -980,6 +974,12 @@ abstract class AppLocalizations {
   /// **'סך הוצאות הקבוצה'**
   String get groupTotalExpenses;
 
+  /// No description provided for @memberTotalExpenses.
+  ///
+  /// In he, this message translates to:
+  /// **'סך הוצאות'**
+  String get memberTotalExpenses;
+
   /// No description provided for @expensesCountLabel.
   ///
   /// In he, this message translates to:
@@ -1061,19 +1061,19 @@ abstract class AppLocalizations {
   /// No description provided for @scanReceiptDescription.
   ///
   /// In he, this message translates to:
-  /// **'חסוך זמן - מלא אוטומטית מקבלה'**
+  /// **'צלמו או צרפו תמונת קבלה'**
   String get scanReceiptDescription;
 
   /// No description provided for @receiptScanned.
   ///
   /// In he, this message translates to:
-  /// **'הקבלה נסרקה - ניתן לעדכן את הנתונים'**
+  /// **'הקבלה צורפה'**
   String get receiptScanned;
 
   /// No description provided for @rescan.
   ///
   /// In he, this message translates to:
-  /// **'סרוק שוב'**
+  /// **'החלף קבלה'**
   String get rescan;
 
   /// No description provided for @groupTypeOngoing.
@@ -1121,7 +1121,7 @@ abstract class AppLocalizations {
   /// No description provided for @ongoingTypeDesc.
   ///
   /// In he, this message translates to:
-  /// **'שוטף = מתמשך (דירה, משרד). חיוב לפי תקופה.'**
+  /// **'שוטף = מתמשך (דירה, משרד). 30 ימים ברכישה חד־פעמית.'**
   String get ongoingTypeDesc;
 
   /// No description provided for @groupNameHint.
@@ -1187,13 +1187,13 @@ abstract class AppLocalizations {
   /// No description provided for @bannerExpiredSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'לא ניתן להוסיף הוצאות. הארכה: 15 ₪ ל-7 ימים נוספים.'**
+  /// **'לא ניתן להוסיף הוצאות.\n7 ימים נוספים ברכישה חד־פעמית: 15 ₪'**
   String get bannerExpiredSubtitle;
 
   /// No description provided for @bannerExtend.
   ///
   /// In he, this message translates to:
-  /// **'הארך'**
+  /// **'רכוש 7 ימים נוספים'**
   String get bannerExtend;
 
   /// No description provided for @bannerReadOnlyTitle.
@@ -1205,13 +1205,13 @@ abstract class AppLocalizations {
   /// No description provided for @bannerReadOnlySubtitle.
   ///
   /// In he, this message translates to:
-  /// **'פרק הזמן שבתשלום הסתיים. חידוש: {price} ₪'**
+  /// **'פרק הזמן שבתשלום הסתיים.\n30 ימים נוספים ברכישה חד־פעמית: {price} ₪'**
   String bannerReadOnlySubtitle(int price);
 
   /// No description provided for @bannerRenew.
   ///
   /// In he, this message translates to:
-  /// **'חדש'**
+  /// **'רכוש 30 ימים נוספים'**
   String get bannerRenew;
 
   /// No description provided for @bannerClosedTitle.
@@ -1475,13 +1475,13 @@ abstract class AppLocalizations {
   /// No description provided for @extendGroupTitle.
   ///
   /// In he, this message translates to:
-  /// **'הארכת הקבוצה'**
+  /// **'רכישה חד־פעמית ל־7 ימים'**
   String get extendGroupTitle;
 
   /// No description provided for @renewGroupTitle.
   ///
   /// In he, this message translates to:
-  /// **'חידוש הקבוצה'**
+  /// **'רכישה חד־פעמית ל־30 ימים'**
   String get renewGroupTitle;
 
   /// No description provided for @activateGroupTitle.
@@ -1571,19 +1571,19 @@ abstract class AppLocalizations {
   /// No description provided for @betaNoteActivation.
   ///
   /// In he, this message translates to:
-  /// **'בשלב הביתא ההפעלה מתבצעת ידנית על ידי המנהל. תשלום ישיר יתווסף בגרסה הבאה.'**
+  /// **'ההפעלה נרשמת כהוצאה בקבוצה. אין מנוי ואין תוכנית בתשלום נפרדת.'**
   String get betaNoteActivation;
 
   /// No description provided for @extendedSuccess.
   ///
   /// In he, this message translates to:
-  /// **'הקבוצה הוארכה בהצלחה'**
+  /// **'נוספו 7 ימים ברכישה חד־פעמית'**
   String get extendedSuccess;
 
   /// No description provided for @renewedSuccess.
   ///
   /// In he, this message translates to:
-  /// **'הקבוצה חודשה בהצלחה'**
+  /// **'נוספו 30 ימים ברכישה חד־פעמית'**
   String get renewedSuccess;
 
   /// No description provided for @activatedSuccess.
@@ -1601,13 +1601,13 @@ abstract class AppLocalizations {
   /// No description provided for @extendBtnLabel.
   ///
   /// In he, this message translates to:
-  /// **'הארך ב-7 ימים - {price} ₪'**
+  /// **'רכוש 7 ימים נוספים - {price} ₪'**
   String extendBtnLabel(int price);
 
   /// No description provided for @renewBtnLabel.
   ///
   /// In he, this message translates to:
-  /// **'חדש לחודש - {price} ₪'**
+  /// **'רכוש 30 ימים נוספים - {price} ₪'**
   String renewBtnLabel(int price);
 
   /// No description provided for @activateBtnLabel.
@@ -2077,12 +2077,6 @@ abstract class AppLocalizations {
   /// In he, this message translates to:
   /// **'אחר כך'**
   String get laterBtn;
-
-  /// No description provided for @comingSoon.
-  ///
-  /// In he, this message translates to:
-  /// **'בקרוב'**
-  String get comingSoon;
 
   /// No description provided for @settingsSaved.
   ///
@@ -2660,18 +2654,6 @@ abstract class AppLocalizations {
   /// **'ספר לנו מה אפשר לשפר'**
   String get suggestionsSubtitle;
 
-  /// No description provided for @proPlanTitle.
-  ///
-  /// In he, this message translates to:
-  /// **'תוכנית Pro'**
-  String get proPlanTitle;
-
-  /// No description provided for @proPlanSubtitle.
-  ///
-  /// In he, this message translates to:
-  /// **'בקרוב - ניתוחים, סטטיסטיקות ועוד'**
-  String get proPlanSubtitle;
-
   /// No description provided for @appSection.
   ///
   /// In he, this message translates to:
@@ -2759,7 +2741,7 @@ abstract class AppLocalizations {
   /// No description provided for @durationMonth.
   ///
   /// In he, this message translates to:
-  /// **'חודש'**
+  /// **'30 ימים'**
   String get durationMonth;
 
   /// No description provided for @tierUpgradeRequired.
@@ -3133,7 +3115,7 @@ abstract class AppLocalizations {
   /// No description provided for @tipScanPrimary.
   ///
   /// In he, this message translates to:
-  /// **'מומלץ לסרוק קבלה: ממלא סכום ותיאור אוטומטית. אפשר גם לצרף תמונה לצפייה בלבד.'**
+  /// **'אפשר לצלם או לצרף תמונת קבלה. הסכום והתיאור מוזנים ידנית.'**
   String get tipScanPrimary;
 
   /// No description provided for @transferPendingBadge.
@@ -3675,7 +3657,7 @@ abstract class AppLocalizations {
   /// No description provided for @tipScanVsAttach.
   ///
   /// In he, this message translates to:
-  /// **'הסורק למעלה ממלא סכום ותיאור אוטומטית. צרף קבלה רק שומר תמונה לצפייה.'**
+  /// **'צירוף קבלה שומר תמונה לצפייה. הסכום והתיאור מוזנים ידנית.'**
   String get tipScanVsAttach;
 
   /// No description provided for @tipWhatsAppInvite.
@@ -3723,7 +3705,7 @@ abstract class AppLocalizations {
   /// No description provided for @attachReceiptSubtitle.
   ///
   /// In he, this message translates to:
-  /// **'צילום או גלריה, לצפייה בלבד, ללא מילוי אוטומטי'**
+  /// **'צילום או גלריה'**
   String get attachReceiptSubtitle;
 
   /// No description provided for @coachSkip.

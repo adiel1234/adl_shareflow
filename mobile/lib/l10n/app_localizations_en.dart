@@ -127,7 +127,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifications => 'Notifications';
 
   @override
-  String get scanReceipt => 'Scan Receipt';
+  String get scanReceipt => 'Attach receipt';
 
   @override
   String get confirm => 'Confirm';
@@ -191,9 +191,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get free => 'Free';
-
-  @override
-  String get pro => 'Pro';
 
   @override
   String helloUser(String name) {
@@ -469,6 +466,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupTotalExpenses => 'Total group expenses';
 
   @override
+  String get memberTotalExpenses => 'Total expenses';
+
+  @override
   String get expensesCountLabel => 'expenses';
 
   @override
@@ -509,13 +509,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addExpenseBtn => 'Add Expense';
 
   @override
-  String get scanReceiptDescription => 'Save time - auto-fill from receipt';
+  String get scanReceiptDescription => 'Take or attach a receipt photo';
 
   @override
-  String get receiptScanned => 'Receipt scanned - you can update the data';
+  String get receiptScanned => 'Receipt attached';
 
   @override
-  String get rescan => 'Rescan';
+  String get rescan => 'Replace receipt';
 
   @override
   String get groupTypeOngoing => 'Ongoing';
@@ -540,7 +540,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ongoingTypeDesc =>
-      'Ongoing = continuous (flat, office). Billed by period.';
+      'Ongoing = continuous (flat, office). 30 days per one-time purchase.';
 
   @override
   String get groupNameHint => 'e.g. Apartment on Main St';
@@ -576,21 +576,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bannerExpiredSubtitle =>
-      'Cannot add expenses. Extension: ₪15 for 7 more days.';
+      'New expenses cannot be added.\n7 additional days — one-time purchase: ILS 15';
 
   @override
-  String get bannerExtend => 'Extend';
+  String get bannerExtend => 'Purchase 7 more days';
 
   @override
   String get bannerReadOnlyTitle => 'Read only';
 
   @override
   String bannerReadOnlySubtitle(int price) {
-    return 'Paid period ended. Renewal: ₪$price';
+    return 'The paid period ended.\n30 additional days — one-time purchase: ILS $price';
   }
 
   @override
-  String get bannerRenew => 'Renew';
+  String get bannerRenew => 'Purchase 30 more days';
 
   @override
   String get bannerClosedTitle => 'Group closed';
@@ -751,10 +751,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get formerMember => 'Former';
 
   @override
-  String get extendGroupTitle => 'Extend Group';
+  String get extendGroupTitle => 'One-time purchase for 7 days';
 
   @override
-  String get renewGroupTitle => 'Renew Group';
+  String get renewGroupTitle => 'One-time purchase for 30 days';
 
   @override
   String get activateGroupTitle => 'Activate Group';
@@ -802,13 +802,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get betaNoteActivation =>
-      'During beta, activation is done manually by the admin. Direct payment coming soon.';
+      'Activation is recorded as a group expense. There is no subscription and no separate paid plan.';
 
   @override
-  String get extendedSuccess => 'Group extended successfully';
+  String get extendedSuccess => '7 more days added with a one-time purchase';
 
   @override
-  String get renewedSuccess => 'Group renewed successfully';
+  String get renewedSuccess => '30 more days added with a one-time purchase';
 
   @override
   String get activatedSuccess => 'Group activated successfully';
@@ -818,12 +818,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String extendBtnLabel(int price) {
-    return 'Extend 7 days - ₪$price';
+    return 'Purchase 7 more days - ₪$price';
   }
 
   @override
   String renewBtnLabel(int price) {
-    return 'Renew for a month - ₪$price';
+    return 'Purchase 30 more days - ₪$price';
   }
 
   @override
@@ -1081,9 +1081,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get laterBtn => 'Later';
-
-  @override
-  String get comingSoon => 'Coming soon';
 
   @override
   String get settingsSaved => 'Settings saved ✓';
@@ -1392,12 +1389,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get suggestionsSubtitle => 'Tell us how we can improve';
 
   @override
-  String get proPlanTitle => 'Pro Plan';
-
-  @override
-  String get proPlanSubtitle => 'Coming soon - analytics, stats and more';
-
-  @override
   String get appSection => 'App';
 
   @override
@@ -1454,7 +1445,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get durationMonth => 'Month';
+  String get durationMonth => '30 days';
 
   @override
   String get tierUpgradeRequired => 'Plan Upgrade Required';
@@ -1677,7 +1668,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipScanPrimary =>
-      'Scan a receipt to auto-fill amount and title. You can also attach an image for viewing only.';
+      'You can take or attach a receipt photo. Amount and title are entered manually.';
 
   @override
   String get transferPendingBadge =>
@@ -2009,7 +2000,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tipScanVsAttach =>
-      'The scanner above auto-fills amount and title. Attach receipt only saves an image to view.';
+      'Attaching a receipt saves the image for viewing. Amount and title are entered manually.';
 
   @override
   String get tipWhatsAppInvite => 'WhatsApp opens. Pick who to send to.';
@@ -2035,8 +2026,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get attachReceiptTitle => 'Attach receipt';
 
   @override
-  String get attachReceiptSubtitle =>
-      'Camera or gallery, view only, no auto-fill';
+  String get attachReceiptSubtitle => 'Camera or gallery';
 
   @override
   String get coachSkip => 'Close';

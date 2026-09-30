@@ -2,11 +2,42 @@
 Integration tests — full API flow.
 Tests: register → login → create group → add expense → get balances → settle
 """
+from urllib.parse import urlparse
+
 import pytest
 import json
 from unittest.mock import patch, MagicMock
-from app import create_app, db
+from sqlalchemy import text
+
+from app import create_app, db, _seed_feature_flags
 from config import TestingConfig
+
+
+def _assert_local_test_database(application):
+    """Refuse to reset data unless this is localhost shareflow_test."""
+    uri = application.config['SQLALCHEMY_DATABASE_URI']
+    parsed = urlparse(uri)
+    host = (parsed.hostname or '').lower()
+    name = (parsed.path or '').lstrip('/')
+    if host not in ('localhost', '127.0.0.1') or name != 'shareflow_test':
+        raise RuntimeError(
+            f'Refusing test-data reset: host={host!r} db={name!r}'
+        )
+    current = db.session.execute(text('select current_database()')).scalar()
+    if current != 'shareflow_test':
+        raise RuntimeError(f'Refusing test-data reset: connected to {current!r}')
+
+
+def _reset_shareflow_test_data():
+    """Clear rows, keep schema, then restore default feature flags."""
+    skip = {'alembic_version'}
+    tables = [t.name for t in db.metadata.sorted_tables if t.name not in skip]
+    if not tables:
+        return
+    quoted = ', '.join(f'"{name}"' for name in tables)
+    db.session.execute(text(f'TRUNCATE {quoted} RESTART IDENTITY CASCADE'))
+    db.session.commit()
+    _seed_feature_flags()
 
 
 @pytest.fixture(scope='session')
@@ -22,9 +53,10 @@ def app():
 
         application = create_app(TestingConfig)
         with application.app_context():
+            _assert_local_test_database(application)
             db.create_all()
+            _reset_shareflow_test_data()
             yield application
-            # No drop_all — leave DB for inspection; run script to reset manually
 
 
 @pytest.fixture(scope='session')
@@ -440,7 +472,7 @@ class TestGuestSplitMode:
 
         r = client.get(f'/api/groups/{gid}/expenses', headers=_auth(tok))
         assert r.status_code == 200
-        expenses = r.get_json()['data']
+        expenses = r.get_json()['data']['expenses']
         dinner = next(e for e in expenses if e['id'] == exp_id)
         participant_ids = [p['user_id'] for p in dinner['participants']]
         assert guest_id in participant_ids
@@ -461,7 +493,7 @@ class TestGuestSplitMode:
         guest_id = data['user_id']
 
         r = client.get(f'/api/groups/{gid}/expenses', headers=_auth(tok))
-        dinner = next(e for e in r.get_json()['data'] if e['id'] == exp_id)
+        dinner = next(e for e in r.get_json()['data']['expenses'] if e['id'] == exp_id)
         participant_ids = [p['user_id'] for p in dinner['participants']]
         assert guest_id not in participant_ids
 
