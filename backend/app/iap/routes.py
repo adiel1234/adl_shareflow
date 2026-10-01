@@ -9,7 +9,9 @@ Required environment variables:
   GOOGLE_PLAY_CREDENTIALS_JSON  – Service account JSON with androidpublisher scope
                                    (Google Play Console → Setup → API access → Service account)
 
-When PAYMENTS_ENABLED=false (pilot mode), validation is skipped automatically.
+When payments are not required for the authenticated user (global
+PAYMENTS_ENABLED=false and user is not in IAP_REVIEW_USER_IDS),
+validation is skipped automatically.
 """
 import json
 import logging
@@ -23,7 +25,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError
 
 from app import db
-from app.models import FeatureFlag, IapProcessedTransaction
+from app.models import IapProcessedTransaction
+from app.iap.policy import payments_required_for_user
 
 logger = logging.getLogger(__name__)
 iap_bp = Blueprint('iap', __name__, url_prefix='/api/iap')
@@ -34,9 +37,9 @@ APPLE_VERIFY_URL_PROD = 'https://buy.itunes.apple.com/verifyReceipt'
 APPLE_VERIFY_URL_SANDBOX = 'https://sandbox.itunes.apple.com/verifyReceipt'
 
 
-def _payments_enabled() -> bool:
-    flag = FeatureFlag.query.filter_by(key='PAYMENTS_ENABLED').first()
-    return bool(flag and str(flag.value).lower() in ('true', '1', 'yes'))
+def _payments_enabled(user_id: str | None = None) -> bool:
+    """True when this user must complete real IAP validation."""
+    return payments_required_for_user(user_id)
 
 
 # ---------------------------------------------------------------------------
@@ -217,11 +220,12 @@ def validate_paid_operation(
     user_id: str,
 ) -> dict:
     """
-    When PAYMENTS_ENABLED=true: verify store receipt, require the
+    When payments are required for user_id: verify store receipt, require the
     server-calculated Product ID, and consume the Apple/Play transaction once.
-    Client-supplied product_id is ignored.
+    Client-supplied product_id is ignored. user_id must be the verified JWT
+    identity from the caller, never a client-supplied field.
     """
-    if not _payments_enabled():
+    if not _payments_enabled(user_id):
         return {'valid': True, 'error': None}
 
     if platform == 'ios':
@@ -279,7 +283,7 @@ def iap_status():
     has_apple = bool(os.environ.get('APPLE_SHARED_SECRET'))
     has_google = bool(os.environ.get('GOOGLE_PLAY_CREDENTIALS_JSON'))
     return jsonify({
-        'payments_enabled': _payments_enabled(),
+        'payments_enabled': _payments_enabled(get_jwt_identity()),
         'apple_secret_set': has_apple,
         'google_credentials_set': has_google,
     })

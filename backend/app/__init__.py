@@ -122,16 +122,19 @@ def create_app(config=None):
     def apple_app_site_association_root():
         return apple_app_site_association()
 
-    # Public config — app reads this to decide whether to trigger IAP / pilot messaging
+    # Public config — app reads this to decide whether to trigger IAP / pilot messaging.
+    # Unauthenticated clients still work. If a valid JWT is present (Build 83
+    # already sends it after login), payments_enabled can be user-specific.
     @app.get('/api/config/public')
     def public_config():
         from flask import jsonify
-        from app.pilot_mode import is_pilot_mode_enabled, flag_truthy
-        from app.models import FeatureFlag
-        flag = FeatureFlag.query.filter_by(key='PAYMENTS_ENABLED').first()
-        payments_enabled = flag_truthy(flag.value if flag else None)
+        from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
+        from app.iap.policy import payments_required_for_user
+        from app.pilot_mode import is_pilot_mode_enabled
+
+        verify_jwt_in_request(optional=True)
         return jsonify({
-            'payments_enabled': payments_enabled,
+            'payments_enabled': payments_required_for_user(get_jwt_identity()),
             'pilot_mode_enabled': is_pilot_mode_enabled(),
         })
 

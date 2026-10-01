@@ -3,24 +3,22 @@ MonetizationService - handles group activation, extension, and renewal.
 
 Activation always records a group expense so balances reflect the admin's
 split choice (among all members vs payer alone). Real payment gateway charges
-only when PAYMENTS_ENABLED is true in feature_flags.
+only when payments are required for the payer.
 """
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 
 from app import db
-from app.models import GroupMember, GroupPayment, FeatureFlag
+from app.models import GroupMember, GroupPayment
 from app.groups.lifecycle_service import MonetizationConfig, check_tier_upgrade
 from app.groups.internal_expense_service import create_payment_expense
 from app.notifications import service as notif_service
+from app.iap.policy import payments_required_for_user
 
 
-def _payments_enabled() -> bool:
-    """Returns True only when PAYMENTS_ENABLED flag is explicitly set to true."""
-    flag = FeatureFlag.query.filter_by(key='PAYMENTS_ENABLED').first()
-    if flag is None:
-        return False
-    return str(flag.value).lower() in ('true', '1', 'yes')
+def _payments_enabled(user_id: str | None = None) -> bool:
+    """True when this payer must complete real IAP."""
+    return payments_required_for_user(user_id)
 
 
 def _record_platform_payment(
@@ -42,7 +40,7 @@ def _record_platform_payment(
         source=source,
         split_among_group=split_among_group,
     )
-    recorded_amount = amount if _payments_enabled() else Decimal('0')
+    recorded_amount = amount if _payments_enabled(payer_id) else Decimal('0')
     payment = GroupPayment(
         group_id=group.id,
         payer_id=payer_id,
@@ -62,7 +60,7 @@ class MonetizationService:
         """
         Activate a free/limited group.
         Computes price based on current member count, sets expiry, records payment.
-        Expense is always created; gateway charge only when PAYMENTS_ENABLED=true.
+        Expense is always created; gateway charge only when IAP is required.
         """
         member_count = GroupMember.query.filter_by(group_id=group.id).count()
         pricing = MonetizationConfig.resolve_price(group.group_type, member_count)
@@ -98,9 +96,9 @@ class MonetizationService:
         return {
             'group_state': group.group_state,
             'expiry_date': group.expiry_date.isoformat(),
-            'amount_paid': str(amount) if _payments_enabled() else '0',
+            'amount_paid': str(amount) if _payments_enabled(payer_id) else '0',
             'pricing_tier': pricing['tier'],
-            'payments_enabled': _payments_enabled(),
+            'payments_enabled': _payments_enabled(payer_id),
             'expense_recorded': True,
             'split_among_group': split_among_group,
         }
@@ -134,8 +132,8 @@ class MonetizationService:
             'group_state': group.group_state,
             'pricing_tier': new_tier,
             'max_participants_snapshot': member_count,
-            'amount_paid': str(diff) if _payments_enabled() else '0',
-            'payments_enabled': _payments_enabled(),
+            'amount_paid': str(diff) if _payments_enabled(payer_id) else '0',
+            'payments_enabled': _payments_enabled(payer_id),
             'expense_recorded': True,
             'split_among_group': split_among_group,
         }
@@ -166,8 +164,8 @@ class MonetizationService:
         return {
             'group_state': group.group_state,
             'expiry_date': group.expiry_date.isoformat(),
-            'amount_paid': str(amount) if _payments_enabled() else '0',
-            'payments_enabled': _payments_enabled(),
+            'amount_paid': str(amount) if _payments_enabled(payer_id) else '0',
+            'payments_enabled': _payments_enabled(payer_id),
             'expense_recorded': True,
             'split_among_group': split_among_group,
         }
@@ -210,9 +208,9 @@ class MonetizationService:
         return {
             'group_state': group.group_state,
             'expiry_date': group.expiry_date.isoformat(),
-            'amount_paid': str(amount) if _payments_enabled() else '0',
+            'amount_paid': str(amount) if _payments_enabled(payer_id) else '0',
             'pricing_tier': pricing['tier'],
-            'payments_enabled': _payments_enabled(),
+            'payments_enabled': _payments_enabled(payer_id),
             'expense_recorded': True,
             'split_among_group': split_among_group,
         }

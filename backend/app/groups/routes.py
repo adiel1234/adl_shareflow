@@ -82,16 +82,17 @@ def _transfer_guest_to_real_user(group_id: str, guest_user_id: str, real_user_id
 
 def _validate_iap(data: dict, group, operation: str):
     """
-    When PAYMENTS_ENABLED=true (server FeatureFlag only):
+    When payments are required for the verified JWT user:
     compute the required product from group state, verify the store receipt,
     and consume the transaction once.
-    Client product_id / payments flags are ignored.
-    When payments are disabled by admin, existing bypass is unchanged.
+    Client product_id / payments flags / user_id are ignored.
+    When payments are not required for this user, existing pilot bypass is unchanged.
     """
     from app.iap.routes import _payments_enabled, validate_paid_operation
     from app.iap.products import product_id_for_amount, required_amount_ils
 
-    if not _payments_enabled():
+    user_id = get_jwt_identity()
+    if not _payments_enabled(user_id):
         return True, None
 
     amount = required_amount_ils(group, operation)
@@ -105,7 +106,7 @@ def _validate_iap(data: dict, group, operation: str):
         expected_product_id=expected_product_id,
         operation=operation,
         group_id=group.id,
-        user_id=get_jwt_identity(),
+        user_id=user_id,
     )
     if not result['valid']:
         return False, error_response(result.get('error') or 'תשלום לא אומת', 402)
@@ -658,11 +659,11 @@ def duplicate_group(group_id, **kwargs):
 
     db.session.commit()
 
-    # Pilot (PAYMENTS_ENABLED=false): auto-activate duplicated groups so the
-    # client never blocks on the activation/payment screen after duplicate.
+    # Pilot: auto-activate duplicated groups when this user is not required
+    # to pay, so the client never blocks on the activation screen.
     from app.groups.monetization_service import MonetizationService, _payments_enabled
 
-    if limit_reached and not _payments_enabled():
+    if limit_reached and not _payments_enabled(user_id):
         try:
             MonetizationService.activate_group(new_group, user_id, split_among_group=True)
         except ValueError as e:

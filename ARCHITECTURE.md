@@ -1,7 +1,7 @@
 # ADL ShareFlow — ארכיטקטורה ומבנה מערכת
 
 > מסמך זה מתעד את מבנה המערכת, שירותים חיצוניים, תהליכי פריסה ואחזקה.
-> עודכן לאחרונה: 30 בספטמבר 2026 — גרסה מוגדרת `1.0.9+83`. עדיין אין IPA.
+> עודכן לאחרונה: 1 באוקטובר 2026 — גרסה מוגדרת `1.0.9+83`. חריגת IAP לפי משתמש מאומת (`IAP_REVIEW_USER_IDS`) עדיין לא בייצור.
 
 ---
 
@@ -266,8 +266,9 @@ free (5 ימים) → limited → [תשלום] → active → expired / read_onl
 
 | מצב | התנהגות |
 |-----|---------|
-| `PAYMENTS_ENABLED=false` | הפעלה חינמית (מצב פיילוט) |
-| `PAYMENTS_ENABLED=true` | חיוב דרך Apple/Google לפני הפעלה |
+| `PAYMENTS_ENABLED=false` | הפעלה חינמית (מצב פיילוט), אלא אם המשתמש המאומת נמצא ב־`IAP_REVIEW_USER_IDS` |
+| `PAYMENTS_ENABLED=true` | חיוב דרך Apple/Google לפני הפעלה, לכל המשתמשים |
+| חריגת ביקורת | `IAP_REVIEW_USER_IDS` — רשימת UUID מופרדת בפסיקים. אותה החלטה ללקוח ולאימות קבלה |
 
 **זרימת תשלום (כש־`PAYMENTS_ENABLED=true`):**
 1. Flutter: `IapService.purchase(priceIls)` — פותח גיליון תשלום של Apple/Google
@@ -277,7 +278,7 @@ free (5 ימים) → limited → [תשלום] → active → expired / read_onl
 5. Backend → `validate_paid_operation()` — מאמת מול אפל/גוגל, דורש התאמת מזהה, ושומר את מזהה העסקה פעם אחת
 6. אם תקין — מפעיל את הקבוצה
 
-כש־`PAYMENTS_ENABLED=false` (מתג Control): ההפעלה נשארת בלי IAP. הלקוח לא יכול לכבות את הדגל.
+כש־`PAYMENTS_ENABLED=false` (מתג Control): ההפעלה נשארת בלי IAP, חוץ ממשתמש מאומת שמופיע ב־`IAP_REVIEW_USER_IDS`. הלקוח לא יכול לכבות את הדגל ולא יכול לבחור זהות. `GET /api/config/public` קורא JWT אופציונלי.
 
 **Product IDs (נדרש יצירה ידנית בחנויות — חייב להתאים ל־`iap_service.dart`):**
 
@@ -303,6 +304,7 @@ free (5 ימים) → limited → [תשלום] → active → expired / read_onl
 |-------|------|
 | `APPLE_SHARED_SECRET` | App Store Connect → App → In-App Purchases → App-Specific Shared Secret |
 | `GOOGLE_PLAY_CREDENTIALS_JSON` | Google Play Console → Setup → API access → Service account (JSON) |
+| `IAP_REVIEW_USER_IDS` | רשימת UUID מאומתים שחייבים IAP גם כשהדגל הגלובלי כבוי. ריק = בלי חריגה |
 
 ---
 
@@ -373,6 +375,7 @@ flutter install --release
 | `RESEND_FROM_EMAIL` | כתובת שולח המיילים | ✅ | `noreply@adl-studio.com` |
 | `SMTP_SENDER_NAME` | שם השולח בכותרת המייל | 🟡 | `ADL ShareFlow` (ברירת מחדל) |
 | _(DB: `feature_flags`)_ | `PAYMENTS_ENABLED` — גביית תשלום אמיתי (לא משתנה סביבה) | 🔴 כבוי בפיילוט | `false` עד ההעלאה לחנויות; ניהול: Control → `/shareflow` |
+| `IAP_REVIEW_USER_IDS` | חריגת IAP לחשבון ביקורת בלבד, לפי `user_id` מאומת | 🟡 ריק בייצור | לא הוגדר. אחרי אישור: UUID של חשבון הביקורת בלבד |
 | _(DB: `feature_flags`)_ | `PILOT_STARTED_AT` — חותמת זמן לתחילת הפיילוט | ✅ פעיל | סינון `scope=pilot`; מתעדכן ב-`POST /api/adl/pilot/reset` |
 | _(DB: `feature_flags`)_ | `PILOT_ANDROID_STARTED_AT` — תחילת פיילוט Android (Play) | ✅ פעיל | סינון `scope=pilot_android`; `POST /api/adl/pilot/android/start` |
 | _(DB: `feature_flags`)_ | `PILOT_MODE_ENABLED` — מצב פיילוט פתוח/סגור | ✅ פעיל בפיילוט | `true`/`false`; ניהול: Control → `/shareflow/pilot` |
@@ -523,8 +526,9 @@ flutter install --release
 - **`GET /groups/<id>/event-summary`** (`balances/routes.py`): תצוגה מקדימה לוויזארד «סיים אירוע» — ללא התראות / push. אותה תגובה כמו `POST /summary` (סיכום, `whatsapp_text`, `participants`).
 - **`POST /groups/<id>/summary`** (`balances/routes.py`): שליחת סיכום לחברים (`send_app=true`). שדות `books_balanced` / `books_warning` — מזהה חשבונות לא מאוזנים. `queue_notify_event_summary` — שמירת התראות + FCM ברקע (`app/common/background.py`).
 - **`POST /groups/<id>/settlements/mark-guest-paid`** (`settlements/routes.py`): מניעת כפילויות — אם כבר קיים pending לאותו אורח→נושה, מחזיר אותו במקום ליצור כפילות; תוכנית העברות (`calculate_settlement_plan`) מפחיתה סכומי pending כדי שלא יופיע חוב כפול ב-UI.
-- **`MonetizationService`** (`groups/monetization_service.py`): הוצאת מערכת (`ADL ShareFlow Service`) **תמיד** נוצרת בהפעלה/הארכה/חידוש/שדרוג — גם כש-`PAYMENTS_ENABLED=false` (פיילוט חינמי). `GroupPayment.amount=0` כשאין גבייה אמיתית; `split_among_group=true` מחלק שווה בין **כל** `GroupMember` פעילים בהפעלה; `add_member_to_group_split_expenses` מוסיף חברים/אורחים חדשים להוצאות מערכת (הצטרפות + `POST /groups/<id>/guests`).
-- **`POST /groups/<id>/duplicate`** (`groups/routes.py`): שכפול קבוצה סגורה — קבוצה חדשה ללא הוצאות. כשמגבלת 3 קבוצות (`limited`) ו-`PAYMENTS_ENABLED=false` — **הפעלה אוטומטית** בשרת (ללא מסך תשלום באפליקציה); `creation_reason` לא נשלח. כש-`PAYMENTS_ENABLED=true` — נשאר `limited` + דיאלוג הפעלה בלקוח.
+- **`MonetizationService`** (`groups/monetization_service.py`): הוצאת מערכת (`ADL ShareFlow Service`) **תמיד** נוצרת בהפעלה/הארכה/חידוש/שדרוג — גם כשאין גבייה אמיתית. `GroupPayment.amount=0` כשאין גבייה; `split_among_group=true` מחלק שווה בין **כל** `GroupMember` פעילים בהפעלה; `add_member_to_group_split_expenses` מוסיף חברים/אורחים חדשים להוצאות מערכת (הצטרפות + `POST /groups/<id>/guests`).
+- **`payments_required_for_user`** (`iap/policy.py`): החלטה יחידה. דגל גלובלי דולק → כולם. אחרת רק UUID מאומת מ־`IAP_REVIEW_USER_IDS`. אותה החלטה ב־`GET /api/config/public`, `_validate_iap`, `validate_paid_operation`, מונטיזציה, ושכפול.
+- **`POST /groups/<id>/duplicate`** (`groups/routes.py`): שכפול קבוצה סגורה — קבוצה חדשה ללא הוצאות. כשמגבלת 3 קבוצות (`limited`) והמשתמש לא חייב IAP — **הפעלה אוטומטית** בשרת; `creation_reason` לא נשלח. כשהמשתמש חייב IAP — נשאר `limited` + דיאלוג הפעלה בלקוח.
 - **`POST /groups/<id>/guests`** (`groups/routes.py`): body אופציונלי `split_mode` — `'forward'` (ברירת מחדל) או `'full'`. `'full'` קורא ל-`retroactively_add_member_to_expenses` ומחלק מחדש שווה את כל ההוצאות הקיימות (כולל אורח). אותה לוגיקה משותפת עם `POST /groups/join/<code>`. מנהל בלבד (`require_group_admin`); בממשק — רמז `guestAdminOnlyHint` לחברים שאינם מנהלים (טאב חברים + גיליון הזמנה).
 - **`my_role` בתשובות קבוצה:** `POST /groups` (יצירה), `POST /groups/<id>/duplicate`, `POST /groups/<id>/reopen` מחזירים `my_role` (בדרך כלל `admin`) כדי שהלקוח לא יחשב `isAdmin=false` אחרי ניווט ישיר עם האובייקט מהתשובה.
 - **דיאלוג `split_mode` בהוספת אורח (build 40, UX build 42):** לפני הצגת הדיאלוג, האפליקציה קוראת `GET /groups/<id>` ל-`fetchExpenseCount` — אובייקט `Group` במטמון Riverpod לא התעדכן אחרי הוספת הוצאה (`expenseCount` נשאר 0). נקודות כניסה: טאב חברים (`_showAddGuestSheet` — דיאלוג לפני פתיחת הגיליון) וגיליון הזמנה (`_showInvite` — דיאלוג לפני פתיחת הגיליון; `splitMode` מועבר ל-`_InviteSheet` ול-`POST /groups/<id>/guests`). build 41: דיאלוג הופיע פעמיים (בפתיחת הזמנה + בסיום `_addGuest`) — תוקן ב-build 42.
